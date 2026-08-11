@@ -220,7 +220,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.15; color: var(--
 .coop-text p { color: var(--text-mut); }
 
 /* ------- Termin-only Karte ------- */
-.hours-appt { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius); padding: 34px; text-align: center; }
+.hours-appt { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius); padding: 26px; text-align: center; }
 .appt-icon { font-size: 2.4rem; margin-bottom: 12px; }
 .hours-appt h3 { color: #fff; font-size: 1.4rem; margin-bottom: 12px; }
 .hours-appt p { color: #b8c4d0; margin-bottom: 22px; }
@@ -249,7 +249,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.15; color: var(--
 .legal-back { display: inline-flex; margin-bottom: 24px; font-weight: 700; }
 
 /* ------- Sections ------- */
-.section { padding: clamp(64px, 10vw, 110px) 0; }
+.section { padding: clamp(56px, 8vw, 88px) 0; }
 .section-alt { background: var(--cream); }
 .section-dark { background: var(--navy-900); color: #fff; }
 .section-head { max-width: 720px; margin: 0 auto 54px; text-align: center; }
