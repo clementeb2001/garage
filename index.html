@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="lb">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Garage Kremer in Bettendorf – Ihre moderne Autowerkstatt für Wartung, Reparatur, Reifenservice und Contrôle Technique. Kompetent, ehrlich, zuverlässig." />
+  <meta name="description" content="Garage Kremer Bettenduerf – Är Autosgarage zu Bettendorf, Partner vun 1·2·3 AutoService. Wartung, Reparatur, Reifenservice a Contrôle Technique." />
   <meta name="theme-color" content="#0d1b2a" />
-  <title>Garage Kremer Bettendorf – Ihre Autowerkstatt in Luxemburg</title>
+  <title>Garage Kremer Bettenduerf – Autosgarage zu Bettendorf</title>
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="Garage Kremer Bettendorf" />
-  <meta property="og:description" content="Moderne Autowerkstatt in Bettendorf – Wartung, Reparatur, Reifenservice & Contrôle Technique." />
+  <meta property="og:title" content="Garage Kremer Bettenduerf" />
+  <meta property="og:description" content="Autosgarage zu Bettendorf – Partner vun 1·2·3 AutoService. Wartung, Reparatur, Reifenservice & Contrôle Technique." />
   <meta property="og:type" content="website" />
-  <meta property="og:locale" content="de_LU" />
+  <meta property="og:locale" content="lb_LU" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,7 +23,7 @@
   <!-- Header -->
   <header class="site-header" id="top">
     <div class="container header-inner">
-      <a href="#top" class="brand" aria-label="Garage Kremer Startseite">
+      <a href="#top" class="brand" aria-label="Garage Kremer">
         <span class="brand-mark" aria-hidden="true">
           <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
             <rect width="34" height="34" rx="9" fill="#e63946"/>
@@ -35,19 +34,26 @@
         </span>
         <span class="brand-text">
           <strong>Garage Kremer</strong>
-          <small>Bettendorf</small>
+          <small>Bettenduerf</small>
         </span>
       </a>
 
-      <nav class="main-nav" id="main-nav" aria-label="Hauptnavigation">
-        <a href="#leistungen">Leistungen</a>
-        <a href="#ueber-uns">Über uns</a>
-        <a href="#warum">Warum wir</a>
-        <a href="#oeffnungszeiten">Öffnungszeiten</a>
-        <a href="#kontakt" class="nav-cta">Termin anfragen</a>
+      <nav class="main-nav" id="main-nav" aria-label="Navigatioun">
+        <a href="#leistungen" data-i18n="nav_services">Servicer</a>
+        <a href="#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
+        <a href="#warum" data-i18n="nav_why">Firwat mir</a>
+        <a href="#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
+        <a href="#kontakt" class="nav-cta" data-i18n="nav_cta">Rendez-vous ufroen</a>
+
+        <div class="lang-switch" role="group" aria-label="Sprooch / Langue / Language">
+          <button type="button" data-lang="lb" class="active">LB</button>
+          <button type="button" data-lang="de">DE</button>
+          <button type="button" data-lang="fr">FR</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
       </nav>
 
-      <button class="nav-toggle" id="nav-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="main-nav">
+      <button class="nav-toggle" id="nav-toggle" aria-label="Menü" aria-expanded="false" aria-controls="main-nav">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -59,33 +65,49 @@
       <div class="hero-bg" aria-hidden="true"></div>
       <div class="container hero-inner">
         <div class="hero-content">
-          <p class="eyebrow">Autowerkstatt · Bettendorf, Luxemburg</p>
-          <h1>Ihr Auto in<br><span class="accent">besten Händen.</span></h1>
-          <p class="lead">
-            Von der Inspektion bis zur Reparatur – die Garage Kremer steht für ehrliche
-            Beratung, saubere Arbeit und faire Preise. Für alle Marken, mit modernster
-            Diagnosetechnik.
-          </p>
+          <p class="eyebrow" data-i18n="hero_eyebrow">Autosgarage · Bettendorf, Lëtzebuerg</p>
+          <h1><span data-i18n="hero_title_1">Ären Auto a</span><br><span class="accent" data-i18n="hero_title_2">beschten Hänn.</span></h1>
+          <p class="lead" data-i18n="hero_lead">Vun der Inspektioun bis zur Reparatur – de Garage Kremer steet fir éierlech Berodung, propper Aarbecht a fair Präisser.</p>
           <div class="hero-actions">
-            <a href="#kontakt" class="btn btn-primary">Termin anfragen</a>
-            <a href="#leistungen" class="btn btn-ghost">Unsere Leistungen</a>
+            <a href="#kontakt" class="btn btn-primary" data-i18n="nav_cta">Rendez-vous ufroen</a>
+            <a href="#leistungen" class="btn btn-ghost" data-i18n="hero_btn2">Eis Servicer</a>
           </div>
           <ul class="hero-badges">
-            <li><span>★★★★★</span> Zufriedene Kunden</li>
-            <li><span>Alle Marken</span> Meisterbetrieb</li>
-            <li><span>Contrôle</span> Technique Vorbereitung</li>
+            <li><span data-i18n="hero_b1_v">★★★★★</span><span data-i18n="hero_b1_l">Zefridde Clienten</span></li>
+            <li><span data-i18n="hero_b2_v">All Marken</span><span data-i18n="hero_b2_l">Fräi Garage</span></li>
+            <li><span data-i18n="hero_b3_v">1·2·3 AutoService</span><span data-i18n="hero_b3_l">Partnernetzwierk</span></li>
           </ul>
         </div>
       </div>
     </section>
 
-    <!-- Trust bar -->
-    <section class="trustbar" aria-label="Kennzahlen">
+    <!-- Trust strip -->
+    <section class="trustbar" aria-label="Iwwerbléck">
       <div class="container trust-grid">
-        <div class="trust-item"><strong data-count="25">25</strong><span>Jahre Erfahrung</span></div>
-        <div class="trust-item"><strong data-count="12000">12.000</strong><span>Fahrzeuge gewartet</span></div>
-        <div class="trust-item"><strong data-count="100">100</strong><span>% ehrliche Beratung</span></div>
-        <div class="trust-item"><strong data-count="48">48</strong><span>Std. schneller Service</span></div>
+        <div class="trust-item"><span class="trust-ic" aria-hidden="true">🤝</span><span class="trust-lbl" data-i18n="trust1">1·2·3 AutoService Partnergarage</span></div>
+        <div class="trust-item"><span class="trust-ic" aria-hidden="true">🚗</span><span class="trust-lbl" data-i18n="trust2">All Marken a Modeller</span></div>
+        <div class="trust-item"><span class="trust-ic" aria-hidden="true">🛞</span><span class="trust-lbl" data-i18n="trust3">Reifenservice an Alagerung</span></div>
+        <div class="trust-item"><span class="trust-ic" aria-hidden="true">📅</span><span class="trust-lbl" data-i18n="trust4">Nëmme mat Rendez-vous</span></div>
+      </div>
+    </section>
+
+    <!-- Partner banner -->
+    <section class="partner-banner" aria-label="1·2·3 AutoService">
+      <div class="container partner-inner">
+        <span class="partner-text" data-i18n="partner_strip">An Zesummenaarbecht mat</span>
+        <span class="logo123" role="img" aria-label="1 2 3 AutoService">
+          <svg viewBox="0 0 214 48" width="180" height="40">
+            <g font-family="Arial, Helvetica, sans-serif" font-weight="800">
+              <rect x="0" y="7" width="34" height="34" rx="8" fill="#0a49b8"/>
+              <text x="17" y="31" font-size="22" fill="#fff" text-anchor="middle">1</text>
+              <rect x="40" y="7" width="34" height="34" rx="8" fill="#e63946"/>
+              <text x="57" y="31" font-size="22" fill="#fff" text-anchor="middle">2</text>
+              <rect x="80" y="7" width="34" height="34" rx="8" fill="#0a49b8"/>
+              <text x="97" y="31" font-size="22" fill="#fff" text-anchor="middle">3</text>
+              <text x="122" y="31" font-size="19" fill="currentColor">AutoService</text>
+            </g>
+          </svg>
+        </span>
       </div>
     </section>
 
@@ -93,51 +115,51 @@
     <section class="section" id="leistungen">
       <div class="container">
         <div class="section-head">
-          <p class="eyebrow">Unsere Leistungen</p>
-          <h2>Alles rund ums Auto – aus einer Hand</h2>
-          <p class="section-sub">Von der klassischen Wartung bis zur elektronischen Diagnose. Wir kümmern uns um Ihr Fahrzeug, damit Sie sicher unterwegs sind.</p>
+          <p class="eyebrow" data-i18n="services_eyebrow">Eis Servicer</p>
+          <h2 data-i18n="services_title">Alles ronderëm Ären Auto – aus enger Hand</h2>
+          <p class="section-sub" data-i18n="services_sub">Vun der klassescher Wartung bis zur elektronescher Diagnos.</p>
         </div>
 
         <div class="cards">
           <article class="card">
             <div class="card-icon">🔧</div>
-            <h3>Wartung &amp; Inspektion</h3>
-            <p>Regelmäßige Inspektion nach Herstellervorgabe – für Werterhalt und Sicherheit Ihres Fahrzeugs.</p>
+            <h3 data-i18n="svc1_t">Wartung & Inspektioun</h3>
+            <p data-i18n="svc1_d"></p>
           </article>
           <article class="card">
             <div class="card-icon">🛢️</div>
-            <h3>Ölwechsel &amp; Filter</h3>
-            <p>Frisches Öl, neue Filter und ein prüfender Blick auf alle Flüssigkeiten – schnell und sauber erledigt.</p>
+            <h3 data-i18n="svc2_t">Ueleswiessel & Filteren</h3>
+            <p data-i18n="svc2_d"></p>
           </article>
           <article class="card">
             <div class="card-icon">🛞</div>
-            <h3>Reifenservice</h3>
-            <p>Reifenwechsel, Wuchten, Einlagerung und Beratung zu Sommer-, Winter- und Ganzjahresreifen.</p>
+            <h3 data-i18n="svc3_t">Reifenservice</h3>
+            <p data-i18n="svc3_d"></p>
           </article>
           <article class="card">
             <div class="card-icon">🛑</div>
-            <h3>Bremsen &amp; Fahrwerk</h3>
-            <p>Bremsbeläge, Scheiben, Stoßdämpfer und Achsvermessung – für optimalen Halt auf der Straße.</p>
+            <h3 data-i18n="svc4_t">Bremsen & Fahrwierk</h3>
+            <p data-i18n="svc4_d"></p>
           </article>
           <article class="card">
             <div class="card-icon">💻</div>
-            <h3>Fehlerdiagnose</h3>
-            <p>Moderne Diagnosegeräte finden die Ursache von Warnleuchten und Elektronikproblemen zuverlässig.</p>
+            <h3 data-i18n="svc5_t">Feelerdiagnos</h3>
+            <p data-i18n="svc5_d"></p>
           </article>
           <article class="card">
             <div class="card-icon">❄️</div>
-            <h3>Klimaservice</h3>
-            <p>Klimaanlage prüfen, desinfizieren und befüllen – für kühlen Kopf im Sommer und klare Sicht.</p>
+            <h3 data-i18n="svc6_t">Klimaservice</h3>
+            <p data-i18n="svc6_d"></p>
           </article>
           <article class="card">
             <div class="card-icon">✅</div>
-            <h3>Contrôle Technique</h3>
-            <p>Wir bereiten Ihr Fahrzeug optimal auf die technische Kontrolle vor – und begleiten Sie zum Termin.</p>
+            <h3 data-i18n="svc7_t">Contrôle Technique</h3>
+            <p data-i18n="svc7_d"></p>
           </article>
           <article class="card">
             <div class="card-icon">🔋</div>
-            <h3>Batterie &amp; Elektrik</h3>
-            <p>Batterietest, Start-Stopp-Systeme, Beleuchtung und Bordelektronik – alles im Blick.</p>
+            <h3 data-i18n="svc8_t">Batterie & Elektrik</h3>
+            <p data-i18n="svc8_d"></p>
           </article>
         </div>
       </div>
@@ -148,7 +170,7 @@
       <div class="container about-grid">
         <div class="about-media" aria-hidden="true">
           <div class="about-photo">
-            <svg viewBox="0 0 400 320" preserveAspectRatio="xMidYMid slice" width="100%" height="100%" role="img" aria-label="Illustration Werkstatt">
+            <svg viewBox="0 0 400 320" preserveAspectRatio="xMidYMid slice" width="100%" height="100%" role="img" aria-label="Werkstatt">
               <defs>
                 <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
                   <stop offset="0" stop-color="#1b263b"/>
@@ -170,27 +192,19 @@
             </svg>
           </div>
           <div class="about-badge">
-            <strong>Meisterbetrieb</strong>
-            <span>Qualität mit Handschlag-Garantie</span>
+            <strong data-i18n="about_badge_t">1·2·3 AutoService</strong>
+            <span data-i18n="about_badge_s">Partnergarage am Netzwierk</span>
           </div>
         </div>
         <div class="about-content">
-          <p class="eyebrow">Über die Garage Kremer</p>
-          <h2>Ein Familienbetrieb, dem Sie vertrauen können</h2>
-          <p>
-            Seit Jahren sind wir in Bettendorf die verlässliche Adresse, wenn es um das
-            Wohl Ihres Fahrzeugs geht. Bei uns arbeiten erfahrene Mechaniker, die ihr
-            Handwerk verstehen – und Ihnen ehrlich sagen, was wirklich nötig ist.
-          </p>
-          <p>
-            Wir verbinden persönliche Betreuung mit moderner Technik. Egal ob Kleinwagen,
-            Familienauto oder Transporter: Bei uns bekommt jedes Fahrzeug die gleiche
-            Aufmerksamkeit und Sorgfalt.
-          </p>
+          <p class="eyebrow" data-i18n="about_eyebrow">Iwwer de Garage Kremer</p>
+          <h2 data-i18n="about_title">E Familljebetrib, deem Dir vertraue kënnt</h2>
+          <p data-i18n="about_p1"></p>
+          <p data-i18n="about_p2"></p>
           <ul class="check-list">
-            <li>Transparente Kostenvoranschläge – keine bösen Überraschungen</li>
-            <li>Original- und Qualitätsersatzteile für alle Marken</li>
-            <li>Persönliche Ansprechpartner, die sich Zeit nehmen</li>
+            <li data-i18n="about_c1"></li>
+            <li data-i18n="about_c2"></li>
+            <li data-i18n="about_c3"></li>
           </ul>
         </div>
       </div>
@@ -200,48 +214,48 @@
     <section class="section" id="warum">
       <div class="container">
         <div class="section-head">
-          <p class="eyebrow">Warum Garage Kremer</p>
-          <h2>Gute Gründe für Ihren Besuch</h2>
+          <p class="eyebrow" data-i18n="why_eyebrow">Firwat Garage Kremer</p>
+          <h2 data-i18n="why_title">Gutt Grënn fir ären Besuch</h2>
         </div>
         <div class="feature-grid">
           <div class="feature">
             <div class="feature-num">01</div>
-            <h3>Ehrliche Beratung</h3>
-            <p>Wir reparieren nur, was wirklich nötig ist – und erklären Ihnen jeden Schritt verständlich.</p>
+            <h3 data-i18n="feat1_t">Éierlech Berodung</h3>
+            <p data-i18n="feat1_d"></p>
           </div>
           <div class="feature">
             <div class="feature-num">02</div>
-            <h3>Faire Preise</h3>
-            <p>Klare Kostenvoranschläge vor Beginn der Arbeit. Sie behalten immer den Überblick.</p>
+            <h3 data-i18n="feat2_t">Fair Präisser</h3>
+            <p data-i18n="feat2_d"></p>
           </div>
           <div class="feature">
             <div class="feature-num">03</div>
-            <h3>Alle Marken</h3>
-            <p>Ob deutsche, französische oder asiatische Fahrzeuge – wir kennen uns aus.</p>
+            <h3 data-i18n="feat3_t">All Marken</h3>
+            <p data-i18n="feat3_d"></p>
           </div>
           <div class="feature">
             <div class="feature-num">04</div>
-            <h3>Schneller Service</h3>
-            <p>Kurze Wartezeiten und flexible Termine, damit Sie schnell wieder mobil sind.</p>
+            <h3 data-i18n="feat4_t">Séiere Service</h3>
+            <p data-i18n="feat4_d"></p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Öffnungszeiten + CTA -->
+    <!-- Öffnungszeiten -->
     <section class="section section-dark" id="oeffnungszeiten">
       <div class="container hours-grid">
         <div class="hours-content">
-          <p class="eyebrow light">Öffnungszeiten</p>
-          <h2>Wann Sie uns erreichen</h2>
-          <p class="hours-sub">Kommen Sie vorbei oder vereinbaren Sie bequem einen Termin. Wir freuen uns auf Sie.</p>
-          <a href="#kontakt" class="btn btn-primary">Jetzt Termin anfragen</a>
+          <p class="eyebrow light" data-i18n="hours_eyebrow">Ëffnungszäiten</p>
+          <h2 data-i18n="hours_title">Wéini Dir eis erreecht</h2>
+          <p class="hours-sub" data-i18n="hours_sub">Kommt laanscht oder maacht e Rendez-vous.</p>
+          <a href="#kontakt" class="btn btn-primary" data-i18n="nav_cta">Rendez-vous ufroen</a>
         </div>
         <div class="hours-table">
-          <div class="hours-row"><span>Montag – Freitag</span><strong>08:00 – 18:00</strong></div>
-          <div class="hours-row"><span>Samstag</span><strong>08:00 – 12:00</strong></div>
-          <div class="hours-row muted"><span>Sonntag</span><strong>Geschlossen</strong></div>
-          <div class="hours-note">Notdienst &amp; Abschleppservice nach Absprache</div>
+          <div class="hours-row"><span data-i18n="hours_r1_d">Méindeg – Donneschdeg</span><strong data-i18n="hours_r1_t">09:00 – 18:00</strong></div>
+          <div class="hours-row"><span data-i18n="hours_r2_d">Freideg</span><strong data-i18n="hours_r2_t">09:00 – 19:00</strong></div>
+          <div class="hours-row muted"><span data-i18n="hours_r3_d">Samschdeg – Sonndeg</span><strong data-i18n="hours_r3_t">Zou</strong></div>
+          <div class="hours-note" data-i18n="hours_note">Rendez-vousen léiwer no Ofmaach – rufft w.e.g. un: +352 80 86 87</div>
         </div>
       </div>
     </section>
@@ -250,26 +264,26 @@
     <section class="section section-alt" id="kontakt">
       <div class="container contact-grid">
         <div class="contact-info">
-          <p class="eyebrow">Kontakt &amp; Anfahrt</p>
-          <h2>Termin anfragen</h2>
-          <p>Schreiben Sie uns kurz, worum es geht – wir melden uns schnellstmöglich mit einem passenden Terminvorschlag zurück.</p>
+          <p class="eyebrow" data-i18n="contact_eyebrow">Kontakt & Uwee</p>
+          <h2 data-i18n="contact_title">Rendez-vous ufroen</h2>
+          <p data-i18n="contact_intro"></p>
 
           <ul class="contact-list">
             <li>
-              <span class="ci-label">Adresse</span>
-              <span class="ci-value">Garage Kremer<br>Bettendorf, Luxemburg</span>
+              <span class="ci-label" data-i18n="ci_addr_l">Adress</span>
+              <span class="ci-value">Garage Kremer Bettenduerf<br>63, rue de Diekirch-Echternach<br>L-9355 Bettendorf, Lëtzebuerg</span>
             </li>
             <li>
-              <span class="ci-label">Telefon</span>
-              <a class="ci-value" href="tel:+352000000">+352 00 00 00</a>
+              <span class="ci-label" data-i18n="ci_phone_l">Telefon</span>
+              <a class="ci-value" href="tel:+352808687">+352 80 86 87</a>
             </li>
             <li>
               <span class="ci-label">E-Mail</span>
-              <a class="ci-value" href="mailto:info@garage-kremer.lu">info@garage-kremer.lu</a>
+              <a class="ci-value" href="mailto:kremerlocation@gmail.com">kremerlocation@gmail.com</a>
             </li>
           </ul>
 
-          <div class="map-placeholder" role="img" aria-label="Standort Bettendorf">
+          <div class="map-placeholder" role="img" aria-label="Bettendorf">
             <svg viewBox="0 0 400 200" width="100%" height="100%" preserveAspectRatio="none">
               <rect width="400" height="200" fill="#e0e6ed"/>
               <path d="M0 130 L100 120 L200 145 L300 125 L400 140" stroke="#b8c4d0" stroke-width="18" fill="none"/>
@@ -285,39 +299,39 @@
 
         <form class="contact-form" id="contact-form" novalidate>
           <div class="field">
-            <label for="name">Name</label>
-            <input type="text" id="name" name="name" autocomplete="name" required placeholder="Ihr Name" />
+            <label for="name" data-i18n="f_name">Numm</label>
+            <input type="text" id="name" name="name" autocomplete="name" required data-i18n-ph="f_name_ph" placeholder="Ären Numm" />
           </div>
           <div class="field-row">
             <div class="field">
-              <label for="email">E-Mail</label>
-              <input type="email" id="email" name="email" autocomplete="email" required placeholder="ihre@email.lu" />
+              <label for="email" data-i18n="f_email">E-Mail</label>
+              <input type="email" id="email" name="email" autocomplete="email" required placeholder="@" data-i18n-ph="f_email_ph" />
             </div>
             <div class="field">
-              <label for="phone">Telefon</label>
-              <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="Optional" />
+              <label for="phone" data-i18n="f_phone">Telefon</label>
+              <input type="tel" id="phone" name="phone" autocomplete="tel" data-i18n-ph="f_phone_ph" placeholder="Optional" />
             </div>
           </div>
           <div class="field">
-            <label for="service">Anliegen</label>
+            <label for="service" data-i18n="f_service">Ären Uleies</label>
             <select id="service" name="service">
-              <option value="">Bitte wählen …</option>
-              <option>Wartung &amp; Inspektion</option>
-              <option>Ölwechsel</option>
-              <option>Reifenservice</option>
-              <option>Bremsen &amp; Fahrwerk</option>
-              <option>Fehlerdiagnose</option>
-              <option>Klimaservice</option>
-              <option>Contrôle Technique</option>
-              <option>Sonstiges</option>
+              <option value="" data-i18n="f_service_opt0">Wielt w.e.g. …</option>
+              <option data-i18n="svc1_t">Wartung & Inspektioun</option>
+              <option data-i18n="svc2_t">Ueleswiessel</option>
+              <option data-i18n="svc3_t">Reifenservice</option>
+              <option data-i18n="svc4_t">Bremsen & Fahrwierk</option>
+              <option data-i18n="svc5_t">Feelerdiagnos</option>
+              <option data-i18n="svc6_t">Klimaservice</option>
+              <option data-i18n="svc7_t">Contrôle Technique</option>
+              <option data-i18n="f_other">Anescht</option>
             </select>
           </div>
           <div class="field">
-            <label for="message">Nachricht</label>
-            <textarea id="message" name="message" rows="4" required placeholder="Beschreiben Sie kurz Ihr Anliegen und Ihr Fahrzeug (Marke, Modell, Baujahr) …"></textarea>
+            <label for="message" data-i18n="f_message">Message</label>
+            <textarea id="message" name="message" rows="4" required data-i18n-ph="f_message_ph" placeholder="…"></textarea>
           </div>
-          <button type="submit" class="btn btn-primary btn-block">Anfrage senden</button>
-          <p class="form-note">Wir behandeln Ihre Daten vertraulich. Keine Weitergabe an Dritte.</p>
+          <button type="submit" class="btn btn-primary btn-block" data-i18n="f_submit">Ufro schécken</button>
+          <p class="form-note" data-i18n="f_note"></p>
           <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
         </form>
       </div>
@@ -330,33 +344,49 @@
       <div class="footer-brand">
         <span class="brand-text light">
           <strong>Garage Kremer</strong>
-          <small>Bettendorf · Luxemburg</small>
+          <small>Bettenduerf · Lëtzebuerg</small>
         </span>
-        <p>Ihre moderne Autowerkstatt für Wartung, Reparatur und Service – ehrlich und zuverlässig.</p>
+        <p data-i18n="footer_tagline"></p>
+        <div class="footer-partner">
+          <span data-i18n="footer_partner">Partner vu 1·2·3 AutoService</span>
+          <span class="logo123 logo123-sm" role="img" aria-label="1 2 3 AutoService">
+            <svg viewBox="0 0 214 48" width="150" height="34">
+              <g font-family="Arial, Helvetica, sans-serif" font-weight="800">
+                <rect x="0" y="7" width="34" height="34" rx="8" fill="#0a49b8"/>
+                <text x="17" y="31" font-size="22" fill="#fff" text-anchor="middle">1</text>
+                <rect x="40" y="7" width="34" height="34" rx="8" fill="#e63946"/>
+                <text x="57" y="31" font-size="22" fill="#fff" text-anchor="middle">2</text>
+                <rect x="80" y="7" width="34" height="34" rx="8" fill="#0a49b8"/>
+                <text x="97" y="31" font-size="22" fill="#fff" text-anchor="middle">3</text>
+                <text x="122" y="31" font-size="19" fill="currentColor">AutoService</text>
+              </g>
+            </svg>
+          </span>
+        </div>
       </div>
-      <nav class="footer-nav" aria-label="Footer-Navigation">
-        <h4>Navigation</h4>
-        <a href="#leistungen">Leistungen</a>
-        <a href="#ueber-uns">Über uns</a>
-        <a href="#oeffnungszeiten">Öffnungszeiten</a>
-        <a href="#kontakt">Kontakt</a>
+      <nav class="footer-nav" aria-label="Footer">
+        <h4 data-i18n="footer_nav_h">Navigatioun</h4>
+        <a href="#leistungen" data-i18n="nav_services">Servicer</a>
+        <a href="#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
+        <a href="#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
+        <a href="#kontakt" data-i18n="nav_cta">Rendez-vous ufroen</a>
       </nav>
       <div class="footer-contact">
-        <h4>Kontakt</h4>
-        <p>Bettendorf, Luxemburg</p>
-        <p><a href="tel:+352000000">+352 00 00 00</a></p>
-        <p><a href="mailto:info@garage-kremer.lu">info@garage-kremer.lu</a></p>
+        <h4 data-i18n="footer_contact_h">Kontakt</h4>
+        <p>63, rue de Diekirch-Echternach<br>L-9355 Bettendorf</p>
+        <p><a href="tel:+352808687">+352 80 86 87</a></p>
+        <p><a href="mailto:kremerlocation@gmail.com">kremerlocation@gmail.com</a></p>
       </div>
     </div>
     <div class="footer-bottom">
       <div class="container">
-        <span>© <span id="year">2026</span> Garage Kremer Bettendorf. Alle Rechte vorbehalten.</span>
-        <span class="footer-legal"><a href="#top">Impressum</a> · <a href="#top">Datenschutz</a></span>
+        <span>© <span id="year">2026</span> Garage Kremer Bettenduerf. <span data-i18n="footer_rights">All Rechter reservéiert.</span></span>
+        <span class="footer-legal"><a href="#top" data-i18n="footer_impressum">Impressum</a> · <a href="#top" data-i18n="footer_datenschutz">Dateschutz</a></span>
       </div>
     </div>
   </footer>
 
-  <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben">↑</a>
+  <a href="#top" class="back-to-top" id="back-to-top" aria-label="↑">↑</a>
 
   <script src="script.js"></script>
 </body>
