@@ -570,3 +570,20 @@ a.ci-value:hover { color: var(--accent); }
 
 /* Coop-Logo-Këscht: liicht getënzt fir Kontrast */
 .coop-logo { background: #fbfcff; }
+
+/* ============================================================
+   Echtes Logo-Bild + runde BBS-Felge
+   ============================================================ */
+
+/* Felge: quadratesche Container => perfekt rond */
+.hero-deco { aspect-ratio: 1 / 1; height: auto; opacity: .85; }
+.hero-deco svg { width: 100%; height: 100%; display: block; }
+
+/* Echtes 1·2·3 AutoService Logo (Bild) */
+.logo-official { display: block; height: 40px; width: auto; border-radius: 4px; }
+.logo123-xs .logo-official { height: 30px; }
+.logo123-sm .logo-official { height: 46px; }
+.logo123-lg .logo-official { height: 104px; }
+/* op donkelem Grond: dezente wäisse Faassung */
+.topbar .logo-official,
+.footer-partner .logo-official { box-shadow: 0 0 0 3px #fff; }
