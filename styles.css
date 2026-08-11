@@ -587,3 +587,6 @@ a.ci-value:hover { color: var(--accent); }
 /* op donkelem Grond: dezente wäisse Faassung */
 .topbar .logo-official,
 .footer-partner .logo-official { box-shadow: 0 0 0 3px #fff; }
+
+/* Felge kleiner & komplett sichtbar (ganz rund) */
+.hero-deco { width: min(360px, 38vw); right: 3%; opacity: .8; }
