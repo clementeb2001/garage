@@ -624,3 +624,22 @@ a.ci-value:hover { color: var(--accent); }
 .cards .card h3 { color: #fff; margin-top: 16px; }
 .cards .card p { color: #dbe3ec; font-size: .95rem; }
 .cards .card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+
+/* Foto-Kacheln: schéinen Faarf-Fallback, solaang keng Fotoen do sinn */
+.cards .card {
+  background-image: var(--img), var(--grad, linear-gradient(150deg,#16273b,#0d1b2a));
+  background-size: cover, cover;
+  background-position: center, center;
+}
+.cards .card::after {
+  background: linear-gradient(180deg, rgba(8,15,25,0) 0%, rgba(8,15,25,.12) 42%, rgba(8,15,25,.82) 100%);
+}
+.cards .card:hover::after {
+  background: linear-gradient(180deg, rgba(8,15,25,0) 0%, rgba(230,57,70,.22) 55%, rgba(8,15,25,.86) 100%);
+}
+.cards .card:nth-child(6n+1){ --grad: linear-gradient(150deg,#243a54 0%,#7a2530 100%); }
+.cards .card:nth-child(6n+2){ --grad: linear-gradient(150deg,#243a54 0%,#1f4f86 100%); }
+.cards .card:nth-child(6n+3){ --grad: linear-gradient(150deg,#243a54 0%,#1f5a53 100%); }
+.cards .card:nth-child(6n+4){ --grad: linear-gradient(150deg,#243a54 0%,#8a4a1f 100%); }
+.cards .card:nth-child(6n+5){ --grad: linear-gradient(150deg,#243a54 0%,#3d2f6a 100%); }
+.cards .card:nth-child(6n+6){ --grad: linear-gradient(150deg,#243a54 0%,#2f5a2f 100%); }
