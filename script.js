@@ -14,7 +14,7 @@
       hero_title_1: 'Ären Auto a', hero_title_2: 'beschten Hänn.',
       hero_lead: 'Vun der Inspektioun bis zum Tuning – de Garage Kremer steet fir éierlech Berodung, propper Aarbecht a fair Präisser. Fir all Marken, mat modernster Diagnostik.',
       hero_btn2: 'Eis Servicer',
-      hero_b1_v: '★★★★★', hero_b1_l: 'Zefridde Clienten',
+      hero_b1_v: 'Perséinlech', hero_b1_l: 'Éierlech Berodung',
       hero_b2_v: 'All Marken', hero_b2_l: 'Fräi Garage',
       hero_b3_v: '1·2·3 AutoService', hero_b3_l: 'Partnernetzwierk',
       trust1: '1·2·3 AutoService Partnergarage', trust2: 'All Marken a Modeller',
@@ -58,9 +58,10 @@
       f_phone: 'Telefon', f_phone_ph: 'Optional',
       f_service: 'Ären Uleies', f_service_opt0: 'Wielt w.e.g. …', f_other: 'Anescht',
       f_message: 'Message', f_message_ph: 'Beschreift kuerz Ären Uleies an Äre Won (Mark, Modell, Baujoer) …',
-      f_submit: 'Ufro schécken', f_note: 'Mir behandelen Är Donnéeën vertraulech. Keng Weiderginn un Drëtter.',
+      f_submit: 'E-Mail virbereeden', f_note: 'Är Ufro gëtt an Ärem E-Mail-Programm virbereet.',
       f_err: 'Gitt w.e.g. Numm, eng gülteg E-Mail an Är Noriicht un.',
-      f_ok: 'Merci, {name}! Är Ufro ass festgehalen – mir mellen eis geschwënn.',
+      f_ok: 'D’E-Mail fir {name} gëtt elo an Ärem E-Mail-Programm opgemaach.',
+      mobile_call: 'Uruffen', mobile_email: 'E-Mail',
       footer_tagline: 'Är modern Autosgarage fir Wartung, Reparatur a Service – éierlech an zouverlässeg.',
       footer_partner: 'Partner vu 1·2·3 AutoService',
       footer_nav_h: 'Navigatioun', footer_contact_h: 'Kontakt',
@@ -74,7 +75,7 @@
       hero_title_1: 'Ihr Auto in', hero_title_2: 'besten Händen.',
       hero_lead: 'Von der Inspektion bis zum Tuning – die Garage Kremer steht für ehrliche Beratung, saubere Arbeit und faire Preise. Für alle Marken, mit modernster Diagnosetechnik.',
       hero_btn2: 'Unsere Leistungen',
-      hero_b1_v: '★★★★★', hero_b1_l: 'Zufriedene Kunden',
+      hero_b1_v: 'Persönlich', hero_b1_l: 'Ehrliche Beratung',
       hero_b2_v: 'Alle Marken', hero_b2_l: 'Freie Werkstatt',
       hero_b3_v: '1·2·3 AutoService', hero_b3_l: 'Partnernetzwerk',
       trust1: '1·2·3 AutoService Partnerbetrieb', trust2: 'Alle Marken & Modelle',
@@ -118,9 +119,10 @@
       f_phone: 'Telefon', f_phone_ph: 'Optional',
       f_service: 'Anliegen', f_service_opt0: 'Bitte wählen …', f_other: 'Sonstiges',
       f_message: 'Nachricht', f_message_ph: 'Beschreiben Sie kurz Ihr Anliegen und Ihr Fahrzeug (Marke, Modell, Baujahr) …',
-      f_submit: 'Anfrage senden', f_note: 'Wir behandeln Ihre Daten vertraulich. Keine Weitergabe an Dritte.',
+      f_submit: 'E-Mail vorbereiten', f_note: 'Ihre Anfrage wird in Ihrem E-Mail-Programm vorbereitet.',
       f_err: 'Bitte füllen Sie Name, eine gültige E-Mail und Ihre Nachricht aus.',
-      f_ok: 'Vielen Dank, {name}! Ihre Anfrage wurde erfasst – wir melden uns in Kürze.',
+      f_ok: 'Die E-Mail für {name} wird jetzt in Ihrem E-Mail-Programm geöffnet.',
+      mobile_call: 'Anrufen', mobile_email: 'E-Mail',
       footer_tagline: 'Ihre moderne Autowerkstatt für Wartung, Reparatur und Service – ehrlich und zuverlässig.',
       footer_partner: 'Partner von 1·2·3 AutoService',
       footer_nav_h: 'Navigation', footer_contact_h: 'Kontakt',
@@ -134,7 +136,7 @@
       hero_title_1: 'Votre voiture entre', hero_title_2: 'de bonnes mains.',
       hero_lead: 'De l’entretien au tuning – le Garage Kremer, c’est un conseil honnête, un travail soigné et des prix justes. Pour toutes les marques, avec un diagnostic moderne.',
       hero_btn2: 'Nos prestations',
-      hero_b1_v: '★★★★★', hero_b1_l: 'Clients satisfaits',
+      hero_b1_v: 'Personnel', hero_b1_l: 'Conseil honnête',
       hero_b2_v: 'Toutes marques', hero_b2_l: 'Garage multimarque',
       hero_b3_v: '1·2·3 AutoService', hero_b3_l: 'Réseau partenaire',
       trust1: 'Garage partenaire 1·2·3 AutoService', trust2: 'Toutes marques et modèles',
@@ -178,9 +180,10 @@
       f_phone: 'Téléphone', f_phone_ph: 'Facultatif',
       f_service: 'Votre demande', f_service_opt0: 'Veuillez choisir …', f_other: 'Autre',
       f_message: 'Message', f_message_ph: 'Décrivez brièvement votre demande et votre véhicule (marque, modèle, année) …',
-      f_submit: 'Envoyer la demande', f_note: 'Vos données restent confidentielles. Aucune transmission à des tiers.',
+      f_submit: 'Préparer l’e-mail', f_note: 'Votre demande sera préparée dans votre logiciel de messagerie.',
       f_err: 'Merci d’indiquer votre nom, un e-mail valide et votre message.',
-      f_ok: 'Merci, {name} ! Votre demande a bien été enregistrée – nous vous recontactons rapidement.',
+      f_ok: 'L’e-mail pour {name} va maintenant s’ouvrir dans votre logiciel de messagerie.',
+      mobile_call: 'Appeler', mobile_email: 'E-mail',
       footer_tagline: 'Votre garage automobile moderne pour l’entretien, la réparation et le service – honnête et fiable.',
       footer_partner: 'Partenaire 1·2·3 AutoService',
       footer_nav_h: 'Navigation', footer_contact_h: 'Contact',
@@ -194,7 +197,7 @@
       hero_title_1: 'Your car in', hero_title_2: 'the best hands.',
       hero_lead: 'From inspection to tuning – Garage Kremer stands for honest advice, clean work and fair prices. For all makes, with modern diagnostic technology.',
       hero_btn2: 'Our services',
-      hero_b1_v: '★★★★★', hero_b1_l: 'Satisfied customers',
+      hero_b1_v: 'Personal', hero_b1_l: 'Honest advice',
       hero_b2_v: 'All makes', hero_b2_l: 'Multi-brand garage',
       hero_b3_v: '1·2·3 AutoService', hero_b3_l: 'Partner network',
       trust1: '1·2·3 AutoService partner garage', trust2: 'All makes & models',
@@ -238,9 +241,10 @@
       f_phone: 'Phone', f_phone_ph: 'Optional',
       f_service: 'Your request', f_service_opt0: 'Please choose …', f_other: 'Other',
       f_message: 'Message', f_message_ph: 'Briefly describe your request and your vehicle (make, model, year) …',
-      f_submit: 'Send request', f_note: 'We treat your data confidentially. No sharing with third parties.',
+      f_submit: 'Prepare email', f_note: 'Your request will be prepared in your email application.',
       f_err: 'Please fill in your name, a valid email and your message.',
-      f_ok: 'Thank you, {name}! Your request has been recorded – we’ll be in touch shortly.',
+      f_ok: 'The email for {name} will now open in your email application.',
+      mobile_call: 'Call', mobile_email: 'Email',
       footer_tagline: 'Your modern car garage for maintenance, repair and service – honest and reliable.',
       footer_partner: 'Partner of 1·2·3 AutoService',
       footer_nav_h: 'Navigation', footer_contact_h: 'Contact',
@@ -375,9 +379,21 @@
         return;
       }
 
+      var phone = form.phone.value.trim();
+      var service = form.service.value;
+      var subject = 'Rendez-vous / Terminanfrage – ' + name;
+      var body = [
+        'Numm / Name: ' + name,
+        'E-Mail: ' + email,
+        'Telefon: ' + (phone || '—'),
+        'Service: ' + (service || '—'),
+        '',
+        message
+      ].join('\n');
+
       status.classList.add('ok');
       status.textContent = dict.f_ok.replace('{name}', name);
-      form.reset();
+      window.location.href = 'mailto:Autoservicebettenduerf@outlook.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
     });
   }
 })();
