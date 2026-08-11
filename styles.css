@@ -156,13 +156,77 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.15; color: var(--
 .lang-switch button:hover { color: var(--navy-900); }
 .lang-switch button.active { background: #fff; color: var(--accent); box-shadow: var(--shadow-sm); }
 
-/* ------- Partner banner ------- */
-.partner-banner { background: var(--white); padding: 26px 0 34px; }
-.partner-inner { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
-.partner-text { font-family: var(--font-head); font-weight: 600; font-size: .95rem; letter-spacing: .02em; color: var(--text-mut); }
+/* ------- Top bar (1·2·3 AutoService Partner + Kontakt) ------- */
+.topbar { background: #0a1521; color: #c6d0dc; font-size: .84rem; }
+.topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 24px; flex-wrap: wrap; }
+.topbar-partner { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-head); font-weight: 600; letter-spacing: .01em; }
+.topbar-contact { display: inline-flex; align-items: center; gap: 18px; }
+.topbar-contact a { color: #c6d0dc; transition: color .15s ease; white-space: nowrap; }
+.topbar-contact a:hover { color: #fff; }
+
+/* ------- 1·2·3 AutoService official logo (image + text fallback) ------- */
 .logo123 { display: inline-flex; align-items: center; color: var(--navy-900); }
-.logo123 svg { height: auto; }
-.footer-partner { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.logo123 .logo-official { height: 36px; width: auto; display: block; }
+.logo123 .logo-fallback {
+  display: none; font-family: var(--font-head); font-weight: 800; letter-spacing: .02em;
+  color: inherit; padding: 5px 12px; border: 1.5px dashed currentColor; border-radius: 8px;
+  opacity: .8; font-size: .9rem; white-space: nowrap;
+}
+.logo123.missing .logo-official { display: none; }
+.logo123.missing .logo-fallback { display: inline-block; }
+.logo123-xs .logo-official { height: 24px; }
+.logo123-xs .logo-fallback { font-size: .76rem; padding: 3px 9px; }
+.logo123-sm .logo-official { height: 30px; }
+.logo123-lg .logo-official { height: 60px; }
+.logo123-lg .logo-fallback { font-size: 1.1rem; padding: 8px 16px; }
+
+/* ------- Tuning & Motorsport ------- */
+.section-tuning { position: relative; overflow: hidden; background: var(--navy-900); color: #fff; }
+.tuning-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(900px 460px at 85% -10%, rgba(230,57,70,.28), transparent 60%),
+    linear-gradient(160deg, #0d1b2a 0%, #16273b 100%);
+}
+.tuning-bg::after {
+  content: ""; position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.028) 0 14px, transparent 14px 28px);
+  mask-image: radial-gradient(75% 75% at 80% 20%, #000, transparent 78%);
+}
+.section-tuning .container { position: relative; }
+.section-tuning h2 { color: #fff; }
+.section-sub.light { color: #b8c4d0; }
+.tuning-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.tuning-card {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--radius); padding: 30px 26px; transition: transform .22s ease, border-color .22s ease, background .22s ease;
+}
+.tuning-card:hover { transform: translateY(-6px); border-color: rgba(230,57,70,.6); background: rgba(255,255,255,.07); }
+.tuning-ic { font-size: 1.9rem; margin-bottom: 16px; }
+.tuning-card h3 { color: #fff; font-size: 1.18rem; margin-bottom: 8px; }
+.tuning-card p { color: #b8c4d0; font-size: .96rem; }
+
+/* ------- Kooperation & Garantie ------- */
+.coop-card {
+  display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: center;
+  background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--accent);
+  border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow-md);
+}
+.coop-logo { display: grid; place-items: center; padding: 10px 24px; }
+.coop-text h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); margin: 6px 0 14px; }
+.coop-text p { color: var(--text-mut); }
+
+/* ------- Termin-only Karte ------- */
+.hours-appt { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius); padding: 34px; text-align: center; }
+.appt-icon { font-size: 2.4rem; margin-bottom: 12px; }
+.hours-appt h3 { color: #fff; font-size: 1.4rem; margin-bottom: 12px; }
+.hours-appt p { color: #b8c4d0; margin-bottom: 22px; }
+.appt-contacts { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.appt-contacts a { font-family: var(--font-head); font-weight: 600; color: #fff; transition: color .15s ease; }
+.appt-contacts a:hover { color: var(--accent); }
+
+/* ------- Footer partner ------- */
+.footer-partner { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
 .footer-partner > span:first-child { font-size: .82rem; color: #7d8fa0; font-family: var(--font-head); font-weight: 600; }
 .footer-partner .logo123 { color: #fff; }
 
@@ -301,11 +365,19 @@ a.ci-value:hover { color: var(--accent); }
 @media (max-width: 980px) {
   .cards { grid-template-columns: repeat(2, 1fr); }
   .feature-grid { grid-template-columns: repeat(2, 1fr); }
+  .tuning-cards { grid-template-columns: 1fr; }
   .trust-grid { grid-template-columns: repeat(2, 1fr); gap: 30px 12px; }
   .about-grid, .hours-grid, .contact-grid { grid-template-columns: 1fr; gap: 44px; }
   .about-media { max-width: 480px; margin: 0 auto; }
+  .coop-card { grid-template-columns: 1fr; gap: 24px; text-align: center; padding: 32px 26px; }
+  .coop-card { border-left: none; border-top: 5px solid var(--accent); }
   .footer-inner { grid-template-columns: 1fr 1fr; }
   .footer-brand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 680px) {
+  .topbar-contact .tb-email { display: none; }
+  .topbar-inner { justify-content: center; gap: 10px; }
 }
 
 @media (max-width: 720px) {

@@ -18,27 +18,35 @@ im `I18N`-Objekt in `script.js`.
 
 ## Inhalt
 
-- **Hero**, Trust-Leiste, **1·2·3 AutoService Partner-Banner**
+- **Top-Bar** mit 1·2·3 AutoService Partnerhinweis + Kontakt
+- **Hero**, Trust-Leiste
 - **Leistungen** – Wartung, Ölwechsel, Reifenservice, Bremsen, Diagnose, Klima, Contrôle Technique, Elektrik
-- **Über uns**, **Warum wir**, **Öffnungszeiten**
+- **Tuning & Motorsport** – Rallye/Rennstrecke, Tieferlegung, Karosserie
+- **Über uns**, **Warum wir**
+- **Kooperation & Garantie** – Herstellergarantie bleibt erhalten
+- **Öffnungszeiten** – nur nach Terminvereinbarung
 - **Kontakt** – Anfrageformular + echte Kontaktdaten
 - **Footer** mit Partnerhinweis
 
-## Kontaktdaten (aus öffentlichen Verzeichnissen)
+## Kontaktdaten
 
 - **Adresse:** 63, rue de Diekirch-Echternach, L-9355 Bettendorf, Luxemburg
-- **Telefon:** +352 80 86 87
-- **E-Mail:** kremerlocation@gmail.com  *(bitte bestätigen)*
+- **Telefon / GSM:** +352 621 435 495
+- **E-Mail:** Autoservicebettenduerf@outlook.com
+- **Termine:** nur nach Vereinbarung (keine regulären Öffnungszeiten)
 
-> Öffnungszeiten und E-Mail bitte vor Veröffentlichung noch einmal mit der
-> Garage abgleichen. Termine erfolgen bevorzugt nach Vereinbarung.
+## 1·2·3 AutoService Logo — bitte einfügen
 
-## 1·2·3 AutoService Logo
+Das offizielle Logo wird über eine Bilddatei geladen:
 
-Das im Partner-Banner und im Footer gezeigte Logo ist ein **Platzhalter-Wortbild**
-(SVG). Bitte durch die offizielle Logo-Datei von 1·2·3 AutoService ersetzen
-(z. B. `assets/123autoservice.svg`) – die entsprechenden `<span class="logo123">`-
-Blöcke in `index.html` einfach austauschen.
+```
+assets/123autoservice-logo.svg   (oder .png – dann Pfad in index.html anpassen)
+```
+
+Solange die Datei fehlt, zeigt die Seite automatisch eine dezente
+Text-Ersatzdarstellung. **Es wird kein Logo erfunden.** Bitte die offizielle
+Logo-Datei von 1·2·3 AutoService in den Ordner `assets/` legen – dann erscheint
+sie automatisch in Top-Bar, Kooperations-Bereich und Footer.
 
 ## Technik
 
