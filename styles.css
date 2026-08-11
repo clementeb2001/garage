@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Garage Kremer Bettendorf — Stylesheet
+   Autoservice Bettenduerf — Stylesheet
    ========================================================================== */
 
 :root {
@@ -23,7 +23,7 @@
   --shadow-md: 0 12px 30px rgba(13, 27, 42, 0.10);
   --shadow-lg: 0 24px 60px rgba(13, 27, 42, 0.16);
   --maxw: 1160px;
-  --header-h: 74px;
+  --header-h: 92px;
 
   --font-head: system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -89,6 +89,8 @@ h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.15; color: var(--
 .header-inner { height: 100%; display: flex; align-items: center; justify-content: space-between; }
 
 .brand { display: flex; align-items: center; gap: 12px; }
+.site-logo { display: block; width: auto; height: 78px; object-fit: contain; }
+.site-logo-footer { height: auto; width: min(280px, 100%); }
 .brand-mark { display: grid; place-items: center; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
 .brand-text strong { font-family: var(--font-head); font-size: 1.14rem; color: var(--navy-900); font-weight: 800; }
@@ -412,6 +414,7 @@ a.ci-value:hover { color: var(--accent); }
   .main-nav .nav-cta { margin: 8px 0 0; text-align: center; }
   .lang-switch { margin: 12px 0 0; align-self: center; }
   .nav-toggle { display: flex; }
+  .site-logo { height: 68px; }
 }
 
 @media (max-width: 560px) {
