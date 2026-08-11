@@ -657,3 +657,111 @@ a.ci-value:hover { color: var(--accent); }
   .mobile-contact a:first-child { background: var(--accent); color: #fff; }
   .back-to-top { bottom: 76px; }
 }
+
+/* ============================================================
+   Fotografiegeleete Gesamtoptik — passend zu de Service-Kacheln
+   ============================================================ */
+:root {
+  --navy-950: #080f18;
+  --surface-dark: #101923;
+  --surface-soft: #eef1f4;
+  --radius: 18px;
+  --shadow-md: 0 16px 38px rgba(8, 15, 24, .14);
+  --shadow-lg: 0 26px 70px rgba(8, 15, 24, .24);
+}
+
+body { background: var(--surface-soft); }
+.btn { border-radius: 12px; padding-inline: 24px; }
+
+.site-header {
+  background: rgba(8, 15, 24, .94);
+  border-bottom-color: rgba(255,255,255,.1);
+  box-shadow: 0 12px 30px rgba(0,0,0,.14);
+}
+.site-header .brand-text strong { color: #fff; }
+.site-header .brand-text small { color: #9ba9b7; }
+.site-header .main-nav a { color: #dce3ea; }
+.site-header .main-nav a:hover { color: #fff; background: rgba(255,255,255,.07); }
+.site-header .main-nav .nav-cta { color: #fff; background: var(--accent); }
+.site-header .nav-toggle span { background: #fff; }
+.site-header .lang-switch { background: rgba(255,255,255,.09); }
+.site-header .lang-switch button { color: #b8c3ce; }
+.site-header .lang-switch button.active { background: #fff; color: var(--accent); }
+
+.hero { min-height: min(720px, calc(100vh - 100px)); display: grid; align-items: center; }
+.hero-bg {
+  background-image:
+    linear-gradient(90deg, rgba(7,13,21,.97) 0%, rgba(7,13,21,.88) 42%, rgba(7,13,21,.34) 78%, rgba(7,13,21,.48) 100%),
+    linear-gradient(0deg, rgba(230,57,70,.13), rgba(230,57,70,.13)),
+    url('assets/services/wartung.jpg');
+  background-size: cover;
+  background-position: center 48%;
+  transform: scale(1.01);
+}
+.hero-bg::after { background: linear-gradient(180deg, transparent 72%, rgba(8,15,24,.66)); mask-image: none; }
+.hero-deco { display: none; }
+.hero-content { max-width: 720px; }
+.hero h1 { text-shadow: 0 4px 30px rgba(0,0,0,.42); }
+.hero .lead { color: #e0e6ec; text-shadow: 0 2px 14px rgba(0,0,0,.34); }
+
+.trustbar { background: var(--navy-950); border-bottom: 0; }
+.trust-grid { padding-block: 30px; }
+.trust-item {
+  justify-content: flex-start; border-radius: 14px;
+  background: rgba(255,255,255,.055); border-color: rgba(255,255,255,.1); box-shadow: none;
+}
+.trust-item:hover { border-color: rgba(230,57,70,.62); background: rgba(255,255,255,.075); }
+.trust-lbl { color: #eef3f7; }
+
+#leistungen {
+  color: #fff;
+  background: radial-gradient(circle at 90% 5%, rgba(230,57,70,.13), transparent 28%), var(--surface-dark);
+}
+#leistungen::before { display: none; }
+#leistungen .section-head h2 { color: #fff; }
+#leistungen .section-sub { color: #adb9c5; }
+.cards .card { border-radius: 18px; box-shadow: 0 18px 42px rgba(0,0,0,.28); }
+.cards .card::after { background: linear-gradient(180deg, rgba(8,15,25,.05) 0%, rgba(8,15,25,.34) 42%, rgba(8,15,25,.98) 100%); }
+
+#ueber-uns.section-alt { background-color: var(--surface-soft); background-image: linear-gradient(120deg, rgba(255,255,255,.85), rgba(238,241,244,.82)); }
+.about-photo { border: 8px solid #fff; box-shadow: var(--shadow-lg); }
+.about-content { padding: clamp(10px, 3vw, 34px) 0; }
+.about-badge { border-radius: 12px; }
+
+#kooperatioun.section-alt { background: var(--navy-950); }
+.coop-card {
+  position: relative; overflow: hidden;
+  background-image: linear-gradient(90deg, rgba(8,15,24,.98), rgba(8,15,24,.88) 58%, rgba(8,15,24,.62)), url('assets/services/diagnose.jpg');
+  background-size: cover; background-position: center;
+  border: 1px solid rgba(255,255,255,.12); border-left: 5px solid var(--accent);
+  box-shadow: 0 24px 64px rgba(0,0,0,.28);
+}
+.coop-text h2 { color: #fff; }
+.coop-text p { color: #c4ced8; }
+.coop-logo { background: #fff; box-shadow: 0 12px 30px rgba(0,0,0,.18); }
+
+.section-dark { background: radial-gradient(circle at 15% 100%, rgba(230,57,70,.15), transparent 34%), var(--surface-dark); }
+.hours-appt { background: rgba(255,255,255,.075); border-color: rgba(255,255,255,.16); box-shadow: 0 20px 46px rgba(0,0,0,.18); }
+.appt-contacts a { width: 100%; padding: 11px 14px; border-radius: 10px; background: rgba(255,255,255,.06); }
+
+#kontakt.section-alt { background-color: var(--surface-soft); background-image: linear-gradient(135deg, rgba(255,255,255,.76), rgba(225,230,235,.72)); }
+.contact-form, .map-embed { border: 1px solid rgba(13,27,42,.08); box-shadow: 0 20px 52px rgba(8,15,24,.13); }
+.contact-form { border-top: 4px solid var(--accent); }
+.field input, .field select, .field textarea { background: #f4f6f8; border-color: #dbe0e5; }
+.site-footer { background: #070d14; }
+
+@media (max-width: 720px) {
+  .site-header .main-nav { background: rgba(8,15,24,.98); border-bottom-color: rgba(255,255,255,.1); }
+  .site-header .main-nav a:hover { background: rgba(255,255,255,.07); }
+  .hero { min-height: auto; }
+  .hero-bg {
+    background-image: linear-gradient(90deg, rgba(7,13,21,.94), rgba(7,13,21,.68)), linear-gradient(0deg, rgba(230,57,70,.12), rgba(230,57,70,.12)), url('assets/services/wartung.jpg');
+    background-position: 62% center;
+  }
+}
+
+@media (max-width: 560px) {
+  .trust-grid { grid-template-columns: 1fr; gap: 10px; }
+  .trust-item { justify-content: flex-start; }
+  .coop-card { border-left: 1px solid rgba(255,255,255,.12); border-top: 4px solid var(--accent); }
+}
