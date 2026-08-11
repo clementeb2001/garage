@@ -590,3 +590,37 @@ a.ci-value:hover { color: var(--accent); }
 
 /* Felge kleiner & komplett sichtbar (ganz rund) */
 .hero-deco { width: min(360px, 38vw); right: 3%; opacity: .8; }
+
+/* ============================================================
+   Service-Kacheln mat Foto als Hannergrond (vollflächeg)
+   ============================================================ */
+.cards .card {
+  position: relative; overflow: hidden;
+  min-height: 270px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 24px; border: none; color: #fff;
+  background-color: #16273b;               /* Fallback, falls Foto (nach) feelt */
+  background-image: var(--img);
+  background-size: cover; background-position: center;
+  box-shadow: var(--shadow-md);
+}
+/* liesbaren Text: donkelen Verlaf iwwer d'Foto */
+.cards .card::after {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, rgba(13,27,42,.10) 0%, rgba(13,27,42,.55) 48%, rgba(8,15,25,.92) 100%);
+  transition: background .25s ease;
+}
+.cards .card:hover::after {
+  background: linear-gradient(180deg, rgba(13,27,42,.15) 0%, rgba(230,57,70,.30) 55%, rgba(8,15,25,.92) 100%);
+}
+.cards .card > * { position: relative; z-index: 1; }
+.cards .card::before { z-index: 3; }       /* Akzent-Balken uewen sichtbar halen */
+
+.cards .card .card-icon {
+  width: 48px; height: 48px; font-size: 1.45rem; margin: 0 0 auto 0;
+  background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28);
+  backdrop-filter: blur(3px); color: #fff;
+}
+.cards .card h3 { color: #fff; margin-top: 16px; }
+.cards .card p { color: #dbe3ec; font-size: .95rem; }
+.cards .card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
