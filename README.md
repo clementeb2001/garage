@@ -25,8 +25,8 @@ im `I18N`-Objekt in `script.js`.
 - **Über uns**, **Warum wir**
 - **Kooperation & Garantie** – Herstellergarantie bleibt erhalten
 - **Öffnungszeiten** – nur nach Terminvereinbarung
-- **Kontakt** – Anfrageformular + echte Kontaktdaten
-- **Footer** mit Partnerhinweis
+- **Kontakt** – Anfrageformular mit Übergabe an das E-Mail-Programm + echte Kontaktdaten
+- **Footer** mit Partnerhinweis, Impressum und Datenschutzerklärung
 
 ## Kontaktdaten
 
@@ -38,12 +38,10 @@ im `I18N`-Objekt in `script.js`.
 
 ## Standortkarte
 
-Der Kontaktbereich enthält eine eingebettete Google-Maps-Karte (interaktiv auf
-der ausgelieferten Seite) sowie einen **„Route berechnen"-Button**, der direkt
-die Navigation zur Werkstatt öffnet. Hinweis: In der Artifact-Vorschau wird die
-externe Karte durch die Sandbox blockiert – dort erscheint eine Platzhalter-
-Grafik mit Standort-Pin; Karte und Navigationslink funktionieren auf der
-gehosteten Website.
+Der Kontaktbereich enthält eine lokale Kartengrafik sowie einen
+**„Route berechnen"-Button**, der Google Maps erst nach einem bewussten Klick
+öffnet. Dadurch werden beim bloßen Seitenaufruf keine Kartendaten von Google
+nachgeladen.
 
 ## 1·2·3 AutoService Logo
 
@@ -60,6 +58,8 @@ externe Datei und skaliert verlustfrei.
 
 - Reines HTML, CSS und Vanilla JavaScript – keine Frameworks, kein Build
 - Responsive inkl. mobilem Menü; Sprachumschalter
+- Mobile Schnellkontakte für Telefon und E-Mail
+- Strukturierte lokale Unternehmensdaten (JSON-LD)
 - Scroll-Animationen, „Nach oben"-Button
 - Barrierearm: semantisches HTML, ARIA-Labels, `prefers-reduced-motion`
 
