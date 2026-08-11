@@ -1,6 +1,6 @@
-# Garage Kremer Bettenduerf — Website
+# Autoservice Bettenduerf — Website
 
-Moderne, responsive Website für die **Garage Kremer Bettenduerf** (Bettendorf,
+Moderne, responsive Website für **Autoservice Bettenduerf** (Bettendorf,
 Luxemburg) – Partnerbetrieb im **1·2·3 AutoService**-Netzwerk.
 Statische Single-Page-Website ohne Build-Schritt oder Abhängigkeiten.
 
