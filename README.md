@@ -45,18 +45,16 @@ externe Karte durch die Sandbox blockiert – dort erscheint eine Platzhalter-
 Grafik mit Standort-Pin; Karte und Navigationslink funktionieren auf der
 gehosteten Website.
 
-## 1·2·3 AutoService Logo — bitte einfügen
+## 1·2·3 AutoService Logo
 
-Das offizielle Logo wird über eine Bilddatei geladen:
+Das Logo ist als **Inline-SVG** direkt in `index.html` umgesetzt (Top-Bar,
+Kooperations-Bereich, Footer) – nach Vorlage des offiziellen Logos
+(blauer Rahmen, „1,2,3 AutoService" in Blau, orange „///", ®). Es lädt ohne
+externe Datei und skaliert verlustfrei.
 
-```
-assets/123autoservice-logo.svg   (oder .png – dann Pfad in index.html anpassen)
-```
-
-Solange die Datei fehlt, zeigt die Seite automatisch eine dezente
-Text-Ersatzdarstellung. **Es wird kein Logo erfunden.** Bitte die offizielle
-Logo-Datei von 1·2·3 AutoService in den Ordner `assets/` legen – dann erscheint
-sie automatisch in Top-Bar, Kooperations-Bereich und Footer.
+> Möchtest du stattdessen die **exakte Original-Grafik** (Rasterbild) verwenden,
+> lege sie als `assets/123autoservice-logo.png` ins Repo – dann kann der
+> Inline-SVG-Block gegen ein `<img>` getauscht werden.
 
 ## Technik
 
