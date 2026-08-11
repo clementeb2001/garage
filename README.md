@@ -31,9 +31,19 @@ im `I18N`-Objekt in `script.js`.
 ## Kontaktdaten
 
 - **Adresse:** 63, rue de Diekirch-Echternach, L-9355 Bettendorf, Luxemburg
-- **Telefon / GSM:** +352 621 435 495
+- **Telefon (Festnetz):** +352 80 86 87  ← Hauptnummer
+- **GSM / Mobil (Zusatz):** +352 621 435 495
 - **E-Mail:** Autoservicebettenduerf@outlook.com
 - **Termine:** nur nach Vereinbarung (keine regulären Öffnungszeiten)
+
+## Standortkarte
+
+Der Kontaktbereich enthält eine eingebettete Google-Maps-Karte (interaktiv auf
+der ausgelieferten Seite) sowie einen **„Route berechnen"-Button**, der direkt
+die Navigation zur Werkstatt öffnet. Hinweis: In der Artifact-Vorschau wird die
+externe Karte durch die Sandbox blockiert – dort erscheint eine Platzhalter-
+Grafik mit Standort-Pin; Karte und Navigationslink funktionieren auf der
+gehosteten Website.
 
 ## 1·2·3 AutoService Logo — bitte einfügen
 

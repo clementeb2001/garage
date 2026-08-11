@@ -9,7 +9,9 @@
   --slate:    #5b6b7c;
   --accent:   #e63946;
   --accent-dark: #c92c39;
-  --cream:    #f7f8fa;
+  --accent-2: #ff8a3d;
+  --accent-3: #2f6df6;
+  --cream:    #f4f6fb;
   --white:    #ffffff;
   --line:     #e6e9ee;
   --text:     #1d2733;
@@ -408,4 +410,127 @@ a.ci-value:hover { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; }
   .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ============================================================
+   Visual polish — lieft d'Säit e bëssen op
+   ============================================================ */
+
+/* Eyebrow mat klengem Akzentstréch */
+.eyebrow { display: inline-flex; align-items: center; gap: 10px; }
+.eyebrow::before { content: ""; width: 22px; height: 2px; border-radius: 2px; background: currentColor; opacity: .85; }
+
+/* Iwwerschrëften mat Akzent-Ënnerstréch */
+.section-head h2 { position: relative; }
+.section-head h2::after {
+  content: ""; display: block; width: 58px; height: 4px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2)); margin: 18px auto 0;
+}
+
+/* Liicht Punkt-Textur an den hell-gedënzte Sektiounen */
+.section-alt {
+  background-color: var(--cream);
+  background-image: radial-gradient(rgba(13,27,42,.045) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Primär-Knäppche mat Verlaf + Glanz */
+.btn-primary {
+  background: linear-gradient(135deg, #ff5b66 0%, var(--accent) 55%, var(--accent-dark) 100%);
+  position: relative; overflow: hidden;
+}
+.btn-primary::after {
+  content: ""; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+  transform: skewX(-20deg); transition: left .5s ease;
+}
+.btn-primary:hover::after { left: 130%; }
+
+/* Hero: rotéierend Deko-Element */
+.hero-deco {
+  position: absolute; top: 50%; right: -70px; transform: translateY(-50%);
+  width: min(540px, 52vw); opacity: .9; pointer-events: none; z-index: 0;
+}
+.hero-deco svg { animation: gk-spin 60s linear infinite; }
+@keyframes gk-spin { to { transform: rotate(360deg); } }
+.hero-inner { position: relative; z-index: 1; }
+
+/* Faarweg Service-Icons (rouléiert duerch e Palett) */
+.card:nth-child(6n+1) .card-icon { background: linear-gradient(135deg,#fde8ea,#fff2f3); }
+.card:nth-child(6n+2) .card-icon { background: linear-gradient(135deg,#e6f0ff,#f2f7ff); }
+.card:nth-child(6n+3) .card-icon { background: linear-gradient(135deg,#e7f7ef,#f2fbf6); }
+.card:nth-child(6n+4) .card-icon { background: linear-gradient(135deg,#fff1e0,#fff8ef); }
+.card:nth-child(6n+5) .card-icon { background: linear-gradient(135deg,#efeaff,#f6f3ff); }
+.card:nth-child(6n+6) .card-icon { background: linear-gradient(135deg,#e5f6f9,#f0fbfc); }
+
+/* Karte: Akzent-Balken beim Hover */
+.card { position: relative; overflow: hidden; }
+.card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transform: scaleX(0); transform-origin: left; transition: transform .28s ease;
+}
+.card:hover::before { transform: scaleX(1); }
+
+/* Trust-Leescht als Pills */
+.trustbar { background: var(--white); }
+.trust-grid { padding: 40px 24px; }
+.trust-item {
+  background: #fff; border: 1px solid var(--line); border-radius: 999px;
+  padding: 14px 20px; box-shadow: var(--shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.trust-item:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: rgba(230,57,70,.35); }
+.trust-ic { font-size: 1.5rem; }
+
+/* Feature-Nummer als Verlaf */
+.feature-num {
+  font-size: 2rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.feature { position: relative; overflow: hidden; }
+.feature::after {
+  content: ""; position: absolute; right: -30px; top: -30px; width: 90px; height: 90px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(230,57,70,.08), transparent 70%); opacity: 0; transition: opacity .3s ease;
+}
+.feature:hover::after { opacity: 1; }
+
+/* Iwwer-eis: Badge mat Faarf */
+.about-badge { border-left-color: var(--accent); }
+.about-badge strong { background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* Karte / Standuert */
+.map-embed {
+  position: relative; height: 240px; border-radius: var(--radius); overflow: hidden;
+  border: 1px solid var(--line); box-shadow: var(--shadow-sm); margin-top: 6px;
+}
+.map-embed .map-fallback { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+.map-embed .map-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 1; }
+.map-embed .map-tag {
+  position: absolute; left: 14px; bottom: 14px; z-index: 2;
+  background: #fff; padding: 8px 14px; border-radius: 999px; font-size: .85rem;
+  font-weight: 600; font-family: var(--font-head); box-shadow: var(--shadow-md);
+}
+.map-btn { margin-top: 14px; }
+.appt-gsm { font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; opacity: .7; margin-right: 4px; }
+
+/* Kooperatioun: liicht getënzten Hannergrond */
+.coop-card { background: linear-gradient(135deg, #ffffff 0%, #fff6f2 100%); }
+.coop-logo { background: #fff; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); }
+
+/* Sektiouns-Iwwergäng: fein faarweg Linn uewen */
+.section-dark, .section-tuning { position: relative; }
+.section-dark::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+}
+
+@media (max-width: 720px) {
+  .hero-deco { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-deco svg { animation: none; }
+  .btn-primary::after { display: none; }
 }
