@@ -5,7 +5,7 @@
   var SLUG2KEY={"wartung": "svc1", "oelwechsel": "svc2", "reifen": "svc3", "bremsen": "svc4", "diagnose": "svc5", "klima": "svc6", "controle": "svc7", "batterie": "svc8", "tuning": "svc9", "karosserie": "svc10"};
   window.SERVICE_DETAILS={DLAB:DLAB,DETAILS:DETAILS,SLUG2KEY:SLUG2KEY};
   function lang(){ var l=document.documentElement.getAttribute('lang'); if(l&&DLAB[l])return l; try{var s=localStorage.getItem('gk_lang'); if(s&&DLAB[s])return s;}catch(e){} return 'lb'; }
-  function updateCardMore(){ var m=(DLAB[lang()]||DLAB.lb).more; document.querySelectorAll('.card-more').forEach(function(s){ s.textContent=m; }); }
+  function updateCardMore(){ var m=(DLAB[lang()]||DLAB.lb).more; document.querySelectorAll('.card-more').forEach(function(s){ s.textContent=m; }); document.querySelectorAll('.card-cover').forEach(function(a){ var art=a.closest('.card'); var h=art&&art.querySelector('h3'); if(h) a.setAttribute('aria-label', h.textContent); }); }
   function qs(k){ var m=new RegExp('[?&]'+k+'=([^&]+)').exec(location.search); return m?decodeURIComponent(m[1]):null; }
   function renderService(){
     var app=document.getElementById('svc-app'); if(!app) return;
