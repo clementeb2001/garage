@@ -292,6 +292,12 @@
   document.querySelectorAll('.lang-switch button').forEach(function (btn) {
     btn.addEventListener('click', function () {
       applyLang(btn.getAttribute('data-lang'));
+      var mobileNav = document.getElementById('main-nav');
+      var mobileToggle = document.getElementById('nav-toggle');
+      if (mobileNav && mobileToggle) {
+        mobileNav.classList.remove('open');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+      }
     });
   });
 
