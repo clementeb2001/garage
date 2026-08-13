@@ -81,7 +81,7 @@
   function renderSaison(){
     var m=MSG[lang()]||MSG.lb; var g=document.getElementById('saison-grid'); if(!g) return; g.innerHTML='';
     m.saison.items.forEach(function(it){
-      var c=document.createElement('article'); c.className='saison-card'; c.setAttribute('data-slug',it.slug);
+      var c=document.createElement('article'); c.className='saison-card'; c.setAttribute('data-slug',it.slug); c.style.setProperty('--season-img',"url('assets/services/"+({"tip-winter":"reifen.jpg","tip-fruehjahr":"klima.jpg","tip-summer":"wartung.jpg","tip-herbst":"controle.jpg"}[it.slug]||"wartung.jpg")+"')");
       var e=document.createElement('div'); e.className='s-emoji'; e.textContent=it.emoji;
       var s=document.createElement('span'); s.className='s-season'; s.textContent=it.season;
       var h=document.createElement('h3'); h.textContent=it.title;
