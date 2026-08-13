@@ -2,7 +2,7 @@
 (function(){
   var MSG={
    "lb":{
-    "form":{"submit":"Terminufro schécken","note":"Mir behandelen Är Donnéeën vertraulech.","sending":"Gëtt geschéckt …","ok":"Merci, {name}! Är Terminufro ass ukomm – mir mellen eis séier.","err":"Gitt w.e.g. Numm, eng gülteg E-Mail an eng Noriicht un.","senderr":"Uups – d’Ufro konnt net geschéckt ginn. Probéiert w.e.g. nach eng Kéier oder rufft eis un.","weekday":"Wonschdeeg","days":["Méi","Dën","Mët","Don","Fre","Sam"],"time":"Tageszäit","time_any":"Egal","time_am":"Moies","time_pm":"Nomëtteg","vin":"Fahrgestellnummer (VIN)","vin_ph":"optional – z. B. WVWZZZ…"},
+    "form":{"submit":"Terminufro schécken","note":"Mir behandelen Är Donnéeën vertraulech.","sending":"Gëtt geschéckt …","ok":"Merci, {name}! Är Terminufro ass ukomm – mir mellen eis séier.","err":"Gitt w.e.g. Numm, eng gülteg E-Mail, d’Fahrgestellnummer an eng Noriicht un.","senderr":"Uups – d’Ufro konnt net geschéckt ginn. Probéiert w.e.g. nach eng Kéier oder rufft eis un.","weekday":"Wonschdeeg","days":["Méi","Dën","Mët","Don","Fre","Sam"],"time":"Tageszäit","time_any":"Egal","time_am":"Moies","time_pm":"Nomëtteg","vin":"Fahrgestellnummer (VIN)","vin_ph":"z. B. WVWZZZ…"},
     "saison":{"eyebrow":"Tipps","title":"Tipps no Saison","more":"Méi gewuer ginn","items":[
       {"season":"Wanter","emoji":"❄️","title":"Sécher duerch de Wanter","text":"Winterreifen, Batterie a Beliichtung rechtzäiteg préiwen loossen.","slug":"tip-winter"},
       {"season":"Fréijoer","emoji":"🌤️","title":"Fréijoerscheck","text":"Vu Summerreifen bis Klimaservice – de Won fit fir déi waarm Saison maachen.","slug":"tip-fruehjahr"},
@@ -17,7 +17,7 @@
       {"q":"Kréien ech e Käschtevoranschlag?","a":"Jo – Dir kritt virun der Aarbecht e klore, transparente Devis, esou datt et keng béis Iwwerraschunge gëtt."}]}
    },
    "de":{
-    "form":{"submit":"Terminanfrage senden","note":"Wir behandeln Ihre Daten vertraulich.","sending":"Wird gesendet …","ok":"Danke, {name}! Ihre Terminanfrage ist angekommen – wir melden uns in Kürze.","err":"Bitte Name, eine gültige E-Mail und eine Nachricht angeben.","senderr":"Ups – die Anfrage konnte nicht gesendet werden. Bitte erneut versuchen oder rufen Sie uns an.","weekday":"Wunschtage","days":["Mo","Di","Mi","Do","Fr","Sa"],"time":"Tageszeit","time_any":"Egal","time_am":"Vormittag","time_pm":"Nachmittag","vin":"Fahrgestellnummer (VIN)","vin_ph":"optional – z. B. WVWZZZ…"},
+    "form":{"submit":"Terminanfrage senden","note":"Wir behandeln Ihre Daten vertraulich.","sending":"Wird gesendet …","ok":"Danke, {name}! Ihre Terminanfrage ist angekommen – wir melden uns in Kürze.","err":"Bitte Name, eine gültige E-Mail, die Fahrgestellnummer und eine Nachricht angeben.","senderr":"Ups – die Anfrage konnte nicht gesendet werden. Bitte erneut versuchen oder rufen Sie uns an.","weekday":"Wunschtage","days":["Mo","Di","Mi","Do","Fr","Sa"],"time":"Tageszeit","time_any":"Egal","time_am":"Vormittag","time_pm":"Nachmittag","vin":"Fahrgestellnummer (VIN)","vin_ph":"z. B. WVWZZZ…"},
     "saison":{"eyebrow":"Tipps","title":"Tipps nach Saison","more":"Mehr erfahren","items":[
       {"season":"Winter","emoji":"❄️","title":"Sicher durch den Winter","text":"Winterreifen, Batterie und Beleuchtung rechtzeitig prüfen lassen.","slug":"tip-winter"},
       {"season":"Frühling","emoji":"🌤️","title":"Frühjahrs-Check","text":"Von Sommerreifen bis Klimaservice – das Auto fit für die warme Saison machen.","slug":"tip-fruehjahr"},
@@ -32,7 +32,7 @@
       {"q":"Bekomme ich einen Kostenvoranschlag?","a":"Ja – Sie erhalten vor Beginn der Arbeit einen klaren, transparenten Kostenvoranschlag, damit es keine bösen Überraschungen gibt."}]}
    },
    "fr":{
-    "form":{"submit":"Envoyer la demande","note":"Vos données restent confidentielles.","sending":"Envoi …","ok":"Merci {name} ! Votre demande de rendez-vous est bien arrivée – nous vous recontactons rapidement.","err":"Merci d’indiquer votre nom, un e-mail valide et un message.","senderr":"Oups – l’envoi a échoué. Réessayez ou appelez-nous.","weekday":"Jours souhaités","days":["Lu","Ma","Me","Je","Ve","Sa"],"time":"Moment","time_any":"Peu importe","time_am":"Matin","time_pm":"Après-midi","vin":"Numéro de châssis (VIN)","vin_ph":"optionnel – p. ex. VF1…"},
+    "form":{"submit":"Envoyer la demande","note":"Vos données restent confidentielles.","sending":"Envoi …","ok":"Merci {name} ! Votre demande de rendez-vous est bien arrivée – nous vous recontactons rapidement.","err":"Merci d’indiquer votre nom, un e-mail valide, le numéro de châssis et un message.","senderr":"Oups – l’envoi a échoué. Réessayez ou appelez-nous.","weekday":"Jours souhaités","days":["Lu","Ma","Me","Je","Ve","Sa"],"time":"Moment","time_any":"Peu importe","time_am":"Matin","time_pm":"Après-midi","vin":"Numéro de châssis (VIN)","vin_ph":"p. ex. VF1…"},
     "saison":{"eyebrow":"Conseils","title":"Conseils par saison","more":"En savoir plus","items":[
       {"season":"Hiver","emoji":"❄️","title":"Prêt pour l’hiver","text":"Pneus hiver, batterie et éclairage à vérifier à temps.","slug":"tip-winter"},
       {"season":"Printemps","emoji":"🌤️","title":"Check de printemps","text":"Des pneus été au service clim – préparez la voiture pour la belle saison.","slug":"tip-fruehjahr"},
@@ -47,7 +47,7 @@
       {"q":"Puis-je avoir un devis ?","a":"Oui – vous recevez un devis clair et transparent avant les travaux, sans mauvaise surprise."}]}
    },
    "en":{
-    "form":{"submit":"Send request","note":"We treat your data confidentially.","sending":"Sending …","ok":"Thanks, {name}! Your appointment request has arrived – we’ll get back to you shortly.","err":"Please enter your name, a valid email and a message.","senderr":"Oops – the request could not be sent. Please try again or call us.","weekday":"Preferred days","days":["Mon","Tue","Wed","Thu","Fri","Sat"],"time":"Time of day","time_any":"Any","time_am":"Morning","time_pm":"Afternoon","vin":"Chassis number (VIN)","vin_ph":"optional – e.g. WVWZZZ…"},
+    "form":{"submit":"Send request","note":"We treat your data confidentially.","sending":"Sending …","ok":"Thanks, {name}! Your appointment request has arrived – we’ll get back to you shortly.","err":"Please enter your name, a valid email, the chassis number and a message.","senderr":"Oops – the request could not be sent. Please try again or call us.","weekday":"Preferred days","days":["Mon","Tue","Wed","Thu","Fri","Sat"],"time":"Time of day","time_any":"Any","time_am":"Morning","time_pm":"Afternoon","vin":"Chassis number (VIN)","vin_ph":"e.g. WVWZZZ…"},
     "saison":{"eyebrow":"Tips","title":"Seasonal tips","more":"Learn more","items":[
       {"season":"Winter","emoji":"❄️","title":"Ready for winter","text":"Have winter tyres, battery and lights checked in good time.","slug":"tip-winter"},
       {"season":"Spring","emoji":"🌤️","title":"Spring check","text":"From summer tyres to the air-con service – get the car ready for the warm season.","slug":"tip-fruehjahr"},
@@ -107,9 +107,9 @@
     var m=MSG[lang()]||MSG.lb; var st=document.getElementById('form-status'); if(!st) return;
     st.className='form-status'; st.textContent='';
     function v(id){ var el=f.querySelector('#'+id); return el?(el.value||'').trim():''; }
-    var name=v('name'), email=v('email'), message=v('message');
+    var name=v('name'), email=v('email'), message=v('message'), vin=v('vin');
     var okmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if(!name||!okmail||!message){ st.className='form-status err'; st.textContent=m.form.err; return; }
+    if(!name||!okmail||!message||!vin){ st.className='form-status err'; st.textContent=m.form.err; return; }
     var hp=f.querySelector('[name="_honey"]'); if(hp&&hp.value){ st.className='form-status ok'; st.textContent=m.form.ok.replace('{name}',name); f.reset(); return; }
     var btn=f.querySelector('button[type="submit"]'); if(btn) btn.disabled=true;
     st.className='form-status'; st.textContent=m.form.sending;
