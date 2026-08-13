@@ -275,17 +275,6 @@
       </div>
     </section>
 
-    <!-- FAQ -->
-    <section class="section" id="faq">
-      <div class="container faq-wrap">
-        <div class="section-head">
-          <p class="eyebrow" id="faq-eyebrow">FAQ</p>
-          <h2 id="faq-title">Dacks gestallte Froen</h2>
-        </div>
-        <div class="faq-list" id="faq-list"></div>
-      </div>
-    </section>
-
     <section class="section section-dark" id="oeffnungszeiten">
       <div class="container hours-grid">
         <div class="hours-content">
@@ -381,11 +370,18 @@
               <option data-i18n="f_other">Anescht</option>
             </select>
           </div>
-          <div class="field-row">
-            <div class="field">
-              <label for="wdate" id="lbl-wdate">Wonschdatum</label>
-              <input type="date" id="wdate" name="Wunschtermin" />
+          <div class="field">
+            <label id="lbl-weekday">Wonschdeeg</label>
+            <div class="weekday-chips" id="weekday-chips">
+              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Montag"><span id="wd-1">Méi</span></label>
+              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Dienstag"><span id="wd-2">Dën</span></label>
+              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Mittwoch"><span id="wd-3">Mët</span></label>
+              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Donnerstag"><span id="wd-4">Don</span></label>
+              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Freitag"><span id="wd-5">Fre</span></label>
+              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Samstag"><span id="wd-6">Sam</span></label>
             </div>
+          </div>
+          <div class="field-row">
             <div class="field">
               <label for="wtime" id="lbl-wtime">Tageszäit</label>
               <select id="wtime" name="Tageszeit">
@@ -393,6 +389,10 @@
                 <option id="opt-time-am">Moies</option>
                 <option id="opt-time-pm">Nomëtteg</option>
               </select>
+            </div>
+            <div class="field">
+              <label for="vin" id="lbl-vin">Fahrgestellnummer (VIN)</label>
+              <input type="text" id="vin" name="Fahrgestellnummer" maxlength="17" autocomplete="off" spellcheck="false" placeholder="optional" />
             </div>
           </div>
           <div class="field">
@@ -403,6 +403,17 @@
           <p class="form-note"><span data-i18n="f_note"></span> <a href="datenschutz.html" data-i18n="footer_datenschutz">Dateschutz</a></p>
           <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
         </form>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section section-alt" id="faq">
+      <div class="container faq-wrap">
+        <div class="section-head">
+          <p class="eyebrow" id="faq-eyebrow">FAQ</p>
+          <h2 id="faq-title">Dacks gestallte Froen</h2>
+        </div>
+        <div class="faq-list" id="faq-list"></div>
       </div>
     </section>
   </main>

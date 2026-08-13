@@ -844,13 +844,26 @@ body { background: var(--surface-soft); }
 #saison .section-head h2, #faq .section-head h2 { color:#fff; }
 
 .saison-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
-.saison-card { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:22px; display:flex; flex-direction:column; gap:8px; }
+.saison-card { position:relative; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:22px; display:flex; flex-direction:column; gap:8px; transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.saison-card:hover { transform:translateY(-6px); box-shadow:0 18px 42px rgba(0,0,0,.35); border-color:rgba(255,154,77,.5); }
 .saison-card .s-emoji { font-size:1.8rem; line-height:1; }
 .saison-card .s-season { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-2,#ff9a4d); font-weight:800; }
 .saison-card h3 { color:#fff; font-size:1.04rem; margin:0; }
 .saison-card p { color:#c6d0dc; font-size:.94rem; margin:0; }
-.saison-card a { color:#fff; font-weight:700; font-size:.86rem; margin-top:auto; text-decoration:none; }
-.saison-card a:hover { color:var(--accent-2,#ff9a4d); }
+.saison-card .s-more { color:#fff; font-weight:700; font-size:.86rem; margin-top:auto; padding-top:6px; }
+.saison-card:hover .s-more { color:var(--accent-2,#ff9a4d); }
+.saison-card .card-cover { position:absolute; inset:0; z-index:8; border-radius:14px; }
+.saison-card .card-cover:focus-visible { outline:3px solid var(--accent-2,#ff9a4d); outline-offset:2px; }
+
+/* Wochentag-Chips + VIN im Terminformular */
+.weekday-chips { display:flex; flex-wrap:wrap; gap:8px; }
+.weekday-chips .wchip { position:relative; }
+.weekday-chips .wchip input { position:absolute; opacity:0; width:0; height:0; }
+.weekday-chips .wchip span { display:inline-block; padding:9px 14px; border-radius:999px; border:1px solid #dbe0e5; background:#f4f6f8; color:var(--navy-900,#0d1b2a); font-weight:700; font-size:.9rem; cursor:pointer; user-select:none; transition:all .15s ease; }
+.weekday-chips .wchip span:hover { border-color:var(--accent,#e63946); }
+.weekday-chips .wchip input:checked + span { background:var(--accent,#e63946); border-color:var(--accent,#e63946); color:#fff; }
+.weekday-chips .wchip input:focus-visible + span { outline:3px solid var(--accent-2,#ff9a4d); outline-offset:2px; }
+#vin { text-transform:uppercase; letter-spacing:.03em; }
 
 .faq-wrap { max-width:820px; }
 .faq-list { display:grid; gap:12px; }
