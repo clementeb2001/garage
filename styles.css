@@ -817,3 +817,21 @@ body { background: var(--surface-soft); }
   background: var(--surface-soft) !important;
   background-image: none !important;
 }
+
+/* ============================================================
+   Durchgängeg donkelt Design: Über uns / Warum / Kontakt
+   ============================================================ */
+#ueber-uns.section-alt, #kontakt.section-alt, #warum {
+  background-color: var(--surface-dark) !important;
+  background-image: radial-gradient(circle at 12% 100%, rgba(230,57,70,.14), transparent 36%) !important;
+}
+#ueber-uns .about-content h2, #warum .section-head h2, #kontakt .contact-info h2 { color:#fff; }
+#ueber-uns .about-content p, #kontakt .contact-info > p { color:#c6d0dc; }
+#ueber-uns .check-list li { color:#dbe3ec; }
+#warum .section-sub { color:#b8c4d0; }
+#warum .feature { background: rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); }
+#warum .feature:hover { background: rgba(255,255,255,.08); }
+#warum .feature h3 { color:#fff; }
+#warum .feature p { color:#c6d0dc; }
+#kontakt .ci-value { color:#e6edf5; }
+#kontakt a.ci-value:hover { color:#ff7a85; }
