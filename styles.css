@@ -889,10 +889,18 @@ body { background: var(--surface-soft); }
 
 /* Hero + Sich */
 .shop-hero { position:relative; overflow:hidden; background:var(--navy-950,#080f18); color:#fff; padding:64px 0 54px; }
-.shop-hero-bg { position:absolute; inset:0; background:
-    radial-gradient(circle at 85% 0%, rgba(230,57,70,.28), transparent 42%),
-    radial-gradient(circle at 5% 100%, rgba(255,138,61,.20), transparent 40%),
-    linear-gradient(160deg, #0c1622, #060c14); z-index:0; }
+.shop-hero-bg { position:absolute; inset:0; z-index:0;
+  background:
+    radial-gradient(circle at 88% 6%, rgba(230,57,70,.30), transparent 45%),
+    linear-gradient(96deg, rgba(7,13,21,.97) 0%, rgba(7,13,21,.90) 42%, rgba(7,13,21,.60) 72%, rgba(7,13,21,.72) 100%),
+    linear-gradient(0deg, rgba(255,138,61,.10), rgba(255,138,61,.10)),
+    url('assets/services/bremsen.jpg');
+  background-size:cover; background-position:center 42%; }
+.shop-hero-bg::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 78%, rgba(8,15,24,.55)); }
+
+/* Shop-Knopf (Startseite + allgemein) */
+.btn-shop { background:var(--accent-2,#ff8a3d); color:#2a1500; font-weight:800; box-shadow:0 8px 20px rgba(255,138,61,.32); }
+.btn-shop:hover { filter:brightness(1.05); transform:translateY(-1px); }
 .shop-hero > .container { position:relative; z-index:1; }
 .shop-hero .eyebrow.light { color:var(--accent-2,#ff8a3d); }
 .shop-hero h1 { color:#fff; font-size:clamp(1.9rem,4vw,2.8rem); margin:6px 0 8px; }
