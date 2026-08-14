@@ -8,7 +8,7 @@
   var I18N = {
     lb: {
       nav_services: 'Servicer', nav_tuning: 'Tuning', nav_about: 'Iwwer eis', nav_why: 'Firwat mir',
-      nav_hours: 'Ëffnungszäiten', nav_cta: 'Rendez-vous ufroen',
+      nav_hours: 'Ëffnungszäiten', nav_shop: 'Shop', nav_cta: 'Rendez-vous ufroen',
       topbar_partner: 'Offiziellen Partnerbetrib',
       hero_eyebrow: 'Autosgarage · Bettendorf, Lëtzebuerg',
       hero_title_1: 'Ären Auto a', hero_title_2: 'beschten Hänn.',
@@ -69,7 +69,7 @@
     },
     de: {
       nav_services: 'Leistungen', nav_tuning: 'Tuning', nav_about: 'Über uns', nav_why: 'Warum wir',
-      nav_hours: 'Öffnungszeiten', nav_cta: 'Termin anfragen',
+      nav_hours: 'Öffnungszeiten', nav_shop: 'Shop', nav_cta: 'Termin anfragen',
       topbar_partner: 'Offizieller Partnerbetrieb',
       hero_eyebrow: 'Autowerkstatt · Bettendorf, Luxemburg',
       hero_title_1: 'Ihr Auto in', hero_title_2: 'besten Händen.',
@@ -130,7 +130,7 @@
     },
     fr: {
       nav_services: 'Prestations', nav_tuning: 'Tuning', nav_about: 'À propos', nav_why: 'Pourquoi nous',
-      nav_hours: 'Horaires', nav_cta: 'Prendre rendez-vous',
+      nav_hours: 'Horaires', nav_shop: 'Shop', nav_cta: 'Prendre rendez-vous',
       topbar_partner: 'Garage partenaire officiel',
       hero_eyebrow: 'Garage automobile · Bettendorf, Luxembourg',
       hero_title_1: 'Votre voiture entre', hero_title_2: 'de bonnes mains.',
@@ -191,7 +191,7 @@
     },
     en: {
       nav_services: 'Services', nav_tuning: 'Tuning', nav_about: 'About us', nav_why: 'Why us',
-      nav_hours: 'Hours', nav_cta: 'Book appointment',
+      nav_hours: 'Hours', nav_shop: 'Shop', nav_cta: 'Book appointment',
       topbar_partner: 'Official partner garage',
       hero_eyebrow: 'Car garage · Bettendorf, Luxembourg',
       hero_title_1: 'Your car in', hero_title_2: 'the best hands.',
