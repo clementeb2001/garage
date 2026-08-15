@@ -199,6 +199,14 @@
     toastTimer=setTimeout(function(){ el.classList.remove('show'); },2600);
   }
 
+  /* ---------- "In Arbeit"-Säit ---------- */
+  var SOON={
+   lb:{eyebrow:"Online-Shop",title:"Eise Shop ass an der Aarbecht",text:"Mir sinn amgaang, eise Autodeeler-Shop opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt fir Deeler a Präisser.",cta:"Uweg ufroen",back:"Zréck op d’Startsäit",dev:"Vorschau-Modus – Shop öffentlech nach „an der Aarbecht“",hide:"verstoppen"},
+   de:{eyebrow:"Online-Shop",title:"Unser Shop ist in Arbeit",text:"Wir bauen gerade unseren Autoteile-Shop auf. Schauen Sie bald wieder vorbei – oder kontaktieren Sie uns direkt für Teile und Preise.",cta:"Anfrage senden",back:"Zurück zur Startseite",dev:"Vorschau-Modus – Shop öffentlich noch „in Arbeit“",hide:"ausblenden"},
+   fr:{eyebrow:"Boutique en ligne",title:"Notre boutique est en construction",text:"Nous préparons notre boutique de pièces auto. Revenez bientôt – ou contactez-nous directement pour les pièces et les prix.",cta:"Envoyer une demande",back:"Retour à l’accueil",dev:"Mode aperçu – boutique encore « en construction » côté public",hide:"masquer"},
+   en:{eyebrow:"Online shop",title:"Our shop is under construction",text:"We’re building our car-parts shop. Please check back soon – or contact us directly for parts and prices.",cta:"Send request",back:"Back to home",dev:"Preview mode – shop still “under construction” for the public",hide:"hide"}
+  };
+
   /* ---------- Statics (Iwwersetzungen) ---------- */
   function applyStatics(){
     var t=tr();
@@ -207,6 +215,11 @@
     setTxt('lbl-btn-text',t.btn_text); setTxt('lbl-btn-veh',t.btn_veh);
     var q=$('q-text'); if(q) q.placeholder=t.ph_text;
     setTxt('shop-note-title',t.note_title); setTxt('shop-note-text',t.note_text); setTxt('shop-note-cta',t.note_cta);
+    var s=SOON[lang()]||SOON.lb;
+    setTxt('soon-eyebrow',s.eyebrow); setTxt('soon-title',s.title); setTxt('soon-text',s.text);
+    setTxt('soon-cta',s.cta); setTxt('soon-back',s.back);
+    setTxt('dev-badge-txt',s.dev);
+    var dh=document.querySelector('#shop-dev-badge a'); if(dh) dh.textContent=s.hide;
     fillBrands(); fillModels($('veh-brand')?$('veh-brand').value:''); fillYears();
   }
 

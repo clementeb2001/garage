@@ -14,7 +14,16 @@
 
   <link rel="canonical" href="https://clementeb2001.github.io/garage/shop.html" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1b2a'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23e63946'%3EK%3C/text%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
+  <script>
+    /* Shop-Sperre: oeffentlich "in Arbeit", fir de Besëtzer via ?dev=1 fräischalten */
+    (function(){ try{
+      var p=new URLSearchParams(location.search);
+      if(p.get('dev')==='1'){ localStorage.setItem('gk_shop_dev','1'); }
+      if(p.get('dev')==='0'){ localStorage.removeItem('gk_shop_dev'); }
+      if(localStorage.getItem('gk_shop_dev')==='1'){ document.documentElement.classList.add('shop-dev'); }
+    }catch(e){} })();
+  </script>
 </head>
 <body>
   <!-- Top bar -->
@@ -61,7 +70,25 @@
     </div>
   </header>
 
+  <!-- Dev-Modus-Hiweis (nëmme fir de Besëtzer sichtbar) -->
+  <div class="shop-dev-badge" id="shop-dev-badge">🔧 <span id="dev-badge-txt">Vorschau-Modus – Shop öffentlich noch „in Arbeit"</span> · <a href="shop.html?dev=0">verstoppen</a></div>
+
   <main>
+    <!-- „In Arbeit"-Säit (oeffentlech) -->
+    <section id="shop-soon" aria-label="Shop in Arbeit">
+      <div class="soon-bg" aria-hidden="true"></div>
+      <div class="container soon-inner">
+        <div class="soon-ic">🔧</div>
+        <p class="eyebrow light" id="soon-eyebrow">Online-Shop</p>
+        <h1 id="soon-title">Eise Shop ass an der Aarbecht</h1>
+        <p id="soon-text">Mir sinn amgaang, eise Autodeeler-Shop opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt fir Deeler a Präisser.</p>
+        <div class="soon-actions">
+          <a class="btn btn-primary" href="index.html#kontakt" id="soon-cta">Uweg ufroen</a>
+          <a class="btn btn-ghost" href="index.html#top" id="soon-back">Zréck op d’Startsäit</a>
+        </div>
+      </div>
+    </section>
+
     <!-- Shop-Hero + Sich -->
     <section class="shop-hero">
       <div class="shop-hero-bg" aria-hidden="true"></div>
@@ -162,6 +189,6 @@
   <a href="index.html#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
   <script src="script.js?v=2"></script>
-  <script src="shop.js?v=1"></script>
+  <script src="shop.js?v=2"></script>
 </body>
 </html>

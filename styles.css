@@ -977,3 +977,32 @@ body { background: var(--surface-soft); }
   .search-row .btn { width:100%; }
 }
 @media (max-width:460px){ .shop-grid { grid-template-columns:1fr; } }
+
+
+/* ============================================================
+   Shop-Sperre: oeffentlich "in Arbeit", Besëtzer-Vorschau via ?dev=1
+   ============================================================ */
+#shop-soon { position:relative; overflow:hidden; background:var(--navy-950,#080f18); color:#fff; min-height:72vh; display:flex; align-items:center; }
+html.shop-dev #shop-soon { display:none; }
+html:not(.shop-dev) .shop-hero,
+html:not(.shop-dev) #shop-catalog,
+html:not(.shop-dev) #shop-note,
+html:not(.shop-dev) .cart-toast { display:none !important; }
+
+.soon-bg { position:absolute; inset:0; z-index:0; background:
+    radial-gradient(circle at 82% 8%, rgba(230,57,70,.30), transparent 46%),
+    radial-gradient(circle at 8% 100%, rgba(255,138,61,.18), transparent 44%),
+    linear-gradient(160deg, #0c1622, #060c14); }
+.soon-inner { position:relative; z-index:1; text-align:center; max-width:640px; margin:0 auto; padding:60px 0; }
+.soon-ic { font-size:3.4rem; line-height:1; margin-bottom:14px; }
+#shop-soon .eyebrow.light { color:var(--accent-2,#ff8a3d); }
+#shop-soon h1 { color:#fff; font-size:clamp(1.9rem,4.4vw,2.9rem); margin:4px 0 14px; }
+#shop-soon p { color:#c6d0dc; font-size:1.08rem; margin:0 auto 28px; max-width:540px; }
+.soon-actions { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+.soon-actions .btn-ghost { color:#fff; border-color:rgba(255,255,255,.28); }
+.soon-actions .btn-ghost:hover { border-color:#fff; background:rgba(255,255,255,.06); }
+
+/* Vorschau-Modus-Banner (nëmme fir de Besëtzer) */
+.shop-dev-badge { display:none; }
+html.shop-dev .shop-dev-badge { display:block; text-align:center; background:var(--accent-2,#ff8a3d); color:#2a1500; font-weight:800; font-size:.9rem; padding:9px 16px; }
+html.shop-dev .shop-dev-badge a { color:#2a1500; text-decoration:underline; }
