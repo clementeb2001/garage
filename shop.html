@@ -1,194 +1,369 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="lb">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Autodeeler-Shop vum Autoservice Bettenduerf – Autoteile fir all Marken a Modeller. Sich no Artikelname, Artikelnummer oder no Ärem Fahrzeug." />
-  <meta name="theme-color" content="#0d1b2a" />
-  <title>Shop – Autoservice Bettenduerf</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Autodeeler-Shop vum Autoservice Bettenduerf – Autodeeler fir all Marken a Modeller. Sich no Bezeechnung, Artikelnummer oder no Ärem Won."
+    />
+    <meta name="theme-color" content="#0d1b2a" />
+    <title>Shop – Autoservice Bettenduerf</title>
 
-  <meta property="og:title" content="Autoservice Bettenduerf – Shop" />
-  <meta property="og:description" content="Autoteile fir all Marken a Modeller – Sich no Artikel oder no Fahrzeug." />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="lb_LU" />
+    <meta property="og:title" content="Autoservice Bettenduerf – Shop" />
+    <meta
+      property="og:description"
+      content="Autodeeler fir all Marken a Modeller – Sich no Artikel oder no Won."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="lb_LU" />
 
-  <link rel="canonical" href="https://clementeb2001.github.io/garage/shop.html" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1b2a'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23e63946'%3EK%3C/text%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="styles.css?v=4" />
-  <script>
-    /* Shop-Sperre: oeffentlich "in Arbeit", fir de Besëtzer via ?dev=1 fräischalten */
-    (function(){ try{
-      var p=new URLSearchParams(location.search);
-      if(p.get('dev')==='1'){ localStorage.setItem('gk_shop_dev','1'); }
-      if(p.get('dev')==='0'){ localStorage.removeItem('gk_shop_dev'); }
-      if(localStorage.getItem('gk_shop_dev')==='1'){ document.documentElement.classList.add('shop-dev'); }
-    }catch(e){} })();
-  </script>
-</head>
-<body>
-  <!-- Top bar -->
-  <div class="topbar">
-    <div class="container topbar-inner">
-      <span class="topbar-partner">
-        <span data-i18n="topbar_partner">Offiziellen Partnerbetrib</span>
-        <span class="logo123 logo123-xs" role="img" aria-label="1,2,3 AutoService">
-          <img class="logo-official" src="assets/123autoservice-logo.png" alt="1,2,3 AutoService" width="600" height="359" /><span class="logo-fallback">1·2·3 AutoService</span>
-        </span>
-      </span>
-      <span class="topbar-contact">
-        <a href="tel:+352808687">📞 +352 80 86 87</a>
-        <a class="tb-email" href="mailto:Autoservicebettenduerf@outlook.com">✉️ Autoservicebettenduerf@outlook.com</a>
-      </span>
-    </div>
-  </div>
-
-  <!-- Header -->
-  <header class="site-header" id="top">
-    <div class="container header-inner">
-      <a href="index.html#top" class="brand" aria-label="Autoservice Bettenduerf">
-        <img class="site-logo" src="assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf" width="1351" height="728" />
-      </a>
-
-      <nav class="main-nav" id="main-nav" aria-label="Navigatioun">
-        <a href="index.html#leistungen" data-i18n="nav_services">Servicer</a>
-        <a href="index.html#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
-        <a href="shop.html" class="active" data-i18n="nav_shop">Shop</a>
-        <a href="index.html#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
-        <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta">Rendez-vous ufroen</a>
-
-        <div class="lang-switch" role="group" aria-label="Sprooch / Langue / Language">
-          <button type="button" data-lang="lb" class="active">LB</button>
-          <button type="button" data-lang="de">DE</button>
-          <button type="button" data-lang="fr">FR</button>
-          <button type="button" data-lang="en">EN</button>
-        </div>
-      </nav>
-
-      <button class="nav-toggle" id="nav-toggle" aria-label="Menü" aria-expanded="false" aria-controls="main-nav">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Dev-Modus-Hiweis (nëmme fir de Besëtzer sichtbar) -->
-  <div class="shop-dev-badge" id="shop-dev-badge">🔧 <span id="dev-badge-txt">Vorschau-Modus – Shop öffentlich noch „in Arbeit"</span> · <a href="shop.html?dev=0">verstoppen</a></div>
-
-  <main>
-    <!-- „In Arbeit"-Säit (oeffentlech) -->
-    <section id="shop-soon" aria-label="Shop in Arbeit">
-      <div class="soon-bg" aria-hidden="true"></div>
-      <div class="container soon-inner">
-        <div class="soon-ic">🔧</div>
-        <p class="eyebrow light" id="soon-eyebrow">Online-Shop</p>
-        <h1 id="soon-title">Eise Shop ass an der Aarbecht</h1>
-        <p id="soon-text">Mir sinn amgaang, eise Autodeeler-Shop opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt fir Deeler a Präisser.</p>
-        <div class="soon-actions">
-          <a class="btn btn-primary" href="index.html#kontakt" id="soon-cta">Uweg ufroen</a>
-          <a class="btn btn-ghost" href="index.html#top" id="soon-back">Zréck op d’Startsäit</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Shop-Hero + Sich -->
-    <section class="shop-hero">
-      <div class="shop-hero-bg" aria-hidden="true"></div>
-      <div class="container">
-        <p class="eyebrow light" id="shop-eyebrow">Onlineshop</p>
-        <h1 id="shop-title">Autodeeler fir all Fahrzeug</h1>
-        <p class="shop-sub" id="shop-sub">Sich no Artikelname, Artikelnummer – oder direkt no Ärem Fahrzeug.</p>
-
-        <div class="shop-search">
-          <div class="shop-tabs" role="tablist">
-            <button class="shop-tab active" id="tab-artikel" data-tab="artikel" role="tab" aria-selected="true">🔎 <span id="lbl-tab-artikel">Artikel</span></button>
-            <button class="shop-tab" id="tab-fahrzeug" data-tab="fahrzeug" role="tab" aria-selected="false">🚗 <span id="lbl-tab-fahrzeug">Fahrzeug</span></button>
-          </div>
-
-          <div class="shop-panel" id="panel-artikel" role="tabpanel">
-            <div class="search-row">
-              <input type="search" id="q-text" autocomplete="off" placeholder="Artikelname oder Artikelnummer …" aria-label="Artikel sichen" />
-              <button class="btn btn-primary" id="btn-text-search" type="button"><span id="lbl-btn-text">Sichen</span></button>
-            </div>
-          </div>
-
-          <div class="shop-panel" id="panel-fahrzeug" role="tabpanel" hidden>
-            <div class="veh-row">
-              <select id="veh-brand" aria-label="Marke"><option value="">Marke wielen</option></select>
-              <select id="veh-model" aria-label="Modell" disabled><option value="">Modell wielen</option></select>
-              <select id="veh-year" aria-label="Baujahr" disabled><option value="">Baujoer</option></select>
-              <button class="btn btn-primary" id="btn-veh-search" type="button"><span id="lbl-btn-veh">Passend Deeler fannen</span></button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Katalog -->
-    <section class="section" id="shop-catalog">
-      <div class="container">
-        <div class="cat-chips" id="cat-chips" role="group" aria-label="Kategorien"></div>
-        <p class="shop-result-info" id="shop-result-info"></p>
-        <div class="shop-grid" id="shop-grid"></div>
-        <p class="shop-empty" id="shop-empty" hidden>Keng Artikelen fonnt.</p>
-      </div>
-    </section>
-
-    <!-- Hiweis -->
-    <section class="section section-dark" id="shop-note">
-      <div class="container shop-note-inner">
-        <div>
-          <h2 id="shop-note-title">Deel net fonnt?</h2>
-          <p id="shop-note-text">Mir fannen Iech dat richtegt Deel fir all Marke a Modell – rufft un oder schéckt eng Ufro.</p>
-        </div>
-        <a class="btn btn-primary" href="index.html#kontakt" id="shop-note-cta">Uweg ufroen</a>
-      </div>
-    </section>
-  </main>
-
-  <!-- Warenkuerf-Toast -->
-  <div class="cart-toast" id="cart-toast" role="status" aria-live="polite" hidden></div>
-
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <div class="footer-brand">
-        <img class="site-logo site-logo-footer" src="assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf" width="1351" height="728" />
-        <p data-i18n="footer_tagline"></p>
-        <div class="footer-partner">
-          <span data-i18n="footer_partner">Offiziellen 1·2·3 AutoService Partnerbetrib</span>
-          <span class="logo123 logo123-sm" role="img" aria-label="1,2,3 AutoService">
-            <img class="logo-official" src="assets/123autoservice-logo.png" alt="1,2,3 AutoService" width="600" height="359" /><span class="logo-fallback">1·2·3 AutoService</span>
+    <link rel="canonical" href="https://autoservicebettenduerf.lu/shop.html" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1b2a'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23e63946'%3EK%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles.css?v=5" />
+    <script>
+      /* Shop-Sperre: oeffentlich "in Arbeit", fir de Besëtzer via ?dev=1 fräischalten */
+      (function () {
+        try {
+          var p = new URLSearchParams(location.search);
+          if (p.get("dev") === "1") {
+            localStorage.setItem("gk_shop_dev", "1");
+          }
+          if (p.get("dev") === "0") {
+            localStorage.removeItem("gk_shop_dev");
+          }
+          if (localStorage.getItem("gk_shop_dev") === "1") {
+            document.documentElement.classList.add("shop-dev");
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="container topbar-inner">
+        <span class="topbar-partner">
+          <span data-i18n="topbar_partner">Offiziell Partnergarage</span>
+          <span
+            class="logo123 logo123-xs"
+            role="img"
+            aria-label="1,2,3 AutoService"
+          >
+            <img
+              class="logo-official"
+              src="assets/123autoservice-logo.png"
+              alt="1,2,3 AutoService"
+              width="600"
+              height="359"
+            /><span class="logo-fallback">1·2·3 AutoService</span>
           </span>
+        </span>
+        <span class="topbar-contact">
+          <a href="tel:+352808687">📞 +352 80 86 87</a>
+          <a class="tb-email" href="mailto:Autoservicebettenduerf@outlook.com"
+            >✉️ Autoservicebettenduerf@outlook.com</a
+          >
+        </span>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header class="site-header" id="top">
+      <div class="container header-inner">
+        <a
+          href="index.html#top"
+          class="brand"
+          aria-label="Autoservice Bettenduerf"
+        >
+          <img
+            class="site-logo"
+            src="assets/autoservice-bettenduerf-logo.png"
+            alt="Autoservice Bettenduerf"
+            width="1351"
+            height="728"
+          />
+        </a>
+
+        <nav class="main-nav" id="main-nav" aria-label="Navigatioun">
+          <a href="index.html#leistungen" data-i18n="nav_services">Servicer</a>
+          <a href="index.html#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
+          <a href="shop.html" class="active" data-i18n="nav_shop">Shop</a>
+          <a href="index.html#oeffnungszeiten" data-i18n="nav_hours"
+            >Ëffnungszäiten</a
+          >
+          <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta"
+            >Rendez-vous ufroen</a
+          >
+
+          <div
+            class="lang-switch"
+            role="group"
+            aria-label="Sprooch / Langue / Language"
+          >
+            <button type="button" data-lang="lb" class="active">LB</button>
+            <button type="button" data-lang="de">DE</button>
+            <button type="button" data-lang="fr">FR</button>
+            <button type="button" data-lang="en">EN</button>
+          </div>
+        </nav>
+
+        <button
+          class="nav-toggle"
+          id="nav-toggle"
+          aria-label="Menü"
+          aria-expanded="false"
+          aria-controls="main-nav"
+        >
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Dev-Modus-Hiweis (nëmme fir de Besëtzer sichtbar) -->
+    <div class="shop-dev-badge" id="shop-dev-badge">
+      🔧
+      <span id="dev-badge-txt"
+        >Vorschau-Modus – Shop öffentlich noch „in Arbeit"</span
+      >
+      · <a href="shop.html?dev=0">verstoppen</a>
+    </div>
+
+    <main>
+      <!-- „In Arbeit"-Säit (oeffentlech) -->
+      <section id="shop-soon" aria-label="Shop in Arbeit">
+        <div class="soon-bg" aria-hidden="true"></div>
+        <div class="container soon-inner">
+          <div class="soon-ic">🔧</div>
+          <p class="eyebrow light" id="soon-eyebrow">Online-Shop</p>
+          <h1 id="soon-title">Eise Shop ass an der Aarbecht</h1>
+          <p id="soon-text">
+            Mir sinn amgaang, eise Autodeeler-Shop opzebauen. Kuckt geschwënn
+            erëm laanscht – oder kontaktéiert eis direkt fir Deeler a Präisser.
+          </p>
+          <div class="soon-actions">
+            <a class="btn btn-primary" href="index.html#kontakt" id="soon-cta"
+              >Deel ufroen</a
+            >
+            <a class="btn btn-ghost" href="index.html#top" id="soon-back"
+              >Zréck op d’Startsäit</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- Shop-Hero + Sich -->
+      <section class="shop-hero">
+        <div class="shop-hero-bg" aria-hidden="true"></div>
+        <div class="container">
+          <p class="eyebrow light" id="shop-eyebrow">Onlineshop</p>
+          <h1 id="shop-title">Autodeeler fir all Won</h1>
+          <p class="shop-sub" id="shop-sub">
+            Sich no Bezeechnung, Artikelnummer – oder direkt no Ärem Won.
+          </p>
+
+          <div class="shop-search">
+            <div class="shop-tabs" role="tablist">
+              <button
+                class="shop-tab active"
+                id="tab-artikel"
+                data-tab="artikel"
+                role="tab"
+                aria-selected="true"
+              >
+                🔎 <span id="lbl-tab-artikel">Artikel</span>
+              </button>
+              <button
+                class="shop-tab"
+                id="tab-fahrzeug"
+                data-tab="fahrzeug"
+                role="tab"
+                aria-selected="false"
+              >
+                🚗 <span id="lbl-tab-fahrzeug">Won</span>
+              </button>
+            </div>
+
+            <div class="shop-panel" id="panel-artikel" role="tabpanel">
+              <div class="search-row">
+                <input
+                  type="search"
+                  id="q-text"
+                  autocomplete="off"
+                  placeholder="Bezeechnung oder Artikelnummer …"
+                  aria-label="Artikel sichen"
+                />
+                <button
+                  class="btn btn-primary"
+                  id="btn-text-search"
+                  type="button"
+                >
+                  <span id="lbl-btn-text">Sichen</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="shop-panel" id="panel-fahrzeug" role="tabpanel" hidden>
+              <div class="veh-row">
+                <select id="veh-brand" aria-label="Marke">
+                  <option value="">Marke wielen</option>
+                </select>
+                <select id="veh-model" aria-label="Modell" disabled>
+                  <option value="">Modell wielen</option>
+                </select>
+                <select id="veh-year" aria-label="Baujahr" disabled>
+                  <option value="">Baujoer</option>
+                </select>
+                <button
+                  class="btn btn-primary"
+                  id="btn-veh-search"
+                  type="button"
+                >
+                  <span id="lbl-btn-veh">Passend Deeler fannen</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Katalog -->
+      <section class="section" id="shop-catalog">
+        <div class="container">
+          <div
+            class="cat-chips"
+            id="cat-chips"
+            role="group"
+            aria-label="Kategorien"
+          ></div>
+          <p class="shop-result-info" id="shop-result-info"></p>
+          <div class="shop-grid" id="shop-grid"></div>
+          <p class="shop-empty" id="shop-empty" hidden>Keng Artikelen fonnt.</p>
+        </div>
+      </section>
+
+      <!-- Hiweis -->
+      <section class="section section-dark" id="shop-note">
+        <div class="container shop-note-inner">
+          <div>
+            <h2 id="shop-note-title">Deel net fonnt?</h2>
+            <p id="shop-note-text">
+              Mir fannen Iech dat richtegt Deel fir all Marke a Modell – rufft
+              un oder schéckt eng Ufro.
+            </p>
+          </div>
+          <a
+            class="btn btn-primary"
+            href="index.html#kontakt"
+            id="shop-note-cta"
+            >Deel ufroen</a
+          >
+        </div>
+      </section>
+    </main>
+
+    <!-- Warenkuerf-Toast -->
+    <div
+      class="cart-toast"
+      id="cart-toast"
+      role="status"
+      aria-live="polite"
+      hidden
+    ></div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <img
+            class="site-logo site-logo-footer"
+            src="assets/autoservice-bettenduerf-logo.png"
+            alt="Autoservice Bettenduerf"
+            width="1351"
+            height="728"
+          />
+          <p data-i18n="footer_tagline"></p>
+          <div class="footer-partner">
+            <span data-i18n="footer_partner"
+              >Offiziell Partnergarage vun 1·2·3 AutoService</span
+            >
+            <span
+              class="logo123 logo123-sm"
+              role="img"
+              aria-label="1,2,3 AutoService"
+            >
+              <img
+                class="logo-official"
+                src="assets/123autoservice-logo.png"
+                alt="1,2,3 AutoService"
+                width="600"
+                height="359"
+              /><span class="logo-fallback">1·2·3 AutoService</span>
+            </span>
+          </div>
+        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <h4 data-i18n="footer_nav_h">Navigatioun</h4>
+          <a href="index.html#leistungen" data-i18n="nav_services">Servicer</a>
+          <a href="index.html#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
+          <a href="shop.html" data-i18n="nav_shop">Shop</a>
+          <a href="index.html#kontakt" data-i18n="nav_cta"
+            >Rendez-vous ufroen</a
+          >
+        </nav>
+        <div class="footer-contact">
+          <h4 data-i18n="footer_contact_h">Kontakt</h4>
+          <p>63, rue de Diekirch-Echternach<br />L-9355 Bettendorf</p>
+          <p>
+            <a href="tel:+352808687">+352 80 86 87</a> ·
+            <a href="tel:+352621435495">+352 621 435 495</a>
+          </p>
+          <p>
+            <a href="mailto:Autoservicebettenduerf@outlook.com"
+              >Autoservicebettenduerf@outlook.com</a
+            >
+          </p>
         </div>
       </div>
-      <nav class="footer-nav" aria-label="Footer">
-        <h4 data-i18n="footer_nav_h">Navigatioun</h4>
-        <a href="index.html#leistungen" data-i18n="nav_services">Servicer</a>
-        <a href="index.html#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
-        <a href="shop.html" data-i18n="nav_shop">Shop</a>
-        <a href="index.html#kontakt" data-i18n="nav_cta">Rendez-vous ufroen</a>
-      </nav>
-      <div class="footer-contact">
-        <h4 data-i18n="footer_contact_h">Kontakt</h4>
-        <p>63, rue de Diekirch-Echternach<br>L-9355 Bettendorf</p>
-        <p><a href="tel:+352808687">+352 80 86 87</a> · <a href="tel:+352621435495">+352 621 435 495</a></p>
-        <p><a href="mailto:Autoservicebettenduerf@outlook.com">Autoservicebettenduerf@outlook.com</a></p>
+      <div class="footer-bottom">
+        <div class="container">
+          <span
+            >© <span id="year">2026</span> Autoservice Bettenduerf.
+            <span data-i18n="footer_rights"
+              >All Rechter reservéiert.</span
+            ></span
+          >
+          <span class="footer-legal"
+            ><a href="impressum.html" data-i18n="footer_impressum">Impressum</a>
+            ·
+            <a href="datenschutz.html" data-i18n="footer_datenschutz"
+              >Dateschutz</a
+            ></span
+          >
+        </div>
       </div>
-    </div>
-    <div class="footer-bottom">
-      <div class="container">
-        <span>© <span id="year">2026</span> Autoservice Bettenduerf. <span data-i18n="footer_rights">All Rechter reservéiert.</span></span>
-        <span class="footer-legal"><a href="impressum.html" data-i18n="footer_impressum">Impressum</a> · <a href="datenschutz.html" data-i18n="footer_datenschutz">Dateschutz</a></span>
-      </div>
-    </div>
-  </footer>
+    </footer>
 
-  <div class="mobile-contact" aria-label="Schnellkontakt">
-    <a href="tel:+352808687">📞 <span data-i18n="mobile_call">Uruffen</span></a>
-    <a href="mailto:Autoservicebettenduerf@outlook.com">✉️ <span data-i18n="mobile_email">E-Mail</span></a>
-  </div>
-  <a href="index.html#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
+    <div class="mobile-contact" aria-label="Schnellkontakt">
+      <a href="tel:+352808687"
+        >📞 <span data-i18n="mobile_call">Uruffen</span></a
+      >
+      <a href="mailto:Autoservicebettenduerf@outlook.com"
+        >✉️ <span data-i18n="mobile_email">E-Mail</span></a
+      >
+    </div>
+    <a
+      href="index.html#top"
+      class="back-to-top"
+      id="back-to-top"
+      aria-label="Nach oben / Back to top"
+      >↑</a
+    >
 
-  <script src="script.js?v=2"></script>
-  <script src="shop.js?v=2"></script>
-</body>
+    <script src="script.js?v=4"></script>
+    <script src="shop.js?v=4"></script>
+  </body>
 </html>
