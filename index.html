@@ -1,442 +1,927 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="lb">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Autoservice Bettenduerf – Autosgarage zu Bettendorf, offiziellen 1·2·3 AutoService Partnerbetrib. Wartung, Reparatur, Reifenservice, Contrôle Technique an Tuning. Nëmme mat Rendez-vous." />
-  <meta name="theme-color" content="#0d1b2a" />
-  <title>Autoservice Bettenduerf – Autosgarage zu Bettendorf</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Autoservice Bettenduerf – Autosgarage zu Bettendorf an offiziell 1·2·3 AutoService Partnergarage. Entretien, Reparatur, Pneueservice, Contrôle technique an Tuning. Nëmme mat Rendez-vous."
+    />
+    <meta name="theme-color" content="#0d1b2a" />
+    <title>Autoservice Bettenduerf – Autosgarage zu Bettendorf</title>
 
-  <meta property="og:title" content="Autoservice Bettenduerf" />
-  <meta property="og:description" content="Autosgarage zu Bettendorf – offiziellen 1·2·3 AutoService Partnerbetrib. Wartung, Reparatur an Tuning." />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="lb_LU" />
+    <meta property="og:title" content="Autoservice Bettenduerf" />
+    <meta
+      property="og:description"
+      content="Autosgarage zu Bettendorf – offiziell 1·2·3 AutoService Partnergarage. Entretien, Reparatur an Tuning."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="lb_LU" />
 
-  <link rel="canonical" href="https://clementeb2001.github.io/garage/" />
-  <meta property="og:url" content="https://clementeb2001.github.io/garage/" />
-  <meta property="og:image" content="https://clementeb2001.github.io/garage/assets/autoservice-bettenduerf-logo.png" />
+    <link rel="canonical" href="https://autoservicebettenduerf.lu/" />
+    <meta property="og:url" content="https://autoservicebettenduerf.lu/" />
+    <meta
+      property="og:image"
+      content="https://autoservicebettenduerf.lu/assets/autoservice-bettenduerf-logo.png"
+    />
 
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1b2a'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23e63946'%3EK%3C/text%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="styles.css?v=4" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "AutoRepair",
-    "name": "Autoservice Bettenduerf",
-    "url": "https://clementeb2001.github.io/garage/",
-    "image": "https://clementeb2001.github.io/garage/assets/autoservice-bettenduerf-logo.png",
-    "telephone": ["+352808687", "+352621435495"],
-    "email": "Autoservicebettenduerf@outlook.com",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "63, rue de Diekirch-Echternach",
-      "postalCode": "L-9355",
-      "addressLocality": "Bettendorf",
-      "addressCountry": "LU"
-    },
-    "areaServed": "Luxembourg",
-    "priceRange": "€€"
-  }
-  </script>
-</head>
-<body>
-  <!-- Top bar: 1·2·3 AutoService Partner + Kontakt -->
-  <div class="topbar">
-    <div class="container topbar-inner">
-      <span class="topbar-partner">
-        <span data-i18n="topbar_partner">Offiziellen Partnerbetrib</span>
-        <span class="logo123 logo123-xs" role="img" aria-label="1,2,3 AutoService">
-          <img class="logo-official" src="assets/123autoservice-logo.png" alt="1,2,3 AutoService" width="600" height="359" /><span class="logo-fallback">1·2·3 AutoService</span>
-        </span>
-      </span>
-      <span class="topbar-contact">
-        <a href="tel:+352808687">📞 +352 80 86 87</a>
-        <a class="tb-email" href="mailto:Autoservicebettenduerf@outlook.com">✉️ Autoservicebettenduerf@outlook.com</a>
-      </span>
-    </div>
-  </div>
-
-  <!-- Header -->
-  <header class="site-header" id="top">
-    <div class="container header-inner">
-      <a href="#top" class="brand" aria-label="Autoservice Bettenduerf">
-        <img class="site-logo" src="assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf" width="1351" height="728" />
-      </a>
-
-      <nav class="main-nav" id="main-nav" aria-label="Navigatioun">
-        <a href="#leistungen" data-i18n="nav_services">Servicer</a>
-        <a href="#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
-        <a href="shop.html" data-i18n="nav_shop">Shop</a>
-        <a href="#faq">FAQ</a>
-        <a href="#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
-        <a href="#kontakt" class="nav-cta" data-i18n="nav_cta">Rendez-vous ufroen</a>
-
-        <div class="lang-switch" role="group" aria-label="Sprooch / Langue / Language">
-          <button type="button" data-lang="lb" class="active">LB</button>
-          <button type="button" data-lang="de">DE</button>
-          <button type="button" data-lang="fr">FR</button>
-          <button type="button" data-lang="en">EN</button>
-        </div>
-      </nav>
-
-      <button class="nav-toggle" id="nav-toggle" aria-label="Menü" aria-expanded="false" aria-controls="main-nav">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
-
-  <main>
-    <!-- Hero -->
-    <section class="hero">
-      <div class="hero-bg" aria-hidden="true"></div>
-      <div class="hero-deco" aria-hidden="true">
-        <svg viewBox="0 0 300 300" width="100%" height="100%" role="img" aria-label="Concave Felge">
-          <defs>
-            <radialGradient id="dish" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="rgba(255,255,255,0.03)"/>
-              <stop offset="55%" stop-color="rgba(255,255,255,0.10)"/>
-              <stop offset="82%" stop-color="rgba(255,255,255,0.22)"/>
-              <stop offset="100%" stop-color="rgba(255,255,255,0.05)"/>
-            </radialGradient>
-          </defs>
-          <!-- Pneu -->
-          <circle cx="150" cy="150" r="142" fill="none" stroke="rgba(0,0,0,0.30)" stroke-width="20"/>
-          <circle cx="150" cy="150" r="142" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1.5"/>
-          <!-- Concave Schüssel -->
-          <circle cx="150" cy="150" r="122" fill="url(#dish)"/>
-          <!-- Felgen-Lëpp mat Bolzen -->
-          <circle cx="150" cy="150" r="126" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="7"/>
-          <g fill="rgba(255,255,255,0.5)"><circle cx="280.0" cy="150.0" r="2.4"/><circle cx="273.6" cy="190.2" r="2.4"/><circle cx="255.2" cy="226.4" r="2.4"/><circle cx="226.4" cy="255.2" r="2.4"/><circle cx="190.2" cy="273.6" r="2.4"/><circle cx="150.0" cy="280.0" r="2.4"/><circle cx="109.8" cy="273.6" r="2.4"/><circle cx="73.6" cy="255.2" r="2.4"/><circle cx="44.8" cy="226.4" r="2.4"/><circle cx="26.4" cy="190.2" r="2.4"/><circle cx="20.0" cy="150.0" r="2.4"/><circle cx="26.4" cy="109.8" r="2.4"/><circle cx="44.8" cy="73.6" r="2.4"/><circle cx="73.6" cy="44.8" r="2.4"/><circle cx="109.8" cy="26.4" r="2.4"/><circle cx="150.0" cy="20.0" r="2.4"/><circle cx="190.2" cy="26.4" r="2.4"/><circle cx="226.4" cy="44.8" r="2.4"/><circle cx="255.2" cy="73.6" r="2.4"/><circle cx="273.6" cy="109.8" r="2.4"/></g>
-          <circle cx="150" cy="150" r="116" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="2"/>
-          <!-- Split-5 Speichen -->
-          <g stroke="rgba(255,255,255,0.34)" stroke-width="8" stroke-linecap="round"><line x1="150.0" y1="118.0" x2="117.3" y2="42.9"/><line x1="150.0" y1="118.0" x2="182.7" y2="42.9"/><line x1="180.4" y1="140.1" x2="241.7" y2="85.8"/><line x1="180.4" y1="140.1" x2="262.0" y2="148.0"/><line x1="168.8" y1="175.9" x2="239.4" y2="217.4"/><line x1="168.8" y1="175.9" x2="186.5" y2="255.9"/><line x1="131.2" y1="175.9" x2="113.5" y2="255.9"/><line x1="131.2" y1="175.9" x2="60.6" y2="217.4"/><line x1="119.6" y1="140.1" x2="38.0" y2="148.0"/><line x1="119.6" y1="140.1" x2="58.3" y2="85.8"/></g>
-          <g stroke="rgba(255,255,255,0.55)" stroke-width="2" stroke-linecap="round"><line x1="150.0" y1="110.0" x2="118.4" y2="46.7"/><line x1="150.0" y1="110.0" x2="181.6" y2="46.7"/><line x1="188.0" y1="137.6" x2="238.5" y2="88.1"/><line x1="188.0" y1="137.6" x2="258.0" y2="148.1"/><line x1="173.5" y1="182.4" x2="236.3" y2="215.0"/><line x1="173.5" y1="182.4" x2="185.2" y2="252.1"/><line x1="126.5" y1="182.4" x2="114.8" y2="252.1"/><line x1="126.5" y1="182.4" x2="63.7" y2="215.0"/><line x1="112.0" y1="137.6" x2="42.0" y2="148.1"/><line x1="112.0" y1="137.6" x2="61.5" y2="88.1"/></g>
-          <g stroke="rgba(255,255,255,0.34)" stroke-width="10" stroke-linecap="round"><line x1="150.0" y1="134.0" x2="150.0" y2="116.0"/><line x1="165.2" y1="145.1" x2="182.3" y2="139.5"/><line x1="159.4" y1="162.9" x2="170.0" y2="177.5"/><line x1="140.6" y1="162.9" x2="130.0" y2="177.5"/><line x1="134.8" y1="145.1" x2="117.7" y2="139.5"/></g>
-          <!-- Nabendeckel (neutral) -->
-          <circle cx="150" cy="150" r="24" fill="rgba(13,27,42,0.6)" stroke="rgba(255,255,255,0.4)" stroke-width="2.5"/>
-          <circle cx="150" cy="150" r="18" fill="rgba(255,255,255,0.14)"/>
-          <circle cx="150" cy="150" r="5" fill="rgba(255,255,255,0.5)"/>
-          <g fill="rgba(255,255,255,0.6)"><circle cx="150.0" cy="137.0" r="2.6"/><circle cx="162.4" cy="146.0" r="2.6"/><circle cx="157.6" cy="160.5" r="2.6"/><circle cx="142.4" cy="160.5" r="2.6"/><circle cx="137.6" cy="146.0" r="2.6"/></g>
-        </svg>
-      </div>
-      <div class="container hero-inner">
-        <div class="hero-content">
-          <p class="eyebrow" data-i18n="hero_eyebrow">Autosgarage · Bettendorf, Lëtzebuerg</p>
-          <h1><span data-i18n="hero_title_1">Ären Auto a</span><br><span class="accent" data-i18n="hero_title_2">beschten Hänn.</span></h1>
-          <p class="lead" data-i18n="hero_lead">Vun der Inspektioun iwwer d’Reparatur bis zum Tuning – Autoservice Bettenduerf steet fir éierlech Berodung, propper Aarbecht a fair Präisser.</p>
-          <div class="hero-actions">
-            <a href="#kontakt" class="btn btn-primary" data-i18n="nav_cta">Rendez-vous ufroen</a>
-            <a href="shop.html" class="btn btn-shop"><span aria-hidden="true">🛒</span> <span data-i18n="nav_shop">Shop</span></a>
-            <a href="#leistungen" class="btn btn-ghost" data-i18n="hero_btn2">Eis Servicer</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Trust strip -->
-    <!-- Leistungen (inkl. Tuning gleichrangig) -->
-    <section class="section" id="leistungen">
-      <div class="container">
-        <div class="section-head">
-          <p class="eyebrow" data-i18n="services_eyebrow">Eis Servicer</p>
-          <h2 data-i18n="services_title">Alles ronderëm Ären Auto – aus enger Hand</h2>
-          <p class="section-sub" data-i18n="services_sub">Vun der klassescher Wartung iwwer Reparatur bis zum Tuning.</p>
-        </div>
-
-        <div class="cards">
-          <article class="card" data-slug="wartung" style="--img:url('assets/services/wartung.jpg')">
-            <h3 data-i18n="svc1_t">Wartung, Inspektioun & Ueleswiessel</h3>
-            <p data-i18n="svc1_d"></p>
-          <a class="card-cover" href="service.html?s=wartung" aria-label="Wartung & Inspektioun"></a>
-          <span class="card-more" aria-hidden="true"></span>
-          </article>
-          <article class="card" data-slug="reifen" style="--img:url('assets/services/reifen.jpg')">
-            <h3 data-i18n="svc3_t">Reifenservice</h3>
-            <p data-i18n="svc3_d"></p>
-          <a class="card-cover" href="service.html?s=reifen" aria-label="Reifenservice"></a>
-          <span class="card-more" aria-hidden="true"></span>
-          </article>
-          <article class="card" data-slug="bremsen" style="--img:url('assets/services/bremsen.jpg')">
-            <h3 data-i18n="svc4_t">Bremsen & Fahrwierk</h3>
-            <p data-i18n="svc4_d"></p>
-          <a class="card-cover" href="service.html?s=bremsen" aria-label="Bremsen & Fahrwierk"></a>
-          <span class="card-more" aria-hidden="true"></span>
-          </article>
-          <article class="card" data-slug="diagnose" style="--img:url('assets/services/diagnose.jpg')">
-            <h3 data-i18n="svc5_t">Feelerdiagnos & Elektrik</h3>
-            <p data-i18n="svc5_d"></p>
-          <a class="card-cover" href="service.html?s=diagnose" aria-label="Feelerdiagnos"></a>
-          <span class="card-more" aria-hidden="true"></span>
-          </article>
-          <article class="card" data-slug="klima" style="--img:url('assets/services/klima.jpg')">
-            <h3 data-i18n="svc6_t">Klimaservice</h3>
-            <p data-i18n="svc6_d"></p>
-          <a class="card-cover" href="service.html?s=klima" aria-label="Klimaservice"></a>
-          <span class="card-more" aria-hidden="true"></span>
-          </article>
-          <article class="card" data-slug="controle" style="--img:url('assets/services/controle.jpg')">
-            <h3 data-i18n="svc7_t">Contrôle Technique</h3>
-            <p data-i18n="svc7_d"></p>
-          <a class="card-cover" href="service.html?s=controle" aria-label="Contrôle Technique"></a>
-          <span class="card-more" aria-hidden="true"></span>
-          </article>
-          <article class="card" data-slug="tuning" style="--img:url('assets/services/tuning.jpg')">
-            <h3 data-i18n="svc9_t">Tuning & Motorsport</h3>
-            <p data-i18n="svc9_d"></p>
-          <a class="card-cover" href="service.html?s=tuning" aria-label="Tuning & Motorsport"></a>
-          <span class="card-more" aria-hidden="true"></span>
-          </article>
-          <article class="card" data-slug="karosserie" style="--img:url('assets/services/karosserie.jpg')">
-            <h3 data-i18n="svc10_t">Karrosserie & Lackéierung</h3>
-            <p data-i18n="svc10_d"></p>
-          <a class="card-cover" href="service.html?s=karosserie" aria-label="Karrosserie & Lackéierung"></a>
-          <span class="card-more" aria-hidden="true"></span>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- Über uns -->
-    <section class="section section-alt" id="ueber-uns">
-      <div class="container about-grid">
-        <div class="about-media">
-          <div class="about-photo">
-            <!-- Temporäres Platzhalterbild: später durch ein echtes Team-/Werkstattfoto ersetzen. -->
-            <img src="assets/about-workshop-placeholder.webp" alt="Symbolisches Werkstattfoto – echtes Teamfoto folgt" width="1402" height="1122" loading="lazy" />
-            <span class="photo-placeholder-note">Symbolbild · Eegent Foto kënnt no</span>
-          </div>
-          <div class="about-badge">
-            <strong data-i18n="about_badge_t">1·2·3 AutoService</strong>
-            <span data-i18n="about_badge_s">Partnergarage am Netzwierk</span>
-          </div>
-        </div>
-        <div class="about-content">
-          <p class="eyebrow" data-i18n="about_eyebrow">Iwwer Autoservice Bettenduerf</p>
-          <h2 data-i18n="about_title">E Familljebetrib, deem Dir vertraue kënnt</h2>
-          <p data-i18n="about_p1"></p>
-          <ul class="check-list">
-            <li data-i18n="about_c1"></li>
-            <li data-i18n="about_c2"></li>
-            <li data-i18n="about_c3"></li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- Kooperation & Garantie -->
-    <section class="section section-alt" id="kooperatioun">
-      <div class="container coop-card">
-        <div class="coop-logo">
-          <span class="logo123 logo123-lg" role="img" aria-label="1,2,3 AutoService">
-            <img class="logo-official" src="assets/123autoservice-logo.png" alt="1,2,3 AutoService" width="600" height="359" /><span class="logo-fallback">1·2·3 AutoService</span>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1b2a'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23e63946'%3EK%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles.css?v=5" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "AutoRepair",
+        "name": "Autoservice Bettenduerf",
+        "url": "https://autoservicebettenduerf.lu/",
+        "image": "https://autoservicebettenduerf.lu/assets/autoservice-bettenduerf-logo.png",
+        "telephone": ["+352808687", "+352621435495"],
+        "email": "Autoservicebettenduerf@outlook.com",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "63, rue de Diekirch-Echternach",
+          "postalCode": "L-9355",
+          "addressLocality": "Bettendorf",
+          "addressCountry": "LU"
+        },
+        "areaServed": "Luxembourg",
+        "priceRange": "€€"
+      }
+    </script>
+  </head>
+  <body id="top">
+    <!-- Top bar: 1·2·3 AutoService Partner + Kontakt -->
+    <div class="topbar">
+      <div class="container topbar-inner">
+        <span class="topbar-partner">
+          <span data-i18n="topbar_partner">Offiziell Partnergarage</span>
+          <span
+            class="logo123 logo123-xs"
+            role="img"
+            aria-label="1,2,3 AutoService"
+          >
+            <img
+              class="logo-official"
+              src="assets/123autoservice-logo.png"
+              alt="1,2,3 AutoService"
+              width="600"
+              height="359"
+            /><span class="logo-fallback">1·2·3 AutoService</span>
           </span>
-        </div>
-        <div class="coop-text">
-          <p class="eyebrow" data-i18n="coop_eyebrow">Kooperatioun 1·2·3 AutoService</p>
-          <h2 data-i18n="coop_title">Ären Hiersteller-Garantie bleift erhalen</h2>
-          <p data-i18n="coop_text"></p>
-        </div>
+        </span>
+        <span class="topbar-contact">
+          <a href="tel:+352808687">📞 +352 80 86 87</a>
+          <a class="tb-email" href="mailto:Autoservicebettenduerf@outlook.com"
+            >✉️ Autoservicebettenduerf@outlook.com</a
+          >
+        </span>
       </div>
-    </section>
+    </div>
 
-    <!-- Öffnungszeiten -->
-    <!-- Saison-Tipps -->
-    <section class="section" id="saison">
-      <div class="container">
-        <div class="section-head">
-          <p class="eyebrow" id="saison-eyebrow">Tipps</p>
-          <h2 id="saison-title">Tipps no Saison</h2>
-        </div>
-        <div class="saison-grid" id="saison-grid"></div>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="#top" class="brand" aria-label="Autoservice Bettenduerf">
+          <img
+            class="site-logo"
+            src="assets/autoservice-bettenduerf-logo.png"
+            alt="Autoservice Bettenduerf"
+            width="1351"
+            height="728"
+          />
+        </a>
+
+        <nav class="main-nav" id="main-nav" aria-label="Navigatioun">
+          <a href="#leistungen" data-i18n="nav_services">Servicer</a>
+          <a href="#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
+          <a href="shop.html" data-i18n="nav_shop">Shop</a>
+          <a href="#faq">FAQ</a>
+          <a href="#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
+          <a href="#kontakt" class="nav-cta" data-i18n="nav_cta"
+            >Rendez-vous ufroen</a
+          >
+
+          <div
+            class="lang-switch"
+            role="group"
+            aria-label="Sprooch / Langue / Language"
+          >
+            <button type="button" data-lang="lb" class="active">LB</button>
+            <button type="button" data-lang="de">DE</button>
+            <button type="button" data-lang="fr">FR</button>
+            <button type="button" data-lang="en">EN</button>
+          </div>
+        </nav>
+
+        <button
+          class="nav-toggle"
+          id="nav-toggle"
+          aria-label="Menü"
+          aria-expanded="false"
+          aria-controls="main-nav"
+        >
+          <span></span><span></span><span></span>
+        </button>
       </div>
-    </section>
+    </header>
 
-    <section class="section section-dark" id="oeffnungszeiten">
-      <div class="container hours-grid">
-        <div class="hours-content">
-          <p class="eyebrow light" data-i18n="hours_eyebrow">Ëffnungszäiten</p>
-          <h2 data-i18n="hours_title">Nëmme mat Rendez-vous</h2>
-          <p class="hours-sub" data-i18n="hours_sub">Eis Werkstatt ass net reegelméisseg op – all Interventioun leeft iwwer e Rendez-vous.</p>
-          <a href="#kontakt" class="btn btn-primary" data-i18n="nav_cta">Rendez-vous ufroen</a>
+    <main>
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-bg" aria-hidden="true"></div>
+        <div class="hero-deco" aria-hidden="true">
+          <svg
+            viewBox="0 0 300 300"
+            width="100%"
+            height="100%"
+            role="img"
+            aria-label="Concave Felge"
+          >
+            <defs>
+              <radialGradient id="dish" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.03)" />
+                <stop offset="55%" stop-color="rgba(255,255,255,0.10)" />
+                <stop offset="82%" stop-color="rgba(255,255,255,0.22)" />
+                <stop offset="100%" stop-color="rgba(255,255,255,0.05)" />
+              </radialGradient>
+            </defs>
+            <!-- Pneu -->
+            <circle
+              cx="150"
+              cy="150"
+              r="142"
+              fill="none"
+              stroke="rgba(0,0,0,0.30)"
+              stroke-width="20"
+            />
+            <circle
+              cx="150"
+              cy="150"
+              r="142"
+              fill="none"
+              stroke="rgba(255,255,255,0.10)"
+              stroke-width="1.5"
+            />
+            <!-- Concave Schüssel -->
+            <circle cx="150" cy="150" r="122" fill="url(#dish)" />
+            <!-- Felgen-Lëpp mat Bolzen -->
+            <circle
+              cx="150"
+              cy="150"
+              r="126"
+              fill="none"
+              stroke="rgba(255,255,255,0.32)"
+              stroke-width="7"
+            />
+            <g fill="rgba(255,255,255,0.5)">
+              <circle cx="280.0" cy="150.0" r="2.4" />
+              <circle cx="273.6" cy="190.2" r="2.4" />
+              <circle cx="255.2" cy="226.4" r="2.4" />
+              <circle cx="226.4" cy="255.2" r="2.4" />
+              <circle cx="190.2" cy="273.6" r="2.4" />
+              <circle cx="150.0" cy="280.0" r="2.4" />
+              <circle cx="109.8" cy="273.6" r="2.4" />
+              <circle cx="73.6" cy="255.2" r="2.4" />
+              <circle cx="44.8" cy="226.4" r="2.4" />
+              <circle cx="26.4" cy="190.2" r="2.4" />
+              <circle cx="20.0" cy="150.0" r="2.4" />
+              <circle cx="26.4" cy="109.8" r="2.4" />
+              <circle cx="44.8" cy="73.6" r="2.4" />
+              <circle cx="73.6" cy="44.8" r="2.4" />
+              <circle cx="109.8" cy="26.4" r="2.4" />
+              <circle cx="150.0" cy="20.0" r="2.4" />
+              <circle cx="190.2" cy="26.4" r="2.4" />
+              <circle cx="226.4" cy="44.8" r="2.4" />
+              <circle cx="255.2" cy="73.6" r="2.4" />
+              <circle cx="273.6" cy="109.8" r="2.4" />
+            </g>
+            <circle
+              cx="150"
+              cy="150"
+              r="116"
+              fill="none"
+              stroke="rgba(255,255,255,0.14)"
+              stroke-width="2"
+            />
+            <!-- Split-5 Speichen -->
+            <g
+              stroke="rgba(255,255,255,0.34)"
+              stroke-width="8"
+              stroke-linecap="round"
+            >
+              <line x1="150.0" y1="118.0" x2="117.3" y2="42.9" />
+              <line x1="150.0" y1="118.0" x2="182.7" y2="42.9" />
+              <line x1="180.4" y1="140.1" x2="241.7" y2="85.8" />
+              <line x1="180.4" y1="140.1" x2="262.0" y2="148.0" />
+              <line x1="168.8" y1="175.9" x2="239.4" y2="217.4" />
+              <line x1="168.8" y1="175.9" x2="186.5" y2="255.9" />
+              <line x1="131.2" y1="175.9" x2="113.5" y2="255.9" />
+              <line x1="131.2" y1="175.9" x2="60.6" y2="217.4" />
+              <line x1="119.6" y1="140.1" x2="38.0" y2="148.0" />
+              <line x1="119.6" y1="140.1" x2="58.3" y2="85.8" />
+            </g>
+            <g
+              stroke="rgba(255,255,255,0.55)"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <line x1="150.0" y1="110.0" x2="118.4" y2="46.7" />
+              <line x1="150.0" y1="110.0" x2="181.6" y2="46.7" />
+              <line x1="188.0" y1="137.6" x2="238.5" y2="88.1" />
+              <line x1="188.0" y1="137.6" x2="258.0" y2="148.1" />
+              <line x1="173.5" y1="182.4" x2="236.3" y2="215.0" />
+              <line x1="173.5" y1="182.4" x2="185.2" y2="252.1" />
+              <line x1="126.5" y1="182.4" x2="114.8" y2="252.1" />
+              <line x1="126.5" y1="182.4" x2="63.7" y2="215.0" />
+              <line x1="112.0" y1="137.6" x2="42.0" y2="148.1" />
+              <line x1="112.0" y1="137.6" x2="61.5" y2="88.1" />
+            </g>
+            <g
+              stroke="rgba(255,255,255,0.34)"
+              stroke-width="10"
+              stroke-linecap="round"
+            >
+              <line x1="150.0" y1="134.0" x2="150.0" y2="116.0" />
+              <line x1="165.2" y1="145.1" x2="182.3" y2="139.5" />
+              <line x1="159.4" y1="162.9" x2="170.0" y2="177.5" />
+              <line x1="140.6" y1="162.9" x2="130.0" y2="177.5" />
+              <line x1="134.8" y1="145.1" x2="117.7" y2="139.5" />
+            </g>
+            <!-- Nabendeckel (neutral) -->
+            <circle
+              cx="150"
+              cy="150"
+              r="24"
+              fill="rgba(13,27,42,0.6)"
+              stroke="rgba(255,255,255,0.4)"
+              stroke-width="2.5"
+            />
+            <circle cx="150" cy="150" r="18" fill="rgba(255,255,255,0.14)" />
+            <circle cx="150" cy="150" r="5" fill="rgba(255,255,255,0.5)" />
+            <g fill="rgba(255,255,255,0.6)">
+              <circle cx="150.0" cy="137.0" r="2.6" />
+              <circle cx="162.4" cy="146.0" r="2.6" />
+              <circle cx="157.6" cy="160.5" r="2.6" />
+              <circle cx="142.4" cy="160.5" r="2.6" />
+              <circle cx="137.6" cy="146.0" r="2.6" />
+            </g>
+          </svg>
         </div>
-        <div class="hours-appt">
-          <div class="appt-contacts">
-            <a href="tel:+352808687">📞 +352 80 86 87</a>
-            <a href="tel:+352621435495"><span class="appt-gsm" data-i18n="ci_gsm_l">GSM</span> +352 621 435 495</a>
-            <a href="mailto:Autoservicebettenduerf@outlook.com">✉️ Autoservicebettenduerf@outlook.com</a>
+        <div class="container hero-inner">
+          <div class="hero-content">
+            <p class="eyebrow" data-i18n="hero_eyebrow">
+              Autosgarage · Bettendorf, Lëtzebuerg
+            </p>
+            <h1>
+              <span data-i18n="hero_title_1">Ären Auto a</span><br /><span
+                class="accent"
+                data-i18n="hero_title_2"
+                >beschten Hänn.</span
+              >
+            </h1>
+            <p class="lead" data-i18n="hero_lead">
+              Vun der Inspektioun iwwer d’Reparatur bis zum Tuning – Autoservice
+              Bettenduerf steet fir éierlech Berodung, propper Aarbecht a fair
+              Präisser.
+            </p>
+            <div class="hero-actions">
+              <a href="#kontakt" class="btn btn-primary" data-i18n="nav_cta"
+                >Rendez-vous ufroen</a
+              >
+              <a href="shop.html" class="btn btn-shop"
+                ><span aria-hidden="true">🛒</span>
+                <span data-i18n="nav_shop">Shop</span></a
+              >
+              <a href="#leistungen" class="btn btn-ghost" data-i18n="hero_btn2"
+                >Eis Servicer</a
+              >
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Kontakt -->
-    <section class="section section-alt" id="kontakt">
-      <div class="container contact-grid">
-        <div class="contact-info">
-          <p class="eyebrow" data-i18n="contact_eyebrow">Kontakt & Uwee</p>
-          <h2 data-i18n="contact_title">Rendez-vous ufroen</h2>
-          <p data-i18n="contact_intro"></p>
-
-          <ul class="contact-list">
-            <li>
-              <span class="ci-label" data-i18n="ci_addr_l">Adress</span>
-              <span class="ci-value">Autoservice Bettenduerf<br>63, rue de Diekirch-Echternach<br>L-9355 Bettendorf, Lëtzebuerg</span>
-            </li>
-            <li>
-              <span class="ci-label" data-i18n="ci_phone_l">Telefon</span>
-              <a class="ci-value" href="tel:+352808687">+352 80 86 87</a>
-            </li>
-            <li>
-              <span class="ci-label" data-i18n="ci_gsm_l">GSM</span>
-              <a class="ci-value" href="tel:+352621435495">+352 621 435 495</a>
-            </li>
-            <li>
-              <span class="ci-label">E-Mail</span>
-              <a class="ci-value" href="mailto:Autoservicebettenduerf@outlook.com">Autoservicebettenduerf@outlook.com</a>
-            </li>
-          </ul>
-
-          <div class="map-embed">
-            <svg class="map-fallback" viewBox="0 0 400 220" width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true">
-              <rect width="400" height="220" fill="#dfe7ee"/>
-              <path d="M0 150 L120 138 L230 165 L400 150" stroke="#c2ccd7" stroke-width="20" fill="none"/>
-              <path d="M70 0 L92 220" stroke="#cfd8e2" stroke-width="12" fill="none"/>
-              <path d="M270 0 L320 220" stroke="#cfd8e2" stroke-width="12" fill="none"/>
-              <path d="M0 60 L400 40" stroke="#cfd8e2" stroke-width="8" fill="none"/>
-              <circle cx="210" cy="120" r="30" fill="#e63946" opacity="0.18"/>
-              <path d="M210 100 a13 13 0 0113 13 c0 10 -13 25 -13 25 c0 0 -13 -15 -13 -25 a13 13 0 0113 -13z" fill="#e63946"/>
-              <circle cx="210" cy="113" r="5" fill="#fff"/>
-            </svg>
-            <span class="map-tag">📍 Bettendorf</span>
+      <!-- Trust strip -->
+      <!-- Leistungen (inkl. Tuning gleichrangig) -->
+      <section class="section" id="leistungen">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow" data-i18n="services_eyebrow">Eis Servicer</p>
+            <h2 data-i18n="services_title">
+              Alles ronderëm Ären Auto – aus enger Hand
+            </h2>
+            <p class="section-sub" data-i18n="services_sub">
+              Vun der klassescher Wartung iwwer Reparatur bis zum Tuning.
+            </p>
           </div>
-          <a class="btn btn-primary btn-block map-btn" href="https://www.google.com/maps/dir/?api=1&destination=63+rue+de+Diekirch-Echternach+9355+Bettendorf+Luxembourg" target="_blank" rel="noopener" data-i18n="map_route">Navigatioun starten</a>
+
+          <div class="cards">
+            <article
+              class="card"
+              data-slug="wartung"
+              style="--img: url(&quot;assets/services/wartung.jpg&quot;)"
+            >
+              <h3 data-i18n="svc1_t">Entretien, Inspektioun & Uelegwiessel</h3>
+              <p data-i18n="svc1_d"></p>
+              <a
+                class="card-cover"
+                href="service.html?s=wartung"
+                aria-label="Wartung & Inspektioun"
+              ></a>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+            <article
+              class="card"
+              data-slug="reifen"
+              style="--img: url(&quot;assets/services/reifen.jpg&quot;)"
+            >
+              <h3 data-i18n="svc3_t">Pneueservice</h3>
+              <p data-i18n="svc3_d"></p>
+              <a
+                class="card-cover"
+                href="service.html?s=reifen"
+                aria-label="Pneueservice"
+              ></a>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+            <article
+              class="card"
+              data-slug="bremsen"
+              style="--img: url(&quot;assets/services/bremsen.jpg&quot;)"
+            >
+              <h3 data-i18n="svc4_t">Bremsen & Ophänkung</h3>
+              <p data-i18n="svc4_d"></p>
+              <a
+                class="card-cover"
+                href="service.html?s=bremsen"
+                aria-label="Bremsen & Ophänkung"
+              ></a>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+            <article
+              class="card"
+              data-slug="diagnose"
+              style="--img: url(&quot;assets/services/diagnose.jpg&quot;)"
+            >
+              <h3 data-i18n="svc5_t">Feelerdiagnos & Elektrik</h3>
+              <p data-i18n="svc5_d"></p>
+              <a
+                class="card-cover"
+                href="service.html?s=diagnose"
+                aria-label="Feelerdiagnos"
+              ></a>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+            <article
+              class="card"
+              data-slug="klima"
+              style="--img: url(&quot;assets/services/klima.jpg&quot;)"
+            >
+              <h3 data-i18n="svc6_t">Klimaservice</h3>
+              <p data-i18n="svc6_d"></p>
+              <a
+                class="card-cover"
+                href="service.html?s=klima"
+                aria-label="Klimaservice"
+              ></a>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+            <article
+              class="card"
+              data-slug="controle"
+              style="--img: url(&quot;assets/services/controle.jpg&quot;)"
+            >
+              <h3 data-i18n="svc7_t">Contrôle Technique</h3>
+              <p data-i18n="svc7_d"></p>
+              <a
+                class="card-cover"
+                href="service.html?s=controle"
+                aria-label="Contrôle Technique"
+              ></a>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+            <article
+              class="card"
+              data-slug="tuning"
+              style="--img: url(&quot;assets/services/tuning.jpg&quot;)"
+            >
+              <h3 data-i18n="svc9_t">Tuning & Motorsport</h3>
+              <p data-i18n="svc9_d"></p>
+              <a
+                class="card-cover"
+                href="service.html?s=tuning"
+                aria-label="Tuning & Motorsport"
+              ></a>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+            <article
+              class="card"
+              data-slug="karosserie"
+              style="--img: url(&quot;assets/services/karosserie.jpg&quot;)"
+            >
+              <h3 data-i18n="svc10_t">Karrosserie & Lackéierung</h3>
+              <p data-i18n="svc10_d"></p>
+              <a
+                class="card-cover"
+                href="service.html?s=karosserie"
+                aria-label="Karrosserie & Lackéierung"
+              ></a>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+          </div>
         </div>
+      </section>
 
-        <form class="contact-form" id="contact-form" action="https://formsubmit.co/Autoservicebettenduerf@outlook.com" method="POST" novalidate>
-          <input type="hidden" name="_subject" value="Neie Rendez-vous – Autoservice Bettenduerf" />
-          <input type="hidden" name="_template" value="table" />
-          <input type="hidden" name="_captcha" value="false" />
-          <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="display:none" />
-          <div class="field">
-            <label for="name" data-i18n="f_name">Numm</label>
-            <input type="text" id="name" name="name" autocomplete="name" required data-i18n-ph="f_name_ph" placeholder="Ären Numm" />
+      <!-- Über uns -->
+      <section class="section section-alt" id="ueber-uns">
+        <div class="container about-grid">
+          <div class="about-media">
+            <div class="about-photo">
+              <!-- Temporäres Platzhalterbild: später durch ein echtes Team-/Werkstattfoto ersetzen. -->
+              <img
+                src="assets/about-workshop-placeholder.webp"
+                alt="Symbolisches Werkstattfoto – echtes Teamfoto folgt"
+                width="1402"
+                height="1122"
+                loading="lazy"
+              />
+              <span class="photo-placeholder-note"
+                >Symbolbild · Eegent Foto kënnt no</span
+              >
+            </div>
+            <div class="about-badge">
+              <strong data-i18n="about_badge_t">1·2·3 AutoService</strong>
+              <span data-i18n="about_badge_s">Partnergarage am Netzwierk</span>
+            </div>
           </div>
-          <div class="field-row">
+          <div class="about-content">
+            <p class="eyebrow" data-i18n="about_eyebrow">
+              Iwwer Autoservice Bettenduerf
+            </p>
+            <h2 data-i18n="about_title">
+              E Familljebetrib, deem Dir vertraue kënnt
+            </h2>
+            <p data-i18n="about_p1"></p>
+            <ul class="check-list">
+              <li data-i18n="about_c1"></li>
+              <li data-i18n="about_c2"></li>
+              <li data-i18n="about_c3"></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Kooperation & Garantie -->
+      <section class="section section-alt" id="kooperatioun">
+        <div class="container coop-card">
+          <div class="coop-logo">
+            <span
+              class="logo123 logo123-lg"
+              role="img"
+              aria-label="1,2,3 AutoService"
+            >
+              <img
+                class="logo-official"
+                src="assets/123autoservice-logo.png"
+                alt="1,2,3 AutoService"
+                width="600"
+                height="359"
+              /><span class="logo-fallback">1·2·3 AutoService</span>
+            </span>
+          </div>
+          <div class="coop-text">
+            <p class="eyebrow" data-i18n="coop_eyebrow">
+              Kooperatioun 1·2·3 AutoService
+            </p>
+            <h2 data-i18n="coop_title">
+              Är Hierstellergarantie bleift erhalen
+            </h2>
+            <p data-i18n="coop_text"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Öffnungszeiten -->
+      <!-- Saison-Tipps -->
+      <section class="section" id="saison">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow" id="saison-eyebrow">Tipps</p>
+            <h2 id="saison-title">Tipps no Saison</h2>
+          </div>
+          <div class="saison-grid" id="saison-grid"></div>
+        </div>
+      </section>
+
+      <section class="section section-dark" id="oeffnungszeiten">
+        <div class="container hours-grid">
+          <div class="hours-content">
+            <p class="eyebrow light" data-i18n="hours_eyebrow">
+              Ëffnungszäiten
+            </p>
+            <h2 data-i18n="hours_title">Nëmme mat Rendez-vous</h2>
+            <p class="hours-sub" data-i18n="hours_sub">
+              Eisen Atelier ass net reegelméisseg op – all Interventioun leeft
+              iwwer e Rendez-vous.
+            </p>
+            <a href="#kontakt" class="btn btn-primary" data-i18n="nav_cta"
+              >Rendez-vous ufroen</a
+            >
+          </div>
+          <div class="hours-appt">
+            <div class="appt-contacts">
+              <a href="tel:+352808687">📞 +352 80 86 87</a>
+              <a href="tel:+352621435495"
+                ><span class="appt-gsm" data-i18n="ci_gsm_l">GSM</span> +352 621
+                435 495</a
+              >
+              <a href="mailto:Autoservicebettenduerf@outlook.com"
+                >✉️ Autoservicebettenduerf@outlook.com</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Kontakt -->
+      <section class="section section-alt" id="kontakt">
+        <div class="container contact-grid">
+          <div class="contact-info">
+            <p class="eyebrow" data-i18n="contact_eyebrow">Kontakt & Uwee</p>
+            <h2 data-i18n="contact_title">Rendez-vous ufroen</h2>
+            <p data-i18n="contact_intro"></p>
+
+            <ul class="contact-list">
+              <li>
+                <span class="ci-label" data-i18n="ci_addr_l">Adress</span>
+                <span class="ci-value"
+                  >Autoservice Bettenduerf<br />63, rue de
+                  Diekirch-Echternach<br />L-9355 Bettendorf, Lëtzebuerg</span
+                >
+              </li>
+              <li>
+                <span class="ci-label" data-i18n="ci_phone_l">Telefon</span>
+                <a class="ci-value" href="tel:+352808687">+352 80 86 87</a>
+              </li>
+              <li>
+                <span class="ci-label" data-i18n="ci_gsm_l">GSM</span>
+                <a class="ci-value" href="tel:+352621435495"
+                  >+352 621 435 495</a
+                >
+              </li>
+              <li>
+                <span class="ci-label">E-Mail</span>
+                <a
+                  class="ci-value"
+                  href="mailto:Autoservicebettenduerf@outlook.com"
+                  >Autoservicebettenduerf@outlook.com</a
+                >
+              </li>
+            </ul>
+
+            <div class="map-embed">
+              <svg
+                class="map-fallback"
+                viewBox="0 0 400 220"
+                width="100%"
+                height="100%"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <rect width="400" height="220" fill="#dfe7ee" />
+                <path
+                  d="M0 150 L120 138 L230 165 L400 150"
+                  stroke="#c2ccd7"
+                  stroke-width="20"
+                  fill="none"
+                />
+                <path
+                  d="M70 0 L92 220"
+                  stroke="#cfd8e2"
+                  stroke-width="12"
+                  fill="none"
+                />
+                <path
+                  d="M270 0 L320 220"
+                  stroke="#cfd8e2"
+                  stroke-width="12"
+                  fill="none"
+                />
+                <path
+                  d="M0 60 L400 40"
+                  stroke="#cfd8e2"
+                  stroke-width="8"
+                  fill="none"
+                />
+                <circle
+                  cx="210"
+                  cy="120"
+                  r="30"
+                  fill="#e63946"
+                  opacity="0.18"
+                />
+                <path
+                  d="M210 100 a13 13 0 0113 13 c0 10 -13 25 -13 25 c0 0 -13 -15 -13 -25 a13 13 0 0113 -13z"
+                  fill="#e63946"
+                />
+                <circle cx="210" cy="113" r="5" fill="#fff" />
+              </svg>
+              <span class="map-tag">📍 Bettendorf</span>
+            </div>
+            <a
+              class="btn btn-primary btn-block map-btn"
+              href="https://www.google.com/maps/dir/?api=1&destination=63+rue+de+Diekirch-Echternach+9355+Bettendorf+Luxembourg"
+              target="_blank"
+              rel="noopener"
+              data-i18n="map_route"
+              >Navigatioun starten</a
+            >
+          </div>
+
+          <form
+            class="contact-form"
+            id="contact-form"
+            action="https://formsubmit.co/Autoservicebettenduerf@outlook.com"
+            method="POST"
+            novalidate
+          >
+            <input
+              type="hidden"
+              name="_subject"
+              value="Neie Rendez-vous – Autoservice Bettenduerf"
+            />
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="_captcha" value="false" />
+            <input
+              type="text"
+              name="_honey"
+              tabindex="-1"
+              autocomplete="off"
+              aria-hidden="true"
+              style="display: none"
+            />
             <div class="field">
-              <label for="email" data-i18n="f_email">E-Mail</label>
-              <input type="email" id="email" name="email" autocomplete="email" required placeholder="@" data-i18n-ph="f_email_ph" />
+              <label for="name" data-i18n="f_name">Numm</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                autocomplete="name"
+                required
+                data-i18n-ph="f_name_ph"
+                placeholder="Ären Numm"
+              />
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="email" data-i18n="f_email">E-Mail</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  autocomplete="email"
+                  required
+                  placeholder="@"
+                  data-i18n-ph="f_email_ph"
+                />
+              </div>
+              <div class="field">
+                <label for="phone" data-i18n="f_phone">Telefon</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  autocomplete="tel"
+                  data-i18n-ph="f_phone_ph"
+                  placeholder="Optional"
+                />
+              </div>
             </div>
             <div class="field">
-              <label for="phone" data-i18n="f_phone">Telefon</label>
-              <input type="tel" id="phone" name="phone" autocomplete="tel" data-i18n-ph="f_phone_ph" placeholder="Optional" />
-            </div>
-          </div>
-          <div class="field">
-            <label for="service" data-i18n="f_service">Ären Uleies</label>
-            <select id="service" name="service">
-              <option value="" data-i18n="f_service_opt0">Wielt w.e.g. …</option>
-              <option data-i18n="svc1_t">Wartung, Inspektioun & Ueleswiessel</option>
-              <option data-i18n="svc3_t">Reifenservice</option>
-              <option data-i18n="svc4_t">Bremsen & Fahrwierk</option>
-              <option data-i18n="svc5_t">Feelerdiagnos & Elektrik</option>
-              <option data-i18n="svc6_t">Klimaservice</option>
-              <option data-i18n="svc7_t">Contrôle Technique</option>
-              <option data-i18n="svc9_t">Tuning & Motorsport</option>
-              <option data-i18n="svc10_t">Karrosserie & Lackéierung</option>
-              <option data-i18n="f_other">Anescht</option>
-            </select>
-          </div>
-          <div class="field">
-            <label id="lbl-weekday">Wonschdeeg</label>
-            <div class="weekday-chips" id="weekday-chips">
-              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Montag"><span id="wd-1">Méi</span></label>
-              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Dienstag"><span id="wd-2">Dën</span></label>
-              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Mittwoch"><span id="wd-3">Mët</span></label>
-              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Donnerstag"><span id="wd-4">Don</span></label>
-              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Freitag"><span id="wd-5">Fre</span></label>
-              <label class="wchip"><input type="checkbox" name="Wunschtag" value="Samstag"><span id="wd-6">Sam</span></label>
-            </div>
-          </div>
-          <div class="field-row">
-            <div class="field">
-              <label for="wtime" id="lbl-wtime">Tageszäit</label>
-              <select id="wtime" name="Tageszeit">
-                <option value="" id="opt-time-any">Egal</option>
-                <option id="opt-time-am">Moies</option>
-                <option id="opt-time-pm">Nomëtteg</option>
+              <label for="service" data-i18n="f_service">Ären Uleies</label>
+              <select id="service" name="service">
+                <option value="" data-i18n="f_service_opt0">
+                  Wielt w.e.g. …
+                </option>
+                <option data-i18n="svc1_t">
+                  Entretien, Inspektioun & Uelegwiessel
+                </option>
+                <option data-i18n="svc3_t">Pneueservice</option>
+                <option data-i18n="svc4_t">Bremsen & Ophänkung</option>
+                <option data-i18n="svc5_t">Feelerdiagnos & Elektrik</option>
+                <option data-i18n="svc6_t">Klimaservice</option>
+                <option data-i18n="svc7_t">Contrôle Technique</option>
+                <option data-i18n="svc9_t">Tuning & Motorsport</option>
+                <option data-i18n="svc10_t">Karrosserie & Lackéierung</option>
+                <option data-i18n="f_other">Anescht</option>
               </select>
             </div>
             <div class="field">
-              <label for="vin" id="lbl-vin">Fahrgestellnummer (VIN)</label>
-              <input type="text" id="vin" name="Fahrgestellnummer" maxlength="17" autocomplete="off" spellcheck="false" required placeholder="z. B. WVWZZZ…" />
+              <label id="lbl-weekday">Gewënschten Deeg</label>
+              <div class="weekday-chips" id="weekday-chips">
+                <label class="wchip"
+                  ><input
+                    type="checkbox"
+                    name="Wunschtag"
+                    value="Montag"
+                  /><span id="wd-1">Méi</span></label
+                >
+                <label class="wchip"
+                  ><input
+                    type="checkbox"
+                    name="Wunschtag"
+                    value="Dienstag"
+                  /><span id="wd-2">Dën</span></label
+                >
+                <label class="wchip"
+                  ><input
+                    type="checkbox"
+                    name="Wunschtag"
+                    value="Mittwoch"
+                  /><span id="wd-3">Mët</span></label
+                >
+                <label class="wchip"
+                  ><input
+                    type="checkbox"
+                    name="Wunschtag"
+                    value="Donnerstag"
+                  /><span id="wd-4">Don</span></label
+                >
+                <label class="wchip"
+                  ><input
+                    type="checkbox"
+                    name="Wunschtag"
+                    value="Freitag"
+                  /><span id="wd-5">Fre</span></label
+                >
+                <label class="wchip"
+                  ><input
+                    type="checkbox"
+                    name="Wunschtag"
+                    value="Samstag"
+                  /><span id="wd-6">Sam</span></label
+                >
+              </div>
             </div>
-          </div>
-          <div class="field">
-            <label for="message" data-i18n="f_message">Message</label>
-            <textarea id="message" name="message" rows="4" required data-i18n-ph="f_message_ph" placeholder="…"></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary btn-block" data-i18n="f_submit">Ufro schécken</button>
-          <p class="form-note"><span data-i18n="f_note"></span> <a href="datenschutz.html" data-i18n="footer_datenschutz">Dateschutz</a></p>
-          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
-        </form>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="section section-alt" id="faq">
-      <div class="container faq-wrap">
-        <div class="section-head">
-          <p class="eyebrow" id="faq-eyebrow">FAQ</p>
-          <h2 id="faq-title">Dacks gestallte Froen</h2>
+            <div class="field-row">
+              <div class="field">
+                <label for="wtime" id="lbl-wtime">Dageszäit</label>
+                <select id="wtime" name="Tageszeit">
+                  <option value="" id="opt-time-any">Egal</option>
+                  <option id="opt-time-am">Moies</option>
+                  <option id="opt-time-pm">Nomëtteg</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="vin" id="lbl-vin">Chassisnummer (VIN)</label>
+                <input
+                  type="text"
+                  id="vin"
+                  name="Chassisnummer (VIN)"
+                  maxlength="17"
+                  autocomplete="off"
+                  spellcheck="false"
+                  required
+                  placeholder="z. B. WVWZZZ…"
+                />
+              </div>
+            </div>
+            <div class="field">
+              <label for="message" data-i18n="f_message">Message</label>
+              <textarea
+                id="message"
+                name="message"
+                rows="4"
+                required
+                data-i18n-ph="f_message_ph"
+                placeholder="…"
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary btn-block"
+              data-i18n="f_submit"
+            >
+              Ufro schécken
+            </button>
+            <p class="form-note">
+              <span data-i18n="f_note"></span>
+              <a href="datenschutz.html" data-i18n="footer_datenschutz"
+                >Dateschutz</a
+              >
+            </p>
+            <p
+              class="form-status"
+              id="form-status"
+              role="status"
+              aria-live="polite"
+            ></p>
+          </form>
         </div>
-        <div class="faq-list" id="faq-list"></div>
-      </div>
-    </section>
-  </main>
+      </section>
 
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <div class="footer-brand">
-        <img class="site-logo site-logo-footer" src="assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf" width="1351" height="728" />
-        <p data-i18n="footer_tagline"></p>
-        <div class="footer-partner">
-          <span data-i18n="footer_partner">Offiziellen 1·2·3 AutoService Partnerbetrib</span>
-          <span class="logo123 logo123-sm" role="img" aria-label="1,2,3 AutoService">
-            <img class="logo-official" src="assets/123autoservice-logo.png" alt="1,2,3 AutoService" width="600" height="359" /><span class="logo-fallback">1·2·3 AutoService</span>
-          </span>
+      <!-- FAQ -->
+      <section class="section section-alt" id="faq">
+        <div class="container faq-wrap">
+          <div class="section-head">
+            <p class="eyebrow" id="faq-eyebrow">FAQ</p>
+            <h2 id="faq-title">Dacks gestallte Froen</h2>
+          </div>
+          <div class="faq-list" id="faq-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <img
+            class="site-logo site-logo-footer"
+            src="assets/autoservice-bettenduerf-logo.png"
+            alt="Autoservice Bettenduerf"
+            width="1351"
+            height="728"
+          />
+          <p data-i18n="footer_tagline"></p>
+          <div class="footer-partner">
+            <span data-i18n="footer_partner"
+              >Offiziell Partnergarage vun 1·2·3 AutoService</span
+            >
+            <span
+              class="logo123 logo123-sm"
+              role="img"
+              aria-label="1,2,3 AutoService"
+            >
+              <img
+                class="logo-official"
+                src="assets/123autoservice-logo.png"
+                alt="1,2,3 AutoService"
+                width="600"
+                height="359"
+              /><span class="logo-fallback">1·2·3 AutoService</span>
+            </span>
+          </div>
+        </div>
+        <nav class="footer-nav" aria-label="Footer">
+          <h4 data-i18n="footer_nav_h">Navigatioun</h4>
+          <a href="#leistungen" data-i18n="nav_services">Servicer</a>
+          <a href="#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
+          <a href="#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
+          <a href="#kontakt" data-i18n="nav_cta">Rendez-vous ufroen</a>
+        </nav>
+        <div class="footer-contact">
+          <h4 data-i18n="footer_contact_h">Kontakt</h4>
+          <p>63, rue de Diekirch-Echternach<br />L-9355 Bettendorf</p>
+          <p>
+            <a href="tel:+352808687">+352 80 86 87</a> ·
+            <a href="tel:+352621435495">+352 621 435 495</a>
+          </p>
+          <p>
+            <a href="mailto:Autoservicebettenduerf@outlook.com"
+              >Autoservicebettenduerf@outlook.com</a
+            >
+          </p>
         </div>
       </div>
-      <nav class="footer-nav" aria-label="Footer">
-        <h4 data-i18n="footer_nav_h">Navigatioun</h4>
-        <a href="#leistungen" data-i18n="nav_services">Servicer</a>
-        <a href="#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
-        <a href="#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
-        <a href="#kontakt" data-i18n="nav_cta">Rendez-vous ufroen</a>
-      </nav>
-      <div class="footer-contact">
-        <h4 data-i18n="footer_contact_h">Kontakt</h4>
-        <p>63, rue de Diekirch-Echternach<br>L-9355 Bettendorf</p>
-        <p><a href="tel:+352808687">+352 80 86 87</a> · <a href="tel:+352621435495">+352 621 435 495</a></p>
-        <p><a href="mailto:Autoservicebettenduerf@outlook.com">Autoservicebettenduerf@outlook.com</a></p>
+      <div class="footer-bottom">
+        <div class="container">
+          <span
+            >© <span id="year">2026</span> Autoservice Bettenduerf.
+            <span data-i18n="footer_rights"
+              >All Rechter reservéiert.</span
+            ></span
+          >
+          <span class="footer-legal"
+            ><a href="impressum.html" data-i18n="footer_impressum">Impressum</a>
+            ·
+            <a href="datenschutz.html" data-i18n="footer_datenschutz"
+              >Dateschutz</a
+            ></span
+          >
+        </div>
       </div>
-    </div>
-    <div class="footer-bottom">
-      <div class="container">
-        <span>© <span id="year">2026</span> Autoservice Bettenduerf. <span data-i18n="footer_rights">All Rechter reservéiert.</span></span>
-        <span class="footer-legal"><a href="impressum.html" data-i18n="footer_impressum">Impressum</a> · <a href="datenschutz.html" data-i18n="footer_datenschutz">Dateschutz</a></span>
-      </div>
-    </div>
-  </footer>
+    </footer>
 
-  <div class="mobile-contact" aria-label="Schnellkontakt">
-    <a href="tel:+352808687">📞 <span data-i18n="mobile_call">Uruffen</span></a>
-    <a href="mailto:Autoservicebettenduerf@outlook.com">✉️ <span data-i18n="mobile_email">E-Mail</span></a>
-  </div>
-  <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
+    <div class="mobile-contact" aria-label="Schnellkontakt">
+      <a href="tel:+352808687"
+        >📞 <span data-i18n="mobile_call">Uruffen</span></a
+      >
+      <a href="mailto:Autoservicebettenduerf@outlook.com"
+        >✉️ <span data-i18n="mobile_email">E-Mail</span></a
+      >
+    </div>
+    <a
+      href="#top"
+      class="back-to-top"
+      id="back-to-top"
+      aria-label="Nach oben / Back to top"
+      >↑</a
+    >
 
-  <script src="script.js?v=2"></script>
-  <script src="details.js?v=2"></script>
-  <script src="extras.js?v=2"></script>
-</body>
+    <script src="script.js?v=3"></script>
+    <script src="details.js?v=3"></script>
+    <script src="extras.js?v=3"></script>
+  </body>
 </html>
