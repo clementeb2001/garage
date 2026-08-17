@@ -48,7 +48,7 @@
       svc3_t: "Pneueservice",
       svc3_d:
         "Pneuewiessel, Ausbalancéieren, Alagerung a Berodung zu Summer-, Wanter- a Ganzjorespneuen.",
-      svc4_t: "Bremsen & Ophänkung",
+      svc4_t: "Bremsen & Fuerwierk",
       svc4_d:
         "Bremsbeläg, Scheiwen, Stoussdämpfer an Achsvermiessung – fir optimalen Halt op der Strooss.",
       svc5_t: "Feelerdiagnos & Elektrik",
@@ -65,7 +65,7 @@
         "Batterietest, Start-Stopp-Systemer, Beliichtung a Bordelektronik – alles am Bléck.",
       svc9_t: "Tuning & Motorsport",
       svc9_d:
-        "Rallye- a Rennstreckevirbereedung, Ofsenkung a Sportophänkungen – ofgestëmmt op Är Wënsch.",
+        "Rallye- a Rennstreckevirbereedung, Ofsenkung a Sportfuerwierker – ofgestëmmt op Är Wënsch.",
       svc10_t: "Karrosserie & Lackéierung",
       svc10_d:
         "Karrosseriearbechten, Spoiler, Verbreederungen a propper Lackéierung.",

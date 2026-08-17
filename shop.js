@@ -265,7 +265,7 @@
         oel: "Ueleg & Flëssegkeeten",
         zuend: "Zündung",
         elektrik: "Elektrik & Batterie",
-        fahrwerk: "Ophänkung",
+        fahrwerk: "Fuerwierk",
         licht: "Beliichtung",
         motor: "Motor",
         reifen: "Pneuen",

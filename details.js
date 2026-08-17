@@ -52,9 +52,9 @@
         ],
       },
       bremsen: {
-        title: "Bremsen & Ophänkung",
+        title: "Bremsen & Fuerwierk",
         intro:
-          "Sécher Bremsen an eng intakt Ophänkung sinn entscheedend fir Är Sécherheet.",
+          "Sécher Bremsen an en intakt Fuerwierk sinn entscheedend fir Är Sécherheet.",
         points: [
           "Bremsbeläg a Bremsscheiwen",
           "Kontroll vu Bremsflëssegkeet a Leitungen",
@@ -102,8 +102,8 @@
           "Egal ob Rallye- oder Rennstreckevirbereedung, Ofsenkung oder méi Leeschtung – mir bréngen Äre Won op den nächsten Niveau.",
         points: [
           "Rallye- a Rennstreckevirbereedung",
-          "Verstellbar Ophänkungen an Ofsenkung",
-          "Sportbremsen a Sportophänkung",
+          "Verstellbar Fuerwierker an Ofsenkung",
+          "Sportbremsen a Sportfuerwierk",
           "Individuell Ofstëmmung no Wonsch",
         ],
       },
@@ -609,10 +609,10 @@
     },
   };
   var TIPIMG = {
-    "tip-winter": "reifen",
-    "tip-fruehjahr": "klima",
-    "tip-summer": "wartung",
-    "tip-herbst": "controle",
+    "tip-winter": "assets/seasons/winter.webp",
+    "tip-fruehjahr": "assets/seasons/spring.webp",
+    "tip-summer": "assets/seasons/summer.webp",
+    "tip-herbst": "assets/seasons/autumn.webp",
   };
   var TIPBACK = {
     lb: "Zréck bei d’Tipps",
@@ -679,9 +679,8 @@
     });
     document.getElementById("svc-cta").textContent = lab.cta;
     var hero = document.getElementById("svc-hero");
-    var _img = TIPIMG[slug] || slug;
-    if (hero)
-      hero.style.backgroundImage = "url('assets/services/" + _img + ".jpg')";
+    var imagePath = TIPIMG[slug] || "assets/services/" + slug + ".jpg";
+    if (hero) hero.style.backgroundImage = "url('" + imagePath + "')";
     document.title = d.title + " – Autoservice Bettenduerf";
   }
   function init() {
