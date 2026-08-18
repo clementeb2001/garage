@@ -1083,6 +1083,27 @@ a.ci-value:hover {
   margin-top: 14px;
   text-align: center;
 }
+.privacy-confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 4px 0 16px;
+  color: var(--text-mut);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  cursor: pointer;
+}
+.privacy-confirm input {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  accent-color: var(--accent);
+}
+.privacy-confirm input:focus-visible {
+  outline: 3px solid rgba(230, 57, 70, 0.28);
+  outline-offset: 2px;
+}
 .form-status {
   margin-top: 12px;
   text-align: center;
