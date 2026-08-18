@@ -3151,3 +3151,193 @@ html.shop-dev .shop-dev-badge a {
   background: var(--accent, #e63946);
   color: #fff;
 }
+
+/* ============================================================
+   Spezialiséierungen: Extra-Servicer (Achsvermessung / Getriebespülung)
+   ============================================================ */
+.spezial {
+  position: relative;
+  margin: 6px 0 42px;
+  padding: 30px 28px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff, #f4f7fb);
+  border: 1px solid var(--line, #e6e9ee);
+  box-shadow: var(--shadow-md, 0 12px 30px rgba(13, 27, 42, 0.1));
+  overflow: hidden;
+}
+.spezial::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent, #e63946), var(--accent-2, #ff8a3d));
+}
+.spezial-head {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.spezial-eyebrow {
+  color: var(--accent-2, #ff8a3d);
+  margin-bottom: 8px;
+}
+.spezial-head h3 {
+  font-size: clamp(1.35rem, 3vw, 1.9rem);
+  margin: 0 0 6px;
+  color: var(--navy-900, #0d1b2a);
+}
+.spezial-sub {
+  color: var(--text-mut, #5b6b7c);
+  max-width: 62ch;
+  margin: 0 auto;
+}
+.spezial-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+.spezial-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--line, #e6e9ee);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(13, 27, 42, 0.06));
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.spezial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md, 0 12px 30px rgba(13, 27, 42, 0.12));
+}
+.spezial-ribbon {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  background: var(--accent, #e63946);
+  color: #fff;
+  font-family: var(--font-head, sans-serif);
+  font-weight: 800;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 7px 13px;
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(230, 57, 70, 0.35);
+}
+.spezial-ribbon::before {
+  content: "★ ";
+}
+.spezial-media {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: #0b1119;
+  cursor: zoom-in;
+  position: relative;
+  line-height: 0;
+  aspect-ratio: 100 / 84;
+  overflow: hidden;
+}
+.spezial-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+.spezial-zoom {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(11, 17, 25, 0.82);
+  color: #fff;
+  font-family: var(--font-head, sans-serif);
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  padding: 7px 11px;
+  border-radius: 8px;
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+.spezial-media:hover .spezial-zoom {
+  opacity: 1;
+}
+.spezial-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px 22px;
+}
+.spezial-body h4 {
+  font-size: 1.16rem;
+  margin: 0;
+  color: var(--navy-900, #0d1b2a);
+}
+.spezial-body p {
+  margin: 0;
+  color: var(--text-mut, #5b6b7c);
+  font-size: 0.94rem;
+  flex: 1;
+}
+.spezial-body .btn {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(6, 10, 16, 0.9);
+}
+.lightbox[hidden] {
+  display: none;
+}
+.lightbox img {
+  width: min(92vw, 760px);
+  aspect-ratio: 100 / 84;
+  object-fit: cover;
+  object-position: top center;
+  max-height: 90vh;
+  border-radius: 10px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  background: #0b1119;
+}
+.lightbox-close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 720px) {
+  .spezial-grid {
+    grid-template-columns: 1fr;
+  }
+  .spezial {
+    padding: 22px 16px;
+  }
+}

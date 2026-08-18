@@ -520,3 +520,40 @@
   if (document.readyState !== "loading") init();
   else document.addEventListener("DOMContentLoaded", init);
 })();
+
+/* Spezial-Servicer: Flyer-Lightbox (Vergréisseren) */
+(function () {
+  function init() {
+    var lb = document.getElementById("lightbox");
+    var lbImg = document.getElementById("lightbox-img");
+    var lbClose = document.getElementById("lightbox-close");
+    if (!lb || !lbImg) return;
+    function open(src, alt) {
+      lbImg.src = src;
+      lbImg.alt = alt || "";
+      lb.hidden = false;
+      document.body.style.overflow = "hidden";
+      if (lbClose) lbClose.focus();
+    }
+    function close() {
+      lb.hidden = true;
+      lbImg.src = "";
+      document.body.style.overflow = "";
+    }
+    document.querySelectorAll(".spezial-media").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var img = b.querySelector("img");
+        open(b.getAttribute("data-zoom"), img ? img.alt : "");
+      });
+    });
+    if (lbClose) lbClose.addEventListener("click", close);
+    lb.addEventListener("click", function (e) {
+      if (e.target === lb) close();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (!lb.hidden && (e.key === "Escape" || e.key === "Esc")) close();
+    });
+  }
+  if (document.readyState !== "loading") init();
+  else document.addEventListener("DOMContentLoaded", init);
+})();
