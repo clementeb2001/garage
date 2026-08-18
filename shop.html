@@ -8,6 +8,8 @@
       content="Autodeeler-Shop vum Autoservice Bettenduerf – Autodeeler fir all Marken a Modeller. Sich no Bezeechnung, Artikelnummer oder no Ärem Won."
     />
     <meta name="theme-color" content="#0d1b2a" />
+    <!-- Shop noch "in Arbeit": vorerst nicht indexieren -->
+    <meta name="robots" content="noindex, follow" />
     <title>Shop – Autoservice Bettenduerf</title>
 
     <meta property="og:title" content="Autoservice Bettenduerf – Shop" />
@@ -43,6 +45,7 @@
     </script>
   </head>
   <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
     <!-- Top bar -->
     <div class="topbar">
       <div class="container topbar-inner">
@@ -136,7 +139,7 @@
       · <a href="shop.html?dev=0">verstoppen</a>
     </div>
 
-    <main>
+    <main id="main">
       <!-- „In Arbeit"-Säit (oeffentlech) -->
       <section id="shop-soon" aria-label="Shop in Arbeit">
         <div class="soon-bg" aria-hidden="true"></div>
@@ -164,7 +167,7 @@
         <div class="shop-hero-bg" aria-hidden="true"></div>
         <div class="container">
           <p class="eyebrow light" id="shop-eyebrow">Onlineshop</p>
-          <h1 id="shop-title">Autodeeler fir all Won</h1>
+          <h2 id="shop-title">Autodeeler fir all Won</h2>
           <p class="shop-sub" id="shop-sub">
             Sich no Bezeechnung, Artikelnummer – oder direkt no Ärem Won.
           </p>
@@ -284,6 +287,7 @@
         <div class="footer-brand">
           <img
             class="site-logo site-logo-footer"
+            loading="lazy"
             src="assets/autoservice-bettenduerf-logo.png"
             alt="Autoservice Bettenduerf"
             width="1351"
