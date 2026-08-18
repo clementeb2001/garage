@@ -296,6 +296,9 @@
       opt_brand: "Marke wielen",
       opt_model: "Modell wielen",
       opt_year: "Baujoer",
+      ph_brand: "Marke wielen oder aginn",
+      ph_model: "Modell wielen oder aginn",
+      ph_year: "Baujoer wielen oder aginn",
       year_older: "virun 1980",
       btn_veh: "Passend Deeler fannen",
       cats: {
@@ -338,6 +341,9 @@
       opt_brand: "Marke wählen",
       opt_model: "Modell wählen",
       opt_year: "Baujahr",
+      ph_brand: "Marke wählen oder eingeben",
+      ph_model: "Modell wählen oder eingeben",
+      ph_year: "Baujahr wählen oder eingeben",
       year_older: "vor 1980",
       btn_veh: "Passende Teile finden",
       cats: {
@@ -380,6 +386,9 @@
       opt_brand: "Choisir la marque",
       opt_model: "Choisir le modèle",
       opt_year: "Année",
+      ph_brand: "Choisir ou saisir la marque",
+      ph_model: "Choisir ou saisir le modèle",
+      ph_year: "Choisir ou saisir l’année",
       year_older: "avant 1980",
       btn_veh: "Trouver les pièces",
       cats: {
@@ -422,6 +431,9 @@
       opt_brand: "Select make",
       opt_model: "Select model",
       opt_year: "Year",
+      ph_brand: "Select or enter make",
+      ph_model: "Select or enter model",
+      ph_year: "Select or enter year",
       year_older: "before 1980",
       btn_veh: "Find matching parts",
       cats: {
@@ -485,67 +497,38 @@
   };
   var cart = 0;
 
-  /* ---------- Dropdowns fëllen ---------- */
+  /* ---------- Vorschlagslisten fëllen; all Felder bleiwen fräi editierbar ---------- */
   function fillBrands() {
-    var t = tr(),
-      sel = $("veh-brand");
+    var sel = $("veh-brand-list");
     if (!sel) return;
-    var cur = sel.value;
     sel.innerHTML = "";
-    var o0 = document.createElement("option");
-    o0.value = "";
-    o0.textContent = t.opt_brand;
-    sel.appendChild(o0);
     Object.keys(BRANDS).forEach(function (b) {
       var o = document.createElement("option");
       o.value = b;
-      o.textContent = b;
       sel.appendChild(o);
     });
-    if (cur) sel.value = cur;
   }
   function fillModels(brand) {
-    var t = tr(),
-      sel = $("veh-model");
+    var sel = $("veh-model-list");
     if (!sel) return;
     sel.innerHTML = "";
-    var o0 = document.createElement("option");
-    o0.value = "";
-    o0.textContent = t.opt_model;
-    sel.appendChild(o0);
     if (brand && BRANDS[brand]) {
       BRANDS[brand].forEach(function (m) {
         var o = document.createElement("option");
         o.value = m;
-        o.textContent = m;
         sel.appendChild(o);
       });
-      sel.disabled = false;
-    } else {
-      sel.disabled = true;
     }
   }
   function fillYears() {
-    var t = tr(),
-      sel = $("veh-year");
+    var sel = $("veh-year-list");
     if (!sel) return;
-    var cur = sel.value;
     sel.innerHTML = "";
-    var o0 = document.createElement("option");
-    o0.value = "";
-    o0.textContent = t.opt_year;
-    sel.appendChild(o0);
-    for (var y = 2026; y >= 1980; y--) {
+    for (var y = new Date().getFullYear() + 1; y >= 1950; y--) {
       var o = document.createElement("option");
       o.value = String(y);
-      o.textContent = String(y);
       sel.appendChild(o);
     }
-    var older = document.createElement("option");
-    older.value = "<1980";
-    older.textContent = t.year_older;
-    sel.appendChild(older);
-    if (cur) sel.value = cur;
   }
 
   /* ---------- Kategorie-Chips ---------- */
@@ -732,6 +715,9 @@
     setTxt("lbl-btn-veh", t.btn_veh);
     var q = $("q-text");
     if (q) q.placeholder = t.ph_text;
+    $("veh-brand").placeholder = t.ph_brand;
+    $("veh-model").placeholder = t.ph_model;
+    $("veh-year").placeholder = t.ph_year;
     setTxt("shop-note-title", t.note_title);
     setTxt("shop-note-text", t.note_text);
     setTxt("shop-note-cta", t.note_cta);
@@ -804,7 +790,9 @@
     $("btn-veh-search").addEventListener("click", doVehSearch);
     $("veh-brand").addEventListener("change", function () {
       fillModels(this.value);
-      $("veh-year").disabled = !this.value;
+    });
+    $("veh-brand").addEventListener("input", function () {
+      fillModels(this.value);
     });
     // Sproochewiessel: alles nei
     document.querySelectorAll(".lang-switch button").forEach(function (b) {
