@@ -211,7 +211,7 @@ h4 {
   color: var(--accent);
 }
 .main-nav .nav-cta {
-  background: var(--accent);
+  background: #d0303c;
   color: #fff;
   margin-left: 6px;
   padding: 10px 20px;
@@ -1378,14 +1378,9 @@ a.ci-value:hover {
   background-size: 24px 24px;
 }
 
-/* Primär-Knäppche mat Verlaf + Glanz */
+/* Primär-Knäppche mat Verlaf + Glanz (dunkler fir bessere Kontrast) */
 .btn-primary {
-  background: linear-gradient(
-    135deg,
-    #ff5b66 0%,
-    var(--accent) 55%,
-    var(--accent-dark) 100%
-  );
+  background: linear-gradient(135deg, #d83a45 0%, #cf2f3b 55%, #b12730 100%);
   position: relative;
   overflow: hidden;
 }
@@ -1928,7 +1923,7 @@ body {
 }
 .site-header .main-nav .nav-cta {
   color: #fff;
-  background: var(--accent);
+  background: #d0303c;
 }
 .site-header .main-nav .nav-shop {
   color: #2a1500;
@@ -2653,7 +2648,8 @@ body {
 .shop-hero .eyebrow.light {
   color: var(--accent-2, #ff8a3d);
 }
-.shop-hero h1 {
+.shop-hero h1,
+.shop-hero h2 {
   color: #fff;
   font-size: clamp(1.9rem, 4vw, 2.8rem);
   margin: 6px 0 8px;
@@ -3038,4 +3034,26 @@ html.shop-dev .shop-dev-badge {
 html.shop-dev .shop-dev-badge a {
   color: #2a1500;
   text-decoration: underline;
+}
+
+/* ============================================================
+   Skip-Link (Barrierefreiheit): erst bei Tastatur-Fokus sichtbar
+   ============================================================ */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 200;
+  background: var(--accent, #e63946);
+  color: #fff;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+.skip-link:focus {
+  top: 12px;
+  outline: 3px solid var(--accent-2, #ff8a3d);
+  outline-offset: 2px;
 }
