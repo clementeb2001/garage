@@ -74,6 +74,52 @@
     "Xpeng": ["G6", "G9", "P7"],
   };
 
+  /* Ergänzungen: historische, internationale und Nutzfahrzeug-Marken sowie genauere Modellreihen. */
+  var EXTRA_BRANDS = {
+    "Aiways": ["U5", "U6"], "Austin": ["Allegro", "Ambassador", "Maestro", "Maxi", "Metro", "Mini", "Montego", "Princess"],
+    "Austin-Healey": ["100", "3000", "Sprite"], "Autobianchi": ["A112", "Bianchina", "Y10"],
+    "BAIC": ["Beijing X35", "Beijing X55", "EU5"], "Bedford": ["Blitz", "CF", "Rascal"],
+    "Borgward": ["BX5", "BX7", "Isabella"], "Buick": ["Century", "Enclave", "Encore", "LaCrosse", "LeSabre", "Regal", "Riviera"],
+    "Chery": ["Arrizo 5", "Omoda 5", "Tiggo 4", "Tiggo 7", "Tiggo 8"],
+    "Daewoo": ["Espero", "Evanda", "Kalos", "Lacetti", "Lanos", "Leganza", "Matiz", "Nexia", "Nubira", "Tacuma"],
+    "DFSK": ["Fengon 500", "Fengon 5", "Fengon 7", "Seres 3"], "Fisker": ["Karma", "Ocean"],
+    "GMC": ["Acadia", "Canyon", "Hummer EV", "Sierra", "Terrain", "Yukon"],
+    "Great Wall": ["Haval H6", "Hover", "Ora 03", "Poer", "Steed"], "Holden": ["Astra", "Barina", "Commodore", "Monaro", "Ute"],
+    "Hummer": ["H1", "H2", "H3"], "Ineos": ["Grenadier"], "Iveco": ["Daily", "Eurocargo", "Massif"],
+    "LEVC": ["TX", "VN5"], "Lincoln": ["Aviator", "Continental", "Corsair", "MKX", "Navigator"],
+    "Mahindra": ["Bolero", "Goa", "KUV100", "Scorpio", "Thar", "XUV500"],
+    "Mercury": ["Cougar", "Grand Marquis", "Milan", "Monterey", "Mountaineer"],
+    "Morgan": ["3 Wheeler", "4/4", "Aero 8", "Plus 4", "Plus 6"],
+    "Oldsmobile": ["Alero", "Aurora", "Cutlass", "Intrigue", "Silhouette"], "Omoda": ["5", "E5"],
+    "Plymouth": ["Barracuda", "Neon", "Prowler", "Voyager"],
+    "Pontiac": ["Bonneville", "Firebird", "G6", "Grand Prix", "Solstice", "Trans Sport"],
+    "RAM": ["1500", "2500", "3500", "ProMaster"], "Saturn": ["Aura", "Ion", "Outlook", "Sky", "Vue"],
+    "Scion": ["FR-S", "iQ", "tC", "xB", "xD"], "Seres": ["3", "5"],
+    "Simca": ["1000", "1100", "1300", "1301", "Horizon", "Matra Rancho"],
+    "Tata": ["Aria", "Indica", "Indigo", "Nano", "Safari", "Xenon"],
+    "Triumph": ["Dolomite", "Herald", "Spitfire", "Stag", "TR4", "TR6", "TR7"],
+    "VinFast": ["VF 6", "VF 7", "VF 8", "VF 9"], "Wey": ["Coffee 01", "Coffee 02", "05"], "Zeekr": ["001", "7X", "X"]
+  };
+  var MODEL_SUPPLEMENTS = {
+    "Audi": ["50", "80", "90", "100", "200", "Cabriolet", "Coupé", "V8"],
+    "BMW": ["1502", "1602", "1802", "2002", "E3", "E9", "M1", "Z1", "Z3", "Z8"],
+    "Citroën": ["2CV", "AX", "BX", "C6", "C8", "CX", "DS", "Dyane", "Evasion", "GS", "Nemo", "Saxo", "Visa", "Xantia", "XM", "Xsara"],
+    "Fiat": ["124", "125", "126", "127", "128", "131", "Barchetta", "Cinquecento", "Coupé", "Croma", "Freemont", "Grande Punto", "Idea", "Marea", "Palio", "Scudo", "Sedici", "Seicento", "Stilo", "Ulysse", "Uno"],
+    "Ford": ["Capri", "Cougar", "Escort", "Fusion", "Granada", "Maverick", "Orion", "Probe", "Scorpio", "Sierra", "StreetKa", "Taunus"],
+    "Mercedes-Benz": ["190", "Coupé", "CLC", "CLK", "GLK", "M-Klasse", "R-Klasse", "Vaneo"],
+    "Nissan": ["100 NX", "200 SX", "300 ZX", "Almera", "Bluebird", "Cube", "Maxima", "Murano", "Pathfinder", "Patrol", "Primera", "Serena", "Sunny", "Terrano"],
+    "Opel": ["Ampera", "Antara", "Ascona", "Calibra", "Cascada", "Frontera", "Kadett", "Manta", "Monterey", "Omega", "Rekord", "Senator", "Signum", "Sintra", "Tigra", "Vectra"],
+    "Peugeot": ["104", "106", "107", "205", "206", "306", "405", "406", "407", "505", "605", "607", "806", "807", "Bipper"],
+    "Renault": ["4", "5", "9", "11", "19", "21", "25", "Avantime", "Clio Campus", "Fuego", "Modus", "Safrane", "Vel Satis", "Wind"],
+    "Toyota": ["Carina", "Celica", "Corolla Verso", "HiAce", "IQ", "MR2", "Paseo", "Previa", "Starlet", "Supra", "Urban Cruiser"],
+    "Volkswagen": ["181", "Bora", "Corrado", "Derby", "Eos", "Fox", "Käfer", "Karmann Ghia", "Lupo", "New Beetle", "Phaeton", "Santana", "Vento"],
+    "Volvo": ["240", "340", "440", "460", "480", "740", "760", "850", "940", "960", "S40", "S70", "S80", "V70", "XC70"]
+  };
+  Object.keys(EXTRA_BRANDS).forEach(function (brand) { BRANDS[brand] = EXTRA_BRANDS[brand]; });
+  Object.keys(MODEL_SUPPLEMENTS).forEach(function (brand) {
+    BRANDS[brand] = BRANDS[brand].concat(MODEL_SUPPLEMENTS[brand]).filter(function (model, index, list) { return list.indexOf(model) === index; });
+  });
+
   /* ---------- Demo-Katalog ----------
      cat = Kategorie-Schlëssel, fits = Marken oder "all" */
   var PRODUCTS = [
@@ -299,6 +345,7 @@
       ph_brand: "Marke wielen oder aginn",
       ph_model: "Modell wielen oder aginn",
       ph_year: "Baujoer wielen oder aginn",
+      ph_variant: "Typ / Motoriséierung (optional)",
       year_older: "virun 1980",
       btn_veh: "Passend Deeler fannen",
       cats: {
@@ -344,6 +391,7 @@
       ph_brand: "Marke wählen oder eingeben",
       ph_model: "Modell wählen oder eingeben",
       ph_year: "Baujahr wählen oder eingeben",
+      ph_variant: "Typ / Motorisierung (optional)",
       year_older: "vor 1980",
       btn_veh: "Passende Teile finden",
       cats: {
@@ -389,6 +437,7 @@
       ph_brand: "Choisir ou saisir la marque",
       ph_model: "Choisir ou saisir le modèle",
       ph_year: "Choisir ou saisir l’année",
+      ph_variant: "Type / motorisation (facultatif)",
       year_older: "avant 1980",
       btn_veh: "Trouver les pièces",
       cats: {
@@ -434,6 +483,7 @@
       ph_brand: "Select or enter make",
       ph_model: "Select or enter model",
       ph_year: "Select or enter year",
+      ph_variant: "Type / engine (optional)",
       year_older: "before 1980",
       btn_veh: "Find matching parts",
       cats: {
@@ -494,6 +544,7 @@
     brand: "",
     model: "",
     year: "",
+    variant: "",
   };
   var cart = 0;
 
@@ -637,7 +688,8 @@
       var v =
         state.brand +
         (state.model ? " " + state.model : "") +
-        (state.year ? " (" + state.year + ")" : "");
+        (state.year ? " (" + state.year + ")" : "") +
+        (state.variant ? " · " + state.variant : "");
       txt = t.info_veh.replace("{n}", n).replace("{v}", v);
     } else if (state.cat !== "all")
       txt = t.info_cat.replace("{n}", n).replace("{c}", t.cats[state.cat]);
@@ -718,6 +770,7 @@
     $("veh-brand").placeholder = t.ph_brand;
     $("veh-model").placeholder = t.ph_model;
     $("veh-year").placeholder = t.ph_year;
+    $("veh-variant").placeholder = t.ph_variant;
     setTxt("shop-note-title", t.note_title);
     setTxt("shop-note-text", t.note_text);
     setTxt("shop-note-cta", t.note_cta);
@@ -757,6 +810,7 @@
     state.brand = $("veh-brand").value;
     state.model = $("veh-model").value;
     state.year = $("veh-year").value;
+    state.variant = $("veh-variant").value.trim();
     state.cat = "all";
     render();
     scrollToCatalog();
