@@ -1309,6 +1309,10 @@ a.ci-value:hover {
     margin: 8px 0 0;
     text-align: center;
   }
+  .main-nav .nav-shop {
+    margin: 4px 0 0;
+    text-align: center;
+  }
   .lang-switch {
     margin: 12px 0 0;
     align-self: center;
