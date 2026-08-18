@@ -2690,7 +2690,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 18px;
   padding: 10px;
-  max-width: 820px;
+  max-width: 1100px;
   backdrop-filter: blur(4px);
 }
 .shop-tabs {
@@ -2740,7 +2740,7 @@ body {
 }
 .veh-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 0.7fr auto;
+  grid-template-columns: 1fr 1fr 0.75fr 1fr auto;
   gap: 10px;
 }
 .veh-field {
