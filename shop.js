@@ -296,6 +296,7 @@
       opt_brand: "Marke wielen",
       opt_model: "Modell wielen",
       opt_year: "Baujoer",
+      year_older: "virun 1980",
       btn_veh: "Passend Deeler fannen",
       cats: {
         all: "All",
@@ -337,6 +338,7 @@
       opt_brand: "Marke wählen",
       opt_model: "Modell wählen",
       opt_year: "Baujahr",
+      year_older: "vor 1980",
       btn_veh: "Passende Teile finden",
       cats: {
         all: "Alle",
@@ -378,6 +380,7 @@
       opt_brand: "Choisir la marque",
       opt_model: "Choisir le modèle",
       opt_year: "Année",
+      year_older: "avant 1980",
       btn_veh: "Trouver les pièces",
       cats: {
         all: "Tous",
@@ -419,6 +422,7 @@
       opt_brand: "Select make",
       opt_model: "Select model",
       opt_year: "Year",
+      year_older: "before 1980",
       btn_veh: "Find matching parts",
       cats: {
         all: "All",
@@ -531,12 +535,16 @@
     o0.value = "";
     o0.textContent = t.opt_year;
     sel.appendChild(o0);
-    for (var y = 2025; y >= 2005; y--) {
+    for (var y = 2026; y >= 1980; y--) {
       var o = document.createElement("option");
       o.value = String(y);
       o.textContent = String(y);
       sel.appendChild(o);
     }
+    var older = document.createElement("option");
+    older.value = "<1980";
+    older.textContent = t.year_older;
+    sel.appendChild(older);
     if (cur) sel.value = cur;
   }
 
