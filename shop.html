@@ -27,7 +27,7 @@
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1b2a'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23e63946'%3EK%3C/text%3E%3C/svg%3E"
     />
-    <link rel="stylesheet" href="styles.css?v=10" />
+    <link rel="stylesheet" href="styles.css?v=11" />
     <script>
       /* Shop-Sperre: oeffentlich "in Arbeit", fir de Besëtzer via ?dev=1 fräischalten */
       (function () {
@@ -217,17 +217,20 @@
 
             <div class="shop-panel" id="panel-fahrzeug" role="tabpanel" hidden>
               <div class="veh-row">
-                <div class="veh-field">
+                <div class="veh-field combo">
                   <label class="sr-only" for="veh-brand">Marke</label>
-                  <select id="veh-brand"></select>
+                  <input id="veh-brand" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-brand" placeholder="Marke wielen oder aginn" />
+                  <ul class="combo-list" id="list-brand" role="listbox" hidden></ul>
                 </div>
-                <div class="veh-field">
+                <div class="veh-field combo">
                   <label class="sr-only" for="veh-model">Modell</label>
-                  <select id="veh-model" disabled></select>
+                  <input id="veh-model" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-model" placeholder="Modell wielen oder aginn" disabled />
+                  <ul class="combo-list" id="list-model" role="listbox" hidden></ul>
                 </div>
-                <div class="veh-field">
+                <div class="veh-field combo">
                   <label class="sr-only" for="veh-year">Baujahr</label>
-                  <select id="veh-year"></select>
+                  <input id="veh-year" class="combo-input" type="text" inputmode="numeric" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-year" placeholder="Baujoer wielen oder aginn" />
+                  <ul class="combo-list" id="list-year" role="listbox" hidden></ul>
                 </div>
                 <div class="veh-field">
                   <label class="sr-only" for="veh-variant">Typ, Variante oder Motorisierung</label>
@@ -381,6 +384,6 @@
     >
 
     <script src="script.js?v=4"></script>
-    <script src="shop.js?v=7"></script>
+    <script src="shop.js?v=8"></script>
   </body>
 </html>

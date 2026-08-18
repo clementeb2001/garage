@@ -2625,7 +2625,7 @@ body {
 /* Hero + Sich */
 .shop-hero {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   background: var(--navy-950, #080f18);
   color: #fff;
   padding: 64px 0 54px;
@@ -3110,4 +3110,44 @@ html.shop-dev .shop-dev-badge a {
 /* Shop-Seite: mobilen Anruf-/E-Mail-Balken unten ausblenden */
 .shop-page .mobile-contact {
   display: none !important;
+}
+
+/* ============================================================
+   Combobox: Textfeld + filterbar, scrollbare Vorschlagsliste
+   ============================================================ */
+.combo {
+  position: relative;
+}
+.combo-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #dbe0e5;
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(8, 15, 24, 0.28);
+  z-index: 40;
+  -webkit-overflow-scrolling: touch;
+}
+.combo-list[hidden] {
+  display: none;
+}
+.combo-opt {
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--text, #1d2733);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.combo-opt:hover,
+.combo-opt.active {
+  background: var(--accent, #e63946);
+  color: #fff;
 }

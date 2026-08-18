@@ -342,9 +342,9 @@
       opt_brand: "Marke wielen",
       opt_model: "Modell wielen",
       opt_year: "Baujoer",
-      ph_brand: "Marke wielen",
-      ph_model: "Modell wielen",
-      ph_year: "Baujoer wielen",
+      ph_brand: "Marke wielen oder aginn",
+      ph_model: "Modell wielen oder aginn",
+      ph_year: "Baujoer wielen oder aginn",
       ph_variant: "Typ / Motoriséierung (optional)",
       year_older: "virun 1980",
       btn_veh: "Passend Deeler fannen",
@@ -388,9 +388,9 @@
       opt_brand: "Marke wählen",
       opt_model: "Modell wählen",
       opt_year: "Baujahr",
-      ph_brand: "Marke wählen",
-      ph_model: "Modell wählen",
-      ph_year: "Baujahr wählen",
+      ph_brand: "Marke wählen oder eingeben",
+      ph_model: "Modell wählen oder eingeben",
+      ph_year: "Baujahr wählen oder eingeben",
       ph_variant: "Typ / Motorisierung (optional)",
       year_older: "vor 1980",
       btn_veh: "Passende Teile finden",
@@ -434,9 +434,9 @@
       opt_brand: "Choisir la marque",
       opt_model: "Choisir le modèle",
       opt_year: "Année",
-      ph_brand: "Choisir la marque",
-      ph_model: "Choisir le modèle",
-      ph_year: "Choisir l’année",
+      ph_brand: "Choisir ou saisir la marque",
+      ph_model: "Choisir ou saisir le modèle",
+      ph_year: "Choisir ou saisir l’année",
       ph_variant: "Type / motorisation (facultatif)",
       year_older: "avant 1980",
       btn_veh: "Trouver les pièces",
@@ -480,9 +480,9 @@
       opt_brand: "Select make",
       opt_model: "Select model",
       opt_year: "Year",
-      ph_brand: "Select make",
-      ph_model: "Select model",
-      ph_year: "Select year",
+      ph_brand: "Select or enter make",
+      ph_model: "Select or enter model",
+      ph_year: "Select or enter year",
       ph_variant: "Type / engine (optional)",
       year_older: "before 1980",
       btn_veh: "Find matching parts",
@@ -548,62 +548,136 @@
   };
   var cart = 0;
 
-  /* ---------- Dropdowns fëllen (native <select> – funktionéiert op Web a Mobil) ---------- */
-  function placeholderOption(txt) {
-    var o = document.createElement("option");
-    o.value = "";
-    o.textContent = txt;
-    return o;
-  }
-  function fillBrands() {
-    var sel = $("veh-brand");
-    if (!sel) return;
-    var t = tr(),
-      cur = sel.value;
-    sel.innerHTML = "";
-    sel.appendChild(placeholderOption(t.ph_brand));
-    Object.keys(BRANDS).forEach(function (b) {
-      var o = document.createElement("option");
-      o.value = b;
-      o.textContent = b;
-      sel.appendChild(o);
+  /* ---------- Combobox: Textfeld + filterbar, scrollbar Lëscht (Web + Mobil) ---------- */
+  function brandKeys() {
+    return Object.keys(BRANDS).sort(function (a, b) {
+      return a.localeCompare(b, "de");
     });
-    if (cur) sel.value = cur;
   }
-  function fillModels(brand) {
-    var sel = $("veh-model");
-    if (!sel) return;
-    var t = tr(),
-      cur = sel.value;
-    sel.innerHTML = "";
-    sel.appendChild(placeholderOption(t.ph_model));
-    if (brand && BRANDS[brand]) {
-      BRANDS[brand].forEach(function (m) {
-        var o = document.createElement("option");
-        o.value = m;
-        o.textContent = m;
-        sel.appendChild(o);
+  function modelOptions() {
+    var b = $("veh-brand") ? $("veh-brand").value : "";
+    return BRANDS[b] ? BRANDS[b] : [];
+  }
+  function yearList() {
+    var arr = [];
+    for (var y = new Date().getFullYear() + 1; y >= 1950; y--) arr.push(String(y));
+    return arr;
+  }
+  var combos = {};
+  function onBrandChange(val) {
+    var m = $("veh-model");
+    if (!m) return;
+    m.disabled = !val;
+    if (!val) m.value = "";
+    else if (BRANDS[val] && BRANDS[val].indexOf(m.value) === -1) m.value = "";
+    if (combos["veh-model"]) combos["veh-model"].render();
+  }
+  function makeCombo(inputId, listId, getOptions, onChoose) {
+    var input = $(inputId),
+      list = $(listId);
+    if (!input || !list) return null;
+    var active = -1;
+    function filtered() {
+      var f = (input.value || "").trim().toLowerCase();
+      var all = getOptions() || [];
+      if (!f) return all;
+      var starts = [],
+        contains = [];
+      all.forEach(function (o) {
+        var l = String(o).toLowerCase();
+        if (l.indexOf(f) === 0) starts.push(o);
+        else if (l.indexOf(f) !== -1) contains.push(o);
       });
-      sel.disabled = false;
-    } else {
-      sel.disabled = true;
+      return starts.concat(contains);
     }
-    if (cur) sel.value = cur;
+    function render() {
+      list.innerHTML = "";
+      filtered().forEach(function (o) {
+        var li = document.createElement("li");
+        li.className = "combo-opt";
+        li.setAttribute("role", "option");
+        li.textContent = o;
+        li.addEventListener("mousedown", function (e) {
+          e.preventDefault();
+          choose(o);
+        });
+        list.appendChild(li);
+      });
+      active = -1;
+    }
+    function open() {
+      if (input.disabled) return;
+      render();
+      if (list.children.length) {
+        list.hidden = false;
+        input.setAttribute("aria-expanded", "true");
+      } else {
+        close();
+      }
+    }
+    function close() {
+      list.hidden = true;
+      input.setAttribute("aria-expanded", "false");
+      active = -1;
+    }
+    function choose(val) {
+      input.value = val;
+      close();
+      if (onChoose) onChoose(val);
+    }
+    function items() {
+      return list.querySelectorAll(".combo-opt");
+    }
+    function highlight(its) {
+      its.forEach(function (it, i) {
+        it.classList.toggle("active", i === active);
+      });
+      if (active >= 0 && its[active])
+        its[active].scrollIntoView({ block: "nearest" });
+    }
+    input.addEventListener("focus", open);
+    input.addEventListener("click", open);
+    input.addEventListener("input", function () {
+      open();
+      if (onChoose) onChoose(input.value);
+    });
+    input.addEventListener("keydown", function (e) {
+      var k = e.key;
+      if (list.hidden && (k === "ArrowDown" || k === "Down")) {
+        open();
+        return;
+      }
+      var its = items();
+      if (k === "ArrowDown" || k === "Down") {
+        e.preventDefault();
+        active = Math.min(active + 1, its.length - 1);
+        highlight(its);
+      } else if (k === "ArrowUp" || k === "Up") {
+        e.preventDefault();
+        active = Math.max(active - 1, 0);
+        highlight(its);
+      } else if (k === "Enter") {
+        if (active >= 0 && its[active]) {
+          e.preventDefault();
+          choose(its[active].textContent);
+        } else {
+          close();
+        }
+      } else if (k === "Escape" || k === "Esc") {
+        close();
+      }
+    });
+    input.addEventListener("blur", function () {
+      setTimeout(close, 150);
+    });
+    var api = { render: render, close: close };
+    combos[inputId] = api;
+    return api;
   }
-  function fillYears() {
-    var sel = $("veh-year");
-    if (!sel) return;
-    var t = tr(),
-      cur = sel.value;
-    sel.innerHTML = "";
-    sel.appendChild(placeholderOption(t.ph_year));
-    for (var y = new Date().getFullYear() + 1; y >= 1950; y--) {
-      var o = document.createElement("option");
-      o.value = String(y);
-      o.textContent = String(y);
-      sel.appendChild(o);
-    }
-    if (cur) sel.value = cur;
+  function initCombos() {
+    makeCombo("veh-brand", "list-brand", brandKeys, onBrandChange);
+    makeCombo("veh-model", "list-model", modelOptions, null);
+    makeCombo("veh-year", "list-year", yearList, null);
   }
 
   /* ---------- Kategorie-Chips ---------- */
@@ -805,9 +879,12 @@
     setTxt("dev-badge-txt", s.dev);
     var dh = document.querySelector("#shop-dev-badge a");
     if (dh) dh.textContent = s.hide;
-    fillBrands();
-    fillModels($("veh-brand") ? $("veh-brand").value : "");
-    fillYears();
+    var vb = $("veh-brand");
+    if (vb) vb.placeholder = t.ph_brand;
+    var vm = $("veh-model");
+    if (vm) vm.placeholder = t.ph_model;
+    var vy = $("veh-year");
+    if (vy) vy.placeholder = t.ph_year;
   }
 
   /* ---------- Tabs & Events ---------- */
@@ -864,12 +941,6 @@
       }
     });
     $("btn-veh-search").addEventListener("click", doVehSearch);
-    $("veh-brand").addEventListener("change", function () {
-      fillModels(this.value);
-    });
-    $("veh-brand").addEventListener("input", function () {
-      fillModels(this.value);
-    });
     // Sproochewiessel: alles nei
     document.querySelectorAll(".lang-switch button").forEach(function (b) {
       b.addEventListener("click", function () {
@@ -883,6 +954,7 @@
 
   function init() {
     applyStatics();
+    initCombos();
     bind();
     render();
   }
