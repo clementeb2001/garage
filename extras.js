@@ -523,11 +523,43 @@
 
 /* Spezial-Servicer: Flyer-Lightbox (Vergréisseren) */
 (function () {
+  var flyerAlt = {
+    lb: { achsvermessung: "Achsvermiessung – Autoservice Bettenduerf", getriebespuelung: "Getriebespullung – Autoservice Bettenduerf" },
+    de: { achsvermessung: "Achsvermessung – Autoservice Bettenduerf", getriebespuelung: "Getriebespülung – Autoservice Bettenduerf" },
+    fr: { achsvermessung: "Géométrie des roues – Autoservice Bettenduerf", getriebespuelung: "Rinçage de boîte – Autoservice Bettenduerf" },
+    en: { achsvermessung: "Wheel alignment – Autoservice Bettenduerf", getriebespuelung: "Transmission flush – Autoservice Bettenduerf" }
+  };
+  function currentLang() {
+    var l = document.documentElement.getAttribute("lang");
+    if (flyerAlt[l]) return l;
+    try {
+      l = localStorage.getItem("gk_lang");
+      if (flyerAlt[l]) return l;
+    } catch (e) {}
+    return "lb";
+  }
+  function updateFlyers() {
+    var l = currentLang();
+    document.querySelectorAll(".spezial-media[data-flyer]").forEach(function (button) {
+      var key = button.getAttribute("data-flyer");
+      var src = "assets/spezial-localized/" + key + "-" + l + ".jpg";
+      var img = button.querySelector("img");
+      button.setAttribute("data-zoom", src);
+      if (img) {
+        img.src = src;
+        img.alt = flyerAlt[l][key] || "";
+      }
+    });
+  }
   function init() {
     var lb = document.getElementById("lightbox");
     var lbImg = document.getElementById("lightbox-img");
     var lbClose = document.getElementById("lightbox-close");
     if (!lb || !lbImg) return;
+    updateFlyers();
+    document.querySelectorAll(".lang-switch button").forEach(function (button) {
+      button.addEventListener("click", function () { setTimeout(updateFlyers, 0); });
+    });
     function open(src, alt) {
       lbImg.src = src;
       lbImg.alt = alt || "";
