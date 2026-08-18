@@ -3242,10 +3242,14 @@ html.shop-dev .shop-dev-badge a {
   cursor: zoom-in;
   position: relative;
   line-height: 0;
+  aspect-ratio: 100 / 84;
+  overflow: hidden;
 }
 .spezial-media img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
   display: block;
 }
 .spezial-zoom {
@@ -3303,12 +3307,14 @@ html.shop-dev .shop-dev-badge a {
   display: none;
 }
 .lightbox img {
-  max-width: min(96vw, 900px);
-  max-height: 92vh;
-  width: auto;
-  height: auto;
+  width: min(92vw, 760px);
+  aspect-ratio: 100 / 84;
+  object-fit: cover;
+  object-position: top center;
+  max-height: 90vh;
   border-radius: 10px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  background: #0b1119;
 }
 .lightbox-close {
   position: absolute;

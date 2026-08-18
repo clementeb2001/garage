@@ -49,6 +49,8 @@
       spez_axle_d: "Fir méi Sécherheet, manner Reifeverschleiss an e gerade Laf.",
       spez_gear_t: "Getriebespullung",
       spez_gear_d: "Fir sanft Schaltvirgäng an eng méi laang Liewensdauer vum Getriebe.",
+      spez_axle_opt: "★ Achsvermiessung",
+      spez_gear_opt: "★ Getriebespullung",
       svc1_t: "Entretien, Inspektioun & Uelegwiessel",
       svc1_d:
         "Entretien, Inspektioun, Ueleg- a Filterwiessel – alles fir de Wäert an d'Sécherheet vun Ärem Won.",
@@ -189,6 +191,8 @@
       spez_axle_d: "Für mehr Sicherheit, weniger Reifenverschleiß und geraden Lauf.",
       spez_gear_t: "Getriebespülung",
       spez_gear_d: "Für sanfte Schaltvorgänge und eine längere Lebensdauer des Getriebes.",
+      spez_axle_opt: "★ Achsvermessung",
+      spez_gear_opt: "★ Getriebespülung",
       svc1_t: "Wartung, Inspektion & Ölwechsel",
       svc1_d:
         "Wartung, Inspektion, Öl- und Filterwechsel – alles für Werterhalt und Sicherheit.",
@@ -329,6 +333,8 @@
       spez_axle_d: "Pour plus de sécurité, moins d’usure des pneus et une tenue de route optimale.",
       spez_gear_t: "Rinçage de boîte",
       spez_gear_d: "Pour des passages de vitesses doux et une durée de vie prolongée de la boîte.",
+      spez_axle_opt: "★ Géométrie / Parallélisme",
+      spez_gear_opt: "★ Rinçage de boîte",
       svc1_t: "Entretien, inspection & vidange",
       svc1_d:
         "Entretien, inspection, vidange et filtres – tout pour la valeur et la sécurité.",
@@ -467,6 +473,8 @@
       spez_axle_d: "For more safety, less tyre wear and precise handling.",
       spez_gear_t: "Transmission flush",
       spez_gear_d: "For smooth gear changes and a longer transmission life.",
+      spez_axle_opt: "★ Wheel alignment",
+      spez_gear_opt: "★ Transmission flush",
       svc1_t: "Maintenance, inspection & oil change",
       svc1_d:
         "Servicing, inspection, oil and filter change – all for value and safety.",
