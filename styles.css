@@ -2743,7 +2743,11 @@ body {
   grid-template-columns: 1fr 1fr 0.7fr auto;
   gap: 10px;
 }
-.veh-row select {
+.veh-field {
+  min-width: 0;
+}
+.veh-row input {
+  width: 100%;
   padding: 14px 14px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -2751,13 +2755,8 @@ body {
   color: var(--text, #1d2733);
   font-size: 0.98rem;
   font-weight: 600;
-  cursor: pointer;
 }
-.veh-row select:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-.veh-row select:focus {
+.veh-row input:focus {
   outline: 3px solid var(--accent-2, #ff8a3d);
   outline-offset: 1px;
 }
