@@ -7,7 +7,7 @@
         note: "Mir behandelen Är Donnéeë vertraulech.",
         sending: "Gëtt geschéckt …",
         ok: "Merci, {name}! Är Terminufro ass ukomm – mir mellen eis geschwënn.",
-        err: "Gitt w.e.g. Ären Numm, eng gëlteg E-Mail-Adress, d’Chassisnummer an eng Noriicht un.",
+        err: "Gitt w.e.g. Ären Numm, eng gëlteg E-Mail-Adress, d’Chassisnummer an eng Noriicht un a bestätegt den Dateschutzhinweis.",
         senderr:
           "D’Ufro konnt net geschéckt ginn. Probéiert et w.e.g. nach eng Kéier oder rufft eis un.",
         weekday: "Gewënschten Deeg",
@@ -18,6 +18,7 @@
         time_pm: "Nomëttes",
         vin: "Chassisnummer (VIN)",
         vin_ph: "z. B. WVWZZZ…",
+        privacy: "Ech hunn d'Dateschutzerklärung gelies a verstinn, datt meng Donnéeën iwwer FormSubmit iwwermëttelt ginn.",
       },
       saison: {
         eyebrow: "Tipps",
@@ -91,7 +92,7 @@
         note: "Wir behandeln Ihre Daten vertraulich.",
         sending: "Wird gesendet …",
         ok: "Danke, {name}! Ihre Terminanfrage ist angekommen – wir melden uns in Kürze.",
-        err: "Bitte Name, eine gültige E-Mail, die Fahrgestellnummer und eine Nachricht angeben.",
+        err: "Bitte Name, eine gültige E-Mail, die Fahrgestellnummer und eine Nachricht angeben und den Datenschutzhinweis bestätigen.",
         senderr:
           "Ups – die Anfrage konnte nicht gesendet werden. Bitte erneut versuchen oder rufen Sie uns an.",
         weekday: "Wunschtage",
@@ -102,6 +103,7 @@
         time_pm: "Nachmittag",
         vin: "Fahrgestellnummer (VIN)",
         vin_ph: "z. B. WVWZZZ…",
+        privacy: "Ich habe die Datenschutzerklärung gelesen und verstanden, dass meine Angaben über FormSubmit übermittelt werden.",
       },
       saison: {
         eyebrow: "Tipps",
@@ -175,7 +177,7 @@
         note: "Vos données restent confidentielles.",
         sending: "Envoi …",
         ok: "Merci {name} ! Votre demande de rendez-vous est bien arrivée – nous vous recontactons rapidement.",
-        err: "Merci d’indiquer votre nom, un e-mail valide, le numéro de châssis et un message.",
+        err: "Merci d’indiquer votre nom, un e-mail valide, le numéro de châssis et un message, puis de confirmer l’avis de confidentialité.",
         senderr: "Oups – l’envoi a échoué. Réessayez ou appelez-nous.",
         weekday: "Jours souhaités",
         days: ["Lu", "Ma", "Me", "Je", "Ve", "Sa"],
@@ -185,6 +187,7 @@
         time_pm: "Après-midi",
         vin: "Numéro de châssis (VIN)",
         vin_ph: "p. ex. VF1…",
+        privacy: "J'ai lu la politique de confidentialité et compris que mes données sont transmises via FormSubmit.",
       },
       saison: {
         eyebrow: "Conseils",
@@ -258,7 +261,7 @@
         note: "We treat your data confidentially.",
         sending: "Sending …",
         ok: "Thanks, {name}! Your appointment request has arrived – we’ll get back to you shortly.",
-        err: "Please enter your name, a valid email, the chassis number and a message.",
+        err: "Please enter your name, a valid email, the chassis number and a message, and confirm the privacy notice.",
         senderr:
           "Oops – the request could not be sent. Please try again or call us.",
         weekday: "Preferred days",
@@ -269,6 +272,7 @@
         time_pm: "Afternoon",
         vin: "Chassis number (VIN)",
         vin_ph: "e.g. WVWZZZ…",
+        privacy: "I have read the privacy policy and understand that my details are transmitted via FormSubmit.",
       },
       saison: {
         eyebrow: "Tips",
@@ -368,6 +372,7 @@
     set("lbl-vin", m.form.vin);
     var vin = document.getElementById("vin");
     if (vin) vin.placeholder = m.form.vin_ph;
+    set("privacy-confirm-text", m.form.privacy);
     var btn = document.querySelector('#contact-form button[type="submit"]');
     if (btn) btn.textContent = m.form.submit;
     var note = document.querySelector("#contact-form .form-note span");
@@ -455,8 +460,9 @@
       email = v("email"),
       message = v("message"),
       vin = v("vin");
+    var privacy = f.querySelector("#privacy-confirm");
     var okmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!name || !okmail || !message || !vin) {
+    if (!name || !okmail || !message || !vin || !privacy || !privacy.checked) {
       st.className = "form-status err";
       st.textContent = m.form.err;
       return;
