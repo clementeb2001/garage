@@ -327,6 +327,86 @@
             </p>
           </div>
 
+          <!-- Spezialiséierungen: Extra-Servicer, déi net all Garage ubitt -->
+          <div class="spezial">
+            <div class="spezial-head">
+              <p class="eyebrow spezial-eyebrow" data-i18n="spez_eyebrow">
+                ★ Eis Spezialiséierungen
+              </p>
+              <h3 data-i18n="spez_title">
+                Net all Garage zu Lëtzebuerg bitt dat un
+              </h3>
+              <p class="spezial-sub" data-i18n="spez_sub">
+                Zwee Spezial-Servicer, déi mir mat moderner Technik ubidden.
+              </p>
+            </div>
+            <div class="spezial-grid">
+              <article class="spezial-card">
+                <span class="spezial-ribbon" data-i18n="spez_ribbon"
+                  >Spezialiséierung</span
+                >
+                <button
+                  type="button"
+                  class="spezial-media"
+                  data-zoom="assets/spezial/achsvermessung.jpg"
+                  aria-label="Achsvermiessung"
+                >
+                  <img
+                    src="assets/spezial/achsvermessung.jpg"
+                    alt="Achsvermiessung – Autoservice Bettenduerf"
+                    loading="lazy"
+                    width="1250"
+                    height="1250"
+                  />
+                  <span class="spezial-zoom" aria-hidden="true"
+                    >🔍 <span data-i18n="spez_zoom">Vergréisseren</span></span
+                  >
+                </button>
+                <div class="spezial-body">
+                  <h4 data-i18n="spez_axle_t">Achsvermiessung</h4>
+                  <p data-i18n="spez_axle_d">
+                    Fir méi Sécherheet, manner Reifeverschleiss an e gerade Laf.
+                  </p>
+                  <a class="btn btn-primary" href="#kontakt" data-i18n="nav_cta"
+                    >Rendez-vous ufroen</a
+                  >
+                </div>
+              </article>
+              <article class="spezial-card">
+                <span class="spezial-ribbon" data-i18n="spez_ribbon"
+                  >Spezialiséierung</span
+                >
+                <button
+                  type="button"
+                  class="spezial-media"
+                  data-zoom="assets/spezial/getriebespuelung.jpg"
+                  aria-label="Getriebespullung"
+                >
+                  <img
+                    src="assets/spezial/getriebespuelung.jpg"
+                    alt="Getriebespullung – Autoservice Bettenduerf"
+                    loading="lazy"
+                    width="1250"
+                    height="1250"
+                  />
+                  <span class="spezial-zoom" aria-hidden="true"
+                    >🔍 <span data-i18n="spez_zoom">Vergréisseren</span></span
+                  >
+                </button>
+                <div class="spezial-body">
+                  <h4 data-i18n="spez_gear_t">Getriebespullung</h4>
+                  <p data-i18n="spez_gear_d">
+                    Fir sanft Schaltvirgäng an eng méi laang Liewensdauer vum
+                    Getriebe.
+                  </p>
+                  <a class="btn btn-primary" href="#kontakt" data-i18n="nav_cta"
+                    >Rendez-vous ufroen</a
+                  >
+                </div>
+              </article>
+            </div>
+          </div>
+
           <div class="cards">
             <article
               class="card"
@@ -938,8 +1018,16 @@
       >↑</a
     >
 
+    <!-- Lightbox fir d'Spezial-Flyer -->
+    <div class="lightbox" id="lightbox" hidden>
+      <button class="lightbox-close" id="lightbox-close" aria-label="Zoumaachen">
+        ✕
+      </button>
+      <img id="lightbox-img" src="" alt="" />
+    </div>
+
     <script src="script.js?v=4"></script>
     <script src="details.js?v=4"></script>
-    <script src="extras.js?v=3"></script>
+    <script src="extras.js?v=4"></script>
   </body>
 </html>
