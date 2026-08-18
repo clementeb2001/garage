@@ -6,18 +6,58 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://autoservicebettenduerf.lu/service.html</loc>
+    <loc>https://autoservicebettenduerf.lu/?lang=de</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/?lang=fr</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/?lang=en</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=wartung</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://autoservicebettenduerf.lu/impressum.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=reifen</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://autoservicebettenduerf.lu/datenschutz.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=bremsen</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=diagnose</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=klima</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=controle</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tuning</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=karosserie</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>

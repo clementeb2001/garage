@@ -529,8 +529,58 @@
   var LANGS = ["lb", "de", "fr", "en"];
   var DEFAULT_LANG = "lb";
   var currentLang = DEFAULT_LANG;
+  var SEO = {
+    lb: {
+      title: "Autoservice Bettenduerf – Autosgarage zu Bettendorf",
+      description:
+        "Autosgarage zu Bettendorf an offiziell 1·2·3 AutoService Partnergarage. Entretien, Reparatur, Pneueservice, Contrôle technique an Tuning.",
+      locale: "lb_LU",
+    },
+    de: {
+      title: "Autoservice Bettenduerf – Autowerkstatt in Bettendorf",
+      description:
+        "Autowerkstatt in Bettendorf und offizieller 1·2·3 AutoService Partner. Wartung, Reparatur, Reifenservice, technische Kontrolle und Tuning.",
+      locale: "de_LU",
+    },
+    fr: {
+      title: "Autoservice Bettenduerf – Garage automobile à Bettendorf",
+      description:
+        "Garage automobile à Bettendorf et partenaire officiel 1·2·3 AutoService. Entretien, réparation, pneus, contrôle technique et tuning.",
+      locale: "fr_LU",
+    },
+    en: {
+      title: "Autoservice Bettenduerf – Car garage in Bettendorf",
+      description:
+        "Car garage in Bettendorf and official 1·2·3 AutoService partner. Maintenance, repairs, tyres, technical inspection and tuning.",
+      locale: "en_LU",
+    },
+  };
+
+  function setMeta(selector, value) {
+    var el = document.querySelector(selector);
+    if (el) el.setAttribute("content", value);
+  }
+
+  function updateSeo(lang) {
+    var seo = SEO[lang] || SEO.lb;
+    var isHome = /(^|\/)index\.html$/.test(location.pathname) || /\/$/.test(location.pathname);
+    if (isHome) document.title = seo.title;
+    setMeta('meta[name="description"]', seo.description);
+    setMeta('meta[property="og:description"]', seo.description);
+    setMeta('meta[property="og:locale"]', seo.locale);
+    if (isHome) setMeta('meta[property="og:title"]', seo.title);
+
+    var url = new URL(location.href);
+    if (lang === DEFAULT_LANG) url.searchParams.delete("lang");
+    else url.searchParams.set("lang", lang);
+    history.replaceState(null, "", url.pathname + url.search + url.hash);
+    var canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical && isHome) canonical.href = url.origin + url.pathname + url.search;
+  }
 
   function getStoredLang() {
+    var requested = new URLSearchParams(location.search).get("lang");
+    if (requested && LANGS.indexOf(requested) !== -1) return requested;
     try {
       var s = localStorage.getItem("gk_lang");
       if (s && LANGS.indexOf(s) !== -1) return s;
@@ -553,6 +603,7 @@
     });
 
     document.documentElement.lang = lang;
+    updateSeo(lang);
 
     document.querySelectorAll(".lang-switch button").forEach(function (btn) {
       var on = btn.getAttribute("data-lang") === lang;
@@ -654,47 +705,4 @@
     });
   }
 
-  /* Kontaktformular */
-  var form = document.getElementById("contact-form");
-  var status = document.getElementById("form-status");
-
-  if (form) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var dict = I18N[currentLang];
-      status.className = "form-status";
-      status.textContent = "";
-
-      var name = form.name.value.trim();
-      var email = form.email.value.trim();
-      var message = form.message.value.trim();
-      var emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-      if (!name || !emailValid || !message) {
-        status.classList.add("err");
-        status.textContent = dict.f_err;
-        return;
-      }
-
-      var phone = form.phone.value.trim();
-      var service = form.service.value;
-      var subject = "Rendez-vous / Terminanfrage – " + name;
-      var body = [
-        "Numm / Name: " + name,
-        "E-Mail: " + email,
-        "Telefon: " + (phone || "—"),
-        "Service: " + (service || "—"),
-        "",
-        message,
-      ].join("\n");
-
-      status.classList.add("ok");
-      status.textContent = dict.f_ok.replace("{name}", name);
-      window.location.href =
-        "mailto:Autoservicebettenduerf@outlook.com?subject=" +
-        encodeURIComponent(subject) +
-        "&body=" +
-        encodeURIComponent(body);
-    });
-  }
 })();
