@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
     <meta
       name="description"
       content="Autoservice Bettenduerf – Autosgarage zu Bettendorf an offiziell 1·2·3 AutoService Partnergarage. Entretien, Reparatur, Pneueservice, Contrôle technique an Tuning. Nëmme mat Rendez-vous."
@@ -19,6 +21,11 @@
     <meta property="og:locale" content="lb_LU" />
 
     <link rel="canonical" href="https://autoservicebettenduerf.lu/" />
+    <link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/" />
+    <link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/?lang=de" />
+    <link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/?lang=fr" />
+    <link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/?lang=en" />
+    <link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/" />
     <meta property="og:url" content="https://autoservicebettenduerf.lu/" />
     <meta
       property="og:image"
@@ -637,7 +644,7 @@
               class="btn btn-primary btn-block map-btn"
               href="https://www.google.com/maps/dir/?api=1&destination=63+rue+de+Diekirch-Echternach+9355+Bettendorf+Luxembourg"
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               data-i18n="map_route"
               >Navigatioun starten</a
             >
@@ -802,6 +809,12 @@
                 placeholder="…"
               ></textarea>
             </div>
+            <label class="privacy-confirm" for="privacy-confirm">
+              <input id="privacy-confirm" name="Datenschutz bestätigt" type="checkbox" required />
+              <span id="privacy-confirm-text"
+                >Ech hunn d'Dateschutzerklärung gelies a verstinn, datt meng Donnéeën iwwer FormSubmit iwwermëttelt ginn.</span
+              >
+            </label>
             <button
               type="submit"
               class="btn btn-primary btn-block"
