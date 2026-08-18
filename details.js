@@ -651,6 +651,40 @@
     var m = new RegExp("[?&]" + k + "=([^&]+)").exec(location.search);
     return m ? decodeURIComponent(m[1]) : null;
   }
+  function updateServiceSeo(slug, L, d) {
+    var url = new URL(location.href);
+    url.searchParams.set("s", slug);
+    if (L === "lb") url.searchParams.delete("lang");
+    else url.searchParams.set("lang", L);
+    var absolute = url.origin + url.pathname + url.search;
+    var title = d.title + " – Autoservice Bettenduerf";
+    document.title = title;
+    var values = {
+      'meta[name="description"]': d.intro,
+      'meta[property="og:title"]': title,
+      'meta[property="og:description"]': d.intro,
+      'meta[property="og:url"]': absolute,
+    };
+    Object.keys(values).forEach(function (selector) {
+      var el = document.querySelector(selector);
+      if (el) el.setAttribute("content", values[selector]);
+    });
+    var canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.href = absolute;
+    ["lb", "de", "fr", "en"].forEach(function (code) {
+      var link = document.querySelector('link[rel="alternate"][hreflang="' + code + '"]');
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "alternate";
+        link.hreflang = code;
+        document.head.appendChild(link);
+      }
+      var alt = new URL(absolute);
+      if (code === "lb") alt.searchParams.delete("lang");
+      else alt.searchParams.set("lang", code);
+      link.href = alt.href;
+    });
+  }
   function renderService() {
     var app = document.getElementById("svc-app");
     if (!app) return;
@@ -681,7 +715,7 @@
     var hero = document.getElementById("svc-hero");
     var imagePath = TIPIMG[slug] || "assets/services/" + slug + ".jpg";
     if (hero) hero.style.backgroundImage = "url('" + imagePath + "')";
-    document.title = d.title + " – Autoservice Bettenduerf";
+    updateServiceSeo(slug, L, d);
   }
   function init() {
     updateCardMore();
