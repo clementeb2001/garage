@@ -221,6 +221,17 @@ h4 {
   background: var(--accent-dark);
   color: #fff;
 }
+.main-nav .nav-shop {
+  background: var(--accent-2);
+  color: #2a1500;
+  font-weight: 800;
+  padding: 10px 18px;
+  border-radius: 999px;
+}
+.main-nav .nav-shop:hover {
+  filter: brightness(1.05);
+  color: #2a1500;
+}
 
 .nav-toggle {
   display: none;
@@ -1918,6 +1929,14 @@ body {
 .site-header .main-nav .nav-cta {
   color: #fff;
   background: var(--accent);
+}
+.site-header .main-nav .nav-shop {
+  color: #2a1500;
+  background: var(--accent-2);
+}
+.site-header .main-nav .nav-shop:hover {
+  color: #2a1500;
+  background: var(--accent-2);
 }
 .site-header .nav-toggle span {
   background: #fff;
