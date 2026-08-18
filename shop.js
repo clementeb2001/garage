@@ -342,9 +342,9 @@
       opt_brand: "Marke wielen",
       opt_model: "Modell wielen",
       opt_year: "Baujoer",
-      ph_brand: "Marke wielen oder aginn",
-      ph_model: "Modell wielen oder aginn",
-      ph_year: "Baujoer wielen oder aginn",
+      ph_brand: "Marke wielen",
+      ph_model: "Modell wielen",
+      ph_year: "Baujoer wielen",
       ph_variant: "Typ / Motoriséierung (optional)",
       year_older: "virun 1980",
       btn_veh: "Passend Deeler fannen",
@@ -388,9 +388,9 @@
       opt_brand: "Marke wählen",
       opt_model: "Modell wählen",
       opt_year: "Baujahr",
-      ph_brand: "Marke wählen oder eingeben",
-      ph_model: "Modell wählen oder eingeben",
-      ph_year: "Baujahr wählen oder eingeben",
+      ph_brand: "Marke wählen",
+      ph_model: "Modell wählen",
+      ph_year: "Baujahr wählen",
       ph_variant: "Typ / Motorisierung (optional)",
       year_older: "vor 1980",
       btn_veh: "Passende Teile finden",
@@ -434,9 +434,9 @@
       opt_brand: "Choisir la marque",
       opt_model: "Choisir le modèle",
       opt_year: "Année",
-      ph_brand: "Choisir ou saisir la marque",
-      ph_model: "Choisir ou saisir le modèle",
-      ph_year: "Choisir ou saisir l’année",
+      ph_brand: "Choisir la marque",
+      ph_model: "Choisir le modèle",
+      ph_year: "Choisir l’année",
       ph_variant: "Type / motorisation (facultatif)",
       year_older: "avant 1980",
       btn_veh: "Trouver les pièces",
@@ -480,9 +480,9 @@
       opt_brand: "Select make",
       opt_model: "Select model",
       opt_year: "Year",
-      ph_brand: "Select or enter make",
-      ph_model: "Select or enter model",
-      ph_year: "Select or enter year",
+      ph_brand: "Select make",
+      ph_model: "Select model",
+      ph_year: "Select year",
       ph_variant: "Type / engine (optional)",
       year_older: "before 1980",
       btn_veh: "Find matching parts",
@@ -548,38 +548,62 @@
   };
   var cart = 0;
 
-  /* ---------- Vorschlagslisten fëllen; all Felder bleiwen fräi editierbar ---------- */
+  /* ---------- Dropdowns fëllen (native <select> – funktionéiert op Web a Mobil) ---------- */
+  function placeholderOption(txt) {
+    var o = document.createElement("option");
+    o.value = "";
+    o.textContent = txt;
+    return o;
+  }
   function fillBrands() {
-    var sel = $("veh-brand-list");
+    var sel = $("veh-brand");
     if (!sel) return;
+    var t = tr(),
+      cur = sel.value;
     sel.innerHTML = "";
+    sel.appendChild(placeholderOption(t.ph_brand));
     Object.keys(BRANDS).forEach(function (b) {
       var o = document.createElement("option");
       o.value = b;
+      o.textContent = b;
       sel.appendChild(o);
     });
+    if (cur) sel.value = cur;
   }
   function fillModels(brand) {
-    var sel = $("veh-model-list");
+    var sel = $("veh-model");
     if (!sel) return;
+    var t = tr(),
+      cur = sel.value;
     sel.innerHTML = "";
+    sel.appendChild(placeholderOption(t.ph_model));
     if (brand && BRANDS[brand]) {
       BRANDS[brand].forEach(function (m) {
         var o = document.createElement("option");
         o.value = m;
+        o.textContent = m;
         sel.appendChild(o);
       });
+      sel.disabled = false;
+    } else {
+      sel.disabled = true;
     }
+    if (cur) sel.value = cur;
   }
   function fillYears() {
-    var sel = $("veh-year-list");
+    var sel = $("veh-year");
     if (!sel) return;
+    var t = tr(),
+      cur = sel.value;
     sel.innerHTML = "";
+    sel.appendChild(placeholderOption(t.ph_year));
     for (var y = new Date().getFullYear() + 1; y >= 1950; y--) {
       var o = document.createElement("option");
       o.value = String(y);
+      o.textContent = String(y);
       sel.appendChild(o);
     }
+    if (cur) sel.value = cur;
   }
 
   /* ---------- Kategorie-Chips ---------- */
@@ -767,10 +791,8 @@
     setTxt("lbl-btn-veh", t.btn_veh);
     var q = $("q-text");
     if (q) q.placeholder = t.ph_text;
-    $("veh-brand").placeholder = t.ph_brand;
-    $("veh-model").placeholder = t.ph_model;
-    $("veh-year").placeholder = t.ph_year;
-    $("veh-variant").placeholder = t.ph_variant;
+    var vv = $("veh-variant");
+    if (vv) vv.placeholder = t.ph_variant;
     setTxt("shop-note-title", t.note_title);
     setTxt("shop-note-text", t.note_text);
     setTxt("shop-note-cta", t.note_cta);

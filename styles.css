@@ -2746,17 +2746,29 @@ body {
 .veh-field {
   min-width: 0;
 }
-.veh-row input {
+.veh-row input,
+.veh-row select {
   width: 100%;
-  padding: 14px 14px;
+  height: 48px;
+  padding: 0 14px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.95);
   color: var(--text, #1d2733);
   font-size: 0.98rem;
   font-weight: 600;
+  font-family: inherit;
 }
-.veh-row input:focus {
+.veh-row select {
+  cursor: pointer;
+  appearance: auto;
+}
+.veh-row select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.veh-row input:focus,
+.veh-row select:focus {
   outline: 3px solid var(--accent-2, #ff8a3d);
   outline-offset: 1px;
 }
@@ -3093,4 +3105,9 @@ html.shop-dev .shop-dev-badge a {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Shop-Seite: mobilen Anruf-/E-Mail-Balken unten ausblenden */
+.shop-page .mobile-contact {
+  display: none !important;
 }
