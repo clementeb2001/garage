@@ -2246,7 +2246,12 @@ body {
 
 /* Service-Detailsäit */
 .svc-detail {
-  background: #dbe4f1;
+  background: var(--surface-dark, #101923);
+  background-image: radial-gradient(
+    circle at 12% 100%,
+    rgba(230, 57, 70, 0.14),
+    transparent 40%
+  );
   min-height: 60vh;
 }
 .svc-hero {
@@ -2295,12 +2300,13 @@ body {
 }
 .svc-intro {
   font-size: 1.16rem;
-  color: var(--text);
+  color: #c6d0dc;
   margin-bottom: 30px;
 }
 .svc-body h2 {
   font-size: 1.3rem;
   margin: 28px 0 16px;
+  color: #fff;
 }
 .svc-points {
   list-style: none;
@@ -2311,7 +2317,7 @@ body {
 .svc-points li {
   position: relative;
   padding-left: 36px;
-  color: var(--text);
+  color: #dbe3ec;
   font-weight: 500;
 }
 .svc-points li::before {
