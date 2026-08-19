@@ -20,7 +20,7 @@
         vin_ph: "z. B. WVWZZZ…",
         privacy: "Ech hunn d'Dateschutzerklärung gelies a verstinn, datt meng Donnéeën iwwer FormSubmit iwwermëttelt ginn.",
         missing: "Fëllt w.e.g. nach aus:",
-        names: { name: "Numm", email: "eng gëlteg E-Mail", vin: "Fahrgestellnummer", message: "Noriicht", privacy: "Dateschutz-Zoustëmmung" },
+        names: { name: "Numm", email: "eng gëlteg E-Mail", vin: "Fahrgestellnummer", message: "Noriicht", privacy: "Dateschutz-Zoustëmmung", weekday: "e Wonschdag", service: "e Service", vin_bad: "eng gëlteg VIN (17 Zeechen)" },
       },
       saison: {
         eyebrow: "Tipps",
@@ -107,7 +107,7 @@
         vin_ph: "z. B. WVWZZZ…",
         privacy: "Ich habe die Datenschutzerklärung gelesen und verstanden, dass meine Angaben über FormSubmit übermittelt werden.",
         missing: "Bitte noch ausfüllen:",
-        names: { name: "Name", email: "eine gültige E-Mail", vin: "Fahrgestellnummer", message: "Nachricht", privacy: "Datenschutz-Zustimmung" },
+        names: { name: "Name", email: "eine gültige E-Mail", vin: "Fahrgestellnummer", message: "Nachricht", privacy: "Datenschutz-Zustimmung", weekday: "einen Wunschtag", service: "einen Service", vin_bad: "eine gültige VIN (17 Zeichen)" },
       },
       saison: {
         eyebrow: "Tipps",
@@ -193,7 +193,7 @@
         vin_ph: "p. ex. VF1…",
         privacy: "J'ai lu la politique de confidentialité et compris que mes données sont transmises via FormSubmit.",
         missing: "Merci de compléter encore :",
-        names: { name: "nom", email: "un e-mail valide", vin: "numéro de châssis", message: "message", privacy: "consentement de confidentialité" },
+        names: { name: "nom", email: "un e-mail valide", vin: "numéro de châssis", message: "message", privacy: "consentement de confidentialité", weekday: "un jour souhaité", service: "un service", vin_bad: "un VIN valide (17 caractères)" },
       },
       saison: {
         eyebrow: "Conseils",
@@ -280,7 +280,7 @@
         vin_ph: "e.g. WVWZZZ…",
         privacy: "I have read the privacy policy and understand that my details are transmitted via FormSubmit.",
         missing: "Please still fill in:",
-        names: { name: "name", email: "a valid email", vin: "chassis number", message: "message", privacy: "privacy consent" },
+        names: { name: "name", email: "a valid email", vin: "chassis number", message: "message", privacy: "privacy consent", weekday: "a preferred day", service: "a service", vin_bad: "a valid VIN (17 characters)" },
       },
       saison: {
         eyebrow: "Tips",
@@ -478,14 +478,33 @@
       var lab = f.querySelector(".privacy-confirm");
       if (lab) lab.classList.toggle("privacy-invalid", !!bad);
     }
+    function markChips(bad) {
+      var el = document.getElementById("weekday-chips");
+      if (el) el.classList.toggle("chips-invalid", !!bad);
+    }
+    var service = v("service");
+    var weekdayChecked = !!f.querySelector('input[name="Wunschtag"]:checked');
+    var vinClean = vin.replace(/\s+/g, "").toUpperCase();
+    var vinOk = /^[A-HJ-NPR-Z0-9]{17}$/.test(vinClean);
     var nm = m.form.names,
       missing = [];
     mark("name", !name);
     if (!name) missing.push(nm.name);
     mark("email", !okmail);
     if (!okmail) missing.push(nm.email);
-    mark("vin", !vin);
-    if (!vin) missing.push(nm.vin);
+    mark("service", !service);
+    if (!service) missing.push(nm.service);
+    markChips(!weekdayChecked);
+    if (!weekdayChecked) missing.push(nm.weekday);
+    if (!vin) {
+      mark("vin", true);
+      missing.push(nm.vin);
+    } else if (!vinOk) {
+      mark("vin", true);
+      missing.push(nm.vin_bad);
+    } else {
+      mark("vin", false);
+    }
     mark("message", !message);
     if (!message) missing.push(nm.message);
     var pbad = !privacy || !privacy.checked;
@@ -545,6 +564,19 @@
           clearInvalid(el);
         });
     });
+    var svc = document.getElementById("service");
+    if (svc)
+      svc.addEventListener("change", function () {
+        if (svc.value) clearInvalid(svc);
+      });
+    var chips = document.getElementById("weekday-chips");
+    if (chips)
+      chips.querySelectorAll('input[name="Wunschtag"]').forEach(function (cb) {
+        cb.addEventListener("change", function () {
+          if (chips.querySelector('input[name="Wunschtag"]:checked'))
+            chips.classList.remove("chips-invalid");
+        });
+      });
     var pc = document.getElementById("privacy-confirm");
     if (pc)
       pc.addEventListener("change", function () {

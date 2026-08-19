@@ -3363,3 +3363,8 @@ html.shop-dev .shop-dev-badge a {
   outline: 2px solid var(--accent, #e63946);
   outline-offset: 3px;
 }
+.weekday-chips.chips-invalid {
+  outline: 2px solid var(--accent, #e63946);
+  outline-offset: 5px;
+  border-radius: 12px;
+}
