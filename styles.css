@@ -3368,3 +3368,24 @@ html.shop-dev .shop-dev-badge a {
   outline-offset: 5px;
   border-radius: 12px;
 }
+
+/* VIN-Kästchen: Oldtimer / VIN nicht bekannt */
+.vin-unknown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-mut, #5b6b7c);
+  cursor: pointer;
+}
+.vin-unknown input {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  cursor: pointer;
+}
+#vin:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
