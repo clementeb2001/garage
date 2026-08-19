@@ -3248,8 +3248,8 @@ html.shop-dev .shop-dev-badge a {
 .spezial-media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: top center;
+  object-fit: contain;
+  object-position: center;
   display: block;
 }
 .spezial-zoom {
@@ -3307,11 +3307,12 @@ html.shop-dev .shop-dev-badge a {
   display: none;
 }
 .lightbox img {
-  width: min(92vw, 760px);
-  aspect-ratio: 100 / 84;
-  object-fit: cover;
-  object-position: top center;
+  width: auto;
+  max-width: 92vw;
+  height: auto;
   max-height: 90vh;
+  object-fit: contain;
+  object-position: center;
   border-radius: 10px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
   background: #0b1119;
