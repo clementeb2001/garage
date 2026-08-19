@@ -3182,15 +3182,16 @@ html.shop-dev .shop-dev-badge a {
   color: var(--accent-2, #ff8a3d);
   margin-bottom: 8px;
 }
-.spezial-head h3 {
-  font-size: clamp(1.35rem, 3vw, 1.9rem);
-  margin: 0 0 6px;
-  color: var(--navy-900, #0d1b2a);
-}
 .spezial-sub {
-  color: var(--text-mut, #5b6b7c);
-  max-width: 62ch;
+  font-family: var(--font-head, sans-serif);
+  font-weight: 800;
+  font-size: clamp(1.45rem, 3.4vw, 2.1rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--navy-900, #0d1b2a);
+  max-width: 20ch;
   margin: 0 auto;
+  text-wrap: balance;
 }
 .spezial-grid {
   display: grid;
