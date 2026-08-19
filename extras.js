@@ -19,6 +19,8 @@
         vin: "Chassisnummer (VIN)",
         vin_ph: "z. B. WVWZZZ…",
         privacy: "Ech hunn d'Dateschutzerklärung gelies a verstinn, datt meng Donnéeën iwwer FormSubmit iwwermëttelt ginn.",
+        missing: "Fëllt w.e.g. nach aus:",
+        names: { name: "Numm", email: "eng gëlteg E-Mail", vin: "Fahrgestellnummer", message: "Noriicht", privacy: "Dateschutz-Zoustëmmung" },
       },
       saison: {
         eyebrow: "Tipps",
@@ -104,6 +106,8 @@
         vin: "Fahrgestellnummer (VIN)",
         vin_ph: "z. B. WVWZZZ…",
         privacy: "Ich habe die Datenschutzerklärung gelesen und verstanden, dass meine Angaben über FormSubmit übermittelt werden.",
+        missing: "Bitte noch ausfüllen:",
+        names: { name: "Name", email: "eine gültige E-Mail", vin: "Fahrgestellnummer", message: "Nachricht", privacy: "Datenschutz-Zustimmung" },
       },
       saison: {
         eyebrow: "Tipps",
@@ -188,6 +192,8 @@
         vin: "Numéro de châssis (VIN)",
         vin_ph: "p. ex. VF1…",
         privacy: "J'ai lu la politique de confidentialité et compris que mes données sont transmises via FormSubmit.",
+        missing: "Merci de compléter encore :",
+        names: { name: "nom", email: "un e-mail valide", vin: "numéro de châssis", message: "message", privacy: "consentement de confidentialité" },
       },
       saison: {
         eyebrow: "Conseils",
@@ -273,6 +279,8 @@
         vin: "Chassis number (VIN)",
         vin_ph: "e.g. WVWZZZ…",
         privacy: "I have read the privacy policy and understand that my details are transmitted via FormSubmit.",
+        missing: "Please still fill in:",
+        names: { name: "name", email: "a valid email", vin: "chassis number", message: "message", privacy: "privacy consent" },
       },
       saison: {
         eyebrow: "Tips",
@@ -462,9 +470,32 @@
       vin = v("vin");
     var privacy = f.querySelector("#privacy-confirm");
     var okmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!name || !okmail || !message || !vin || !privacy || !privacy.checked) {
+    function mark(id, bad) {
+      var el = f.querySelector("#" + id);
+      if (el) el.classList.toggle("field-invalid", !!bad);
+    }
+    function markPrivacy(bad) {
+      var lab = f.querySelector(".privacy-confirm");
+      if (lab) lab.classList.toggle("privacy-invalid", !!bad);
+    }
+    var nm = m.form.names,
+      missing = [];
+    mark("name", !name);
+    if (!name) missing.push(nm.name);
+    mark("email", !okmail);
+    if (!okmail) missing.push(nm.email);
+    mark("vin", !vin);
+    if (!vin) missing.push(nm.vin);
+    mark("message", !message);
+    if (!message) missing.push(nm.message);
+    var pbad = !privacy || !privacy.checked;
+    markPrivacy(pbad);
+    if (pbad) missing.push(nm.privacy);
+    if (missing.length) {
       st.className = "form-status err";
-      st.textContent = m.form.err;
+      st.textContent = m.form.missing + " " + missing.join(", ") + ".";
+      var firstBad = f.querySelector(".field-invalid, .privacy-invalid input");
+      if (firstBad && firstBad.focus) firstBad.focus();
       return;
     }
     var hp = f.querySelector('[name="_honey"]');
@@ -503,10 +534,29 @@
       });
   }
   document.addEventListener("submit", handleSubmit, true);
+  function clearInvalid(el) {
+    if (el) el.classList.remove("field-invalid");
+  }
+  function wireValidationClear() {
+    ["name", "email", "vin", "message"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el)
+        el.addEventListener("input", function () {
+          clearInvalid(el);
+        });
+    });
+    var pc = document.getElementById("privacy-confirm");
+    if (pc)
+      pc.addEventListener("change", function () {
+        var lab = pc.closest(".privacy-confirm");
+        if (lab && pc.checked) lab.classList.remove("privacy-invalid");
+      });
+  }
   function init() {
     applyStatics();
     renderSaison();
     renderFaq();
+    wireValidationClear();
     document.querySelectorAll(".lang-switch button").forEach(function (b) {
       b.addEventListener("click", function () {
         setTimeout(function () {

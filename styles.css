@@ -3348,3 +3348,18 @@ html.shop-dev .shop-dev-badge a {
     padding: 22px 16px;
   }
 }
+
+/* ============================================================
+   Terminanfrage: fehlende Pflichtfelder rot markéieren
+   ============================================================ */
+#contact-form .field-invalid {
+  border-color: var(--accent, #e63946) !important;
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.18);
+}
+.privacy-confirm.privacy-invalid {
+  color: var(--accent, #e63946);
+}
+.privacy-confirm.privacy-invalid input {
+  outline: 2px solid var(--accent, #e63946);
+  outline-offset: 3px;
+}
