@@ -3348,3 +3348,44 @@ html.shop-dev .shop-dev-badge a {
     padding: 22px 16px;
   }
 }
+
+/* ============================================================
+   Terminanfrage: fehlende Pflichtfelder rot markéieren
+   ============================================================ */
+#contact-form .field-invalid {
+  border-color: var(--accent, #e63946) !important;
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.18);
+}
+.privacy-confirm.privacy-invalid {
+  color: var(--accent, #e63946);
+}
+.privacy-confirm.privacy-invalid input {
+  outline: 2px solid var(--accent, #e63946);
+  outline-offset: 3px;
+}
+.weekday-chips.chips-invalid {
+  outline: 2px solid var(--accent, #e63946);
+  outline-offset: 5px;
+  border-radius: 12px;
+}
+
+/* VIN-Kästchen: Oldtimer / VIN nicht bekannt */
+.vin-unknown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-mut, #5b6b7c);
+  cursor: pointer;
+}
+.vin-unknown input {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  cursor: pointer;
+}
+#vin:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

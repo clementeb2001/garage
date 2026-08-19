@@ -810,6 +810,16 @@
               </select>
             </div>
             <div class="field">
+              <label for="fahrzeug" id="lbl-fahrzeug">Fahrzeug</label>
+              <input
+                type="text"
+                id="fahrzeug"
+                name="Fahrzeug"
+                autocomplete="off"
+                placeholder="Mark, Modell, Baujoer"
+              />
+            </div>
+            <div class="field">
               <label id="lbl-weekday">Gewënschten Deeg</label>
               <div class="weekday-chips" id="weekday-chips">
                 <label class="wchip"
@@ -874,9 +884,12 @@
                   maxlength="17"
                   autocomplete="off"
                   spellcheck="false"
-                  required
                   placeholder="z. B. WVWZZZ…"
                 />
+                <label class="vin-unknown" for="vin-unknown">
+                  <input id="vin-unknown" name="Oldtimer / VIN net bekannt" type="checkbox" />
+                  <span id="vin-unknown-text">Oldtimer / VIN net bekannt</span>
+                </label>
               </div>
             </div>
             <div class="field">

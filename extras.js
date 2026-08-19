@@ -19,6 +19,11 @@
         vin: "Chassisnummer (VIN)",
         vin_ph: "z. B. WVWZZZ…",
         privacy: "Ech hunn d'Dateschutzerklärung gelies a verstinn, datt meng Donnéeën iwwer FormSubmit iwwermëttelt ginn.",
+        missing: "Fëllt w.e.g. nach aus:",
+        vehicle_lbl: "Fahrzeug",
+        vehicle_ph: "Mark, Modell, Baujoer",
+        vin_unknown: "Oldtimer / VIN net bekannt",
+        names: { name: "Numm", email: "eng gëlteg E-Mail", vin: "Fahrgestellnummer", message: "Noriicht", privacy: "Dateschutz-Zoustëmmung", weekday: "e Wonschdag", service: "e Service", vin_bad: "eng gëlteg VIN (17 Zeechen)", vehicle: "d'Fahrzeug" },
       },
       saison: {
         eyebrow: "Tipps",
@@ -104,6 +109,11 @@
         vin: "Fahrgestellnummer (VIN)",
         vin_ph: "z. B. WVWZZZ…",
         privacy: "Ich habe die Datenschutzerklärung gelesen und verstanden, dass meine Angaben über FormSubmit übermittelt werden.",
+        missing: "Bitte noch ausfüllen:",
+        vehicle_lbl: "Fahrzeug",
+        vehicle_ph: "Marke, Modell, Baujahr",
+        vin_unknown: "Oldtimer / VIN nicht bekannt",
+        names: { name: "Name", email: "eine gültige E-Mail", vin: "Fahrgestellnummer", message: "Nachricht", privacy: "Datenschutz-Zustimmung", weekday: "einen Wunschtag", service: "einen Service", vin_bad: "eine gültige VIN (17 Zeichen)", vehicle: "das Fahrzeug" },
       },
       saison: {
         eyebrow: "Tipps",
@@ -188,6 +198,11 @@
         vin: "Numéro de châssis (VIN)",
         vin_ph: "p. ex. VF1…",
         privacy: "J'ai lu la politique de confidentialité et compris que mes données sont transmises via FormSubmit.",
+        missing: "Merci de compléter encore :",
+        vehicle_lbl: "Véhicule",
+        vehicle_ph: "Marque, modèle, année",
+        vin_unknown: "Ancêtre / VIN inconnu",
+        names: { name: "nom", email: "un e-mail valide", vin: "numéro de châssis", message: "message", privacy: "consentement de confidentialité", weekday: "un jour souhaité", service: "un service", vin_bad: "un VIN valide (17 caractères)", vehicle: "le véhicule" },
       },
       saison: {
         eyebrow: "Conseils",
@@ -273,6 +288,11 @@
         vin: "Chassis number (VIN)",
         vin_ph: "e.g. WVWZZZ…",
         privacy: "I have read the privacy policy and understand that my details are transmitted via FormSubmit.",
+        missing: "Please still fill in:",
+        vehicle_lbl: "Vehicle",
+        vehicle_ph: "Make, model, year",
+        vin_unknown: "Classic car / VIN unknown",
+        names: { name: "name", email: "a valid email", vin: "chassis number", message: "message", privacy: "privacy consent", weekday: "a preferred day", service: "a service", vin_bad: "a valid VIN (17 characters)", vehicle: "the vehicle" },
       },
       saison: {
         eyebrow: "Tips",
@@ -372,6 +392,10 @@
     set("lbl-vin", m.form.vin);
     var vin = document.getElementById("vin");
     if (vin) vin.placeholder = m.form.vin_ph;
+    set("lbl-fahrzeug", m.form.vehicle_lbl);
+    var fz = document.getElementById("fahrzeug");
+    if (fz) fz.placeholder = m.form.vehicle_ph;
+    set("vin-unknown-text", m.form.vin_unknown);
     set("privacy-confirm-text", m.form.privacy);
     var btn = document.querySelector('#contact-form button[type="submit"]');
     if (btn) btn.textContent = m.form.submit;
@@ -462,9 +486,58 @@
       vin = v("vin");
     var privacy = f.querySelector("#privacy-confirm");
     var okmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!name || !okmail || !message || !vin || !privacy || !privacy.checked) {
+    function mark(id, bad) {
+      var el = f.querySelector("#" + id);
+      if (el) el.classList.toggle("field-invalid", !!bad);
+    }
+    function markPrivacy(bad) {
+      var lab = f.querySelector(".privacy-confirm");
+      if (lab) lab.classList.toggle("privacy-invalid", !!bad);
+    }
+    function markChips(bad) {
+      var el = document.getElementById("weekday-chips");
+      if (el) el.classList.toggle("chips-invalid", !!bad);
+    }
+    var service = v("service");
+    var vehicle = v("fahrzeug");
+    var weekdayChecked = !!f.querySelector('input[name="Wunschtag"]:checked');
+    var vinCb = f.querySelector("#vin-unknown");
+    var vinUnknown = !!(vinCb && vinCb.checked);
+    var vinClean = vin.replace(/\s+/g, "").toUpperCase();
+    var vinOk = /^[A-HJ-NPR-Z0-9]{17}$/.test(vinClean);
+    var nm = m.form.names,
+      missing = [];
+    mark("name", !name);
+    if (!name) missing.push(nm.name);
+    mark("email", !okmail);
+    if (!okmail) missing.push(nm.email);
+    mark("service", !service);
+    if (!service) missing.push(nm.service);
+    mark("fahrzeug", !vehicle);
+    if (!vehicle) missing.push(nm.vehicle);
+    markChips(!weekdayChecked);
+    if (!weekdayChecked) missing.push(nm.weekday);
+    if (vinUnknown) {
+      mark("vin", false);
+    } else if (!vin) {
+      mark("vin", true);
+      missing.push(nm.vin);
+    } else if (!vinOk) {
+      mark("vin", true);
+      missing.push(nm.vin_bad);
+    } else {
+      mark("vin", false);
+    }
+    mark("message", !message);
+    if (!message) missing.push(nm.message);
+    var pbad = !privacy || !privacy.checked;
+    markPrivacy(pbad);
+    if (pbad) missing.push(nm.privacy);
+    if (missing.length) {
       st.className = "form-status err";
-      st.textContent = m.form.err;
+      st.textContent = m.form.missing + " " + missing.join(", ") + ".";
+      var firstBad = f.querySelector(".field-invalid, .privacy-invalid input");
+      if (firstBad && firstBad.focus) firstBad.focus();
       return;
     }
     var hp = f.querySelector('[name="_honey"]');
@@ -503,10 +576,54 @@
       });
   }
   document.addEventListener("submit", handleSubmit, true);
+  function clearInvalid(el) {
+    if (el) el.classList.remove("field-invalid");
+  }
+  function wireValidationClear() {
+    ["name", "email", "vin", "message", "fahrzeug"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el)
+        el.addEventListener("input", function () {
+          clearInvalid(el);
+        });
+    });
+    var vinCb = document.getElementById("vin-unknown");
+    var vinEl = document.getElementById("vin");
+    if (vinCb && vinEl)
+      vinCb.addEventListener("change", function () {
+        if (vinCb.checked) {
+          clearInvalid(vinEl);
+          vinEl.value = "";
+          vinEl.disabled = true;
+        } else {
+          vinEl.disabled = false;
+        }
+      });
+    var svc = document.getElementById("service");
+    if (svc)
+      svc.addEventListener("change", function () {
+        if (svc.value) clearInvalid(svc);
+      });
+    var chips = document.getElementById("weekday-chips");
+    if (chips)
+      chips.querySelectorAll('input[name="Wunschtag"]').forEach(function (cb) {
+        cb.addEventListener("change", function () {
+          if (chips.querySelector('input[name="Wunschtag"]:checked'))
+            chips.classList.remove("chips-invalid");
+        });
+      });
+    var pc = document.getElementById("privacy-confirm");
+    if (pc)
+      pc.addEventListener("change", function () {
+        var lab = pc.closest(".privacy-confirm");
+        if (lab && pc.checked) lab.classList.remove("privacy-invalid");
+      });
+  }
   function init() {
     applyStatics();
     renderSaison();
     renderFaq();
+    wireValidationClear();
     document.querySelectorAll(".lang-switch button").forEach(function (b) {
       b.addEventListener("click", function () {
         setTimeout(function () {
