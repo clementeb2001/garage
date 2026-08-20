@@ -405,34 +405,32 @@ h4 {
 /* ------- Language switch ------- */
 .lang-switch {
   display: inline-flex;
-  gap: 2px;
   margin-left: 10px;
   padding: 3px;
   background: #eef1f5;
   border-radius: 999px;
+  flex: none;
 }
-.lang-switch button {
+.lang-select {
   font-family: var(--font-head);
   font-weight: 700;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   letter-spacing: 0.02em;
   border: none;
   background: transparent;
   color: var(--slate);
   cursor: pointer;
-  padding: 6px 10px;
+  padding: 6px 28px 6px 10px;
   border-radius: 999px;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
+  min-width: 92px;
+  outline: none;
 }
-.lang-switch button:hover {
+.lang-select:hover,
+.lang-select:focus-visible {
   color: var(--navy-900);
 }
-.lang-switch button.active {
-  background: #fff;
-  color: var(--accent);
-  box-shadow: var(--shadow-sm);
+.lang-select:focus-visible {
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.22);
 }
 
 /* ------- Top bar (1·2·3 AutoService Partner + Kontakt) ------- */
@@ -1307,8 +1305,9 @@ a.ci-value:hover {
   .lang-switch {
     margin-left: 4px;
   }
-  .lang-switch button {
-    padding-inline: 7px;
+  .lang-select {
+    min-width: 86px;
+    padding-left: 8px;
   }
 }
 
@@ -2010,12 +2009,12 @@ body {
 .site-header .lang-switch {
   background: rgba(255, 255, 255, 0.09);
 }
-.site-header .lang-switch button {
+.site-header .lang-select {
   color: #b8c3ce;
 }
-.site-header .lang-switch button.active {
+.site-header .lang-select option {
+  color: var(--navy-900);
   background: #fff;
-  color: var(--accent);
 }
 
 .hero {
