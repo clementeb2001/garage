@@ -31,12 +31,12 @@
       property="og:image"
       content="https://autoservicebettenduerf.lu/assets/autoservice-bettenduerf-logo.png"
     />
+    <meta property="og:image:alt" content="Logo von Autoservice Bettenduerf" />
+    <meta name="twitter:card" content="summary_large_image" />
 
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1b2a'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='16' font-weight='bold' text-anchor='middle' fill='%23e63946'%3EK%3C/text%3E%3C/svg%3E"
-    />
-    <link rel="stylesheet" href="styles.css?v=17" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/autoservice-bettenduerf-logo.png" />
+    <link rel="stylesheet" href="styles.css?v=18" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -109,11 +109,6 @@
           <a href="#kontakt" class="nav-cta" data-i18n="nav_cta"
             >Rendez-vous ufroen</a
           >
-          <a href="shop.html" class="nav-shop"
-            ><span aria-hidden="true">🛒</span>
-            <span data-i18n="nav_shop">Shop</span></a
-          >
-
           <div
             class="lang-switch"
             role="group"
@@ -301,9 +296,9 @@
               <a href="#kontakt" class="btn btn-primary" data-i18n="nav_cta"
                 >Rendez-vous ufroen</a
               >
-              <a href="shop.html" class="btn btn-shop"
-                ><span aria-hidden="true">🛒</span>
-                <span data-i18n="nav_shop">Shop</span></a
+              <a href="#kontakt" class="btn btn-shop"
+                ><span aria-hidden="true">⚙️</span>
+                <span data-i18n="parts_request">Ersatzteil anfragen</span></a
               >
               <a href="#leistungen" class="btn btn-ghost" data-i18n="hero_btn2"
                 >Eis Servicer</a
@@ -819,53 +814,17 @@
                 placeholder="Mark, Modell, Baujoer"
               />
             </div>
-            <div class="field">
-              <label id="lbl-weekday">Gewënschten Deeg</label>
-              <div class="weekday-chips" id="weekday-chips">
-                <label class="wchip"
-                  ><input
-                    type="checkbox"
-                    name="Wunschtag"
-                    value="Montag"
-                  /><span id="wd-1">Méi</span></label
-                >
-                <label class="wchip"
-                  ><input
-                    type="checkbox"
-                    name="Wunschtag"
-                    value="Dienstag"
-                  /><span id="wd-2">Dën</span></label
-                >
-                <label class="wchip"
-                  ><input
-                    type="checkbox"
-                    name="Wunschtag"
-                    value="Mittwoch"
-                  /><span id="wd-3">Mët</span></label
-                >
-                <label class="wchip"
-                  ><input
-                    type="checkbox"
-                    name="Wunschtag"
-                    value="Donnerstag"
-                  /><span id="wd-4">Don</span></label
-                >
-                <label class="wchip"
-                  ><input
-                    type="checkbox"
-                    name="Wunschtag"
-                    value="Freitag"
-                  /><span id="wd-5">Fre</span></label
-                >
-                <label class="wchip"
-                  ><input
-                    type="checkbox"
-                    name="Wunschtag"
-                    value="Samstag"
-                  /><span id="wd-6">Sam</span></label
-                >
+            <div class="field-row appointment-dates">
+              <div class="field">
+                <label for="preferred-date" id="lbl-preferred-date">Wunschdatum</label>
+                <input type="date" id="preferred-date" name="Wunschdatum" required />
+              </div>
+              <div class="field">
+                <label for="alternative-date" id="lbl-alternative-date">Alternativdatum</label>
+                <input type="date" id="alternative-date" name="Alternativdatum" />
               </div>
             </div>
+            <p class="date-hint" id="date-hint">Das Datum ist ein Wunsch und wird von uns bestätigt.</p>
             <div class="field-row">
               <div class="field">
                 <label for="wtime" id="lbl-wtime">Dageszäit</label>
@@ -1040,9 +999,9 @@
       <img id="lightbox-img" src="" alt="" />
     </div>
 
-    <script src="script.js?v=5"></script>
+    <script src="script.js?v=6"></script>
     <script src="details.js?v=4"></script>
-    <script src="extras.js?v=7"></script>
+    <script src="extras.js?v=8"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"

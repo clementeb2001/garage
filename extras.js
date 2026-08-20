@@ -10,8 +10,9 @@
         err: "Gitt w.e.g. Ären Numm, eng gëlteg E-Mail-Adress, d’Chassisnummer an eng Noriicht un a bestätegt den Dateschutzhinweis.",
         senderr:
           "D’Ufro konnt net geschéckt ginn. Probéiert et w.e.g. nach eng Kéier oder rufft eis un.",
-        weekday: "Gewënschten Deeg",
-        days: ["Mé", "Dë", "Më", "Do", "Fr", "Sa"],
+        preferred_date: "Wonschdatum",
+        alternative_date: "Alternativdatum",
+        date_hint: "Den Datum ass e Wonsch a gëtt vun eis confirméiert.",
         time: "Dageszäit",
         time_any: "Egal",
         time_am: "Moies",
@@ -23,7 +24,7 @@
         vehicle_lbl: "Fahrzeug",
         vehicle_ph: "Mark, Modell, Baujoer",
         vin_unknown: "Oldtimer / VIN net bekannt",
-        names: { name: "Numm", email: "eng gëlteg E-Mail", vin: "Fahrgestellnummer", message: "Noriicht", privacy: "Dateschutz-Zoustëmmung", weekday: "e Wonschdag", service: "e Service", vin_bad: "eng gëlteg VIN (17 Zeechen)", vehicle: "d'Fahrzeug" },
+        names: { name: "Numm", email: "eng gëlteg E-Mail", vin: "Fahrgestellnummer", message: "Noriicht", privacy: "Dateschutz-Zoustëmmung", preferred_date: "e Wonschdatum", service: "e Service", vin_bad: "eng gëlteg VIN (17 Zeechen)", vehicle: "d'Fahrzeug" },
       },
       saison: {
         eyebrow: "Tipps",
@@ -100,8 +101,9 @@
         err: "Bitte Name, eine gültige E-Mail, die Fahrgestellnummer und eine Nachricht angeben und den Datenschutzhinweis bestätigen.",
         senderr:
           "Ups – die Anfrage konnte nicht gesendet werden. Bitte erneut versuchen oder rufen Sie uns an.",
-        weekday: "Wunschtage",
-        days: ["Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+        preferred_date: "Wunschdatum",
+        alternative_date: "Alternativdatum",
+        date_hint: "Das Datum ist ein Wunsch und wird von uns bestätigt.",
         time: "Tageszeit",
         time_any: "Egal",
         time_am: "Vormittag",
@@ -113,7 +115,7 @@
         vehicle_lbl: "Fahrzeug",
         vehicle_ph: "Marke, Modell, Baujahr",
         vin_unknown: "Oldtimer / VIN nicht bekannt",
-        names: { name: "Name", email: "eine gültige E-Mail", vin: "Fahrgestellnummer", message: "Nachricht", privacy: "Datenschutz-Zustimmung", weekday: "einen Wunschtag", service: "einen Service", vin_bad: "eine gültige VIN (17 Zeichen)", vehicle: "das Fahrzeug" },
+        names: { name: "Name", email: "eine gültige E-Mail", vin: "Fahrgestellnummer", message: "Nachricht", privacy: "Datenschutz-Zustimmung", preferred_date: "ein Wunschdatum", service: "einen Service", vin_bad: "eine gültige VIN (17 Zeichen)", vehicle: "das Fahrzeug" },
       },
       saison: {
         eyebrow: "Tipps",
@@ -189,8 +191,9 @@
         ok: "Merci {name} ! Votre demande de rendez-vous est bien arrivée – nous vous recontactons rapidement.",
         err: "Merci d’indiquer votre nom, un e-mail valide, le numéro de châssis et un message, puis de confirmer l’avis de confidentialité.",
         senderr: "Oups – l’envoi a échoué. Réessayez ou appelez-nous.",
-        weekday: "Jours souhaités",
-        days: ["Lu", "Ma", "Me", "Je", "Ve", "Sa"],
+        preferred_date: "Date souhaitée",
+        alternative_date: "Date alternative",
+        date_hint: "La date est un souhait et sera confirmée par notre équipe.",
         time: "Moment",
         time_any: "Peu importe",
         time_am: "Matin",
@@ -202,7 +205,7 @@
         vehicle_lbl: "Véhicule",
         vehicle_ph: "Marque, modèle, année",
         vin_unknown: "Ancêtre / VIN inconnu",
-        names: { name: "nom", email: "un e-mail valide", vin: "numéro de châssis", message: "message", privacy: "consentement de confidentialité", weekday: "un jour souhaité", service: "un service", vin_bad: "un VIN valide (17 caractères)", vehicle: "le véhicule" },
+        names: { name: "nom", email: "un e-mail valide", vin: "numéro de châssis", message: "message", privacy: "consentement de confidentialité", preferred_date: "une date souhaitée", service: "un service", vin_bad: "un VIN valide (17 caractères)", vehicle: "le véhicule" },
       },
       saison: {
         eyebrow: "Conseils",
@@ -279,8 +282,9 @@
         err: "Please enter your name, a valid email, the chassis number and a message, and confirm the privacy notice.",
         senderr:
           "Oops – the request could not be sent. Please try again or call us.",
-        weekday: "Preferred days",
-        days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        preferred_date: "Preferred date",
+        alternative_date: "Alternative date",
+        date_hint: "The date is a preference and will be confirmed by our team.",
         time: "Time of day",
         time_any: "Any",
         time_am: "Morning",
@@ -292,7 +296,7 @@
         vehicle_lbl: "Vehicle",
         vehicle_ph: "Make, model, year",
         vin_unknown: "Classic car / VIN unknown",
-        names: { name: "name", email: "a valid email", vin: "chassis number", message: "message", privacy: "privacy consent", weekday: "a preferred day", service: "a service", vin_bad: "a valid VIN (17 characters)", vehicle: "the vehicle" },
+        names: { name: "name", email: "a valid email", vin: "chassis number", message: "message", privacy: "privacy consent", preferred_date: "a preferred date", service: "a service", vin_bad: "a valid VIN (17 characters)", vehicle: "the vehicle" },
       },
       saison: {
         eyebrow: "Tips",
@@ -381,10 +385,9 @@
     set("saison-title", m.saison.title);
     set("faq-eyebrow", m.faq.eyebrow);
     set("faq-title", m.faq.title);
-    set("lbl-weekday", m.form.weekday);
-    for (var i = 0; i < 6; i++) {
-      set("wd-" + (i + 1), m.form.days[i]);
-    }
+    set("lbl-preferred-date", m.form.preferred_date);
+    set("lbl-alternative-date", m.form.alternative_date);
+    set("date-hint", m.form.date_hint);
     set("lbl-wtime", m.form.time);
     set("opt-time-any", m.form.time_any);
     set("opt-time-am", m.form.time_am);
@@ -494,13 +497,9 @@
       var lab = f.querySelector(".privacy-confirm");
       if (lab) lab.classList.toggle("privacy-invalid", !!bad);
     }
-    function markChips(bad) {
-      var el = document.getElementById("weekday-chips");
-      if (el) el.classList.toggle("chips-invalid", !!bad);
-    }
     var service = v("service");
     var vehicle = v("fahrzeug");
-    var weekdayChecked = !!f.querySelector('input[name="Wunschtag"]:checked');
+    var preferredDate = v("preferred-date");
     var vinCb = f.querySelector("#vin-unknown");
     var vinUnknown = !!(vinCb && vinCb.checked);
     var vinClean = vin.replace(/\s+/g, "").toUpperCase();
@@ -515,8 +514,8 @@
     if (!service) missing.push(nm.service);
     mark("fahrzeug", !vehicle);
     if (!vehicle) missing.push(nm.vehicle);
-    markChips(!weekdayChecked);
-    if (!weekdayChecked) missing.push(nm.weekday);
+    mark("preferred-date", !preferredDate);
+    if (!preferredDate) missing.push(nm.preferred_date);
     if (vinUnknown) {
       mark("vin", false);
     } else if (!vin) {
@@ -580,7 +579,7 @@
     if (el) el.classList.remove("field-invalid");
   }
   function wireValidationClear() {
-    ["name", "email", "vin", "message", "fahrzeug"].forEach(function (id) {
+    ["name", "email", "vin", "message", "fahrzeug", "preferred-date", "alternative-date"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el)
         el.addEventListener("input", function () {
@@ -604,14 +603,18 @@
       svc.addEventListener("change", function () {
         if (svc.value) clearInvalid(svc);
       });
-    var chips = document.getElementById("weekday-chips");
-    if (chips)
-      chips.querySelectorAll('input[name="Wunschtag"]').forEach(function (cb) {
-        cb.addEventListener("change", function () {
-          if (chips.querySelector('input[name="Wunschtag"]:checked'))
-            chips.classList.remove("chips-invalid");
-        });
+    var preferred = document.getElementById("preferred-date");
+    var alternative = document.getElementById("alternative-date");
+    if (preferred && alternative) {
+      var today = new Date();
+      var minDate = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+      preferred.min = minDate;
+      alternative.min = minDate;
+      preferred.addEventListener("change", function () {
+        alternative.min = preferred.value || minDate;
+        if (alternative.value && alternative.value < alternative.min) alternative.value = "";
       });
+    }
     var pc = document.getElementById("privacy-confirm");
     if (pc)
       pc.addEventListener("change", function () {
