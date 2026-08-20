@@ -13,6 +13,7 @@
       nav_why: "Firwat mir",
       nav_hours: "Ëffnungszäiten",
       nav_shop: "Shop",
+      parts_request: "Deel ufroen",
       skip: "Direkt bei den Inhalt",
       nav_cta: "Rendez-vous ufroen",
       topbar_partner: "Offiziell Partnergarage",
@@ -155,6 +156,7 @@
       nav_why: "Warum wir",
       nav_hours: "Öffnungszeiten",
       nav_shop: "Shop",
+      parts_request: "Ersatzteil anfragen",
       skip: "Zum Inhalt springen",
       nav_cta: "Termin anfragen",
       topbar_partner: "Offizieller Partnerbetrieb",
@@ -297,6 +299,7 @@
       nav_why: "Pourquoi nous",
       nav_hours: "Horaires",
       nav_shop: "Shop",
+      parts_request: "Demander une pièce",
       skip: "Aller au contenu",
       nav_cta: "Prendre rendez-vous",
       topbar_partner: "Garage partenaire officiel",
@@ -437,6 +440,7 @@
       nav_why: "Why us",
       nav_hours: "Hours",
       nav_shop: "Shop",
+      parts_request: "Request a part",
       skip: "Skip to content",
       nav_cta: "Book appointment",
       topbar_partner: "Official partner garage",
@@ -668,6 +672,7 @@
       if (mobileNav && mobileToggle) {
         mobileNav.classList.remove("open");
         mobileToggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("nav-open");
       }
     });
   });
@@ -684,12 +689,29 @@
     toggle.addEventListener("click", function () {
       var open = nav.classList.toggle("open");
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      document.body.classList.toggle("nav-open", open);
     });
     nav.querySelectorAll("a").forEach(function (link) {
       link.addEventListener("click", function () {
         nav.classList.remove("open");
         toggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("nav-open");
       });
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && nav.classList.contains("open")) {
+        nav.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("nav-open");
+        toggle.focus();
+      }
+    });
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 720) {
+        nav.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("nav-open");
+      }
     });
   }
 
