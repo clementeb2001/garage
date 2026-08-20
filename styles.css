@@ -2533,11 +2533,28 @@ body {
 /* Konkrete Wonsch- an Alternativdatumer + VIN am Terminformular */
 .appointment-dates {
   margin-bottom: 4px;
+  min-width: 0;
+}
+.appointment-dates .field {
+  min-width: 0;
+}
+.appointment-dates input[type="date"] {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  -webkit-appearance: none;
 }
 .date-hint {
   margin: -4px 0 16px;
   color: var(--text-mut, #5b6b7c);
   font-size: 0.84rem;
+}
+@media (max-width: 560px) {
+  .appointment-dates {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
 }
 #vin {
   text-transform: uppercase;
