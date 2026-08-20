@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://cloudflareinsights.com; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
     <meta name="robots" content="noindex,follow" />
     <title>Datenschutz – Autoservice Bettenduerf</title>
     <link rel="stylesheet" href="styles.css?v=17" />
@@ -113,14 +113,37 @@
             unmittelbaren Einfluss.
           </p>
 
+          <h2>Cloudflare Web Analytics</h2>
+          <p>
+            Wir verwenden Cloudflare Web Analytics, einen Dienst der Cloudflare,
+            Inc., 101 Townsend Street, San Francisco, CA 94107, USA, um
+            zusammengefasste Statistiken über Seitenaufrufe, Besucher und die
+            technische Leistung der Website zu erhalten. Hierzu wird beim
+            Seitenaufruf ein JavaScript-Beacon von Cloudflare geladen. Cloudflare
+            Web Analytics setzt nach Angaben des Anbieters keine Cookies ein und
+            verfolgt einzelne Besucher nicht über verschiedene Websites hinweg.
+          </p>
+          <p>
+            Die Verarbeitung dient der statistischen Auswertung sowie der
+            Verbesserung von Inhalt, Bedienbarkeit und Ladeleistung der Website
+            und beruht auf unserem berechtigten Interesse gemäß Art. 6 Abs. 1
+            lit. f DSGVO. Weitere Informationen finden Sie in der
+            <a
+              href="https://www.cloudflare.com/privacypolicy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Datenschutzerklärung von Cloudflare</a
+            >.
+          </p>
+
           <h2>Lokale Spracheinstellung</h2>
           <p>
             Die von Ihnen gewählte Seitensprache wird im lokalen Speicher Ihres
             Browsers gespeichert. Diese Information bleibt auf Ihrem Gerät und
             wird nicht an Autoservice Bettenduerf übertragen. Sie können sie
             jederzeit löschen, indem Sie die Website-Daten in Ihrem Browser
-            entfernen. Eigene Analyse- oder Marketing-Cookies setzen wir nicht
-            ein.
+            entfernen. Cloudflare Web Analytics setzt keine Analyse- oder Marketing-Cookies
+            auf Ihrem Gerät.
           </p>
 
           <h2>Google Maps und externe Links</h2>
@@ -166,5 +189,12 @@
         </article>
       </div>
     </main>
+    <!-- Cloudflare Web Analytics -->
+    <script
+      type="module"
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'
+    ></script>
+    <!-- End Cloudflare Web Analytics -->
   </body>
 </html>
