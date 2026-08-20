@@ -195,6 +195,7 @@ h4 {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: nowrap;
 }
 .main-nav a {
   font-family: var(--font-head);
@@ -1283,7 +1284,31 @@ a.ci-value:hover {
   }
 }
 
-@media (max-width: 720px) {
+@media (min-width: 981px) and (max-width: 1220px) {
+  .site-logo {
+    height: 72px;
+  }
+  .main-nav {
+    gap: 3px;
+  }
+  .main-nav a {
+    padding: 9px 8px;
+    font-size: 0.86rem;
+    white-space: nowrap;
+  }
+  .main-nav .nav-cta,
+  .main-nav .nav-shop {
+    padding: 9px 12px;
+  }
+  .lang-switch {
+    margin-left: 4px;
+  }
+  .lang-switch button {
+    padding-inline: 7px;
+  }
+}
+
+@media (max-width: 980px) {
   body.nav-open {
     overflow: hidden;
   }
@@ -2174,7 +2199,7 @@ body {
   background: #070d14;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 980px) {
   .site-header .main-nav {
     background: rgba(8, 15, 24, 0.98);
     border-bottom-color: rgba(255, 255, 255, 0.1);

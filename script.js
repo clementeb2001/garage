@@ -14,6 +14,7 @@
       nav_hours: "Ëffnungszäiten",
       nav_shop: "Shop",
       shop_soon: "Shop – geschwënn disponibel",
+      shop_soon_nav: "Shop · geschwënn",
       skip: "Direkt bei den Inhalt",
       nav_cta: "Rendez-vous ufroen",
       topbar_partner: "Offiziell Partnergarage",
@@ -157,6 +158,7 @@
       nav_hours: "Öffnungszeiten",
       nav_shop: "Shop",
       shop_soon: "Shop – bald verfügbar",
+      shop_soon_nav: "Shop · bald",
       skip: "Zum Inhalt springen",
       nav_cta: "Termin anfragen",
       topbar_partner: "Offizieller Partnerbetrieb",
@@ -300,6 +302,7 @@
       nav_hours: "Horaires",
       nav_shop: "Shop",
       shop_soon: "Shop – bientôt disponible",
+      shop_soon_nav: "Shop · bientôt",
       skip: "Aller au contenu",
       nav_cta: "Prendre rendez-vous",
       topbar_partner: "Garage partenaire officiel",
@@ -441,6 +444,7 @@
       nav_hours: "Hours",
       nav_shop: "Shop",
       shop_soon: "Shop – coming soon",
+      shop_soon_nav: "Shop · soon",
       skip: "Skip to content",
       nav_cta: "Book appointment",
       topbar_partner: "Official partner garage",
@@ -707,7 +711,7 @@
       }
     });
     window.addEventListener("resize", function () {
-      if (window.innerWidth > 720) {
+      if (window.innerWidth > 980) {
         nav.classList.remove("open");
         toggle.setAttribute("aria-expanded", "false");
         document.body.classList.remove("nav-open");
