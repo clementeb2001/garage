@@ -657,10 +657,8 @@
     document.documentElement.lang = lang;
     updateSeo(lang);
 
-    document.querySelectorAll(".lang-switch button").forEach(function (btn) {
-      var on = btn.getAttribute("data-lang") === lang;
-      btn.classList.toggle("active", on);
-      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    document.querySelectorAll(".lang-select").forEach(function (select) {
+      select.value = lang;
     });
 
     try {
@@ -668,9 +666,9 @@
     } catch (e) {}
   }
 
-  document.querySelectorAll(".lang-switch button").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      applyLang(btn.getAttribute("data-lang"));
+  document.querySelectorAll(".lang-select").forEach(function (select) {
+    select.addEventListener("change", function () {
+      applyLang(select.value);
       var mobileNav = document.getElementById("main-nav");
       var mobileToggle = document.getElementById("nav-toggle");
       if (mobileNav && mobileToggle) {
