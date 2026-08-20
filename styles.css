@@ -241,6 +241,10 @@ h4 {
   border: none;
   cursor: pointer;
   padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
 }
 .nav-toggle span {
   width: 26px;
@@ -1280,6 +1284,9 @@ a.ci-value:hover {
 }
 
 @media (max-width: 720px) {
+  body.nav-open {
+    overflow: hidden;
+  }
   .main-nav {
     position: fixed;
     inset: var(--header-h) 0 auto 0;
@@ -1293,6 +1300,9 @@ a.ci-value:hover {
     transform: translateY(-140%);
     transition: transform 0.3s ease;
     visibility: hidden;
+    max-height: calc(100dvh - var(--header-h));
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   .main-nav.open {
     transform: translateY(0);
@@ -1319,6 +1329,13 @@ a.ci-value:hover {
   }
   .nav-toggle {
     display: flex;
+  }
+  .footer-nav a,
+  .footer-contact a,
+  .footer-legal a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
   .site-logo {
     height: 74px;
@@ -2513,45 +2530,14 @@ body {
   outline-offset: 2px;
 }
 
-/* Wochentag-Chips + VIN im Terminformular */
-.weekday-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+/* Konkrete Wonsch- an Alternativdatumer + VIN am Terminformular */
+.appointment-dates {
+  margin-bottom: 4px;
 }
-.weekday-chips .wchip {
-  position: relative;
-}
-.weekday-chips .wchip input {
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.weekday-chips .wchip span {
-  display: inline-block;
-  padding: 9px 14px;
-  border-radius: 999px;
-  border: 1px solid #dbe0e5;
-  background: #f4f6f8;
-  color: var(--navy-900, #0d1b2a);
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.15s ease;
-}
-.weekday-chips .wchip span:hover {
-  border-color: var(--accent, #e63946);
-}
-.weekday-chips .wchip input:checked + span {
-  background: var(--accent, #e63946);
-  border-color: var(--accent, #e63946);
-  color: #fff;
-}
-.weekday-chips .wchip input:focus-visible + span {
-  outline: 3px solid var(--accent-2, #ff9a4d);
-  outline-offset: 2px;
+.date-hint {
+  margin: -4px 0 16px;
+  color: var(--text-mut, #5b6b7c);
+  font-size: 0.84rem;
 }
 #vin {
   text-transform: uppercase;
@@ -3363,12 +3349,6 @@ html.shop-dev .shop-dev-badge a {
   outline: 2px solid var(--accent, #e63946);
   outline-offset: 3px;
 }
-.weekday-chips.chips-invalid {
-  outline: 2px solid var(--accent, #e63946);
-  outline-offset: 5px;
-  border-radius: 12px;
-}
-
 /* VIN-Kästchen: Oldtimer / VIN nicht bekannt */
 .vin-unknown {
   display: flex;
