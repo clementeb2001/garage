@@ -24,7 +24,7 @@
 
     <link rel="canonical" href="https://autoservicebettenduerf.lu/shop.html" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=21" />
+    <link rel="stylesheet" href="styles.css?v=22" />
     <script>
       /* Shop-Sperre: oeffentlich "in Arbeit", fir de Besëtzer via ?dev=1 fräischalten */
       (function () {
@@ -105,15 +105,13 @@
             <span data-i18n="shop_soon_nav">Shop · geschwënn</span></a
           >
 
-          <div
-            class="lang-switch"
-            role="group"
-            aria-label="Sprooch / Langue / Language"
-          >
-            <button type="button" data-lang="lb" class="active">LB</button>
-            <button type="button" data-lang="de">DE</button>
-            <button type="button" data-lang="fr">FR</button>
-            <button type="button" data-lang="en">EN</button>
+          <div class="lang-switch">
+            <select class="lang-select" aria-label="Sprooch / Sprache / Langue / Language">
+              <option value="lb">🇱🇺 LB</option>
+              <option value="de">🇩🇪 DE</option>
+              <option value="fr">🇫🇷 FR</option>
+              <option value="en">🇬🇧 EN</option>
+            </select>
           </div>
         </nav>
 
@@ -380,8 +378,8 @@
       >↑</a
     >
 
-    <script src="script.js?v=8"></script>
-    <script src="shop.js?v=8"></script>
+    <script src="script.js?v=9"></script>
+    <script src="shop.js?v=9"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"

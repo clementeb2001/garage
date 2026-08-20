@@ -627,8 +627,8 @@
     renderSaison();
     renderFaq();
     wireValidationClear();
-    document.querySelectorAll(".lang-switch button").forEach(function (b) {
-      b.addEventListener("click", function () {
+    document.querySelectorAll(".lang-select").forEach(function (select) {
+      select.addEventListener("change", function () {
         setTimeout(function () {
           applyStatics();
           renderSaison();
@@ -677,8 +677,8 @@
     var lbClose = document.getElementById("lightbox-close");
     if (!lb || !lbImg) return;
     updateFlyers();
-    document.querySelectorAll(".lang-switch button").forEach(function (button) {
-      button.addEventListener("click", function () { setTimeout(updateFlyers, 0); });
+    document.querySelectorAll(".lang-select").forEach(function (select) {
+      select.addEventListener("change", function () { setTimeout(updateFlyers, 0); });
     });
     function open(src, alt) {
       lbImg.src = src;

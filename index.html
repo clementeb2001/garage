@@ -36,7 +36,7 @@
 
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/autoservice-bettenduerf-logo.png" />
-    <link rel="stylesheet" href="styles.css?v=21" />
+    <link rel="stylesheet" href="styles.css?v=22" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -113,15 +113,13 @@
             ><span aria-hidden="true">🛒</span>
             <span data-i18n="shop_soon_nav">Shop · geschwënn</span></a
           >
-          <div
-            class="lang-switch"
-            role="group"
-            aria-label="Sprooch / Langue / Language"
-          >
-            <button type="button" data-lang="lb" class="active">LB</button>
-            <button type="button" data-lang="de">DE</button>
-            <button type="button" data-lang="fr">FR</button>
-            <button type="button" data-lang="en">EN</button>
+          <div class="lang-switch">
+            <select class="lang-select" aria-label="Sprooch / Sprache / Langue / Language">
+              <option value="lb">🇱🇺 LB</option>
+              <option value="de">🇩🇪 DE</option>
+              <option value="fr">🇫🇷 FR</option>
+              <option value="en">🇬🇧 EN</option>
+            </select>
           </div>
         </nav>
 
@@ -1003,9 +1001,9 @@
       <img id="lightbox-img" src="" alt="" />
     </div>
 
-    <script src="script.js?v=8"></script>
+    <script src="script.js?v=9"></script>
     <script src="details.js?v=4"></script>
-    <script src="extras.js?v=8"></script>
+    <script src="extras.js?v=9"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"

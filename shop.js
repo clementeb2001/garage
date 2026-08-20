@@ -942,8 +942,8 @@
     });
     $("btn-veh-search").addEventListener("click", doVehSearch);
     // Sproochewiessel: alles nei
-    document.querySelectorAll(".lang-switch button").forEach(function (b) {
-      b.addEventListener("click", function () {
+    document.querySelectorAll(".lang-select").forEach(function (select) {
+      select.addEventListener("change", function () {
         setTimeout(function () {
           applyStatics();
           render();
