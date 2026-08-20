@@ -720,8 +720,8 @@
   function init() {
     updateCardMore();
     renderService();
-    document.querySelectorAll(".lang-switch button").forEach(function (b) {
-      b.addEventListener("click", function () {
+    document.querySelectorAll(".lang-select").forEach(function (select) {
+      select.addEventListener("change", function () {
         setTimeout(function () {
           updateCardMore();
           renderService();
