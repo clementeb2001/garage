@@ -694,7 +694,8 @@
   if (toggle && nav) {
     function syncMobileNavHeight() {
       if (window.innerWidth <= 980 && nav.classList.contains("open")) {
-        var top = nav.getBoundingClientRect().top;
+        var header = nav.closest(".site-header");
+        var top = header ? header.getBoundingClientRect().bottom : nav.getBoundingClientRect().top;
         nav.style.height = Math.max(0, window.innerHeight - top) + "px";
       } else {
         nav.style.height = "";
