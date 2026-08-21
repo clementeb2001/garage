@@ -692,10 +692,19 @@
   var nav = document.getElementById("main-nav");
 
   if (toggle && nav) {
+    function syncMobileNavHeight() {
+      if (window.innerWidth <= 980 && nav.classList.contains("open")) {
+        var top = nav.getBoundingClientRect().top;
+        nav.style.height = Math.max(0, window.innerHeight - top) + "px";
+      } else {
+        nav.style.height = "";
+      }
+    }
     toggle.addEventListener("click", function () {
       var open = nav.classList.toggle("open");
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
       document.body.classList.toggle("nav-open", open);
+      syncMobileNavHeight();
     });
     nav.querySelectorAll("a").forEach(function (link) {
       link.addEventListener("click", function () {
@@ -718,6 +727,7 @@
         toggle.setAttribute("aria-expanded", "false");
         document.body.classList.remove("nav-open");
       }
+      syncMobileNavHeight();
     });
   }
 
