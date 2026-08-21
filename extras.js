@@ -3,10 +3,10 @@
   var MSG = {
     lb: {
       form: {
-        submit: "Terminufro schécken",
+        submit: "Rendez-vous-Ufro schécken",
         note: "Mir behandelen Är Donnéeë vertraulech.",
         sending: "Gëtt geschéckt …",
-        ok: "Merci, {name}! Är Terminufro ass ukomm – mir mellen eis geschwënn.",
+        ok: "Merci, {name}! Är Rendez-vous-Ufro ass ukomm – mir mellen eis geschwënn.",
         err: "Gitt w.e.g. Ären Numm, eng gëlteg E-Mail-Adress, d’Chassisnummer an eng Noriicht un a bestätegt den Dateschutzhinweis.",
         senderr:
           "D’Ufro konnt net geschéckt ginn. Probéiert et w.e.g. nach eng Kéier oder rufft eis un.",
@@ -21,10 +21,10 @@
         vin_ph: "z. B. WVWZZZ…",
         privacy: "Ech hunn d'Dateschutzerklärung gelies a verstinn, datt meng Donnéeën iwwer FormSubmit iwwermëttelt ginn.",
         missing: "Fëllt w.e.g. nach aus:",
-        vehicle_lbl: "Fahrzeug",
+        vehicle_lbl: "Gefier",
         vehicle_ph: "Mark, Modell, Baujoer",
         vin_unknown: "Oldtimer / VIN net bekannt",
-        names: { name: "Numm", email: "eng gëlteg E-Mail", vin: "Fahrgestellnummer", message: "Noriicht", privacy: "Dateschutz-Zoustëmmung", preferred_date: "e Wonschdatum", service: "e Service", vin_bad: "eng gëlteg VIN (17 Zeechen)", vehicle: "d'Fahrzeug" },
+        names: { name: "Numm", email: "eng gëlteg E-Mail", vin: "Chassisnummer", message: "Noriicht", privacy: "Dateschutz-Zoustëmmung", preferred_date: "e Wonschdatum", service: "e Service", vin_bad: "eng gëlteg VIN (17 Zeechen)", vehicle: "d’Gefier" },
       },
       saison: {
         eyebrow: "Tipps",
@@ -41,7 +41,7 @@
           {
             season: "Fréijoer",
             emoji: "🌤️",
-            title: "Fréijoerscheck",
+            title: "Fréijoerskontroll",
             text: "Vu Summerpneue bis zum Klimaservice – de Won op déi waarm Saison virbereeden.",
             slug: "tip-fruehjahr",
           },
@@ -82,8 +82,8 @@
             a: "Jo – mir maachen eng Kontroll am Viraus, behiewe kleng Mängel a begleeden Iech op Wonsch bei de Rendez-vous.",
           },
           {
-            q: "Maacht Dir och Tuning a Karrosserie?",
-            a: "Jo – vu Rallye- a Rennstreckevirbereedung iwwer Ofsenkung bis zu Karrosserie a Lackéierung.",
+            q: "Maacht Dir och Tuning a Karosserie?",
+            a: "Jo – vu Rallye- a Rennstreckevirbereedung iwwer Ofsenkung bis zu Karosserie a Lackéierung.",
           },
           {
             q: "Kréien ech en Devis?",
@@ -644,7 +644,7 @@
 /* Spezial-Servicer: Flyer-Lightbox (Vergréisseren) */
 (function () {
   var flyerAlt = {
-    lb: { achsvermessung: "Achsvermiessung – Autoservice Bettenduerf", getriebespuelung: "Getriebespullung – Autoservice Bettenduerf" },
+    lb: { achsvermessung: "Achsvermiessung – Autoservice Bettenduerf", getriebespuelung: "Spullung vun der Boîte – Autoservice Bettenduerf" },
     de: { achsvermessung: "Achsvermessung – Autoservice Bettenduerf", getriebespuelung: "Getriebespülung – Autoservice Bettenduerf" },
     fr: { achsvermessung: "Géométrie des roues – Autoservice Bettenduerf", getriebespuelung: "Rinçage de boîte – Autoservice Bettenduerf" },
     en: { achsvermessung: "Wheel alignment – Autoservice Bettenduerf", getriebespuelung: "Transmission flush – Autoservice Bettenduerf" }

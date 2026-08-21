@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://cloudflareinsights.com; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://cloudflareinsights.com; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
     <meta
       name="description"
       content="Autodeeler-Shop vum Autoservice Bettenduerf – Autodeeler fir all Marken a Modeller. Sich no Bezeechnung, Artikelnummer oder no Ärem Won."
@@ -23,25 +23,14 @@
     <meta property="og:locale" content="lb_LU" />
 
     <link rel="canonical" href="https://autoservicebettenduerf.lu/shop.html" />
+    <meta property="og:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Autoservice Bettenduerf – Werkstatt und Firmenlogo" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=23" />
-    <script>
-      /* Shop-Sperre: oeffentlich "in Arbeit", fir de Besëtzer via ?dev=1 fräischalten */
-      (function () {
-        try {
-          var p = new URLSearchParams(location.search);
-          if (p.get("dev") === "1") {
-            localStorage.setItem("gk_shop_dev", "1");
-          }
-          if (p.get("dev") === "0") {
-            localStorage.removeItem("gk_shop_dev");
-          }
-          if (localStorage.getItem("gk_shop_dev") === "1") {
-            document.documentElement.classList.add("shop-dev");
-          }
-        } catch (e) {}
-      })();
-    </script>
+    <link rel="stylesheet" href="styles.css?v=24" />
   </head>
   <body class="shop-page">
     <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
@@ -378,7 +367,7 @@
       >↑</a
     >
 
-    <script src="script.js?v=10"></script>
+    <script src="script.js?v=11"></script>
     <script src="shop.js?v=9"></script>
     <!-- Cloudflare Web Analytics -->
     <script
