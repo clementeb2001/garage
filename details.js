@@ -108,11 +108,11 @@
         ],
       },
       karosserie: {
-        title: "Karrosserie & Lackéierung",
+        title: "Karosserie & Lackéierung",
         intro:
-          "Krazer, Bëlzen oder Ëmbauten – fir e makellosen Androck vun Ärem Won.",
+          "Krazerten, Bëlzen oder Ëmbauten – fir datt Äre Won erëm propper ausgesäit.",
         points: [
-          "Karrosserieaarbechten an Instandsetzung no engem Accident",
+          "Karosserieaarbechten a Reparatur no engem Accident",
           "Spoiler a Verbreederungen",
           "Lackéierung a Smart Repair",
           "Opbereedung a Politur",
@@ -421,7 +421,7 @@
         ],
       },
       "tip-fruehjahr": {
-        title: "Fréijoerscheck",
+        title: "Fréijoerskontroll",
         intro:
           "No der kaler Saison ass et Zäit, de Won op de Summer virzebereeden – vun de Pneue bis zur Klimaanlag.",
         points: [
@@ -684,6 +684,16 @@
       else alt.searchParams.set("lang", code);
       link.href = alt.href;
     });
+    var defaultLink = document.querySelector('link[rel="alternate"][hreflang="x-default"]');
+    if (!defaultLink) {
+      defaultLink = document.createElement("link");
+      defaultLink.rel = "alternate";
+      defaultLink.hreflang = "x-default";
+      document.head.appendChild(defaultLink);
+    }
+    var defaultUrl = new URL(absolute);
+    defaultUrl.searchParams.delete("lang");
+    defaultLink.href = defaultUrl.href;
   }
   function renderService() {
     var app = document.getElementById("svc-app");

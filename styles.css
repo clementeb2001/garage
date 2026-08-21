@@ -1334,7 +1334,7 @@ a.ci-value:hover {
   }
   .main-nav {
     position: fixed;
-    inset: var(--header-h) 0 auto 0;
+    inset: var(--header-h) 0 0 0;
     flex-direction: column;
     align-items: stretch;
     gap: 4px;
@@ -1345,6 +1345,7 @@ a.ci-value:hover {
     transform: translateY(-140%);
     transition: transform 0.3s ease;
     visibility: hidden;
+    height: calc(100dvh - var(--header-h));
     max-height: calc(100dvh - var(--header-h));
     overflow-y: auto;
     overscroll-behavior: contain;

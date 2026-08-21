@@ -1,88 +1,576 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://autoservicebettenduerf.lu/</loc>
-    <lastmod>2026-08-20</lastmod>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/?lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/?lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/?lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/?lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/?lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/?lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/?lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/?lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/?lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/?lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/?lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=wartung</loc>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=wartung" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=wartung" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=wartung" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=wartung" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=wartung" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=wartung" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=wartung" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=wartung&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=wartung" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=reifen</loc>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=reifen" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=reifen" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=reifen" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=reifen" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=reifen" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=reifen" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=reifen" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=reifen&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=reifen" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=bremsen</loc>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=bremsen" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=bremsen" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=bremsen" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=bremsen" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=bremsen" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=bremsen" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=bremsen" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=bremsen&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=bremsen" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=diagnose</loc>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=diagnose" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=diagnose" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=diagnose" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=diagnose" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=diagnose" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=diagnose" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=diagnose" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=diagnose&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=diagnose" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=klima</loc>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=klima" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=klima" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=klima" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=klima" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=klima" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=klima" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=klima" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=klima&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=klima" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=controle</loc>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=controle" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=controle" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=controle" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=controle" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=controle" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=controle" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=controle" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=controle&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=controle" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=tuning</loc>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tuning" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tuning" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tuning" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tuning" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tuning" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tuning" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tuning" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tuning&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tuning" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=karosserie</loc>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=karosserie" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=karosserie" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=karosserie" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=karosserie" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=karosserie" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=karosserie" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=karosserie" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=karosserie&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=karosserie" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=tip-winter</loc>
-    <lastmod>2026-08-20</lastmod>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-winter" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr</loc>
-    <lastmod>2026-08-20</lastmod>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-fruehjahr" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=tip-summer</loc>
-    <lastmod>2026-08-20</lastmod>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-summer" />
   </url>
   <url>
     <loc>https://autoservicebettenduerf.lu/service.html?s=tip-herbst</loc>
-    <lastmod>2026-08-20</lastmod>
+    <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=de</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=fr</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst" />
+  </url>
+  <url>
+    <loc>https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=en</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="lb" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=de" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst&amp;lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=tip-herbst" />
   </url>
 </urlset>

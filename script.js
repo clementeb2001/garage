@@ -41,18 +41,18 @@
       services_eyebrow: "Eis Servicer",
       services_title: "Alles ronderëm Ären Auto – aus enger Hand",
       services_sub:
-        "Vun der klassescher Wartung bis zur elektronescher Diagnos. Mir këmmeren eis ëm Äre Won, fir datt Dir sécher ënnerwee sidd.",
+        "Vum klasseschen Entretien bis zur elektronescher Diagnos. Mir këmmeren eis ëm Äre Won, fir datt Dir sécher ënnerwee sidd.",
       spez_eyebrow: "★ Eis Spezialiséierungen",
       spez_title: "Net all Garage zu Lëtzebuerg bitt dat un",
       spez_sub: "Zwee Spezial-Servicer, déi mir mat moderner Technik ubidden.",
       spez_ribbon: "Spezialiséierung",
       spez_zoom: "Vergréisseren",
       spez_axle_t: "Achsvermiessung",
-      spez_axle_d: "Fir méi Sécherheet, manner Reifeverschleiss an e gerade Laf.",
-      spez_gear_t: "Getriebespullung",
-      spez_gear_d: "Fir sanft Schaltvirgäng an eng méi laang Liewensdauer vum Getriebe.",
+      spez_axle_d: "Fir méi Sécherheet, manner Pneueverschläiss an e riichte Laf.",
+      spez_gear_t: "Spullung vun der Boîte",
+      spez_gear_d: "Fir datt d’Gäng sanft wiesselen an d’Boîte méi laang hält.",
       spez_axle_opt: "★ Achsvermiessung",
-      spez_gear_opt: "★ Getriebespullung",
+      spez_gear_opt: "★ Spullung vun der Boîte",
       svc1_t: "Entretien, Inspektioun & Uelegwiessel",
       svc1_d:
         "Entretien, Inspektioun, Ueleg- a Filterwiessel – alles fir de Wäert an d'Sécherheet vun Ärem Won.",
@@ -80,9 +80,9 @@
       svc9_t: "Tuning & Motorsport",
       svc9_d:
         "Rallye- a Rennstreckevirbereedung, Ofsenkung a Sportfuerwierker – ofgestëmmt op Är Wënsch.",
-      svc10_t: "Karrosserie & Lackéierung",
+      svc10_t: "Karosserie & Lackéierung",
       svc10_d:
-        "Karrosseriearbechten, Spoiler, Verbreederungen a propper Lackéierung.",
+        "Karosserieaarbechten, Spoiler, Verbreederungen a propper Lackéierung.",
       about_eyebrow: "Iwwer Autoservice Bettenduerf",
       about_title: "E Familljebetrib, deem Dir vertraue kënnt",
       about_p1:
@@ -118,7 +118,7 @@
       contact_eyebrow: "Kontakt & Ufaart",
       contact_title: "Rendez-vous ufroen",
       contact_intro:
-        "Schreift eis kuerz, ëm wat et geet – mir mellen eis séier mat engem Terminvirschlag.",
+        "Schreift eis kuerz, ëm wat et geet – mir mellen eis séier mat engem Rendez-vous-Virschlag.",
       ci_addr_l: "Adress",
       ci_phone_l: "Telefon",
       ci_gsm_l: "GSM",
@@ -135,11 +135,11 @@
       f_message: "Noriicht",
       f_message_ph:
         "Beschreift kuerz Äert Uleies an Äre Won (Mark, Modell, Baujoer) …",
-      f_submit: "Terminufro schécken",
+      f_submit: "Rendez-vous-Ufro schécken",
       f_note: "Mir behandelen Är Donnéeë vertraulech.",
       f_err:
         "Gitt w.e.g. Ären Numm, eng gëlteg E-Mail-Adress an Är Noriicht un.",
-      f_ok: "Merci, {name}! Är Terminufro ass ukomm.",
+      f_ok: "Merci, {name}! Är Rendez-vous-Ufro ass ukomm.",
       mobile_call: "Uruffen",
       mobile_email: "E-Mail",
       footer_tagline:
