@@ -630,8 +630,11 @@
     if (lang === DEFAULT_LANG) url.searchParams.delete("lang");
     else url.searchParams.set("lang", lang);
     history.replaceState(null, "", url.pathname + url.search + url.hash);
+    var canonicalUrl = new URL(location.origin + location.pathname);
+    if (lang !== DEFAULT_LANG) canonicalUrl.searchParams.set("lang", lang);
     var canonical = document.querySelector('link[rel="canonical"]');
-    if (canonical && isHome) canonical.href = url.origin + url.pathname + url.search;
+    if (canonical && isHome) canonical.href = canonicalUrl.href;
+    if (isHome) setMeta('meta[property="og:url"]', canonicalUrl.href);
   }
 
   function getStoredLang() {
