@@ -675,7 +675,12 @@ h4 {
 
 .legal-page {
   min-height: 100vh;
-  background: var(--cream);
+  background: var(--surface-dark, #101923);
+  background-image: radial-gradient(
+    circle at 12% 100%,
+    rgba(230, 57, 70, 0.14),
+    transparent 42%
+  );
 }
 .legal-main {
   padding: 64px 0 90px;
@@ -684,36 +689,48 @@ h4 {
   max-width: 840px;
   margin: 0 auto;
   padding: clamp(28px, 6vw, 56px);
-  background: #fff;
-  border: 1px solid var(--line);
+  background: rgba(27, 38, 59, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
   overflow-wrap: anywhere;
 }
 .legal-card h1 {
   font-size: clamp(2rem, 5vw, 3.2rem);
   margin-bottom: 28px;
   hyphens: auto;
+  color: #fff;
 }
 .legal-card h2 {
   font-size: 1.25rem;
   margin: 30px 0 10px;
+  color: #fff;
 }
 .legal-card p,
 .legal-card li {
-  color: var(--text-mut);
+  color: #c6d0dc;
+}
+.legal-card small {
+  color: #9aa8b6;
 }
 .legal-card ul {
   margin: 12px 0 0 22px;
 }
 .legal-card a {
-  color: var(--accent);
+  color: var(--accent-2);
   text-decoration: underline;
+}
+.legal-card a:hover {
+  color: #ffa666;
 }
 .legal-back {
   display: inline-flex;
   margin-bottom: 24px;
   font-weight: 700;
+  color: #fff;
+}
+.legal-back:hover {
+  color: var(--accent-2);
 }
 
 /* ------- Sections ------- */
