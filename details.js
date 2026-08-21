@@ -652,7 +652,7 @@
     return m ? decodeURIComponent(m[1]) : null;
   }
   function updateServiceSeo(slug, L, d) {
-    var url = new URL(location.href);
+    var url = new URL(location.origin + location.pathname);
     url.searchParams.set("s", slug);
     if (L === "lb") url.searchParams.delete("lang");
     else url.searchParams.set("lang", L);
