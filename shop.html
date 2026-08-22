@@ -217,9 +217,10 @@
                   <input id="veh-year" class="combo-input" type="text" inputmode="numeric" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-year" placeholder="Baujoer wielen oder aginn" />
                   <ul class="combo-list" id="list-year" role="listbox" hidden></ul>
                 </div>
-                <div class="veh-field">
-                  <label class="sr-only" for="veh-variant">Typ, Variante oder Motorisierung</label>
-                  <input id="veh-variant" autocomplete="off" placeholder="Typ / Motorisierung (optional)" />
+                <div class="veh-field combo">
+                  <label class="sr-only" for="veh-variant">Motoriséierung / Motorisierung</label>
+                  <input id="veh-variant" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-variant" placeholder="Motoriséierung wielen" disabled />
+                  <ul class="combo-list" id="list-variant" role="listbox" hidden></ul>
                 </div>
                 <button
                   class="btn btn-primary"
@@ -369,7 +370,7 @@
     >
 
     <script src="script.js?v=16"></script>
-    <script src="shop.js?v=12"></script>
+    <script src="shop.js?v=13"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"
