@@ -156,9 +156,9 @@
   });
 
   var CATICON = {
-    disc: "disc",
-    pad: "pad",
-    kit: "kit"
+    disc: "◉",
+    pad: "▰",
+    kit: "⊕"
   };
 
   /* ---------- Iwwersetzungen ---------- */
