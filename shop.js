@@ -816,40 +816,107 @@
   /* ---------- "In Arbeit"-Säit ---------- */
   var SOON = {
     lb: {
-      eyebrow: "Online-Shop",
-      title: "Eise Shop ass am Opbau",
-      text: "Mir sinn amgaang, eisen Autodeeler-Shop opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt fir Deeler a Präisser.",
-      cta: "Deel ufroen",
+      eyebrow: "DBA Bremsen",
+      title: "Performance-Bremsen passend zu Ärem Gefier",
+      text: "Mir bidden DBA-Bremsscheiwen, Bremsbeläg, Bremssättel a komplett Kits un. D'Passgenauegkeet gëtt virun all Bestellung iwwer den offiziellen DBA-Gefierkatalog kontrolléiert.",
+      cta: "Gefier am DBA-Katalog sichen",
       back: "Zréck op d’Startsäit",
-      dev: "Virschau-Modus – de Shop ass ëffentlech nach am Opbau",
+      dev: "Virschau-Modus – de komplette Shop ass nach am Opbau",
       hide: "verstoppen",
     },
     de: {
-      eyebrow: "Online-Shop",
-      title: "Unser Shop ist in Arbeit",
-      text: "Wir bauen gerade unseren Autoteile-Shop auf. Schauen Sie bald wieder vorbei – oder kontaktieren Sie uns direkt für Teile und Preise.",
-      cta: "Anfrage senden",
+      eyebrow: "DBA Bremsen",
+      title: "Performance-Bremsen passend zu Ihrem Fahrzeug",
+      text: "Wir bieten DBA-Bremsscheiben, Bremsbeläge, Bremssättel und komplette Kits an. Die Passgenauigkeit wird vor jeder Bestellung über den offiziellen DBA-Fahrzeugkatalog geprüft.",
+      cta: "Fahrzeug im DBA-Katalog suchen",
       back: "Zurück zur Startseite",
-      dev: "Vorschau-Modus – Shop öffentlich noch „in Arbeit“",
+      dev: "Vorschau-Modus – der vollständige Shop ist noch im Aufbau",
       hide: "ausblenden",
     },
     fr: {
-      eyebrow: "Boutique en ligne",
-      title: "Notre boutique est en construction",
-      text: "Nous préparons notre boutique de pièces auto. Revenez bientôt – ou contactez-nous directement pour les pièces et les prix.",
-      cta: "Envoyer une demande",
+      eyebrow: "Freins DBA",
+      title: "Freins performance adaptés à votre véhicule",
+      text: "Nous proposons des disques, plaquettes, étriers et kits complets DBA. La compatibilité est contrôlée avant chaque commande à l’aide du catalogue véhicule officiel DBA.",
+      cta: "Rechercher le véhicule chez DBA",
       back: "Retour à l’accueil",
-      dev: "Mode aperçu – boutique encore « en construction » côté public",
+      dev: "Mode aperçu – la boutique complète est encore en construction",
       hide: "masquer",
     },
     en: {
-      eyebrow: "Online shop",
-      title: "Our shop is under construction",
-      text: "We’re building our car-parts shop. Please check back soon – or contact us directly for parts and prices.",
-      cta: "Send request",
+      eyebrow: "DBA brakes",
+      title: "Performance brakes matched to your vehicle",
+      text: "We offer DBA brake discs, pads, calipers and complete kits. Fitment is checked against the official DBA vehicle catalogue before every order.",
+      cta: "Find your vehicle in the DBA catalogue",
       back: "Back to home",
-      dev: "Preview mode – shop still “under construction” for the public",
+      dev: "Preview mode – the complete shop is still under construction",
       hide: "hide",
+    },
+  };
+
+  var DBA_COPY = {
+    lb: {
+      partner: "Bremsen-Partnerprogramm",
+      proof1: "✓ Offiziell DBA-Artikelnummeren",
+      proof2: "✓ Gefierbezunn Iwwerpréiwung",
+      proof3: "✓ Berodung duerch eis Garage",
+      discs: "Bremsscheiwen",
+      pads: "Bremsbeläg",
+      calipers: "Bremssättel",
+      kits: "Bremsen-Kits",
+      calipersText: "Street Series Performance-Bremssättel",
+      kitsText: "Scheiwen a Beläg als passend Komplettset",
+      finderTitle: "Dat richtegt Deel fir Äert Gefier fannen",
+      finderText: "Wielt am offiziellen DBA-Katalog Mark, Baujoer, Modell a Motorvariant. Schéckt eis duerno d'DBA-Artikelnummer – mir kontrolléieren d'Passgenauegkeet a maachen Iech eng Offer.",
+      request: "DBA-Deel bei eis ufroen",
+      note: "Wichteg: D'Produktauswiel gëtt virun der Bestellung vun eis kontrolléiert. Präisser an Disponibilitéit op der DBA-Websäit kënnen ofwäichen.",
+    },
+    de: {
+      partner: "Bremsen-Partnerprogramm",
+      proof1: "✓ Offizielle DBA-Artikelnummern",
+      proof2: "✓ Fahrzeugbezogene Prüfung",
+      proof3: "✓ Beratung durch unsere Werkstatt",
+      discs: "Bremsscheiben",
+      pads: "Bremsbeläge",
+      calipers: "Bremssättel",
+      kits: "Bremsen-Kits",
+      calipersText: "Street Series Performance-Bremssättel",
+      kitsText: "Scheiben und Beläge als passendes Komplettset",
+      finderTitle: "Das richtige Teil für Ihr Fahrzeug finden",
+      finderText: "Wählen Sie im offiziellen DBA-Katalog Marke, Baujahr, Modell und Motorvariante. Senden Sie uns anschließend die DBA-Artikelnummer – wir prüfen die Passgenauigkeit und erstellen Ihnen ein Angebot.",
+      request: "DBA-Teil bei uns anfragen",
+      note: "Wichtig: Wir kontrollieren die Produktauswahl vor der Bestellung. Preise und Verfügbarkeit auf der DBA-Website können abweichen.",
+    },
+    fr: {
+      partner: "Programme partenaire freinage",
+      proof1: "✓ Références officielles DBA",
+      proof2: "✓ Vérification selon le véhicule",
+      proof3: "✓ Conseil par notre garage",
+      discs: "Disques de frein",
+      pads: "Plaquettes de frein",
+      calipers: "Étriers de frein",
+      kits: "Kits de freinage",
+      calipersText: "Étriers performance Street Series",
+      kitsText: "Disques et plaquettes en kit compatible",
+      finderTitle: "Trouver la bonne pièce pour votre véhicule",
+      finderText: "Sélectionnez la marque, l’année, le modèle et la motorisation dans le catalogue officiel DBA. Envoyez-nous ensuite la référence DBA : nous vérifierons la compatibilité et préparerons une offre.",
+      request: "Demander une pièce DBA",
+      note: "Important : nous vérifions la sélection avant la commande. Les prix et la disponibilité affichés sur le site DBA peuvent différer.",
+    },
+    en: {
+      partner: "Brake partner programme",
+      proof1: "✓ Official DBA part numbers",
+      proof2: "✓ Vehicle-specific fitment check",
+      proof3: "✓ Advice from our workshop",
+      discs: "Brake discs",
+      pads: "Brake pads",
+      calipers: "Brake calipers",
+      kits: "Brake kits",
+      calipersText: "Street Series performance calipers",
+      kitsText: "Matched disc and pad packages",
+      finderTitle: "Find the right part for your vehicle",
+      finderText: "Select make, year, model and engine variant in the official DBA catalogue. Then send us the DBA part number – we will verify fitment and prepare an offer.",
+      request: "Request a DBA part",
+      note: "Important: we verify the product selection before ordering. Prices and availability shown on the DBA website may differ.",
     },
   };
 
@@ -877,6 +944,21 @@
     setTxt("soon-cta", s.cta);
     setTxt("soon-back", s.back);
     setTxt("dev-badge-txt", s.dev);
+    var d = DBA_COPY[lang()] || DBA_COPY.lb;
+    setTxt("dba-partner-label", d.partner);
+    setTxt("dba-proof-1", d.proof1);
+    setTxt("dba-proof-2", d.proof2);
+    setTxt("dba-proof-3", d.proof3);
+    setTxt("dba-discs-title", d.discs);
+    setTxt("dba-pads-title", d.pads);
+    setTxt("dba-calipers-title", d.calipers);
+    setTxt("dba-kits-title", d.kits);
+    setTxt("dba-calipers-text", d.calipersText);
+    setTxt("dba-kits-text", d.kitsText);
+    setTxt("dba-finder-title", d.finderTitle);
+    setTxt("dba-finder-text", d.finderText);
+    setTxt("dba-request", d.request);
+    setTxt("dba-note", d.note);
     var dh = document.querySelector("#shop-dev-badge a");
     if (dh) dh.textContent = s.hide;
     var vb = $("veh-brand");
