@@ -146,18 +146,42 @@
     { id: 118, cat: "pad", name: "DB2384SP · Street Performance", art: "DB2384SP", axle: "rear", spec: "Hinterachse · ECE R90 · für DBA2814" },
     { id: 119, cat: "pad", name: "DB2384RP · Race Performance", art: "DB2384RP", axle: "rear", spec: "Hinterachse · Motorsport-Reibmischung" },
     { id: 120, cat: "kit", name: "DBA2814E-2384SP · Street Performance Kit", art: "DBA2814E-2384SP", axle: "rear", spec: "2× DBA2814E + DB2384SP · Hinterachse" },
-    { id: 121, cat: "kit", name: "DBA2814S-2384SP · T2 Street Performance Kit", art: "DBA2814S-2384SP", axle: "rear", spec: "2× DBA2814S + DB2384SP · Hinterachse" }
+    { id: 121, cat: "kit", name: "DBA2814S-2384SP · T2 Street Performance Kit", art: "DBA2814S-2384SP", axle: "rear", spec: "2× DBA2814S + DB2384SP · Hinterachse" },
+    { id: 201, cat: "disc", name: "DBA Street Series · Plain / En-Shield", art: "STREET-PLAIN", series: true, spec: "OE-Ersatz · glatte Oberfläche · Korrosionsschutz" },
+    { id: 202, cat: "disc", name: "DBA Street Series · T2", art: "STREET-T2", series: true, spec: "Bidirektionales T2-Schlitzdesign · Straßeneinsatz" },
+    { id: 203, cat: "disc", name: "DBA Street Series · X-Gold", art: "STREET-XG", series: true, spec: "Gelocht und geschlitzt · sportliche Optik" },
+    { id: 204, cat: "disc", name: "DBA 4000 Series · HD", art: "4000-HD", series: true, spec: "High-Carbon-Guss · glatte Performance-Ausführung" },
+    { id: 205, cat: "disc", name: "DBA 4000 Series · T3", art: "4000-T3", series: true, spec: "T3-Schlitze · thermisch stabilisiert · Performance" },
+    { id: 206, cat: "disc", name: "DBA 4000 Series · XS Gold", art: "4000-XS", series: true, spec: "Gelocht und geschlitzt · High-Performance" },
+    { id: 207, cat: "disc", name: "DBA 4000 Series · XD", art: "4000-XD", series: true, spec: "Heavy-Duty-Ausführung für hohe Belastung" },
+    { id: 208, cat: "disc", name: "DBA 5000 Series · T3", art: "5000-T3", series: true, spec: "Zweiteilige Bremsscheibe · T3-Schlitzdesign" },
+    { id: 209, cat: "disc", name: "DBA 5000 Series · XS", art: "5000-XS", series: true, spec: "Zweiteilig · gelocht und geschlitzt" },
+    { id: 210, cat: "pad", name: "DBA Street Series Ceramic", art: "PAD-SS", series: true, spec: "Komfortorientierter OE-Ersatz · geringer Staub" },
+    { id: 211, cat: "pad", name: "DBA Street Performance", art: "PAD-SP", series: true, spec: "Verbesserte Reibung für sportliche Straßennutzung" },
+    { id: 212, cat: "pad", name: "DBA Xtreme Performance", art: "PAD-XP", series: true, spec: "Hohe Temperaturbeständigkeit · Performance und 4x4" },
+    { id: 213, cat: "pad", name: "DBA Race Performance", art: "PAD-RP", series: true, spec: "Motorsport-Reibmischung für Rennstreckeneinsatz" },
+    { id: 214, cat: "caliper", name: "DBA Street Series Brake Caliper", art: "CALIPER-SS", series: true, spec: "Performance-Bremssattel · fahrzeugspezifische Ausführung" },
+    { id: 215, cat: "kit", name: "DBA Brake Upgrade Kit", art: "KIT-UPGRADE", series: true, spec: "Abgestimmtes Komplettsystem aus Scheiben, Belägen und Bremssätteln" },
+    { id: 216, cat: "kit", name: "DBA Electric Park Brake Kit", art: "KIT-EPB", series: true, spec: "Elektrische Parkbremslösung · fahrzeugspezifisch" },
+    { id: 217, cat: "kit", name: "DBA Drum to Disc Conversion Kit", art: "KIT-DISC", series: true, spec: "Umrüstsatz von Trommel- auf Scheibenbremse" }
   ].map(function (product) {
     product.price = null;
-    product.fits = ["Audi"];
-    product.fitment = "Audi A3 8V · 1.5 Turbo 150 BHP · 2018–2020";
-    product.vehicle = { brand: "Audi", model: "A3", from: 2018, to: 2020, variant: "1.5 Turbo 150" };
+    if (product.series) {
+      product.fits = "verification";
+      product.fitment = "";
+      product.vehicle = null;
+    } else {
+      product.fits = ["Audi"];
+      product.fitment = "Audi A3 8V · 1.5 Turbo 150 BHP · 2018–2020";
+      product.vehicle = { brand: "Audi", model: "A3", from: 2018, to: 2020, variant: "1.5 Turbo 150" };
+    }
     return product;
   });
 
   var CATICON = {
     disc: "◉",
     pad: "▰",
+    caliper: "◆",
     kit: "⊕"
   };
 
@@ -517,7 +541,7 @@
     var t = tr(),
       wrap = $("cat-chips");
     if (!wrap) return;
-    var order = ["all", "disc", "pad", "kit"];
+    var order = ["all", "disc", "pad", "caliper", "kit"];
     wrap.innerHTML = "";
     order.forEach(function (c) {
       var b = document.createElement("button");
@@ -582,7 +606,7 @@
       h.textContent = p.name;
       var fit = document.createElement("p");
       fit.className = "shop-fit";
-      fit.textContent = t.fits + " " + p.fitment;
+      fit.textContent = p.series ? t.fitment_pending : t.fits + " " + p.fitment;
       var spec = document.createElement("p");
       spec.className = "shop-spec";
       spec.textContent = p.spec;
@@ -654,11 +678,12 @@
     eyebrow: "DBA Shop · Virschau",
     title: "DBA Bremsen-Shop",
     sub: "Sicht no DBA-Artikelnummer oder test de Gefierfilter. De Katalog ass nach net ëffentlech a gëtt mat der offizieller Händlerlëscht komplettéiert.",
-    cats: { all: "All", disc: "Bremsscheiwen", pad: "Bremsbeläg", kit: "Bremsen-Kits" },
+    cats: { all: "All", disc: "Bremsscheiwen", pad: "Bremsbeläg", caliper: "Bremssättel", kit: "Bremsen-Kits" },
     fits: "Gepréiften Test-Zouuerdnung:",
     artnr: "DBA-Nr.",
     from: "",
     price_pending: "Präis kënnt no",
+    fitment_pending: "Gefier-Zouuerdnung kënnt mat der offizieller DBA-Lëscht",
     add: "Fir Ufro virmerken",
     added: "„{n}“ fir d'Ufro virgemierkt",
     note_title: "Äert Gefier oder Deel feelt nach?",
@@ -669,11 +694,12 @@
     eyebrow: "DBA Shop · Vorschau",
     title: "DBA Bremsen-Shop",
     sub: "Suchen Sie nach einer DBA-Artikelnummer oder testen Sie den Fahrzeugfilter. Der Katalog ist noch nicht öffentlich und wird mit der offiziellen Händlerliste vervollständigt.",
-    cats: { all: "Alle", disc: "Bremsscheiben", pad: "Bremsbeläge", kit: "Bremsen-Kits" },
+    cats: { all: "Alle", disc: "Bremsscheiben", pad: "Bremsbeläge", caliper: "Bremssättel", kit: "Bremsen-Kits" },
     fits: "Geprüfte Testzuordnung:",
     artnr: "DBA-Nr.",
     from: "",
     price_pending: "Preis folgt",
+    fitment_pending: "Fahrzeugzuordnung folgt mit der offiziellen DBA-Liste",
     add: "Für Anfrage vormerken",
     added: "„{n}“ für die Anfrage vorgemerkt",
     note_title: "Ihr Fahrzeug oder Teil fehlt noch?",
@@ -684,11 +710,12 @@
     eyebrow: "Boutique DBA · Aperçu",
     title: "Boutique de freins DBA",
     sub: "Recherchez une référence DBA ou testez le filtre véhicule. Le catalogue n'est pas encore public et sera complété avec la liste officielle du revendeur.",
-    cats: { all: "Tous", disc: "Disques", pad: "Plaquettes", kit: "Kits de freinage" },
+    cats: { all: "Tous", disc: "Disques", pad: "Plaquettes", caliper: "Étriers", kit: "Kits de freinage" },
     fits: "Affectation test vérifiée :",
     artnr: "Réf. DBA",
     from: "",
     price_pending: "Prix à venir",
+    fitment_pending: "Affectation véhicule à venir avec la liste officielle DBA",
     add: "Ajouter à la demande",
     added: "« {n} » ajouté à la demande",
     note_title: "Votre véhicule ou votre pièce manque encore ?",
@@ -699,11 +726,12 @@
     eyebrow: "DBA shop · Preview",
     title: "DBA brake shop",
     sub: "Search by DBA part number or test the vehicle filter. The catalogue is not public yet and will be completed with the official dealer list.",
-    cats: { all: "All", disc: "Brake discs", pad: "Brake pads", kit: "Brake kits" },
+    cats: { all: "All", disc: "Brake discs", pad: "Brake pads", caliper: "Brake calipers", kit: "Brake kits" },
     fits: "Verified test fitment:",
     artnr: "DBA No.",
     from: "",
     price_pending: "Price coming soon",
+    fitment_pending: "Vehicle fitment will follow with the official DBA list",
     add: "Add to enquiry",
     added: "“{n}” added to the enquiry",
     note_title: "Vehicle or part not listed yet?",
@@ -713,37 +741,37 @@
 
   var SOON = {
     lb: {
-      eyebrow: "DBA Bremsen",
-      title: "Performance-Bremsen passend zu Ärem Gefier",
-      text: "Mir bidden DBA-Bremsscheiwen, Bremsbeläg, Bremssättel a komplett Kits un. D'Passgenauegkeet gëtt virun all Bestellung iwwer den offiziellen DBA-Gefierkatalog kontrolléiert.",
-      cta: "Gefier am DBA-Katalog sichen",
+      eyebrow: "Online-Shop",
+      title: "Eise Shop ass am Opbau",
+      text: "Mir sinn amgaang, eisen Autodeeler-Shop opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt fir Deeler a Präisser.",
+      cta: "Deel ufroen",
       back: "Zréck op d’Startsäit",
       dev: "Virschau-Modus – de komplette Shop ass nach am Opbau",
       hide: "verstoppen",
     },
     de: {
-      eyebrow: "DBA Bremsen",
-      title: "Performance-Bremsen passend zu Ihrem Fahrzeug",
-      text: "Wir bieten DBA-Bremsscheiben, Bremsbeläge, Bremssättel und komplette Kits an. Die Passgenauigkeit wird vor jeder Bestellung über den offiziellen DBA-Fahrzeugkatalog geprüft.",
-      cta: "Fahrzeug im DBA-Katalog suchen",
+      eyebrow: "Online-Shop",
+      title: "Unser Shop ist im Aufbau",
+      text: "Wir bauen gerade unseren Autoteile-Shop auf. Schauen Sie bald wieder vorbei – oder kontaktieren Sie uns direkt für Teile und Preise.",
+      cta: "Anfrage senden",
       back: "Zurück zur Startseite",
       dev: "Vorschau-Modus – der vollständige Shop ist noch im Aufbau",
       hide: "ausblenden",
     },
     fr: {
-      eyebrow: "Freins DBA",
-      title: "Freins performance adaptés à votre véhicule",
-      text: "Nous proposons des disques, plaquettes, étriers et kits complets DBA. La compatibilité est contrôlée avant chaque commande à l’aide du catalogue véhicule officiel DBA.",
-      cta: "Rechercher le véhicule chez DBA",
+      eyebrow: "Boutique en ligne",
+      title: "Notre boutique est en construction",
+      text: "Nous préparons notre boutique de pièces automobiles. Revenez bientôt – ou contactez-nous directement pour les pièces et les prix.",
+      cta: "Envoyer une demande",
       back: "Retour à l’accueil",
       dev: "Mode aperçu – la boutique complète est encore en construction",
       hide: "masquer",
     },
     en: {
-      eyebrow: "DBA brakes",
-      title: "Performance brakes matched to your vehicle",
-      text: "We offer DBA brake discs, pads, calipers and complete kits. Fitment is checked against the official DBA vehicle catalogue before every order.",
-      cta: "Find your vehicle in the DBA catalogue",
+      eyebrow: "Online shop",
+      title: "Our shop is under construction",
+      text: "We are building our car-parts shop. Please check back soon – or contact us directly for parts and prices.",
+      cta: "Send request",
       back: "Back to home",
       dev: "Preview mode – the complete shop is still under construction",
       hide: "hide",
