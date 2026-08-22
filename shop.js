@@ -122,211 +122,43 @@
 
   /* ---------- Demo-Katalog ----------
      cat = Kategorie-Schlëssel, fits = Marken oder "all" */
+  /* DBA Vorbereitungskatalog: Artikel und Zuordnung aus dem offiziellen
+     Fahrzeugkatalog für AUDI A3 8V 1.5 Turbo 150 BHP (2018–2020).
+     Preise werden erst mit der Händlerliste aktiviert. */
   var PRODUCTS = [
-    {
-      id: 1,
-      cat: "brems",
-      name: "Bremsbeläg vir",
-      art: "BR-1042",
-      price: "34,90",
-      fits: ["Volkswagen", "Audi", "Škoda", "Seat"],
-    },
-    {
-      id: 2,
-      cat: "brems",
-      name: "Bremsscheiwen (Paar)",
-      art: "BR-2210",
-      price: "58,00",
-      fits: ["Volkswagen", "Audi", "Škoda", "Seat"],
-    },
-    {
-      id: 3,
-      cat: "brems",
-      name: "Bremsbeläg hannen",
-      art: "BR-1088",
-      price: "29,50",
-      fits: ["BMW", "Mini"],
-    },
-    {
-      id: 4,
-      cat: "filter",
-      name: "Ueleg-Filter",
-      art: "FI-3301",
-      price: "7,90",
-      fits: "all",
-    },
-    {
-      id: 5,
-      cat: "filter",
-      name: "Loftfilter",
-      art: "FI-3355",
-      price: "12,40",
-      fits: ["Ford", "Volvo", "Mazda"],
-    },
-    {
-      id: 6,
-      cat: "filter",
-      name: "Interieursfilter (Pollen)",
-      art: "FI-3390",
-      price: "11,20",
-      fits: "all",
-    },
-    {
-      id: 7,
-      cat: "oel",
-      name: "Motorueleg 5W-30 (5 L)",
-      art: "OL-5030",
-      price: "39,90",
-      fits: "all",
-    },
-    {
-      id: 8,
-      cat: "oel",
-      name: "Motorueleg 5W-40 (5 L)",
-      art: "OL-5040",
-      price: "42,50",
-      fits: "all",
-    },
-    {
-      id: 9,
-      cat: "oel",
-      name: "Killerflëssegkeet G12 (5 L)",
-      art: "OL-1200",
-      price: "18,90",
-      fits: "all",
-    },
-    {
-      id: 10,
-      cat: "zuend",
-      name: "Zündkäerzen-Set (4)",
-      art: "ZU-4401",
-      price: "24,90",
-      fits: ["Volkswagen", "Audi", "Seat", "Škoda", "Toyota"],
-    },
-    {
-      id: 11,
-      cat: "zuend",
-      name: "Zündspull",
-      art: "ZU-4460",
-      price: "33,00",
-      fits: ["Peugeot", "Citroën", "Renault"],
-    },
-    {
-      id: 12,
-      cat: "elektrik",
-      name: "Startbatterie 60Ah",
-      art: "EL-6000",
-      price: "89,00",
-      fits: "all",
-    },
-    {
-      id: 13,
-      cat: "elektrik",
-      name: "Startbatterie 74Ah AGM",
-      art: "EL-7400",
-      price: "139,00",
-      fits: "all",
-    },
-    {
-      id: 14,
-      cat: "elektrik",
-      name: "Lambdasonde",
-      art: "EL-2205",
-      price: "46,50",
-      fits: ["Ford", "Opel", "Volkswagen"],
-    },
-    {
-      id: 15,
-      cat: "fahrwerk",
-      name: "Stoussdämpfer vir",
-      art: "FW-8810",
-      price: "64,00",
-      fits: ["Renault", "Dacia", "Nissan"],
-    },
-    {
-      id: 16,
-      cat: "fahrwerk",
-      name: "Koppelstang",
-      art: "FW-8120",
-      price: "14,90",
-      fits: "all",
-    },
-    {
-      id: 17,
-      cat: "fahrwerk",
-      name: "Radlager vir",
-      art: "FW-8500",
-      price: "38,00",
-      fits: ["Peugeot", "Citroën", "Opel"],
-    },
-    {
-      id: 18,
-      cat: "licht",
-      name: "Gléilampen-Set H7 (2)",
-      art: "LI-0072",
-      price: "9,90",
-      fits: "all",
-    },
-    {
-      id: 19,
-      cat: "licht",
-      name: "Scheiwewëscher-Set (Paar)",
-      art: "LI-4400",
-      price: "19,90",
-      fits: "all",
-    },
-    {
-      id: 20,
-      cat: "motor",
-      name: "Zännriemen-Kit",
-      art: "MO-9900",
-      price: "96,00",
-      fits: ["Volkswagen", "Audi", "Škoda", "Seat"],
-    },
-    {
-      id: 21,
-      cat: "motor",
-      name: "Keilrippenriemen",
-      art: "MO-3120",
-      price: "16,50",
-      fits: "all",
-    },
-    {
-      id: 22,
-      cat: "reifen",
-      name: "Ganzjorespneu 205/55 R16",
-      art: "RE-2055",
-      price: "79,00",
-      fits: "all",
-    },
-    {
-      id: 23,
-      cat: "reifen",
-      name: "Wanterpneu 195/65 R15",
-      art: "RE-1965",
-      price: "69,00",
-      fits: "all",
-    },
-    {
-      id: 24,
-      cat: "brems",
-      name: "Bremsflëssegkeet DOT4 (1 L)",
-      art: "BR-0041",
-      price: "8,50",
-      fits: "all",
-    },
-  ];
+    { id: 101, cat: "disc", name: "DBA2810E · Street Series En-Shield Plain", art: "DBA2810E", axle: "front", spec: "288 mm · Bremssattel TRW · Belag DB2383" },
+    { id: 102, cat: "disc", name: "DBA2806E · Street Series En-Shield Plain", art: "DBA2806E", axle: "front", spec: "312 mm · Bremssattel TRW · Belag DB2383" },
+    { id: 103, cat: "disc", name: "DBA2806S · Street Series T2", art: "DBA2806S", axle: "front", spec: "312 mm · geschlitzt · Bremssattel TRW" },
+    { id: 104, cat: "disc", name: "DBA2810S · Street Series T2", art: "DBA2810S", axle: "front", spec: "288 mm · geschlitzt · Bremssattel TRW" },
+    { id: 105, cat: "disc", name: "DBA2806X · Street Series X-GOLD", art: "DBA2806X", axle: "front", spec: "312 mm · gelocht/geschlitzt · Bremssattel TRW" },
+    { id: 106, cat: "disc", name: "DBA42806 · 4000 Series Plain", art: "DBA42806", axle: "front", spec: "312 mm · Performance-Scheibe · Bremssattel TRW" },
+    { id: 107, cat: "disc", name: "DBA42806S · 4000 Series T3", art: "DBA42806S", axle: "front", spec: "312 mm · T3-geschlitzt · Bremssattel TRW" },
+    { id: 108, cat: "disc", name: "DBA42806XS · 4000 Series XS", art: "DBA42806XS", axle: "front", spec: "312 mm · gelocht/geschlitzt · Bremssattel TRW" },
+    { id: 109, cat: "pad", name: "DB2383SS · Street Series Ceramic", art: "DB2383SS", axle: "front", spec: "Vorderachse · für DBA2810 · Bremssattel TRW" },
+    { id: 110, cat: "pad", name: "DB2383SP · Street Performance", art: "DB2383SP", axle: "front", spec: "Vorderachse · ECE R90 · für DBA2810" },
+    { id: 111, cat: "pad", name: "DB2383XP · Xtreme Performance", art: "DB2383XP", axle: "front", spec: "Vorderachse · ECE R90 · für DBA2810" },
+    { id: 112, cat: "pad", name: "DB2383RP · Race Performance", art: "DB2383RP", axle: "front", spec: "Vorderachse · Motorsport-Reibmischung" },
+    { id: 113, cat: "disc", name: "DBA2814E · Street Series En-Shield Plain", art: "DBA2814E", axle: "rear", spec: "272 mm · Hinterachse · Bremssattel ATE" },
+    { id: 114, cat: "disc", name: "DBA2814S · Street Series T2", art: "DBA2814S", axle: "rear", spec: "272 mm · Hinterachse · geschlitzt · ATE" },
+    { id: 115, cat: "disc", name: "DBA42814 · 4000 Series Plain", art: "DBA42814", axle: "rear", spec: "272 mm · Hinterachse · Performance-Scheibe" },
+    { id: 116, cat: "disc", name: "DBA42814S · 4000 Series T3", art: "DBA42814S", axle: "rear", spec: "272 mm · Hinterachse · T3-geschlitzt" },
+    { id: 117, cat: "pad", name: "DB2384SS · Street Series Ceramic", art: "DB2384SS", axle: "rear", spec: "Hinterachse · für DBA2814 · Bremssattel ATE" },
+    { id: 118, cat: "pad", name: "DB2384SP · Street Performance", art: "DB2384SP", axle: "rear", spec: "Hinterachse · ECE R90 · für DBA2814" },
+    { id: 119, cat: "pad", name: "DB2384RP · Race Performance", art: "DB2384RP", axle: "rear", spec: "Hinterachse · Motorsport-Reibmischung" },
+    { id: 120, cat: "kit", name: "DBA2814E-2384SP · Street Performance Kit", art: "DBA2814E-2384SP", axle: "rear", spec: "2× DBA2814E + DB2384SP · Hinterachse" },
+    { id: 121, cat: "kit", name: "DBA2814S-2384SP · T2 Street Performance Kit", art: "DBA2814S-2384SP", axle: "rear", spec: "2× DBA2814S + DB2384SP · Hinterachse" }
+  ].map(function (product) {
+    product.price = null;
+    product.fits = ["Audi"];
+    product.fitment = "Audi A3 8V · 1.5 Turbo 150 BHP · 2018–2020";
+    product.vehicle = { brand: "Audi", model: "A3", from: 2018, to: 2020, variant: "1.5 Turbo 150" };
+    return product;
+  });
 
   var CATICON = {
-    brems: "🛑",
-    filter: "🌀",
-    oel: "🛢️",
-    zuend: "⚡",
-    elektrik: "🔋",
-    fahrwerk: "🔧",
-    licht: "💡",
-    motor: "⚙️",
-    reifen: "🛞",
+    disc: "disc",
+    pad: "pad",
+    kit: "kit"
   };
 
   /* ---------- Iwwersetzungen ---------- */
@@ -685,18 +517,7 @@
     var t = tr(),
       wrap = $("cat-chips");
     if (!wrap) return;
-    var order = [
-      "all",
-      "brems",
-      "filter",
-      "oel",
-      "zuend",
-      "elektrik",
-      "fahrwerk",
-      "licht",
-      "motor",
-      "reifen",
-    ];
+    var order = ["all", "disc", "pad", "kit"];
     wrap.innerHTML = "";
     order.forEach(function (c) {
       var b = document.createElement("button");
@@ -719,11 +540,20 @@
     if (state.cat !== "all" && p.cat !== state.cat) return false;
     if (state.mode === "search" && state.q) {
       var q = state.q.toLowerCase();
-      var hay = (p.name + " " + p.art + " " + t.cats[p.cat]).toLowerCase();
+      var hay = (p.name + " " + p.art + " " + p.spec + " " + p.fitment + " " + t.cats[p.cat]).toLowerCase();
       if (hay.indexOf(q) === -1) return false;
     }
     if (state.mode === "vehicle" && state.brand) {
-      if (p.fits !== "all" && p.fits.indexOf(state.brand) === -1) return false;
+      if (!p.vehicle) return false;
+      if (p.vehicle.brand.toLowerCase() !== state.brand.toLowerCase()) return false;
+      if (state.model && p.vehicle.model.toLowerCase().indexOf(state.model.toLowerCase()) === -1 && state.model.toLowerCase().indexOf(p.vehicle.model.toLowerCase()) === -1) return false;
+      var selectedYear = parseInt(state.year, 10);
+      if (selectedYear && (selectedYear < p.vehicle.from || selectedYear > p.vehicle.to)) return false;
+      if (state.variant) {
+        var variantQuery = state.variant.toLowerCase();
+        var expectedVariant = p.vehicle.variant.toLowerCase();
+        if (expectedVariant.indexOf(variantQuery) === -1 && variantQuery.indexOf(expectedVariant) === -1) return false;
+      }
     }
     return true;
   }
@@ -741,8 +571,10 @@
       var c = document.createElement("article");
       c.className = "shop-card";
       var ic = document.createElement("div");
-      ic.className = "shop-card-ic";
-      ic.textContent = CATICON[p.cat] || "🔧";
+      ic.className = "shop-card-dba-art shop-card-dba-" + (CATICON[p.cat] || "disc");
+      var mark = document.createElement("span");
+      mark.textContent = "DBA";
+      ic.appendChild(mark);
       var cat = document.createElement("span");
       cat.className = "shop-cat";
       cat.textContent = t.cats[p.cat];
@@ -750,8 +582,10 @@
       h.textContent = p.name;
       var fit = document.createElement("p");
       fit.className = "shop-fit";
-      fit.textContent =
-        t.fits + " " + (p.fits === "all" ? t.universal : p.fits.join(", "));
+      fit.textContent = t.fits + " " + p.fitment;
+      var spec = document.createElement("p");
+      spec.className = "shop-spec";
+      spec.textContent = p.spec;
       var foot = document.createElement("div");
       foot.className = "shop-card-foot";
       var art = document.createElement("span");
@@ -759,7 +593,7 @@
       art.textContent = t.artnr + " " + p.art;
       var pr = document.createElement("span");
       pr.className = "shop-price";
-      pr.innerHTML = "<em>" + t.from + "</em> " + p.price + " €";
+      pr.textContent = p.price ? p.price + " €" : t.price_pending;
       foot.appendChild(art);
       foot.appendChild(pr);
       var btn = document.createElement("button");
@@ -772,6 +606,7 @@
       c.appendChild(ic);
       c.appendChild(cat);
       c.appendChild(h);
+      c.appendChild(spec);
       c.appendChild(fit);
       c.appendChild(foot);
       c.appendChild(btn);
@@ -814,6 +649,68 @@
   }
 
   /* ---------- "In Arbeit"-Säit ---------- */
+  /* Texte fir den internen DBA-Shop-Prototyp. */
+  Object.assign(T.lb, {
+    eyebrow: "DBA Shop · Virschau",
+    title: "DBA Bremsen-Shop",
+    sub: "Sicht no DBA-Artikelnummer oder test de Gefierfilter. De Katalog ass nach net ëffentlech a gëtt mat der offizieller Händlerlëscht komplettéiert.",
+    cats: { all: "All", disc: "Bremsscheiwen", pad: "Bremsbeläg", kit: "Bremsen-Kits" },
+    fits: "Gepréiften Test-Zouuerdnung:",
+    artnr: "DBA-Nr.",
+    from: "",
+    price_pending: "Präis kënnt no",
+    add: "Fir Ufro virmerken",
+    added: "„{n}“ fir d'Ufro virgemierkt",
+    note_title: "Äert Gefier oder Deel feelt nach?",
+    note_text: "An dëser Opbau-Virschau ass eng geprüft Beispillzouuerdnung aktiv. Mat der offizieller DBA-Lëscht komme weider Gefierer, Präisser a Disponibilitéiten dobäi.",
+    note_cta: "DBA-Deel ufroen"
+  });
+  Object.assign(T.de, {
+    eyebrow: "DBA Shop · Vorschau",
+    title: "DBA Bremsen-Shop",
+    sub: "Suchen Sie nach einer DBA-Artikelnummer oder testen Sie den Fahrzeugfilter. Der Katalog ist noch nicht öffentlich und wird mit der offiziellen Händlerliste vervollständigt.",
+    cats: { all: "Alle", disc: "Bremsscheiben", pad: "Bremsbeläge", kit: "Bremsen-Kits" },
+    fits: "Geprüfte Testzuordnung:",
+    artnr: "DBA-Nr.",
+    from: "",
+    price_pending: "Preis folgt",
+    add: "Für Anfrage vormerken",
+    added: "„{n}“ für die Anfrage vorgemerkt",
+    note_title: "Ihr Fahrzeug oder Teil fehlt noch?",
+    note_text: "In dieser Aufbau-Vorschau ist zunächst eine geprüfte Beispielzuordnung aktiv. Mit der offiziellen DBA-Liste ergänzen wir weitere Fahrzeuge, Preise und Verfügbarkeiten.",
+    note_cta: "DBA-Teil anfragen"
+  });
+  Object.assign(T.fr, {
+    eyebrow: "Boutique DBA · Aperçu",
+    title: "Boutique de freins DBA",
+    sub: "Recherchez une référence DBA ou testez le filtre véhicule. Le catalogue n'est pas encore public et sera complété avec la liste officielle du revendeur.",
+    cats: { all: "Tous", disc: "Disques", pad: "Plaquettes", kit: "Kits de freinage" },
+    fits: "Affectation test vérifiée :",
+    artnr: "Réf. DBA",
+    from: "",
+    price_pending: "Prix à venir",
+    add: "Ajouter à la demande",
+    added: "« {n} » ajouté à la demande",
+    note_title: "Votre véhicule ou votre pièce manque encore ?",
+    note_text: "Cet aperçu contient d'abord une affectation d'exemple vérifiée. La liste officielle DBA ajoutera les autres véhicules, prix et disponibilités.",
+    note_cta: "Demander une pièce DBA"
+  });
+  Object.assign(T.en, {
+    eyebrow: "DBA shop · Preview",
+    title: "DBA brake shop",
+    sub: "Search by DBA part number or test the vehicle filter. The catalogue is not public yet and will be completed with the official dealer list.",
+    cats: { all: "All", disc: "Brake discs", pad: "Brake pads", kit: "Brake kits" },
+    fits: "Verified test fitment:",
+    artnr: "DBA No.",
+    from: "",
+    price_pending: "Price coming soon",
+    add: "Add to enquiry",
+    added: "“{n}” added to the enquiry",
+    note_title: "Vehicle or part not listed yet?",
+    note_text: "This build preview starts with one verified example fitment. The official DBA list will add further vehicles, prices and availability.",
+    note_cta: "Request a DBA part"
+  });
+
   var SOON = {
     lb: {
       eyebrow: "DBA Bremsen",
