@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=26" />
+    <link rel="stylesheet" href="styles.css?v=28" />
     <script src="shop-gate.js?v=1"></script>
   </head>
   <body class="shop-page">
@@ -128,24 +128,84 @@
 
     <main id="main">
       <!-- „In Arbeit"-Säit (oeffentlech) -->
-      <section id="shop-soon" aria-label="Shop in Arbeit">
+      <section id="shop-soon" class="dba-partner-shop" aria-label="DBA Bremsen">
         <div class="soon-bg" aria-hidden="true"></div>
-        <div class="container soon-inner">
-          <div class="soon-ic">🔧</div>
-          <p class="eyebrow light" id="soon-eyebrow">Online-Shop</p>
-          <h1 id="soon-title">Eise Shop ass an der Aarbecht</h1>
-          <p id="soon-text">
-            Mir sinn amgaang, eise Autodeeler-Shop opzebauen. Kuckt geschwënn
-            erëm laanscht – oder kontaktéiert eis direkt fir Deeler a Präisser.
-          </p>
-          <div class="soon-actions">
-            <a class="btn btn-primary" href="index.html#kontakt" id="soon-cta"
-              >Deel ufroen</a
-            >
-            <a class="btn btn-ghost" href="index.html#top" id="soon-back"
-              >Zréck op d’Startsäit</a
-            >
+        <div class="container dba-partner-inner">
+          <div class="dba-brand-row">
+            <span class="dba-wordmark" aria-label="DBA">DBA</span>
+            <span class="dba-partner-label" id="dba-partner-label">Bremsen-Partnerprogramm</span>
           </div>
+
+          <div class="dba-partner-head">
+            <div>
+              <p class="eyebrow light" id="soon-eyebrow">DBA Bremsen</p>
+              <h1 id="soon-title">Performance-Bremsen passend zu Ärem Gefier</h1>
+              <p id="soon-text">
+                Mir bidden DBA-Bremsscheiwen, Bremsbeläg, Bremssättel a komplett Kits un. D'Passgenauegkeet gëtt virun all Bestellung iwwer den offiziellen DBA-Fahrzeugkatalog kontrolléiert.
+              </p>
+            </div>
+            <div class="dba-proof" aria-label="Virdeeler">
+              <span id="dba-proof-1">✓ Offiziell DBA-Artikelnummeren</span>
+              <span id="dba-proof-2">✓ Fahrzeugbezunn Iwwerpréiwung</span>
+              <span id="dba-proof-3">✓ Berodung duerch eis Garage</span>
+            </div>
+          </div>
+
+          <div class="dba-range" aria-label="DBA Produktgruppen">
+            <a class="dba-range-card dba-disc" href="https://www.dbabrakes.de/products/brake-discs" target="_blank" rel="noopener">
+              <span class="dba-product-art" aria-hidden="true"><i></i></span>
+              <span class="dba-range-copy">
+                <small>DBA</small>
+                <strong id="dba-discs-title">Bremsscheiwen</strong>
+                <span id="dba-discs-text">Street Series · 4000 Series · 5000 Series</span>
+              </span>
+              <b aria-hidden="true">↗</b>
+            </a>
+            <a class="dba-range-card dba-pad" href="https://www.dbabrakes.de/products/brake-pads" target="_blank" rel="noopener">
+              <span class="dba-product-art" aria-hidden="true"><i></i></span>
+              <span class="dba-range-copy">
+                <small>DBA</small>
+                <strong id="dba-pads-title">Bremsbeläg</strong>
+                <span id="dba-pads-text">Street · Street Performance · Xtreme · Race</span>
+              </span>
+              <b aria-hidden="true">↗</b>
+            </a>
+            <a class="dba-range-card dba-caliper" href="https://www.dbabrakes.de/products/brake-calipers" target="_blank" rel="noopener">
+              <span class="dba-product-art" aria-hidden="true"><i></i></span>
+              <span class="dba-range-copy">
+                <small>DBA</small>
+                <strong id="dba-calipers-title">Bremssättel</strong>
+                <span id="dba-calipers-text">Street Series Performance-Bremssättel</span>
+              </span>
+              <b aria-hidden="true">↗</b>
+            </a>
+            <a class="dba-range-card dba-kit" href="https://www.dbabrakes.de/products/brake-kits" target="_blank" rel="noopener">
+              <span class="dba-product-art" aria-hidden="true"><i></i></span>
+              <span class="dba-range-copy">
+                <small>DBA</small>
+                <strong id="dba-kits-title">Bremsen-Kits</strong>
+                <span id="dba-kits-text">Scheiwen a Beläg als passend Komplettset</span>
+              </span>
+              <b aria-hidden="true">↗</b>
+            </a>
+          </div>
+
+          <div class="dba-finder">
+            <div class="dba-finder-copy">
+              <span class="dba-step">01</span>
+              <div>
+                <h2 id="dba-finder-title">Dat richtegt Deel fir Äert Gefier fannen</h2>
+                <p id="dba-finder-text">Wielt am offiziellen DBA-Katalog Mark, Baujoer, Modell a Motorvariant. Schéckt eis duerno d'DBA-Artikelnummer – mir kontrolléieren d'Passgenauegkeet a maachen Iech eng Offer.</p>
+              </div>
+            </div>
+            <div class="dba-finder-actions">
+              <a class="btn dba-catalogue-btn" href="https://www.dbabrakes.de/catalogue" target="_blank" rel="noopener" id="soon-cta">Gefier am DBA-Katalog sichen</a>
+              <a class="btn btn-ghost" href="index.html#kontakt" id="dba-request">DBA-Deel bei eis ufroen</a>
+              <a class="dba-back" href="index.html#top" id="soon-back">Zréck op d’Startsäit</a>
+            </div>
+          </div>
+
+          <p class="dba-note" id="dba-note">Wichteg: D'Produktauswiel gëtt virun der Bestellung vun eis kontrolléiert. Präisser an Disponibilitéit op der DBA-Websäit kënnen ofwäichen.</p>
         </div>
       </section>
 
@@ -369,7 +429,7 @@
     >
 
     <script src="script.js?v=16"></script>
-    <script src="shop.js?v=9"></script>
+    <script src="shop.js?v=10"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"
