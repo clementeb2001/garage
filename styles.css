@@ -3837,3 +3837,326 @@ html.rental-dev .rental-dev-badge a {
   color: #fff;
   text-decoration: underline;
 }
+
+
+/* ============================================================
+   DBA Partner-Shop – öffentliche Bremsenübersicht
+   ============================================================ */
+#shop-soon.dba-partner-shop {
+  min-height: auto;
+  align-items: stretch;
+  background: #07090c;
+}
+#shop-soon.dba-partner-shop .soon-bg {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(220, 0, 20, 0.28), transparent 35%),
+    radial-gradient(circle at 8% 88%, rgba(198, 93, 46, 0.16), transparent 38%),
+    linear-gradient(145deg, #11151b 0%, #06080b 58%, #120507 100%);
+}
+.dba-partner-inner {
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(48px, 7vw, 88px);
+}
+.dba-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+.dba-wordmark {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 3px 14px 1px;
+  background: #d90018;
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 1.7rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  transform: skew(-8deg);
+}
+.dba-partner-label {
+  color: #aeb8c4;
+  font-family: var(--font-head);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.dba-partner-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 0.65fr);
+  gap: clamp(28px, 5vw, 70px);
+  align-items: end;
+  margin-bottom: 38px;
+}
+#shop-soon.dba-partner-shop .eyebrow.light {
+  color: #ff6674;
+}
+#shop-soon.dba-partner-shop h1 {
+  max-width: 780px;
+  margin: 5px 0 15px;
+  color: #fff;
+  font-size: clamp(2.15rem, 5vw, 4.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+#shop-soon.dba-partner-shop #soon-text {
+  max-width: 760px;
+  margin: 0;
+  color: #c4ccd5;
+  font-size: clamp(1rem, 1.7vw, 1.14rem);
+  line-height: 1.65;
+}
+.dba-proof {
+  display: grid;
+  gap: 9px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255,255,255,0.11);
+  border-left: 3px solid #d90018;
+  background: rgba(255,255,255,0.045);
+  color: #dce2e8;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.dba-proof span::first-letter {
+  color: #ff4b5e;
+}
+.dba-range {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 30px;
+}
+.dba-range-card {
+  position: relative;
+  min-width: 0;
+  min-height: 290px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  padding: 22px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)),
+    #11161d;
+  color: #fff;
+  box-shadow: 0 20px 48px rgba(0,0,0,0.28);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.dba-range-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 4px;
+  background: linear-gradient(90deg, #d90018, #ff5b35);
+}
+.dba-range-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(217,0,24,.6);
+  box-shadow: 0 26px 58px rgba(0,0,0,.42);
+}
+.dba-range-card > b {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  color: #7f8b97;
+  font-size: 1rem;
+}
+.dba-product-art {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  width: 128px;
+  height: 128px;
+  transform: translateX(-50%);
+}
+.dba-product-art i {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+.dba-disc .dba-product-art i {
+  border: 15px solid #aeb5bd;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #080b0f 0 15%, transparent 16%),
+    repeating-conic-gradient(from 4deg, #333a42 0 5deg, #afb5bb 6deg 10deg);
+  box-shadow: inset 0 0 0 9px #515861, 0 8px 25px rgba(0,0,0,.5);
+}
+.dba-disc .dba-product-art i::after {
+  content: "";
+  position: absolute;
+  inset: 28px;
+  border: 7px solid #1d232a;
+  border-radius: 50%;
+}
+.dba-pad .dba-product-art i {
+  inset: 22px 10px 18px;
+  border: 7px solid #5e6872;
+  border-radius: 50% 50% 18% 18%;
+  background: linear-gradient(135deg, #d90018, #7d0010);
+  transform: rotate(-8deg);
+  box-shadow: 10px 12px 0 #242a31, 0 16px 28px rgba(0,0,0,.5);
+}
+.dba-caliper .dba-product-art i {
+  inset: 24px 4px 26px;
+  border-radius: 42% 58% 48% 36%;
+  background: linear-gradient(145deg, #ef233c, #8d0012 70%);
+  transform: rotate(-9deg);
+  box-shadow: inset -12px -14px 0 rgba(0,0,0,.18), 0 18px 28px rgba(0,0,0,.48);
+}
+.dba-caliper .dba-product-art i::after {
+  content: "DBA";
+  position: absolute;
+  left: 34px;
+  top: 31px;
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-style: italic;
+  font-weight: 900;
+}
+.dba-kit .dba-product-art i {
+  border: 13px solid #aeb5bd;
+  border-radius: 50%;
+  background: radial-gradient(circle, #0b0e12 0 22%, #3f464e 23% 38%, transparent 39%);
+}
+.dba-kit .dba-product-art i::after {
+  content: "";
+  position: absolute;
+  right: -5px;
+  bottom: 4px;
+  width: 64px;
+  height: 78px;
+  border-radius: 38% 55% 42% 35%;
+  background: linear-gradient(145deg, #ef233c, #850010);
+  box-shadow: 0 10px 20px rgba(0,0,0,.4);
+}
+.dba-range-copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 5px;
+}
+.dba-range-copy small {
+  color: #ff5365;
+  font-family: var(--font-head);
+  font-weight: 900;
+  letter-spacing: .16em;
+}
+.dba-range-copy strong {
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: 1.16rem;
+  line-height: 1.2;
+}
+.dba-range-copy > span {
+  min-height: 40px;
+  color: #aeb8c4;
+  font-size: .82rem;
+  line-height: 1.45;
+}
+.dba-finder {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(250px, .65fr);
+  gap: 30px;
+  align-items: center;
+  padding: clamp(24px, 4vw, 38px);
+  border: 1px solid rgba(255,255,255,.12);
+  border-top: 4px solid #d90018;
+  border-radius: 17px;
+  background:
+    linear-gradient(110deg, rgba(217,0,24,.10), transparent 42%),
+    rgba(255,255,255,.05);
+}
+.dba-finder-copy {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+.dba-step {
+  color: #ef233c;
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1;
+}
+.dba-finder h2 {
+  margin: 0 0 9px;
+  color: #fff;
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+}
+.dba-finder p {
+  margin: 0;
+  color: #b9c2cc;
+  line-height: 1.6;
+}
+.dba-finder-actions {
+  display: grid;
+  gap: 10px;
+}
+.dba-catalogue-btn {
+  justify-content: center;
+  background: #d90018;
+  color: #fff;
+  box-shadow: 0 10px 28px rgba(217,0,24,.3);
+}
+.dba-catalogue-btn:hover {
+  background: #f01731;
+  color: #fff;
+}
+.dba-finder-actions .btn-ghost {
+  justify-content: center;
+  color: #fff;
+  border-color: rgba(255,255,255,.26);
+}
+.dba-back {
+  justify-self: center;
+  color: #9ba7b3;
+  font-size: .83rem;
+  text-decoration: underline;
+}
+.dba-note {
+  max-width: 900px;
+  margin: 18px auto 0;
+  color: #83909d;
+  font-size: .78rem;
+  line-height: 1.5;
+  text-align: center;
+}
+@media (max-width: 980px) {
+  .dba-partner-head,
+  .dba-finder {
+    grid-template-columns: 1fr;
+  }
+  .dba-range {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .dba-brand-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .dba-range {
+    grid-template-columns: 1fr;
+  }
+  .dba-range-card {
+    min-height: 260px;
+  }
+  .dba-finder-copy {
+    display: grid;
+  }
+  .dba-finder-actions .btn {
+    width: 100%;
+    padding-inline: 14px;
+    white-space: normal;
+    text-align: center;
+  }
+}
