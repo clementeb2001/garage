@@ -3433,12 +3433,17 @@ html.shop-dev .shop-dev-badge a {
   cursor: not-allowed;
 }
 
+:root {
+  --rental-accent: #c65d2e;
+  --rental-accent-light: #ffaa68;
+}
+
 /* ============================================================
    Location / Verlee (location.html)
    ============================================================ */
 /* Nav-Knäppchen + Startsäit-Knäppchen (blo Akzent, ënnerscheet sech vum Shop) */
 .main-nav .nav-rental {
-  background: var(--accent-3, #2f6df6);
+  background: var(--rental-accent, #c65d2e);
   color: #fff;
   font-weight: 800;
   padding: 10px 18px;
@@ -3451,10 +3456,10 @@ html.shop-dev .shop-dev-badge a {
   color: #fff;
 }
 .btn-rental {
-  background: var(--accent-3, #2f6df6);
+  background: var(--rental-accent, #c65d2e);
   color: #fff;
   font-weight: 800;
-  box-shadow: 0 8px 20px rgba(47, 109, 246, 0.32);
+  box-shadow: 0 8px 20px rgba(198, 93, 46, 0.32);
 }
 .btn-rental:hover {
   filter: brightness(1.05);
@@ -3475,7 +3480,7 @@ html.shop-dev .shop-dev-badge a {
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(circle at 88% 6%, rgba(47, 109, 246, 0.32), transparent 46%),
+    radial-gradient(circle at 88% 6%, rgba(198, 93, 46, 0.32), transparent 46%),
     linear-gradient(
       96deg,
       rgba(7, 13, 21, 0.97) 0%,
@@ -3492,7 +3497,7 @@ html.shop-dev .shop-dev-badge a {
   z-index: 1;
 }
 .rental-hero .eyebrow.light {
-  color: var(--accent-3, #2f6df6);
+  color: var(--rental-accent-light, #ffaa68);
 }
 .rental-hero h1 {
   color: #fff;
@@ -3524,19 +3529,19 @@ html.shop-dev .shop-dev-badge a {
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 .rental-chip:hover {
-  border-color: rgba(47, 109, 246, 0.6);
+  border-color: rgba(198, 93, 46, 0.6);
   color: #fff;
 }
 .rental-chip.active {
-  background: var(--accent-3, #2f6df6);
-  border-color: var(--accent-3, #2f6df6);
+  background: var(--rental-accent, #c65d2e);
+  border-color: var(--rental-accent, #c65d2e);
   color: #fff;
 }
 
 /* Katalog */
 .rental-catalog {
   background: var(--surface-dark, #101923);
-  background-image: radial-gradient(circle at 10% 100%, rgba(47, 109, 246, 0.12), transparent 42%);
+  background-image: radial-gradient(circle at 10% 100%, rgba(198, 93, 46, 0.12), transparent 42%);
   padding: 46px 0 40px;
 }
 .rental-grid {
@@ -3558,8 +3563,8 @@ html.shop-dev .shop-dev-badge a {
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
 }
 .rental-card.is-selected {
-  border-color: var(--accent-3, #2f6df6);
-  box-shadow: 0 0 0 1px var(--accent-3, #2f6df6);
+  border-color: var(--rental-accent, #c65d2e);
+  box-shadow: 0 0 0 1px var(--rental-accent, #c65d2e);
 }
 .rental-media {
   position: relative;
@@ -3567,7 +3572,7 @@ html.shop-dev .shop-dev-badge a {
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at 70% 20%, rgba(47, 109, 246, 0.22), transparent 60%),
+    radial-gradient(circle at 70% 20%, rgba(198, 93, 46, 0.22), transparent 60%),
     linear-gradient(160deg, #16243a, #0d1826);
 }
 .rental-ribbon {
@@ -3575,8 +3580,8 @@ html.shop-dev .shop-dev-badge a {
   top: 12px;
   left: 12px;
   background: rgba(8, 15, 24, 0.72);
-  color: #cfe0ff;
-  border: 1px solid rgba(47, 109, 246, 0.5);
+  color: #ffe2cc;
+  border: 1px solid rgba(198, 93, 46, 0.5);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -3585,7 +3590,7 @@ html.shop-dev .shop-dev-badge a {
   border-radius: 999px;
 }
 .rental-ic {
-  color: #9fc0ff;
+  color: #ffaa68;
   width: 58%;
   max-width: 150px;
 }
@@ -3628,7 +3633,7 @@ html.shop-dev .shop-dev-badge a {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--accent-3, #2f6df6);
+  background: var(--rental-accent, #c65d2e);
 }
 .rental-cardfoot {
   display: flex;
@@ -3643,9 +3648,9 @@ html.shop-dev .shop-dev-badge a {
   font-weight: 600;
 }
 .rental-select {
-  background: rgba(47, 109, 246, 0.16);
-  color: #cfe0ff;
-  border: 1px solid rgba(47, 109, 246, 0.5);
+  background: rgba(198, 93, 46, 0.16);
+  color: #ffe2cc;
+  border: 1px solid rgba(198, 93, 46, 0.5);
   font-weight: 700;
   padding: 9px 16px;
   border-radius: 999px;
@@ -3653,12 +3658,12 @@ html.shop-dev .shop-dev-badge a {
   white-space: nowrap;
 }
 .rental-select:hover {
-  background: rgba(47, 109, 246, 0.28);
+  background: rgba(198, 93, 46, 0.28);
   color: #fff;
 }
 .is-selected .rental-select {
-  background: var(--accent-3, #2f6df6);
-  border-color: var(--accent-3, #2f6df6);
+  background: var(--rental-accent, #c65d2e);
+  border-color: var(--rental-accent, #c65d2e);
   color: #fff;
 }
 
@@ -3707,7 +3712,7 @@ html.shop-dev .shop-dev-badge a {
   padding: 10px 12px;
 }
 .rental-sel-ic {
-  color: #9fc0ff;
+  color: #ffaa68;
   width: 42px;
   flex: none;
 }
@@ -3750,7 +3755,7 @@ html.shop-dev .shop-dev-badge a {
 }
 .rental-form input:focus,
 .rental-form textarea:focus {
-  border-color: var(--accent-3, #2f6df6);
+  border-color: var(--rental-accent, #c65d2e);
   outline: none;
 }
 .rental-note {
@@ -3796,12 +3801,12 @@ html:not(.rental-dev) .rental-reserve {
 }
 #rental-soon .soon-bg {
   background:
-    radial-gradient(circle at 82% 8%, rgba(47, 109, 246, 0.32), transparent 46%),
-    radial-gradient(circle at 8% 100%, rgba(47, 109, 246, 0.16), transparent 44%),
+    radial-gradient(circle at 82% 8%, rgba(198, 93, 46, 0.32), transparent 46%),
+    radial-gradient(circle at 8% 100%, rgba(255, 170, 104, 0.16), transparent 44%),
     linear-gradient(160deg, #0c1622, #060c14);
 }
 #rental-soon .eyebrow.light {
-  color: var(--accent-3, #2f6df6);
+  color: var(--rental-accent-light, #ffaa68);
 }
 #rental-soon h1 {
   color: #fff;
@@ -3822,7 +3827,7 @@ html:not(.rental-dev) .rental-reserve {
 html.rental-dev .rental-dev-badge {
   display: block;
   text-align: center;
-  background: var(--accent-3, #2f6df6);
+  background: var(--rental-accent, #c65d2e);
   color: #fff;
   font-weight: 800;
   font-size: 0.9rem;
