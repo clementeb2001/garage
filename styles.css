@@ -4340,3 +4340,20 @@ html.shop-dev .shop-add:hover {
     grid-template-columns: 1fr;
   }
 }
+
+.shop-card-dba-caliper::before {
+  width: 96px;
+  height: 72px;
+  border-radius: 42% 58% 48% 36%;
+  background: linear-gradient(145deg, #ef233c, #8d0012 70%);
+  transform: rotate(-9deg);
+  box-shadow: inset -12px -14px 0 rgba(0,0,0,.18), 0 14px 25px rgba(0,0,0,.45);
+}
+.shop-card-dba-caliper::after {
+  content: "DBA";
+  color: #fff;
+  font-family: var(--font-head);
+  font-size: .92rem;
+  font-style: italic;
+  font-weight: 900;
+}
