@@ -10,6 +10,8 @@
       content="Location beim Autoservice Bettenduerf – Ahänger a Fahrzeuger verleeën. Wielt Äert Material aus a reservéiert et direkt online."
     />
     <meta name="theme-color" content="#0d1b2a" />
+    <!-- Location noch "in Arbeit": vorerst nicht indexieren -->
+    <meta name="robots" content="noindex, follow" />
     <title>Location – Autoservice Bettenduerf</title>
 
     <meta property="og:title" content="Autoservice Bettenduerf – Location" />
@@ -28,7 +30,8 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=25" />
+    <link rel="stylesheet" href="styles.css?v=26" />
+    <script src="location-gate.js?v=1"></script>
   </head>
   <body class="rental-page">
     <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
@@ -81,7 +84,31 @@
       </div>
     </header>
 
+    <!-- Dev-Modus-Hiweis (nëmme fir de Besëtzer sichtbar) -->
+    <div class="rental-dev-badge" id="rental-dev-badge">
+      🔧
+      <span id="rental-dev-badge-txt">Vorschau-Modus – Location öffentlich noch „in Arbeit"</span>
+      · <a href="location.html?dev=0">verstoppen</a>
+    </div>
+
     <main id="main">
+      <!-- „In Arbeit"-Säit (oeffentlech) -->
+      <section id="rental-soon" aria-label="Location in Arbeit">
+        <div class="soon-bg" aria-hidden="true"></div>
+        <div class="container soon-inner">
+          <div class="soon-ic">🔑</div>
+          <p class="eyebrow light" id="rsoon-eyebrow">Location · Verlee</p>
+          <h1 id="rsoon-title">Eise Verlee ass an der Aarbecht</h1>
+          <p id="rsoon-text">
+            Mir sinn amgaang, eise Verlee vun Ahänger a Fahrzeuger opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.
+          </p>
+          <div class="soon-actions">
+            <a class="btn btn-primary" href="index.html#kontakt" id="rsoon-cta">Ufro schécken</a>
+            <a class="btn btn-ghost" href="index.html#top" id="rsoon-back">Zréck op d’Startsäit</a>
+          </div>
+        </div>
+      </section>
+
       <!-- Hero -->
       <section class="rental-hero">
         <div class="rental-hero-bg" aria-hidden="true"></div>
@@ -215,8 +242,8 @@
 
     <a href="index.html#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
-    <script src="script.js?v=15"></script>
-    <script src="location.js?v=1"></script>
+    <script src="script.js?v=16"></script>
+    <script src="location.js?v=2"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->

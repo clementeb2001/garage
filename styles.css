@@ -3773,3 +3773,62 @@ html.shop-dev .shop-dev-badge a {
     padding: 9px 12px;
   }
 }
+
+/* ============================================================
+   Location-Sperre: oeffentlich "in Arbeit", Besëtzer-Vorschau via ?dev=1
+   ============================================================ */
+#rental-soon {
+  position: relative;
+  overflow: hidden;
+  background: var(--navy-950, #080f18);
+  color: #fff;
+  min-height: 72vh;
+  display: flex;
+  align-items: center;
+}
+html.rental-dev #rental-soon {
+  display: none;
+}
+html:not(.rental-dev) .rental-hero,
+html:not(.rental-dev) .rental-catalog,
+html:not(.rental-dev) .rental-reserve {
+  display: none !important;
+}
+#rental-soon .soon-bg {
+  background:
+    radial-gradient(circle at 82% 8%, rgba(47, 109, 246, 0.32), transparent 46%),
+    radial-gradient(circle at 8% 100%, rgba(47, 109, 246, 0.16), transparent 44%),
+    linear-gradient(160deg, #0c1622, #060c14);
+}
+#rental-soon .eyebrow.light {
+  color: var(--accent-3, #2f6df6);
+}
+#rental-soon h1 {
+  color: #fff;
+  font-size: clamp(1.9rem, 4.4vw, 2.9rem);
+  margin: 4px 0 14px;
+}
+#rental-soon p {
+  color: #c6d0dc;
+  font-size: 1.08rem;
+  margin: 0 auto 28px;
+  max-width: 540px;
+}
+
+/* Vorschau-Modus-Banner (nëmme fir de Besëtzer) */
+.rental-dev-badge {
+  display: none;
+}
+html.rental-dev .rental-dev-badge {
+  display: block;
+  text-align: center;
+  background: var(--accent-3, #2f6df6);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 9px 16px;
+}
+html.rental-dev .rental-dev-badge a {
+  color: #fff;
+  text-decoration: underline;
+}

@@ -103,7 +103,12 @@
       eyebrow: "Location · Verlee",
       title: "Material a Fahrzeuger verleeën",
       sub: "Wielt Ären Ahänger oder Äert Fahrzeug aus, gitt Äre Reservéierungszäitraum un – mir bestätegen Iech Är Ufro.",
-      nav: "Location",
+      nav: "Location · geschwënn",
+      soon_eyebrow: "Location · Verlee",
+      soon_title: "Eise Verlee ass an der Aarbecht",
+      soon_text: "Mir sinn amgaang, eise Verlee vun Ahänger a Fahrzeuger opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
+      soon_cta: "Ufro schécken", soon_back: "Zréck op d’Startsäit",
+      dev_badge: "Vorschau-Modus – Location öffentlech nach „an Arbecht“",
       cat_all: "Alles", cat_trailer: "Ahänger", cat_vehicle: "Fahrzeuger",
       cat_trailer_lbl: "Ahänger", cat_vehicle_lbl: "Fahrzeug",
       price: "Präis op Ufro",
@@ -126,7 +131,12 @@
       eyebrow: "Location · Verleih",
       title: "Material & Fahrzeuge mieten",
       sub: "Wählen Sie Ihren Anhänger oder Ihr Fahrzeug, geben Sie den Mietzeitraum an – wir bestätigen Ihre Anfrage.",
-      nav: "Verleih",
+      nav: "Verleih · bald",
+      soon_eyebrow: "Verleih",
+      soon_title: "Unser Verleih ist in Arbeit",
+      soon_text: "Wir bauen gerade unseren Verleih für Anhänger und Fahrzeuge auf. Schauen Sie bald wieder vorbei – oder kontaktieren Sie uns direkt.",
+      soon_cta: "Anfrage senden", soon_back: "Zurück zur Startseite",
+      dev_badge: "Vorschau-Modus – Verleih öffentlich noch „in Arbeit“",
       cat_all: "Alles", cat_trailer: "Anhänger", cat_vehicle: "Fahrzeuge",
       cat_trailer_lbl: "Anhänger", cat_vehicle_lbl: "Fahrzeug",
       price: "Preis auf Anfrage",
@@ -149,7 +159,12 @@
       eyebrow: "Location",
       title: "Louer du matériel & des véhicules",
       sub: "Choisissez votre remorque ou votre véhicule, indiquez la période de location – nous confirmons votre demande.",
-      nav: "Location",
+      nav: "Location · bientôt",
+      soon_eyebrow: "Location",
+      soon_title: "Notre location est en préparation",
+      soon_text: "Nous mettons en place notre location de remorques et de véhicules. Revenez bientôt – ou contactez-nous directement.",
+      soon_cta: "Envoyer une demande", soon_back: "Retour à l’accueil",
+      dev_badge: "Mode aperçu – location encore « en construction » côté public",
       cat_all: "Tout", cat_trailer: "Remorques", cat_vehicle: "Véhicules",
       cat_trailer_lbl: "Remorque", cat_vehicle_lbl: "Véhicule",
       price: "Prix sur demande",
@@ -172,7 +187,12 @@
       eyebrow: "Rental",
       title: "Rent equipment & vehicles",
       sub: "Pick your trailer or vehicle, enter your rental period – we confirm your request.",
-      nav: "Rental",
+      nav: "Rental · soon",
+      soon_eyebrow: "Rental",
+      soon_title: "Our rental service is in the works",
+      soon_text: "We're setting up our trailer and vehicle rental. Check back soon – or contact us directly.",
+      soon_cta: "Send a request", soon_back: "Back to home",
+      dev_badge: "Preview mode – rental still “under construction” for the public",
       cat_all: "All", cat_trailer: "Trailers", cat_vehicle: "Vehicles",
       cat_trailer_lbl: "Trailer", cat_vehicle_lbl: "Vehicle",
       price: "Price on request",
@@ -284,6 +304,12 @@
 
   function applyStatics() {
     var m = t();
+    setTxt("rsoon-eyebrow", m.soon_eyebrow);
+    setTxt("rsoon-title", m.soon_title);
+    setTxt("rsoon-text", m.soon_text);
+    setTxt("rsoon-cta", m.soon_cta);
+    setTxt("rsoon-back", m.soon_back);
+    setTxt("rental-dev-badge-txt", m.dev_badge);
     setTxt("rental-eyebrow", m.eyebrow);
     setTxt("rental-title", m.title);
     setTxt("rental-sub", m.sub);
