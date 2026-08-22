@@ -419,6 +419,45 @@
     for (var y = new Date().getFullYear() + 1; y >= 1950; y--) arr.push(String(y));
     return arr;
   }
+  var ENGINE_DATA = {
+    "Audi|A3": [
+      "1.0 Turbo 115 BHP (2016–2020)",
+      "1.2 Turbo 105 BHP (2013–2020)",
+      "1.4 Turbo 122 BHP (2012–2020)",
+      "1.4 Turbo 140 BHP (2012–2020)",
+      "1.4 Turbo + Electric 204 BHP (2014–2020)",
+      "1.5 Turbo 150 BHP (2018–2020)",
+      "1.6 TD 110 BHP (2012–2020)",
+      "1.8 Turbo 180 BHP (2012–2020)",
+      "2.0 TD 110 BHP (2013–2020)",
+      "2.0 TD 143 BHP (2012–2020)",
+      "2.0 TD 150 BHP (2012–2020)",
+      "2.0 TD 184 BHP (2013–2020)",
+      "2.0 Turbo 190 BHP (2016–2020)"
+    ]
+  };
+  function engineOptions() {
+    var brand = $("veh-brand") ? $("veh-brand").value : "";
+    var model = $("veh-model") ? $("veh-model").value : "";
+    var year = parseInt($("veh-year") ? $("veh-year").value : "", 10);
+    var key = brand + "|" + (model.toLowerCase().indexOf("a3") === 0 ? "A3" : model);
+    var options = ENGINE_DATA[key] || [];
+    if (!year) return options;
+    return options.filter(function (label) {
+      var years = label.match(/\((\d{4})[–-](\d{4})\)/);
+      return !years || (year >= parseInt(years[1], 10) && year <= parseInt(years[2], 10));
+    });
+  }
+  function updateEngineAvailability() {
+    var engine = $("veh-variant");
+    if (!engine) return;
+    var options = engineOptions();
+    var ready = !!($("veh-brand").value && $("veh-model").value && $("veh-year").value);
+    engine.disabled = !ready || !options.length;
+    if (engine.disabled || options.indexOf(engine.value) === -1) engine.value = "";
+    engine.placeholder = engine.disabled ? tr().engine_unavailable : tr().ph_variant;
+    if (combos["veh-variant"]) combos["veh-variant"].render();
+  }
   var combos = {};
   function onBrandChange(val) {
     var m = $("veh-model");
@@ -427,6 +466,7 @@
     if (!val) m.value = "";
     else if (BRANDS[val] && BRANDS[val].indexOf(m.value) === -1) m.value = "";
     if (combos["veh-model"]) combos["veh-model"].render();
+    updateEngineAvailability();
   }
   function makeCombo(inputId, listId, getOptions, onChoose) {
     var input = $(inputId),
@@ -532,8 +572,10 @@
   }
   function initCombos() {
     makeCombo("veh-brand", "list-brand", brandKeys, onBrandChange);
-    makeCombo("veh-model", "list-model", modelOptions, null);
-    makeCombo("veh-year", "list-year", yearList, null);
+    makeCombo("veh-model", "list-model", modelOptions, updateEngineAvailability);
+    makeCombo("veh-year", "list-year", yearList, updateEngineAvailability);
+    makeCombo("veh-variant", "list-variant", engineOptions, null);
+    updateEngineAvailability();
   }
 
   /* ---------- Kategorie-Chips ---------- */
@@ -677,6 +719,8 @@
   Object.assign(T.lb, {
     eyebrow: "DBA Shop · Virschau",
     title: "DBA Bremsen-Shop",
+    ph_variant: "Motoriséierung wielen",
+    engine_unavailable: "Motoriséierungen nach net importéiert",
     sub: "Sicht no DBA-Artikelnummer oder test de Gefierfilter. De Katalog ass nach net ëffentlech a gëtt mat der offizieller Händlerlëscht komplettéiert.",
     cats: { all: "All", disc: "Bremsscheiwen", pad: "Bremsbeläg", caliper: "Bremssättel", kit: "Bremsen-Kits" },
     fits: "Gepréiften Test-Zouuerdnung:",
@@ -693,6 +737,8 @@
   Object.assign(T.de, {
     eyebrow: "DBA Shop · Vorschau",
     title: "DBA Bremsen-Shop",
+    ph_variant: "Motorisierung wählen",
+    engine_unavailable: "Motorisierungen noch nicht importiert",
     sub: "Suchen Sie nach einer DBA-Artikelnummer oder testen Sie den Fahrzeugfilter. Der Katalog ist noch nicht öffentlich und wird mit der offiziellen Händlerliste vervollständigt.",
     cats: { all: "Alle", disc: "Bremsscheiben", pad: "Bremsbeläge", caliper: "Bremssättel", kit: "Bremsen-Kits" },
     fits: "Geprüfte Testzuordnung:",
@@ -709,6 +755,8 @@
   Object.assign(T.fr, {
     eyebrow: "Boutique DBA · Aperçu",
     title: "Boutique de freins DBA",
+    ph_variant: "Choisir la motorisation",
+    engine_unavailable: "Motorisations pas encore importées",
     sub: "Recherchez une référence DBA ou testez le filtre véhicule. Le catalogue n'est pas encore public et sera complété avec la liste officielle du revendeur.",
     cats: { all: "Tous", disc: "Disques", pad: "Plaquettes", caliper: "Étriers", kit: "Kits de freinage" },
     fits: "Affectation test vérifiée :",
@@ -725,6 +773,8 @@
   Object.assign(T.en, {
     eyebrow: "DBA shop · Preview",
     title: "DBA brake shop",
+    ph_variant: "Select engine",
+    engine_unavailable: "Engine options not imported yet",
     sub: "Search by DBA part number or test the vehicle filter. The catalogue is not public yet and will be completed with the official dealer list.",
     cats: { all: "All", disc: "Brake discs", pad: "Brake pads", caliper: "Brake calipers", kit: "Brake kits" },
     fits: "Verified test fitment:",
@@ -858,7 +908,7 @@
     var q = $("q-text");
     if (q) q.placeholder = t.ph_text;
     var vv = $("veh-variant");
-    if (vv) vv.placeholder = t.ph_variant;
+    if (vv) vv.placeholder = vv.disabled ? t.engine_unavailable : t.ph_variant;
     setTxt("shop-note-title", t.note_title);
     setTxt("shop-note-text", t.note_text);
     setTxt("shop-note-cta", t.note_cta);
@@ -953,6 +1003,7 @@
       select.addEventListener("change", function () {
         setTimeout(function () {
           applyStatics();
+          updateEngineAvailability();
           render();
         }, 0);
       });
