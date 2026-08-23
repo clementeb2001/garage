@@ -40,7 +40,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/service.html?s=wartung" />
-    <link rel="stylesheet" href="styles.css?v=26" />
+    <link rel="stylesheet" href="styles.css?v=31" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -109,30 +109,11 @@
           />
         </a>
 
-        <nav class="main-nav" id="main-nav" aria-label="Navigatioun">
-          <a href="index.html#leistungen" data-i18n="nav_services">Servicer</a>
-          <a href="index.html#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
-          <a href="index.html#oeffnungszeiten" data-i18n="nav_hours"
-            >Ëffnungszäiten</a
-          >
-          <a href="index.html#faq">FAQ</a>
-          <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta"
-            >Rendez-vous ufroen</a
-          >
-          <a href="shop.html" class="nav-shop"
-            ><span aria-hidden="true">🛒</span>
-            <span data-i18n="shop_soon_nav">Shop · geschwënn</span></a
-          >
-
-          <div class="lang-switch">
-            <select class="lang-select" aria-label="Sprooch / Sprache / Langue / Language">
-              <option value="lb">🇱🇺 LB</option>
-              <option value="de">🇩🇪 DE</option>
-              <option value="fr">🇫🇷 FR</option>
-              <option value="en">🇬🇧 EN</option>
-            </select>
-          </div>
-        </nav>
+        <div class="header-actions" aria-label="Schnellaktiounen">
+          <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta">Rendez-vous ufroen</a>
+          <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · geschwënn</span></a>
+          <a href="location.html" class="nav-rental"><span aria-hidden="true">🔑</span> <span data-i18n="rental_nav">Location</span></a>
+        </div>
 
         <button
           class="nav-toggle"
@@ -143,6 +124,29 @@
         >
           <span></span><span></span><span></span>
         </button>
+
+        <nav class="main-nav" id="main-nav" aria-label="Navigatioun">
+          <a href="index.html#leistungen" data-i18n="nav_services">Servicer</a>
+          <a href="index.html#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
+          <a href="index.html#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
+          <a href="index.html#faq">FAQ</a>
+          <div class="menu-mobile-actions" aria-label="Schnellaktiounen">
+            <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta">Rendez-vous ufroen</a>
+            <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · geschwënn</span></a>
+            <a href="location.html" class="nav-rental"><span aria-hidden="true">🔑</span> <span data-i18n="rental_nav">Location</span></a>
+          </div>
+          <div class="menu-language">
+            <span class="menu-language-label">🌐 Sprooch</span>
+            <div class="lang-switch">
+              <select class="lang-select" aria-label="Sprooch / Sprache / Langue / Language">
+                <option value="lb">🇱🇺 Lëtzebuergesch</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
+            </div>
+          </div>
+        </nav>
       </div>
     </header>
 
@@ -261,7 +265,7 @@
       >↑</a
     >
 
-    <script src="script.js?v=16"></script>
+    <script src="script.js?v=17"></script>
     <script src="details.js?v=7"></script>
     <!-- Cloudflare Web Analytics -->
     <script
