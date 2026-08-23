@@ -733,6 +733,18 @@
         toggle.focus();
       }
     });
+    document.addEventListener("click", function (event) {
+      if (
+        nav.classList.contains("open") &&
+        !nav.contains(event.target) &&
+        !toggle.contains(event.target)
+      ) {
+        nav.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("nav-open");
+        syncMobileNavHeight();
+      }
+    });
     window.addEventListener("resize", function () {
       if (window.innerWidth > 980) {
         nav.classList.remove("open");
