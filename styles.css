@@ -3499,7 +3499,8 @@ html.shop-dev .shop-dev-badge a {
 .rental-hero .eyebrow.light {
   color: var(--rental-accent-light, #ffaa68);
 }
-.rental-hero h1 {
+.rental-hero h1,
+.rental-hero h2 {
   color: #fff;
   font-size: clamp(2rem, 5vw, 3.1rem);
   margin: 6px 0 12px;
@@ -4577,4 +4578,54 @@ html.shop-dev .shop-add:hover {
     margin-top: 10px;
     padding-top: 14px;
   }
+}
+
+/* ============================================================
+   404-Säit
+   ============================================================ */
+.notfound-card {
+  text-align: center;
+}
+.notfound-code {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: clamp(3.4rem, 12vw, 6rem);
+  line-height: 1;
+  color: var(--accent, #e63946);
+  margin: 0 0 6px;
+}
+.notfound-alt {
+  color: #9aa8b6 !important;
+  font-size: 0.92rem;
+  margin-top: 4px;
+}
+.notfound-card .soon-actions {
+  margin-top: 26px;
+}
+
+/* ============================================================
+   Breadcrumb (Service-/Tipp-Detailsäiten)
+   ============================================================ */
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  margin-bottom: 22px;
+}
+.breadcrumb a {
+  color: #9fb0c2;
+  text-decoration: none;
+}
+.breadcrumb a:hover {
+  color: var(--accent-2, #ff8a3d);
+  text-decoration: underline;
+}
+.breadcrumb .crumb-sep {
+  color: #566575;
+}
+.breadcrumb .crumb-current {
+  color: #eef3f8;
+  font-weight: 600;
 }

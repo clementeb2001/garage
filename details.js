@@ -695,6 +695,48 @@
     defaultUrl.searchParams.delete("lang");
     defaultLink.href = defaultUrl.href;
   }
+  var CRUMB = {
+    lb: { home: "Startsäit", services: "Servicer", tips: "Tipps" },
+    de: { home: "Startseite", services: "Leistungen", tips: "Tipps" },
+    fr: { home: "Accueil", services: "Prestations", tips: "Conseils" },
+    en: { home: "Home", services: "Services", tips: "Tips" },
+  };
+  var ORIGIN = "https://autoservicebettenduerf.lu";
+  function renderBreadcrumb(slug, L, d) {
+    var el = document.getElementById("svc-crumb");
+    if (!el) return;
+    var c = CRUMB[L] || CRUMB.lb;
+    var isTip = slug.indexOf("tip-") === 0;
+    var sectionLabel = isTip ? c.tips : c.services;
+    var sectionHref = isTip ? "index.html#saison" : "index.html#leistungen";
+    var langQ = L === "lb" ? "" : "?lang=" + L;
+    el.innerHTML =
+      '<a href="index.html' + langQ + '">' + c.home + "</a>" +
+      '<span class="crumb-sep" aria-hidden="true">›</span>' +
+      '<a href="' + sectionHref + '">' + sectionLabel + "</a>" +
+      '<span class="crumb-sep" aria-hidden="true">›</span>' +
+      '<span class="crumb-current" aria-current="page">' + d.title + "</span>";
+    var homeUrl = ORIGIN + "/" + (L === "lb" ? "" : "?lang=" + L);
+    var sectionUrl = ORIGIN + "/#" + (isTip ? "saison" : "leistungen");
+    var curUrl = ORIGIN + "/service.html?s=" + slug + (L === "lb" ? "" : "&lang=" + L);
+    var data = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: c.home, item: homeUrl },
+        { "@type": "ListItem", position: 2, name: sectionLabel, item: sectionUrl },
+        { "@type": "ListItem", position: 3, name: d.title, item: curUrl },
+      ],
+    };
+    var s = document.getElementById("svc-breadcrumb-jsonld");
+    if (!s) {
+      s = document.createElement("script");
+      s.type = "application/ld+json";
+      s.id = "svc-breadcrumb-jsonld";
+      document.head.appendChild(s);
+    }
+    s.textContent = JSON.stringify(data);
+  }
   function renderService() {
     var app = document.getElementById("svc-app");
     if (!app) return;
@@ -725,6 +767,7 @@
     var hero = document.getElementById("svc-hero");
     var imagePath = TIPIMG[slug] || "assets/services/" + slug + ".jpg";
     if (hero) hero.style.backgroundImage = "url('" + imagePath + "')";
+    renderBreadcrumb(slug, L, d);
     updateServiceSeo(slug, L, d);
   }
   function init() {

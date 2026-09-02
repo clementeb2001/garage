@@ -1,0 +1,23 @@
+# Autoservice Bettenduerf
+
+> Autosgarage (auto repair garage) in Bettendorf, Luxembourg, and official 1·2·3 AutoService partner garage. Independent workshop for all makes and models — service strictly by appointment. Site languages: Luxembourgish (default), German, French, English.
+
+Autoservice Bettenduerf offers maintenance, repairs, tyre service, diagnostics, air-conditioning service, roadworthiness (Contrôle Technique) preparation, tuning and bodywork. Two highlighted specialisations: wheel alignment (Achsvermiessung) and gearbox flushing (Getriebespülung / Spullung vun der Boîte). Servicing follows manufacturer specifications so the manufacturer warranty is preserved.
+
+## Contact
+- Address: 63, rue de Diekirch-Echternach, L-9355 Bettendorf, Luxembourg
+- Phone: +352 80 86 87 / +352 621 435 495
+- Email: Autoservicebettenduerf@outlook.com
+- Appointments only (no walk-in hours). Requests via the contact form or by phone.
+
+## Pages
+- [Startseite / Home](https://autoservicebettenduerf.lu/): overview, services, about, opening info, FAQ and the appointment request form.
+- [Service-Detailer](https://autoservicebettenduerf.lu/service.html?s=wartung): individual service pages (maintenance, tyres, brakes & suspension, diagnostics, air-con, Contrôle Technique, tuning, bodywork) plus seasonal car-care tips.
+
+## In preparation (not yet public)
+- Shop (car parts catalogue) — currently under construction.
+- Location / Verlee (trailer & vehicle rental with online reservation) — currently under construction.
+
+## Legal
+- [Impressum](https://autoservicebettenduerf.lu/impressum.html)
+- [Datenschutz / Privacy](https://autoservicebettenduerf.lu/datenschutz.html)
