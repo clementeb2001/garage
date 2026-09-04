@@ -3050,7 +3050,10 @@ html.shop-dev #shop-soon {
 html:not(.shop-dev) .shop-hero,
 html:not(.shop-dev) #shop-catalog,
 html:not(.shop-dev) #shop-note,
-html:not(.shop-dev) .cart-toast {
+html:not(.shop-dev) .cart-toast,
+html:not(.shop-dev) #cart-toggle,
+html:not(.shop-dev) #cart-drawer,
+html:not(.shop-dev) #cart-backdrop {
   display: none !important;
 }
 
@@ -4628,4 +4631,197 @@ html.shop-dev .shop-add:hover {
 .breadcrumb .crumb-current {
   color: #eef3f8;
   font-weight: 600;
+}
+
+/* ============================================================
+   Warekuerf (Shop) — schwiewende Knäppchen + Panel
+   ============================================================ */
+.cart-toggle {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 120;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent-2, #ff8a3d);
+  color: #2a1500;
+  border: none;
+  font: inherit;
+  font-weight: 800;
+  font-size: 1.15rem;
+  padding: 12px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+}
+.cart-toggle:hover {
+  filter: brightness(1.05);
+}
+.cart-toggle-count {
+  background: #2a1500;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+.cart-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  background: rgba(4, 8, 14, 0.6);
+  backdrop-filter: blur(2px);
+}
+.cart-drawer[hidden],
+.cart-backdrop[hidden] {
+  display: none;
+}
+.cart-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 131;
+  width: min(400px, 92vw);
+  height: 100%;
+  background: var(--surface-dark, #101923);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: -18px 0 46px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  overflow-y: auto;
+}
+.cart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.cart-head h2 {
+  color: #fff;
+  font-size: 1.3rem;
+  margin: 0;
+}
+.cart-close {
+  background: none;
+  border: none;
+  color: #9fb0c2;
+  font-size: 1.3rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.cart-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+.cart-empty {
+  color: #9fb0c2;
+  font-size: 0.95rem;
+}
+.cart-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  flex: 1;
+}
+.cart-line {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  background: rgba(27, 38, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+}
+.cart-line-name {
+  color: #eef3f8;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.cart-line-price {
+  color: #9fb0c2;
+  font-size: 0.85rem;
+}
+.cart-line-total {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-align: right;
+  align-self: center;
+}
+.cart-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+.cart-qty button {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.cart-qty button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.cart-qty span {
+  color: #eef3f8;
+  min-width: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.cart-line-remove {
+  grid-column: 2;
+  justify-self: end;
+  background: none;
+  border: none;
+  color: #8ea0b2;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.cart-line-remove:hover {
+  color: #f2726b;
+}
+.cart-foot {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 16px;
+  padding-top: 16px;
+}
+.cart-total-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.cart-total-row span:first-child {
+  color: #c6d0dc;
+}
+.cart-total {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+}
+.cart-note {
+  color: #8ea0b2;
+  font-size: 0.8rem;
+  text-align: center;
+  margin: 10px 0 0;
 }

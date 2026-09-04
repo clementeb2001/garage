@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://cloudflareinsights.com; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://cloudflareinsights.com https://mollie-pay.autoservicebettenduerf.lu; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
     <meta
       name="description"
       content="Autodeeler-Shop vum Autoservice Bettenduerf – Autodeeler fir all Marken a Modeller. Sich no Bezeechnung, Artikelnummer oder no Ärem Won."
@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=32" />
+    <link rel="stylesheet" href="styles.css?v=33" />
     <script src="shop-gate.js?v=1"></script>
   </head>
   <body class="shop-page">
@@ -283,6 +283,46 @@
       hidden
     ></div>
 
+    <!-- Warekuerf-Knäppchen (schwiewend) -->
+    <button
+      type="button"
+      class="cart-toggle"
+      id="cart-toggle"
+      aria-haspopup="dialog"
+      aria-controls="cart-drawer"
+      aria-expanded="false"
+    >
+      <span aria-hidden="true">🛒</span>
+      <span class="cart-toggle-count" id="cart-count" hidden>0</span>
+    </button>
+
+    <!-- Warekuerf-Panel -->
+    <div class="cart-backdrop" id="cart-backdrop" hidden></div>
+    <aside
+      class="cart-drawer"
+      id="cart-drawer"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Warekuerf"
+      hidden
+    >
+      <div class="cart-head">
+        <h2 id="cart-title">Äre Kuerf</h2>
+        <button type="button" class="cart-close" id="cart-close" aria-label="Zoumaachen">✕</button>
+      </div>
+      <p class="cart-empty" id="cart-empty">Äre Kuerf ass eidel.</p>
+      <ul class="cart-lines" id="cart-lines"></ul>
+      <div class="cart-foot" id="cart-foot" hidden>
+        <div class="cart-total-row">
+          <span id="cart-total-label">Total</span>
+          <span class="cart-total" id="cart-total">0,00 €</span>
+        </div>
+        <button type="button" class="btn btn-primary btn-block" id="cart-checkout">Bezuelen</button>
+        <p class="cart-note" id="cart-note">Sécher bezuelen iwwer Mollie – Kaart, Wero, Revolut oder Iwwerweisung.</p>
+        <p class="form-status" id="cart-status" role="status" aria-live="polite"></p>
+      </div>
+    </aside>
+
     <!-- Footer -->
     <footer class="site-footer">
       <div class="container footer-inner">
@@ -374,7 +414,7 @@
     >
 
     <script src="script.js?v=17"></script>
-    <script src="shop.js?v=13"></script>
+    <script src="shop.js?v=14"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"

@@ -402,7 +402,10 @@
     year: "",
     variant: "",
   };
-  var cart = 0;
+  /* Mollie-Bezuelung: Basis-URL vun der Cloudflare-Worker-Funktioun.
+     MUSS mat der connect-src an der CSP vu shop.html iwwereneestëmmen. */
+  var PAYMENT_ENDPOINT = "https://mollie-pay.autoservicebettenduerf.lu";
+  var cart = [];
 
   /* ---------- Combobox: Textfeld + filterbar, scrollbar Lëscht (Web + Mobil) ---------- */
   function brandKeys() {
@@ -665,10 +668,15 @@
       var btn = document.createElement("button");
       btn.type = "button";
       btn.className = "btn btn-outline shop-add";
-      btn.textContent = t.add;
-      btn.addEventListener("click", function () {
-        addToCart(p);
-      });
+      if (p.price) {
+        btn.textContent = t.add;
+        btn.addEventListener("click", function () {
+          addToCart(p);
+        });
+      } else {
+        btn.textContent = t.price_pending;
+        btn.disabled = true;
+      }
       c.appendChild(ic);
       c.appendChild(cat);
       c.appendChild(h);
@@ -697,21 +705,171 @@
     if (empty) empty.hidden = n > 0;
   }
 
-  /* ---------- Warenkuerf (Demo) ---------- */
+  /* ---------- Warekuerf (real, mat Mollie-Checkout) ---------- */
   var toastTimer = null;
+  function priceToCents(str) {
+    if (!str) return null;
+    var n = parseFloat(String(str).replace(/\s/g, "").replace(",", "."));
+    return isNaN(n) ? null : Math.round(n * 100);
+  }
+  function centsToStr(cents) {
+    return (cents / 100).toFixed(2).replace(".", ",") + " €";
+  }
+  function loadCart() {
+    try {
+      var raw = localStorage.getItem("gk_cart");
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  function saveCart() {
+    try {
+      localStorage.setItem("gk_cart", JSON.stringify(cart));
+    } catch (e) {}
+  }
+  function cartCount() {
+    return cart.reduce(function (s, l) {
+      return s + l.qty;
+    }, 0);
+  }
+  function cartTotalCents() {
+    return cart.reduce(function (s, l) {
+      return s + l.cents * l.qty;
+    }, 0);
+  }
   function addToCart(p) {
-    cart++;
+    var cents = priceToCents(p.price);
+    if (cents == null) return;
+    var line = cart.filter(function (l) {
+      return l.id === p.art;
+    })[0];
+    if (line) line.qty++;
+    else cart.push({ id: p.art, name: p.name, cents: cents, qty: 1 });
+    saveCart();
+    renderCart();
     var t = tr(),
       el = $("cart-toast");
-    if (!el) return;
-    el.textContent =
-      "🛒 " + t.added.replace("{n}", p.name) + "  (" + cart + ")";
-    el.hidden = false;
-    el.classList.add("show");
-    if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () {
-      el.classList.remove("show");
-    }, 2600);
+    if (el) {
+      el.textContent = "🛒 " + t.added.replace("{n}", p.name) + "  (" + cartCount() + ")";
+      el.hidden = false;
+      el.classList.add("show");
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () {
+        el.classList.remove("show");
+      }, 2600);
+    }
+  }
+  function setQty(id, delta) {
+    var line = cart.filter(function (l) {
+      return l.id === id;
+    })[0];
+    if (!line) return;
+    line.qty += delta;
+    if (line.qty <= 0) cart = cart.filter(function (l) {
+      return l.id !== id;
+    });
+    saveCart();
+    renderCart();
+  }
+  function removeLine(id) {
+    cart = cart.filter(function (l) {
+      return l.id !== id;
+    });
+    saveCart();
+    renderCart();
+  }
+  function renderCart() {
+    var t = tr();
+    var badge = $("cart-count");
+    var n = cartCount();
+    if (badge) {
+      badge.textContent = n;
+      badge.hidden = n === 0;
+    }
+    var lines = $("cart-lines"),
+      empty = $("cart-empty"),
+      foot = $("cart-foot");
+    if (!lines) return;
+    lines.innerHTML = "";
+    if (!cart.length) {
+      if (empty) empty.hidden = false;
+      if (foot) foot.hidden = true;
+      return;
+    }
+    if (empty) empty.hidden = true;
+    if (foot) foot.hidden = false;
+    cart.forEach(function (l) {
+      var li = document.createElement("li");
+      li.className = "cart-line";
+      li.innerHTML =
+        '<div><div class="cart-line-name">' + l.name + "</div>" +
+        '<div class="cart-line-price">' + centsToStr(l.cents) + "</div>" +
+        '<div class="cart-qty"><button type="button" data-act="dec" data-id="' + l.id + '" aria-label="−">−</button>' +
+        "<span>" + l.qty + "</span>" +
+        '<button type="button" data-act="inc" data-id="' + l.id + '" aria-label="+">+</button></div></div>' +
+        '<div class="cart-line-total">' + centsToStr(l.cents * l.qty) + "</div>" +
+        '<button type="button" class="cart-line-remove" data-act="rm" data-id="' + l.id + '">' + t.cart_remove + "</button>";
+      lines.appendChild(li);
+    });
+    setTxt("cart-total", centsToStr(cartTotalCents()));
+  }
+  function openCart() {
+    var d = $("cart-drawer"),
+      b = $("cart-backdrop"),
+      tg = $("cart-toggle");
+    if (d) d.hidden = false;
+    if (b) b.hidden = false;
+    if (tg) tg.setAttribute("aria-expanded", "true");
+    renderCart();
+  }
+  function closeCart() {
+    var d = $("cart-drawer"),
+      b = $("cart-backdrop"),
+      tg = $("cart-toggle");
+    if (d) d.hidden = true;
+    if (b) b.hidden = true;
+    if (tg) tg.setAttribute("aria-expanded", "false");
+  }
+  function checkout() {
+    var t = tr(),
+      st = $("cart-status"),
+      btn = $("cart-checkout");
+    if (!cart.length) return;
+    if (st) {
+      st.className = "form-status";
+      st.textContent = t.cart_redirect;
+    }
+    if (btn) btn.disabled = true;
+    fetch(PAYMENT_ENDPOINT + "/create-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        items: cart.map(function (l) {
+          return { id: l.id, qty: l.qty };
+        }),
+        locale: lang(),
+      }),
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("http");
+        return r.json();
+      })
+      .then(function (data) {
+        if (data && data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        } else {
+          throw new Error("no-url");
+        }
+      })
+      .catch(function () {
+        if (st) {
+          st.className = "form-status err";
+          st.textContent = t.cart_err;
+        }
+        if (btn) btn.disabled = false;
+      });
   }
 
   /* ---------- "In Arbeit"-Säit ---------- */
@@ -895,6 +1053,36 @@
     },
   };
 
+  /* ---------- Warekuerf-Iwwersetzungen ---------- */
+  Object.assign(T.lb, {
+    cart_title: "Äre Kuerf", cart_empty: "Äre Kuerf ass eidel.",
+    cart_total: "Total", cart_checkout: "Bezuelen", cart_remove: "Ewechhuelen",
+    cart_note: "Sécher bezuelen iwwer Mollie – Kaart, Wero, Revolut oder Iwwerweisung.",
+    cart_redirect: "Gëtt op d’Bezuelung weidergeleet …",
+    cart_err: "D’Bezuelung ass de Moment net erreechbar. Probéiert w.e.g. méi spéit oder rufft eis un.",
+  });
+  Object.assign(T.de, {
+    cart_title: "Ihr Warenkorb", cart_empty: "Ihr Warenkorb ist leer.",
+    cart_total: "Gesamt", cart_checkout: "Bezahlen", cart_remove: "Entfernen",
+    cart_note: "Sicher bezahlen über Mollie – Karte, Wero, Revolut oder Überweisung.",
+    cart_redirect: "Weiterleitung zur Bezahlung …",
+    cart_err: "Die Bezahlung ist derzeit nicht erreichbar. Bitte später erneut versuchen oder anrufen.",
+  });
+  Object.assign(T.fr, {
+    cart_title: "Votre panier", cart_empty: "Votre panier est vide.",
+    cart_total: "Total", cart_checkout: "Payer", cart_remove: "Retirer",
+    cart_note: "Paiement sécurisé via Mollie – carte, Wero, Revolut ou virement.",
+    cart_redirect: "Redirection vers le paiement …",
+    cart_err: "Le paiement est momentanément indisponible. Réessayez plus tard ou appelez-nous.",
+  });
+  Object.assign(T.en, {
+    cart_title: "Your cart", cart_empty: "Your cart is empty.",
+    cart_total: "Total", cart_checkout: "Pay", cart_remove: "Remove",
+    cart_note: "Secure payment via Mollie – card, Wero, Revolut or bank transfer.",
+    cart_redirect: "Redirecting to payment …",
+    cart_err: "Payment is currently unavailable. Please try again later or call us.",
+  });
+
   /* ---------- Statics (Iwwersetzungen) ---------- */
   function applyStatics() {
     var t = tr();
@@ -942,6 +1130,12 @@
     if (vm) vm.placeholder = t.ph_model;
     var vy = $("veh-year");
     if (vy) vy.placeholder = t.ph_year;
+    setTxt("cart-title", t.cart_title);
+    setTxt("cart-empty", t.cart_empty);
+    setTxt("cart-total-label", t.cart_total);
+    setTxt("cart-checkout", t.cart_checkout);
+    setTxt("cart-note", t.cart_note);
+    renderCart();
   }
 
   /* ---------- Tabs & Events ---------- */
@@ -998,6 +1192,29 @@
       }
     });
     $("btn-veh-search").addEventListener("click", doVehSearch);
+    // Warekuerf
+    var ct = $("cart-toggle");
+    if (ct) ct.addEventListener("click", openCart);
+    var cc = $("cart-close");
+    if (cc) cc.addEventListener("click", closeCart);
+    var cb = $("cart-backdrop");
+    if (cb) cb.addEventListener("click", closeCart);
+    var ck = $("cart-checkout");
+    if (ck) ck.addEventListener("click", checkout);
+    var cl = $("cart-lines");
+    if (cl)
+      cl.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-act]");
+        if (!b) return;
+        var id = b.getAttribute("data-id"),
+          act = b.getAttribute("data-act");
+        if (act === "inc") setQty(id, 1);
+        else if (act === "dec") setQty(id, -1);
+        else if (act === "rm") removeLine(id);
+      });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeCart();
+    });
     // Sproochewiessel: alles nei
     document.querySelectorAll(".lang-select").forEach(function (select) {
       select.addEventListener("change", function () {
@@ -1011,10 +1228,12 @@
   }
 
   function init() {
+    cart = loadCart();
     applyStatics();
     initCombos();
     bind();
     render();
+    renderCart();
   }
   if (document.readyState !== "loading") init();
   else document.addEventListener("DOMContentLoaded", init);
