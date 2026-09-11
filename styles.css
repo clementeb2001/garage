@@ -4874,7 +4874,8 @@ html.shop-dev .shop-add:hover {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, rgba(214, 222, 230, 0.95), rgba(150, 160, 170, 0.2) 65%, transparent);
+  background: radial-gradient(circle at 42% 38%, rgba(226, 232, 238, 0.95), rgba(150, 162, 173, 0.4) 55%, rgba(150, 162, 173, 0) 74%);
+  filter: blur(2.5px);
   z-index: 199;
   pointer-events: none;
 }
