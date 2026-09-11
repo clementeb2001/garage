@@ -297,25 +297,73 @@
     tg.classList.add("bump");
     setTimeout(function () { tg.classList.remove("bump"); }, 520);
   }
+  var CAR_SVG =
+    '<svg viewBox="0 0 64 30" width="52" height="24" aria-hidden="true">' +
+    '<rect x="1" y="7" width="7" height="3" rx="1" fill="#b81f2b"/>' +
+    '<path d="M3 21 L7 21 Q9 13 19 13 L33 13 Q39 6 49 8.5 L58 13 Q63 14 62 19 L60 21 Z" fill="#e63946"/>' +
+    '<path d="M33 13 Q37 8.5 45 10 L47 13 Z" fill="#12202e"/>' +
+    '<rect x="20" y="15" width="9" height="3" rx="1.5" fill="#fff"/>' +
+    '<circle cx="16" cy="22" r="5.4" fill="#12202e"/><circle cx="16" cy="22" r="2" fill="#c9d2db"/>' +
+    '<circle cx="48" cy="22" r="5.4" fill="#12202e"/><circle cx="48" cy="22" r="2" fill="#c9d2db"/>' +
+    "</svg>";
+  function spawnPuff(x, y) {
+    var p = document.createElement("div");
+    p.className = "fly-puff";
+    p.style.left = x - 7 + "px";
+    p.style.top = y - 7 + "px";
+    document.body.appendChild(p);
+    p.animate(
+      [{ transform: "scale(0.5)", opacity: 0.5 }, { transform: "scale(2.6)", opacity: 0 }],
+      { duration: 650, easing: "ease-out" }
+    ).onfinish = function () { p.remove(); };
+  }
+  function ringPulse(el) {
+    var r = el.getBoundingClientRect();
+    var ring = document.createElement("div");
+    ring.className = "cart-ring";
+    ring.style.left = r.left + r.width / 2 + "px";
+    ring.style.top = r.top + r.height / 2 + "px";
+    document.body.appendChild(ring);
+    ring.animate(
+      [{ transform: "translate(-50%,-50%) scale(0.4)", opacity: 0.7 }, { transform: "translate(-50%,-50%) scale(2.3)", opacity: 0 }],
+      { duration: 560, easing: "ease-out" }
+    ).onfinish = function () { ring.remove(); };
+  }
   function flyToCart(srcEl) {
     var cartBtn = $("cart-toggle");
-    if (!cartBtn || !srcEl || reduceMotion()) { bumpBadge(); return; }
+    var canAnimate = typeof document.body.animate === "function";
+    if (!cartBtn || !srcEl || reduceMotion() || !canAnimate) { bumpBadge(); return; }
     var s = srcEl.getBoundingClientRect(), t = cartBtn.getBoundingClientRect();
-    var dot = document.createElement("div");
-    dot.className = "fly-dot";
-    dot.style.left = s.left + s.width / 2 - 11 + "px";
-    dot.style.top = s.top + s.height / 2 - 11 + "px";
-    document.body.appendChild(dot);
-    var dx = t.left + t.width / 2 - (s.left + s.width / 2);
-    var dy = t.top + t.height / 2 - (s.top + s.height / 2);
-    requestAnimationFrame(function () {
-      dot.style.transform = "translate(" + dx + "px," + dy + "px) scale(0.25)";
-      dot.style.opacity = "0.25";
+    var startX = s.left + s.width / 2, startY = s.top + s.height / 2;
+    var dx = t.left + t.width / 2 - startX, dy = t.top + t.height / 2 - startY;
+    spawnPuff(startX, startY);
+    var car = document.createElement("div");
+    car.className = "fly-car";
+    car.innerHTML = CAR_SVG;
+    car.style.left = startX - 26 + "px";
+    car.style.top = startY - 12 + "px";
+    document.body.appendChild(car);
+    var anim = car.animate(
+      [
+        { transform: "translate(0px,0px) rotate(-4deg) scale(1)", opacity: 1, offset: 0 },
+        { transform: "translate(" + dx * 0.35 + "px," + (dy * 0.35 - 74) + "px) rotate(-12deg) scale(1.1)", opacity: 1, offset: 0.4 },
+        { transform: "translate(" + dx * 0.72 + "px," + (dy * 0.72 - 24) + "px) rotate(6deg) scale(0.8)", opacity: 1, offset: 0.76 },
+        { transform: "translate(" + dx + "px," + dy + "px) rotate(14deg) scale(0.16)", opacity: 0.12, offset: 1 },
+      ],
+      { duration: 900, easing: "cubic-bezier(.4,.02,.3,1)" }
+    );
+    [230, 420, 600].forEach(function (ms) {
+      setTimeout(function () {
+        if (!car.isConnected) return;
+        var r = car.getBoundingClientRect();
+        spawnPuff(r.left + r.width / 2 - dx * 0.05, r.top + r.height / 2 + 6);
+      }, ms);
     });
-    var bumped = false;
-    function done() { if (bumped) return; bumped = true; dot.remove(); bumpBadge(); }
-    dot.addEventListener("transitionend", done);
-    setTimeout(done, 700);
+    anim.onfinish = function () {
+      car.remove();
+      bumpBadge();
+      ringPulse(cartBtn);
+    };
   }
   function loadCart() {
     try { var a = JSON.parse(localStorage.getItem("gk_cart") || "[]"); return Array.isArray(a) ? a : []; }
