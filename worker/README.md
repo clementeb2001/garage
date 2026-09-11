@@ -43,14 +43,13 @@ schonn a folgende Plaze steet:
 
 Wann Der eng aner URL benotzt, béid Plaze uganss upassen.
 
-## 4. Präisser androen
-Zwou Plaze musse **déiselwecht** Präisser kréien:
+## 4. Präisser
+D'Präisser kommen aus der REMUS-Präislëscht 2026 a sinn **scho agedroen**:
 
-1. **`shop.js`** — d'Produkter am Katalog (`price` pro Artikel, z.B. `"89,00"`).
-   Aktuell ass `product.price = null` fir all Artikel → dofir ass de
-   „An de Kuerf"-Knäppchen deaktivéiert.
-2. **`worker/mollie-payment.js`** — d'`PRICES`-Lëscht (Artikelnummer → Cent).
-   Dëst ass d'Autoritéit fir de Betrag; feelt en Artikel hei, gëtt en refuséiert.
+1. **`shop-data.js`** — de ganze Katalog (Artikel, Präis a Cent, Passform). Auto-generéiert aus der Excel-Lëscht.
+2. **`worker/mollie-payment.js`** — d'`PRICES`-Lëscht (Artikelnummer → Cent). Dëst ass d'Autoritéit fir de Betrag; feelt en Artikel hei, gëtt en refuséiert.
+
+> ⚠️ D'Präisser sinn **exkl. TVA** (RRP 2026). Wann Der incl. TVA verkafe wëllt, musse béid Plazen (Katalog + Worker) mat de Bruttopräisser aktualiséiert ginn — soss stëmmt de Betrag net iwwereneen. Bei enger neier REMUS-Lëscht: nei `shop-data.js` generéieren an d'`PRICES` am Worker upassen.
 
 ## 5. Testen
 Mat engem `test_…`-Schlëssel eng Bestellung duerchspillen — Mollie huet en

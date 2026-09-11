@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=33" />
+    <link rel="stylesheet" href="styles.css?v=34" />
     <script src="shop-gate.js?v=1"></script>
   </head>
   <body class="shop-page">
@@ -152,10 +152,10 @@
       <section class="shop-hero">
         <div class="shop-hero-bg" aria-hidden="true"></div>
         <div class="container">
-          <p class="eyebrow light" id="shop-eyebrow">DBA Shop · Virschau</p>
-          <h2 id="shop-title">DBA Bremsen-Shop</h2>
+          <p class="eyebrow light" id="shop-eyebrow">Onlineshop · REMUS</p>
+          <h2 id="shop-title">REMUS Sportauspuffen</h2>
           <p class="shop-sub" id="shop-sub">
-            Sicht no enger DBA-Artikelnummer oder test de Gefierfilter. De Katalog gëtt mat der offizieller Händlerlëscht komplettéiert.
+            Sich no Artikelnummer oder Bezeechnung – oder wiel däi Won.
           </p>
           <div class="shop-preview-status">
             <span aria-hidden="true">🔒</span>
@@ -216,16 +216,6 @@
                   <input id="veh-model" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-model" placeholder="Modell wielen oder aginn" disabled />
                   <ul class="combo-list" id="list-model" role="listbox" hidden></ul>
                 </div>
-                <div class="veh-field combo">
-                  <label class="sr-only" for="veh-year">Baujahr</label>
-                  <input id="veh-year" class="combo-input" type="text" inputmode="numeric" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-year" placeholder="Baujoer wielen oder aginn" />
-                  <ul class="combo-list" id="list-year" role="listbox" hidden></ul>
-                </div>
-                <div class="veh-field combo">
-                  <label class="sr-only" for="veh-variant">Motoriséierung / Motorisierung</label>
-                  <input id="veh-variant" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-variant" placeholder="Motoriséierung wielen" disabled />
-                  <ul class="combo-list" id="list-variant" role="listbox" hidden></ul>
-                </div>
                 <button
                   class="btn btn-primary"
                   id="btn-veh-search"
@@ -249,6 +239,7 @@
             aria-label="Kategorien"
           ></div>
           <p class="shop-result-info" id="shop-result-info"></p>
+          <p class="shop-vat-note" id="shop-vat-note"></p>
           <div class="shop-grid" id="shop-grid"></div>
           <p class="shop-empty" id="shop-empty" hidden>Keng Artikelen fonnt.</p>
         </div>
@@ -414,7 +405,8 @@
     >
 
     <script src="script.js?v=17"></script>
-    <script src="shop.js?v=14"></script>
+    <script src="shop-data.js?v=1"></script>
+    <script src="shop.js?v=15"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"
