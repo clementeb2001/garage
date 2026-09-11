@@ -16,8 +16,8 @@
   /* ---------- Iwwersetzungen ---------- */
   var T = {
     lb: {
-      eyebrow: "Onlineshop · REMUS", title: "REMUS Sportauspuffen",
-      sub: "Sich no Artikelnummer oder Bezeechnung – oder wiel däi Won.",
+      eyebrow: "Onlineshop", title: "Autodeeler-Shop",
+      sub: "REMUS Sportauspuffen elo do – DBA-Bremsen geschwënn. Sich no Artikel oder wiel däi Won.",
       tab_artikel: "Artikel", tab_fahrzeug: "Won",
       ph_text: "Bezeechnung oder Artikelnummer …", btn_text: "Sichen",
       ph_brand: "Marke wielen oder aginn", ph_model: "Modell wielen oder aginn",
@@ -39,8 +39,8 @@
       cart_err: "D’Bezuelung ass de Moment net erreechbar. Probéiert w.e.g. méi spéit oder rufft eis un.",
     },
     de: {
-      eyebrow: "Onlineshop · REMUS", title: "REMUS Sportauspuffanlagen",
-      sub: "Suchen Sie nach Artikelnummer oder Bezeichnung – oder wählen Sie Ihr Fahrzeug.",
+      eyebrow: "Onlineshop", title: "Autoteile-Shop",
+      sub: "REMUS Sportauspuffanlagen jetzt verfügbar – DBA-Bremsen folgen. Nach Artikel suchen oder Fahrzeug wählen.",
       tab_artikel: "Artikel", tab_fahrzeug: "Fahrzeug",
       ph_text: "Bezeichnung oder Artikelnummer …", btn_text: "Suchen",
       ph_brand: "Marke wählen oder eingeben", ph_model: "Modell wählen oder eingeben",
@@ -62,8 +62,8 @@
       cart_err: "Die Bezahlung ist derzeit nicht erreichbar. Bitte später erneut versuchen oder anrufen.",
     },
     fr: {
-      eyebrow: "Boutique · REMUS", title: "Échappements sport REMUS",
-      sub: "Recherchez par numéro d’article ou désignation – ou choisissez votre véhicule.",
+      eyebrow: "Boutique", title: "Boutique de pièces",
+      sub: "Échappements sport REMUS disponibles – freins DBA à venir. Recherchez un article ou choisissez votre véhicule.",
       tab_artikel: "Article", tab_fahrzeug: "Véhicule",
       ph_text: "Désignation ou numéro d’article …", btn_text: "Rechercher",
       ph_brand: "Choisir ou saisir la marque", ph_model: "Choisir ou saisir le modèle",
@@ -85,8 +85,8 @@
       cart_err: "Le paiement est momentanément indisponible. Réessayez plus tard ou appelez-nous.",
     },
     en: {
-      eyebrow: "Online shop · REMUS", title: "REMUS sport exhausts",
-      sub: "Search by part number or name – or pick your vehicle.",
+      eyebrow: "Online shop", title: "Car parts shop",
+      sub: "REMUS sport exhausts available now – DBA brakes coming. Search an article or pick your vehicle.",
       tab_artikel: "Article", tab_fahrzeug: "Vehicle",
       ph_text: "Name or part number …", btn_text: "Search",
       ph_brand: "Choose or type make", ph_model: "Choose or type model",
@@ -112,19 +112,19 @@
   /* ---------- "In Arbeit"-Säit ---------- */
   var SOON = {
     lb: { eyebrow: "Onlineshop", title: "Eise Shop ass an der Aarbecht",
-      text: "Mir sinn amgaang, eise REMUS-Auspuff-Shop opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
+      text: "Mir sinn amgaang, eisen Autodeeler-Shop opzebauen (REMUS Sportauspuffen, DBA-Bremsen geschwënn). Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
       cta: "Deel ufroen", back: "Zréck op d’Startsäit",
       dev: "Vorschau-Modus – Shop öffentlech nach „an Arbecht“", hide: "verstoppen" },
     de: { eyebrow: "Onlineshop", title: "Unser Shop ist in Arbeit",
-      text: "Wir bauen gerade unseren REMUS-Auspuff-Shop auf. Schauen Sie bald wieder vorbei – oder kontaktieren Sie uns direkt.",
+      text: "Wir bauen gerade unseren Autoteile-Shop auf (REMUS Sportauspuffanlagen, DBA-Bremsen folgen). Schauen Sie bald wieder vorbei – oder kontaktieren Sie uns direkt.",
       cta: "Teil anfragen", back: "Zurück zur Startseite",
       dev: "Vorschau-Modus – Shop öffentlich noch „in Arbeit“", hide: "ausblenden" },
     fr: { eyebrow: "Boutique", title: "Notre boutique est en préparation",
-      text: "Nous mettons en place notre boutique d’échappements REMUS. Revenez bientôt – ou contactez-nous directement.",
+      text: "Nous mettons en place notre boutique de pièces (échappements REMUS, freins DBA à venir). Revenez bientôt – ou contactez-nous directement.",
       cta: "Demander une pièce", back: "Retour à l’accueil",
       dev: "Mode aperçu – boutique encore « en construction »", hide: "masquer" },
     en: { eyebrow: "Online shop", title: "Our shop is in the works",
-      text: "We’re building our REMUS exhaust shop. Check back soon – or contact us directly.",
+      text: "We’re building our car-parts shop (REMUS exhausts, DBA brakes coming). Check back soon – or contact us directly.",
       cta: "Request a part", back: "Back to home",
       dev: "Preview mode – shop still “under construction”", hide: "hide" },
   };
@@ -243,6 +243,7 @@
       listEl.innerHTML = "";
       opts.slice(0, 200).forEach(function (o) {
         var li = document.createElement("li");
+        li.className = "combo-opt";
         li.setAttribute("role", "option");
         li.textContent = o;
         li.addEventListener("mousedown", function (e) {
