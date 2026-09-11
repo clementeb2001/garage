@@ -298,7 +298,7 @@
     setTimeout(function () { tg.classList.remove("bump"); }, 520);
   }
   var CAR_SVG =
-    '<svg viewBox="0 0 64 30" width="52" height="24" aria-hidden="true">' +
+    '<svg viewBox="0 0 64 30" width="66" height="31" aria-hidden="true">' +
     '<rect x="1" y="7" width="7" height="3" rx="1" fill="#b81f2b"/>' +
     '<path d="M3 21 L7 21 Q9 13 19 13 L33 13 Q39 6 49 8.5 L58 13 Q63 14 62 19 L60 21 Z" fill="#e63946"/>' +
     '<path d="M33 13 Q37 8.5 45 10 L47 13 Z" fill="#12202e"/>' +
@@ -309,12 +309,16 @@
   function spawnPuff(x, y) {
     var p = document.createElement("div");
     p.className = "fly-puff";
-    p.style.left = x - 7 + "px";
-    p.style.top = y - 7 + "px";
+    p.style.left = x - 10 + "px";
+    p.style.top = y - 10 + "px";
     document.body.appendChild(p);
     p.animate(
-      [{ transform: "scale(0.5)", opacity: 0.5 }, { transform: "scale(2.6)", opacity: 0 }],
-      { duration: 650, easing: "ease-out" }
+      [
+        { transform: "scale(0.5)", opacity: 0.75 },
+        { transform: "scale(1.8)", opacity: 0.55, offset: 0.4 },
+        { transform: "scale(3.4)", opacity: 0 },
+      ],
+      { duration: 1100, easing: "ease-out" }
     ).onfinish = function () { p.remove(); };
   }
   function ringPulse(el) {
@@ -325,8 +329,8 @@
     ring.style.top = r.top + r.height / 2 + "px";
     document.body.appendChild(ring);
     ring.animate(
-      [{ transform: "translate(-50%,-50%) scale(0.4)", opacity: 0.7 }, { transform: "translate(-50%,-50%) scale(2.3)", opacity: 0 }],
-      { duration: 560, easing: "ease-out" }
+      [{ transform: "translate(-50%,-50%) scale(0.4)", opacity: 0.7 }, { transform: "translate(-50%,-50%) scale(2.5)", opacity: 0 }],
+      { duration: 650, easing: "ease-out" }
     ).onfinish = function () { ring.remove(); };
   }
   function flyToCart(srcEl) {
@@ -340,23 +344,24 @@
     var car = document.createElement("div");
     car.className = "fly-car";
     car.innerHTML = CAR_SVG;
-    car.style.left = startX - 26 + "px";
-    car.style.top = startY - 12 + "px";
+    car.style.left = startX - 33 + "px";
+    car.style.top = startY - 15 + "px";
     document.body.appendChild(car);
     var anim = car.animate(
       [
-        { transform: "translate(0px,0px) rotate(-4deg) scale(1)", opacity: 1, offset: 0 },
-        { transform: "translate(" + dx * 0.35 + "px," + (dy * 0.35 - 74) + "px) rotate(-12deg) scale(1.1)", opacity: 1, offset: 0.4 },
-        { transform: "translate(" + dx * 0.72 + "px," + (dy * 0.72 - 24) + "px) rotate(6deg) scale(0.8)", opacity: 1, offset: 0.76 },
-        { transform: "translate(" + dx + "px," + dy + "px) rotate(14deg) scale(0.16)", opacity: 0.12, offset: 1 },
+        { transform: "translate(0px,0px) rotate(-3deg) scale(1)", opacity: 1, offset: 0 },
+        { transform: "translate(" + dx * 0.3 + "px," + (dy * 0.3 - 80) + "px) rotate(-10deg) scale(1.15)", opacity: 1, offset: 0.35 },
+        { transform: "translate(" + dx * 0.62 + "px," + (dy * 0.62 - 40) + "px) rotate(2deg) scale(1)", opacity: 1, offset: 0.68 },
+        { transform: "translate(" + dx * 0.86 + "px," + (dy * 0.86 - 8) + "px) rotate(9deg) scale(0.6)", opacity: 1, offset: 0.9 },
+        { transform: "translate(" + dx + "px," + dy + "px) rotate(16deg) scale(0.14)", opacity: 0.1, offset: 1 },
       ],
-      { duration: 900, easing: "cubic-bezier(.4,.02,.3,1)" }
+      { duration: 1700, easing: "cubic-bezier(.34,.02,.3,1)" }
     );
-    [230, 420, 600].forEach(function (ms) {
+    [120, 320, 540, 780, 1020, 1280].forEach(function (ms) {
       setTimeout(function () {
         if (!car.isConnected) return;
         var r = car.getBoundingClientRect();
-        spawnPuff(r.left + r.width / 2 - dx * 0.05, r.top + r.height / 2 + 6);
+        spawnPuff(r.left + r.width / 2 - dx * 0.06, r.top + r.height / 2 + 8);
       }, ms);
     });
     anim.onfinish = function () {
