@@ -780,6 +780,14 @@
       },
       { passive: true },
     );
+    backBtn.addEventListener("click", function (e) {
+      // Ëmmer no uewen op der aktueller Säit scrollen (net op d'Startsäit).
+      e.preventDefault();
+      var reduce =
+        window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    });
   }
 
   /* Reveal beim Scrollen */

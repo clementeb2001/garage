@@ -4923,3 +4923,6 @@ html.shop-dev .shop-add:hover {
   .cart-drawer,
   .cart-backdrop { transition: none !important; }
 }
+
+/* Shop: "Nach uewen"-Feil iwwer de Warekuerf-Knäppchen setzen (kee Iwwerlapp) */
+.shop-page .back-to-top { bottom: 84px; }
