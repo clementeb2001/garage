@@ -4832,3 +4832,94 @@ html.shop-dev .shop-add:hover {
   font-size: 0.82rem;
   margin: -4px 0 14px;
 }
+
+/* ============================================================
+   Shop: Animatiounen (Warekuerf dynamesch)
+   ============================================================ */
+/* Kaarten gläiden erran */
+@keyframes gk-card-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.shop-grid .shop-card {
+  animation: gk-card-in 0.34s ease both;
+}
+.shop-grid .shop-card:nth-child(2) { animation-delay: 0.03s; }
+.shop-grid .shop-card:nth-child(3) { animation-delay: 0.06s; }
+.shop-grid .shop-card:nth-child(4) { animation-delay: 0.09s; }
+.shop-grid .shop-card:nth-child(5) { animation-delay: 0.12s; }
+.shop-grid .shop-card:nth-child(6) { animation-delay: 0.15s; }
+.shop-grid .shop-card:nth-child(7) { animation-delay: 0.18s; }
+.shop-grid .shop-card:nth-child(8) { animation-delay: 0.21s; }
+.shop-grid .shop-card:nth-child(n + 9) { animation-delay: 0.24s; }
+.shop-card { transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
+.shop-card:hover { transform: translateY(-4px); }
+
+/* "An de Kuerf"-Knäppchen Feedback */
+.shop-add { transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease; }
+.shop-add:active { transform: scale(0.94); }
+
+/* Fléiende Punkt bei "an de Kuerf" */
+/* Fléiend Rennauto + Auspuff-Wollécken bei "an de Kuerf" */
+.fly-car {
+  position: fixed;
+  z-index: 200;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.4));
+  will-change: transform;
+}
+.fly-car svg { display: block; }
+.fly-puff {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 38%, rgba(226, 232, 238, 0.95), rgba(150, 162, 173, 0.4) 55%, rgba(150, 162, 173, 0) 74%);
+  filter: blur(2.5px);
+  z-index: 199;
+  pointer-events: none;
+}
+.cart-ring {
+  position: fixed;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 3px solid var(--accent-2, #ff8a3d);
+  z-index: 199;
+  pointer-events: none;
+}
+
+/* Kuerf-Knäppchen: Bounce beim Dobäisetzen */
+@keyframes gk-bump {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.32); }
+  55% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+.cart-toggle.bump { animation: gk-bump 0.5s ease; }
+.cart-toggle-count { transition: transform 0.2s ease; }
+
+/* Kuerf-Panel: sanft eragläiden */
+.cart-drawer { transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.cart-drawer.show { transform: translateX(0); }
+.cart-backdrop { opacity: 0; transition: opacity 0.3s ease; }
+.cart-backdrop.show { opacity: 1; }
+
+/* Kuerf-Positiounen gläiden erran */
+@keyframes gk-line-in {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: none; }
+}
+.cart-line { animation: gk-line-in 0.25s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-grid .shop-card,
+  .cart-toggle.bump,
+  .cart-line { animation: none !important; }
+  .shop-card:hover { transform: none; }
+  .fly-car,
+  .fly-puff,
+  .cart-ring { display: none !important; }
+  .cart-drawer,
+  .cart-backdrop { transition: none !important; }
+}

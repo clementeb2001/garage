@@ -211,7 +211,7 @@
       btn.type = "button";
       btn.className = "btn btn-outline shop-add";
       btn.textContent = t.add;
-      btn.addEventListener("click", function () { addToCart(p); });
+      btn.addEventListener("click", function () { addToCart(p, btn); });
       c.appendChild(cat);
       c.appendChild(h);
       c.appendChild(fit);
@@ -286,6 +286,108 @@
 
   /* ---------- Warekuerf + Mollie-Checkout ---------- */
   var toastTimer = null;
+  function reduceMotion() {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+  function bumpBadge() {
+    var tg = $("cart-toggle");
+    if (!tg) return;
+    tg.classList.remove("bump");
+    void tg.offsetWidth;
+    tg.classList.add("bump");
+    setTimeout(function () { tg.classList.remove("bump"); }, 520);
+  }
+  var CAR_SVG =
+    '<svg viewBox="0 0 132 60" width="76" height="35" aria-hidden="true">' +
+    '<defs>' +
+    '<linearGradient id="gkBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff616c"/><stop offset=".45" stop-color="#e11f2d"/><stop offset="1" stop-color="#9c111b"/></linearGradient>' +
+    '<linearGradient id="gkGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d7ecfa"/><stop offset="1" stop-color="#5c7f98"/></linearGradient>' +
+    '<radialGradient id="gkRim" cx=".42" cy=".4" r=".62"><stop offset="0" stop-color="#f2f5f8"/><stop offset=".5" stop-color="#aeb8c1"/><stop offset="1" stop-color="#3e474f"/></radialGradient>' +
+    '<linearGradient id="gkGloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
+    "</defs>" +
+    '<ellipse cx="66" cy="55" rx="52" ry="4.5" fill="rgba(0,0,0,.28)"/>' +
+    '<path d="M6 25 h20 v3.2 H6 z" fill="#151f29"/><rect x="7" y="28" width="3.4" height="7" rx="1" fill="#151f29"/>' +
+    '<path d="M10 44 L11 30 Q12 27 17 26 L41 25 Q49 14 67 14 L83 15 Q94 17 100 26 L118 30 Q125 31 124 39 L123 44 Z" fill="url(#gkBody)"/>' +
+    '<path d="M12 44 L123 44 L122 40 L13 40 Z" fill="#7d0f16" opacity=".55"/>' +
+    '<path d="M45 25 Q52 17 66 17 L80 18 Q89 20 94 26 L88 26 L74 20 L67 20 Z" fill="url(#gkGlass)"/>' +
+    '<path d="M62 18 L63 26 L60 26 L59 18 Z" fill="#2b3947" opacity=".6"/>' +
+    '<path d="M16 31 Q60 27 118 33" stroke="url(#gkGloss)" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+    '<path d="M119 33 q4 .5 3.6 4 l-4 -1 z" fill="#ffe9a8"/><rect x="9.6" y="31" width="3.2" height="4" rx="1" fill="#ff9aa0"/>' +
+    '<g><circle cx="36" cy="45" r="12" fill="#10161d"/><circle cx="36" cy="45" r="11.3" fill="none" stroke="#2a333c" stroke-width="1.3"/><circle cx="36" cy="45" r="6.6" fill="url(#gkRim)"/>' +
+    '<g stroke="#39424b" stroke-width="1.1"><line x1="36" y1="45" x2="36" y2="38.7"/><line x1="36" y1="45" x2="41.3" y2="48"/><line x1="36" y1="45" x2="41.3" y2="41.9"/><line x1="36" y1="45" x2="30.7" y2="48"/><line x1="36" y1="45" x2="30.7" y2="41.9"/></g>' +
+    '<circle cx="36" cy="45" r="1.7" fill="#59636c"/></g>' +
+    '<g><circle cx="98" cy="45" r="12" fill="#10161d"/><circle cx="98" cy="45" r="11.3" fill="none" stroke="#2a333c" stroke-width="1.3"/><circle cx="98" cy="45" r="6.6" fill="url(#gkRim)"/>' +
+    '<g stroke="#39424b" stroke-width="1.1"><line x1="98" y1="45" x2="98" y2="38.7"/><line x1="98" y1="45" x2="103.3" y2="48"/><line x1="98" y1="45" x2="103.3" y2="41.9"/><line x1="98" y1="45" x2="92.7" y2="48"/><line x1="98" y1="45" x2="92.7" y2="41.9"/></g>' +
+    '<circle cx="98" cy="45" r="1.7" fill="#59636c"/></g>' +
+    "</svg>";
+  function spawnPuff(x, y) {
+    var sz = 16 + Math.random() * 12;
+    var p = document.createElement("div");
+    p.className = "fly-puff";
+    p.style.width = p.style.height = sz + "px";
+    p.style.left = x - sz / 2 + "px";
+    p.style.top = y - sz / 2 + "px";
+    document.body.appendChild(p);
+    var drift = -14 - Math.random() * 16;
+    var rot = (Math.random() * 40 - 20).toFixed(0);
+    p.animate(
+      [
+        { transform: "translateY(0px) scale(0.45) rotate(0deg)", opacity: 0.7 },
+        { transform: "translateY(" + drift * 0.5 + "px) scale(1.7) rotate(" + rot / 2 + "deg)", opacity: 0.5, offset: 0.45 },
+        { transform: "translateY(" + drift + "px) scale(3) rotate(" + rot + "deg)", opacity: 0 },
+      ],
+      { duration: 1150, easing: "ease-out" }
+    ).onfinish = function () { p.remove(); };
+  }
+  function ringPulse(el) {
+    var r = el.getBoundingClientRect();
+    var ring = document.createElement("div");
+    ring.className = "cart-ring";
+    ring.style.left = r.left + r.width / 2 + "px";
+    ring.style.top = r.top + r.height / 2 + "px";
+    document.body.appendChild(ring);
+    ring.animate(
+      [{ transform: "translate(-50%,-50%) scale(0.4)", opacity: 0.7 }, { transform: "translate(-50%,-50%) scale(2.5)", opacity: 0 }],
+      { duration: 650, easing: "ease-out" }
+    ).onfinish = function () { ring.remove(); };
+  }
+  function flyToCart(srcEl) {
+    var cartBtn = $("cart-toggle");
+    var canAnimate = typeof document.body.animate === "function";
+    if (!cartBtn || !srcEl || reduceMotion() || !canAnimate) { bumpBadge(); return; }
+    var s = srcEl.getBoundingClientRect(), t = cartBtn.getBoundingClientRect();
+    var startX = s.left + s.width / 2, startY = s.top + s.height / 2;
+    var dx = t.left + t.width / 2 - startX, dy = t.top + t.height / 2 - startY;
+    spawnPuff(startX, startY);
+    var car = document.createElement("div");
+    car.className = "fly-car";
+    car.innerHTML = CAR_SVG;
+    car.style.left = startX - 38 + "px";
+    car.style.top = startY - 17 + "px";
+    document.body.appendChild(car);
+    var anim = car.animate(
+      [
+        { transform: "translate(0px,0px) rotate(-3deg) scale(1)", opacity: 1, offset: 0 },
+        { transform: "translate(" + dx * 0.3 + "px," + (dy * 0.3 - 80) + "px) rotate(-10deg) scale(1.15)", opacity: 1, offset: 0.35 },
+        { transform: "translate(" + dx * 0.62 + "px," + (dy * 0.62 - 40) + "px) rotate(2deg) scale(1)", opacity: 1, offset: 0.68 },
+        { transform: "translate(" + dx * 0.86 + "px," + (dy * 0.86 - 8) + "px) rotate(9deg) scale(0.6)", opacity: 1, offset: 0.9 },
+        { transform: "translate(" + dx + "px," + dy + "px) rotate(16deg) scale(0.14)", opacity: 0.1, offset: 1 },
+      ],
+      { duration: 1700, easing: "cubic-bezier(.34,.02,.3,1)" }
+    );
+    [120, 320, 540, 780, 1020, 1280].forEach(function (ms) {
+      setTimeout(function () {
+        if (!car.isConnected) return;
+        var r = car.getBoundingClientRect();
+        spawnPuff(r.left + r.width / 2 - dx * 0.06, r.top + r.height / 2 + 8);
+      }, ms);
+    });
+    anim.onfinish = function () {
+      car.remove();
+      bumpBadge();
+      ringPulse(cartBtn);
+    };
+  }
   function loadCart() {
     try { var a = JSON.parse(localStorage.getItem("gk_cart") || "[]"); return Array.isArray(a) ? a : []; }
     catch (e) { return []; }
@@ -293,11 +395,12 @@
   function saveCart() { try { localStorage.setItem("gk_cart", JSON.stringify(cart)); } catch (e) {} }
   function cartCount() { return cart.reduce(function (s, l) { return s + l.qty; }, 0); }
   function cartTotal() { return cart.reduce(function (s, l) { return s + l.cents * l.qty; }, 0); }
-  function addToCart(p) {
+  function addToCart(p, srcEl) {
     var line = cart.filter(function (l) { return l.id === p.a; })[0];
     if (line) line.qty++;
     else cart.push({ id: p.a, name: p.n, cents: p.p, qty: 1 });
     saveCart(); renderCart();
+    flyToCart(srcEl);
     var t = tr(), el = $("cart-toast");
     if (el) {
       el.textContent = "🛒 " + t.added.replace("{n}", p.n) + "  (" + cartCount() + ")";
@@ -340,16 +443,24 @@
   }
   function openCart() {
     var d = $("cart-drawer"), b = $("cart-backdrop"), tg = $("cart-toggle");
-    if (d) d.hidden = false;
     if (b) b.hidden = false;
-    if (tg) tg.setAttribute("aria-expanded", "true");
+    if (d) d.hidden = false;
     renderCart();
+    requestAnimationFrame(function () {
+      if (d) d.classList.add("show");
+      if (b) b.classList.add("show");
+    });
+    if (tg) tg.setAttribute("aria-expanded", "true");
   }
   function closeCart() {
     var d = $("cart-drawer"), b = $("cart-backdrop"), tg = $("cart-toggle");
-    if (d) d.hidden = true;
-    if (b) b.hidden = true;
+    if (d) d.classList.remove("show");
+    if (b) b.classList.remove("show");
     if (tg) tg.setAttribute("aria-expanded", "false");
+    setTimeout(function () {
+      if (d && !d.classList.contains("show")) d.hidden = true;
+      if (b && !b.classList.contains("show")) b.hidden = true;
+    }, 300);
   }
   function checkout() {
     var t = tr(), st = $("cart-status"), btn = $("cart-checkout");
