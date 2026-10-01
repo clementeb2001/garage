@@ -290,6 +290,35 @@
     m_past: "a date and time from now onwards"
   });
 
+  Object.assign(T.lb, {
+    review_title: "Ufro iwwerpréiwen", review_items: "Auswiel", review_period: "Zäitraum",
+    review_contact: "Kontakt", review_empty: "Nach näischt ausgewielt", review_missing: "Nach net uginn",
+    review_hint: "Kontrolléiert dës Donnéeën, ier Dir d’Ufro schéckt.",
+    terms_html: "Ech hunn déi <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">virleefeg Mietinformatiounen</a> gelies.",
+    m_terms: "Bestätegung vun de Mietinformatiounen"
+  });
+  Object.assign(T.de, {
+    review_title: "Anfrage überprüfen", review_items: "Auswahl", review_period: "Zeitraum",
+    review_contact: "Kontakt", review_empty: "Noch nichts ausgewählt", review_missing: "Noch nicht angegeben",
+    review_hint: "Prüfen Sie diese Angaben, bevor Sie die Anfrage senden.",
+    terms_html: "Ich habe die <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">vorläufigen Mietinformationen</a> gelesen.",
+    m_terms: "Bestätigung der Mietinformationen"
+  });
+  Object.assign(T.fr, {
+    review_title: "Vérifier la demande", review_items: "Sélection", review_period: "Période",
+    review_contact: "Contact", review_empty: "Aucun élément sélectionné", review_missing: "Non renseigné",
+    review_hint: "Vérifiez ces informations avant d’envoyer la demande.",
+    terms_html: "J’ai lu les <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">informations provisoires de location</a>.",
+    m_terms: "confirmation des informations de location"
+  });
+  Object.assign(T.en, {
+    review_title: "Review request", review_items: "Selection", review_period: "Period",
+    review_contact: "Contact", review_empty: "Nothing selected yet", review_missing: "Not provided yet",
+    review_hint: "Check these details before sending your request.",
+    terms_html: "I have read the <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">preliminary rental information</a>.",
+    m_terms: "confirmation of the rental information"
+  });
+
   function $(id) { return document.getElementById(id); }
   function setTxt(id, s) { var el = $(id); if (el) el.textContent = s; }
 
@@ -357,6 +386,38 @@
         })
         .join(", ");
     }
+    updateReview();
+  }
+
+  function formatReviewDate(value) {
+    if (!value) return "";
+    var d = new Date(value);
+    if (isNaN(d.getTime())) return value;
+    var locales = { lb: "lb-LU", de: "de-LU", fr: "fr-LU", en: "en-GB" };
+    return d.toLocaleString(locales[lang()] || "de-LU", {
+      weekday: "short", day: "2-digit", month: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit"
+    });
+  }
+
+  function updateReview() {
+    var m = t();
+    var names = state.selected.map(function (id) {
+      var it = CATALOG.filter(function (x) { return x.id === id; })[0];
+      return it ? (it.name[lang()] || it.name.lb) : id;
+    });
+    setTxt("rental-review-items", names.length ? names.join(", ") : m.review_empty);
+    var from = $("r-from"), to = $("r-to");
+    var period = from && to && from.value && to.value
+      ? formatReviewDate(from.value) + " → " + formatReviewDate(to.value)
+      : m.review_missing;
+    setTxt("rental-review-period", period);
+    var contact = [];
+    var name = $("r-name"), email = $("r-email"), phone = $("r-phone");
+    if (name && name.value.trim()) contact.push(name.value.trim());
+    if (email && email.value.trim()) contact.push(email.value.trim());
+    if (phone && phone.value.trim()) contact.push(phone.value.trim());
+    setTxt("rental-review-contact", contact.length ? contact.join(" · ") : m.review_missing);
   }
 
   function toggle(id) {
@@ -400,6 +461,12 @@
     setTxt("rental-info-terms-title", m.terms_title);
     setTxt("rental-info-terms-text", m.terms_text);
     setTxt("rental-availability-note", m.availability_note);
+    setTxt("rental-review-title", m.review_title);
+    setTxt("rental-review-items-label", m.review_items);
+    setTxt("rental-review-period-label", m.review_period);
+    setTxt("rental-review-contact-label", m.review_contact);
+    setTxt("rental-review-hint", m.review_hint);
+    var termsText = $("r-terms-text"); if (termsText) termsText.innerHTML = m.terms_html;
     var ph = $("r-phone"); if (ph) ph.placeholder = m.phone_ph;
     // filter chip labels
     document.querySelectorAll("#rental-filter .rental-chip").forEach(function (b) {
@@ -465,7 +532,7 @@
     st.className = "form-status";
     st.textContent = "";
 
-    var from = $("r-from"), to = $("r-to"), name = $("r-name"), email = $("r-email"), privacy = $("r-privacy");
+    var from = $("r-from"), to = $("r-to"), name = $("r-name"), email = $("r-email"), privacy = $("r-privacy"), terms = $("r-terms");
     var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email.value || "").trim());
     var miss = [];
 
@@ -483,6 +550,9 @@
     var priv = privacy.closest(".privacy-confirm");
     if (!privacy.checked) { miss.push(m.m_privacy); if (priv) priv.classList.add("privacy-invalid"); }
     else if (priv) priv.classList.remove("privacy-invalid");
+    var termsWrap = terms.closest(".terms-confirm");
+    if (!terms.checked) { miss.push(m.m_terms); if (termsWrap) termsWrap.classList.add("privacy-invalid"); }
+    else if (termsWrap) termsWrap.classList.remove("privacy-invalid");
 
     if (miss.length) {
       st.className = "form-status err";
@@ -518,14 +588,19 @@
   }
 
   function wireClear() {
-    ["r-from", "r-to", "r-name", "r-email"].forEach(function (id) {
+    ["r-from", "r-to", "r-name", "r-email", "r-phone", "r-message"].forEach(function (id) {
       var el = $(id);
-      if (el) el.addEventListener("input", function () { mark(el, false); });
+      if (el) el.addEventListener("input", function () { mark(el, false); updateReview(); });
     });
     var priv = $("r-privacy");
     if (priv) priv.addEventListener("change", function () {
       var p = priv.closest(".privacy-confirm");
       if (p && priv.checked) p.classList.remove("privacy-invalid");
+    });
+    var terms = $("r-terms");
+    if (terms) terms.addEventListener("change", function () {
+      var p = terms.closest(".terms-confirm");
+      if (p && terms.checked) p.classList.remove("privacy-invalid");
     });
   }
 
