@@ -1,15 +1,24 @@
 /* Autoservice Bettenduerf — Shop (REMUS Sport Exhausts), méisproocheg.
-   Katalog kënnt aus shop-data.js (window.SHOP_PRODUCTS / SHOP_BRANDS).
-   Bezuelung iwwer Mollie (kuck worker/mollie-payment.js). */
+   Katalog kënnt aus shop-data.js (SHOP_PRODUCTS / SHOP_BRANDS / SHOP_MAKES …).
+   Produiten mat Bild, Lagerstatus an EC-Zoulassung. Bezuelung iwwer Mollie. */
 (function () {
   "use strict";
 
   var PAYMENT_ENDPOINT = "https://mollie-pay.autoservicebettenduerf.lu";
-  var RENDER_CAP = 60;
+  var RENDER_CAP = 48;
 
   var PRODUCTS = window.SHOP_PRODUCTS || [];
   var BRANDS = window.SHOP_BRANDS || {};
+  var MAKES = window.SHOP_MAKES || [];
+  var ENGINES = window.SHOP_ENGINES || [];
+  var VARIANTS = window.SHOP_VARIANTS || [];
+  var IMAGES = window.SHOP_IMAGES || [];
+  var IMGBASE = (window.SHOP_META && window.SHOP_META.imgbase) || "";
   var cart = [];
+
+  /* makeName -> index (fir Fitment-Filter) */
+  var MAKE_IDX = {};
+  MAKES.forEach(function (m, i) { MAKE_IDX[m] = i; });
 
   var state = { mode: "all", q: "", cat: "all", brand: "", model: "" };
 
@@ -17,18 +26,21 @@
   var T = {
     lb: {
       eyebrow: "Onlineshop", title: "Autodeeler-Shop",
-      sub: "REMUS Sportauspuffen elo do – DBA-Bremsen geschwënn. Sich no Artikel oder wiel däi Won.",
+      sub: "REMUS Sportauspuffanlagen mat Bild, Präis a Lagerstatus. Wiel däi Won oder sich en Artikel – DBA-Bremsen kommen nach.",
       tab_artikel: "Artikel", tab_fahrzeug: "Won",
       ph_text: "Bezeechnung oder Artikelnummer …", btn_text: "Sichen",
       ph_brand: "Marke wielen oder aginn", ph_model: "Modell wielen oder aginn",
       btn_veh: "Passend Deeler fannen",
-      cats: { all: "Alles", system: "Sportauspuffen", tail: "Endrohren", adapter: "Adapter" },
-      info_all: "{n} Artikelen", info_more: "{n} Artikelen (déi éischt {c} gewisen – verfeinert d’Sich)",
-      info_search: "{n} Resultater fir „{q}“", info_veh: "{n} Deeler fir {v}",
+      cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohren", adapter: "Adapter" },
+      info_all: "{n} Produiten", info_more: "{n} Produiten (déi éischt {c} gewisen – wiel däi Won oder verfeinert d’Sich)",
+      info_search: "{n} Resultater fir „{q}“", info_veh: "{n} Produiten fir {v}",
       info_cat: "{n} · {c}",
-      empty: "Keng Artikelen fonnt. Rufft eis un – mir fannen dat richtegt Deel.",
-      fits: "Passt:", artnr: "Art-Nr.", add: "An de Kuerf",
-      added: "„{n}“ an de Kuerf geluecht", vat: "All Präisser exkl. TVA (RRP 2026).",
+      empty: "Keng Produiten fonnt. Rufft eis un – mir fannen dat richtegt Deel.",
+      fits: "Passt:", artnr: "Réf.", add: "An de Kuerf",
+      added: "„{n}“ an de Kuerf geluecht", vat: "All Präisser exkl. TVA (REMUS RRP).",
+      stock_in: "Op Lager", stock_order: "Op Ufro",
+      ec_ok: "EC-Zoulassung", ec_some: "EC je no Gefier", ec_no: "Rennsport · ouni EC",
+      kw: "kW", from: "zanter",
       note_title: "Deel net fonnt?",
       note_text: "Mir fannen Iech déi richteg REMUS-Anlag fir Äre Won – rufft un oder schéckt eng Ufro.",
       note_cta: "Deel ufroen",
@@ -40,18 +52,21 @@
     },
     de: {
       eyebrow: "Onlineshop", title: "Autoteile-Shop",
-      sub: "REMUS Sportauspuffanlagen jetzt verfügbar – DBA-Bremsen folgen. Nach Artikel suchen oder Fahrzeug wählen.",
+      sub: "REMUS Sportauspuffanlagen mit Bild, Preis und Lagerstatus. Fahrzeug wählen oder Artikel suchen – DBA-Bremsen folgen.",
       tab_artikel: "Artikel", tab_fahrzeug: "Fahrzeug",
       ph_text: "Bezeichnung oder Artikelnummer …", btn_text: "Suchen",
       ph_brand: "Marke wählen oder eingeben", ph_model: "Modell wählen oder eingeben",
       btn_veh: "Passende Teile finden",
-      cats: { all: "Alle", system: "Sportauspuffanlagen", tail: "Endrohre", adapter: "Adapter" },
-      info_all: "{n} Artikel", info_more: "{n} Artikel (erste {c} angezeigt – Suche verfeinern)",
-      info_search: "{n} Ergebnisse für „{q}“", info_veh: "{n} Teile für {v}",
+      cats: { all: "Alle", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohre", adapter: "Adapter" },
+      info_all: "{n} Produkte", info_more: "{n} Produkte (erste {c} angezeigt – Fahrzeug wählen oder Suche verfeinern)",
+      info_search: "{n} Ergebnisse für „{q}“", info_veh: "{n} Produkte für {v}",
       info_cat: "{n} · {c}",
-      empty: "Keine Artikel gefunden. Rufen Sie uns an – wir finden das richtige Teil.",
-      fits: "Passt:", artnr: "Art-Nr.", add: "In den Warenkorb",
-      added: "„{n}“ in den Warenkorb gelegt", vat: "Alle Preise zzgl. MwSt. (RRP 2026).",
+      empty: "Keine Produkte gefunden. Rufen Sie uns an – wir finden das richtige Teil.",
+      fits: "Passt:", artnr: "Ref.", add: "In den Warenkorb",
+      added: "„{n}“ in den Warenkorb gelegt", vat: "Alle Preise zzgl. MwSt. (REMUS RRP).",
+      stock_in: "Auf Lager", stock_order: "Auf Anfrage",
+      ec_ok: "EG-Zulassung", ec_some: "EG je nach Fahrzeug", ec_no: "Rennsport · ohne EG",
+      kw: "kW", from: "ab",
       note_title: "Teil nicht gefunden?",
       note_text: "Wir finden die passende REMUS-Anlage für Ihr Fahrzeug – rufen Sie an oder senden Sie eine Anfrage.",
       note_cta: "Teil anfragen",
@@ -63,18 +78,21 @@
     },
     fr: {
       eyebrow: "Boutique", title: "Boutique de pièces",
-      sub: "Échappements sport REMUS disponibles – freins DBA à venir. Recherchez un article ou choisissez votre véhicule.",
+      sub: "Lignes d’échappement sport REMUS avec photo, prix et disponibilité. Choisissez votre véhicule ou cherchez un article – freins DBA à venir.",
       tab_artikel: "Article", tab_fahrzeug: "Véhicule",
       ph_text: "Désignation ou numéro d’article …", btn_text: "Rechercher",
       ph_brand: "Choisir ou saisir la marque", ph_model: "Choisir ou saisir le modèle",
       btn_veh: "Trouver les pièces",
-      cats: { all: "Tout", system: "Lignes d’échappement", tail: "Sorties", adapter: "Adaptateurs" },
-      info_all: "{n} articles", info_more: "{n} articles ({c} premiers affichés – affinez la recherche)",
-      info_search: "{n} résultats pour « {q} »", info_veh: "{n} pièces pour {v}",
+      cats: { all: "Tout", system: "Lignes d’échappement", sound: "Sound Controller", tail: "Sorties", adapter: "Adaptateurs" },
+      info_all: "{n} produits", info_more: "{n} produits ({c} premiers affichés – choisissez votre véhicule ou affinez)",
+      info_search: "{n} résultats pour « {q} »", info_veh: "{n} produits pour {v}",
       info_cat: "{n} · {c}",
-      empty: "Aucun article trouvé. Appelez-nous – nous trouvons la bonne pièce.",
+      empty: "Aucun produit trouvé. Appelez-nous – nous trouvons la bonne pièce.",
       fits: "Compatible :", artnr: "Réf.", add: "Au panier",
-      added: "« {n} » ajouté au panier", vat: "Tous les prix HT (RRP 2026).",
+      added: "« {n} » ajouté au panier", vat: "Tous les prix HT (REMUS RRP).",
+      stock_in: "En stock", stock_order: "Sur demande",
+      ec_ok: "Homologation CE", ec_some: "CE selon véhicule", ec_no: "Compétition · sans CE",
+      kw: "kW", from: "dès",
       note_title: "Pièce introuvable ?",
       note_text: "Nous trouvons la ligne REMUS adaptée à votre véhicule – appelez ou envoyez une demande.",
       note_cta: "Demander une pièce",
@@ -86,18 +104,21 @@
     },
     en: {
       eyebrow: "Online shop", title: "Car parts shop",
-      sub: "REMUS sport exhausts available now – DBA brakes coming. Search an article or pick your vehicle.",
+      sub: "REMUS sport exhaust systems with photo, price and stock status. Pick your vehicle or search an article – DBA brakes coming.",
       tab_artikel: "Article", tab_fahrzeug: "Vehicle",
       ph_text: "Name or part number …", btn_text: "Search",
       ph_brand: "Choose or type make", ph_model: "Choose or type model",
       btn_veh: "Find matching parts",
-      cats: { all: "All", system: "Exhaust systems", tail: "Tail pipes", adapter: "Adapters" },
-      info_all: "{n} items", info_more: "{n} items (first {c} shown – refine your search)",
-      info_search: "{n} results for “{q}”", info_veh: "{n} parts for {v}",
+      cats: { all: "All", system: "Exhaust systems", sound: "Sound Controller", tail: "Tail pipes", adapter: "Adapters" },
+      info_all: "{n} products", info_more: "{n} products (first {c} shown – pick your vehicle or refine)",
+      info_search: "{n} results for “{q}”", info_veh: "{n} products for {v}",
       info_cat: "{n} · {c}",
-      empty: "No items found. Call us – we’ll find the right part.",
-      fits: "Fits:", artnr: "Part no.", add: "Add to cart",
-      added: "“{n}” added to cart", vat: "All prices excl. VAT (RRP 2026).",
+      empty: "No products found. Call us – we’ll find the right part.",
+      fits: "Fits:", artnr: "Ref.", add: "Add to cart",
+      added: "“{n}” added to cart", vat: "All prices excl. VAT (REMUS RRP).",
+      stock_in: "In stock", stock_order: "On request",
+      ec_ok: "EC approval", ec_some: "EC depends on vehicle", ec_no: "Race · no EC",
+      kw: "kW", from: "from",
       note_title: "Part not found?",
       note_text: "We’ll find the right REMUS system for your car – call or send a request.",
       note_cta: "Request a part",
@@ -140,10 +161,49 @@
   }
   function tr() { return T[lang()] || T.lb; }
   function centsToStr(c) { return (c / 100).toFixed(2).replace(".", ",") + " €"; }
-  function brandsOf(p) {
+  function imgUrl(idx, w, h) {
+    if (idx == null || idx < 0 || !IMAGES[idx]) return "";
+    return IMGBASE + IMAGES[idx] + "?w=" + w + "&h=" + h + "&fit=crop&auto=format";
+  }
+  function makeName(i) { return MAKES[i] || ""; }
+  function makesOf(p) {
     var seen = {}, out = [];
-    p.f.forEach(function (x) { if (!seen[x[0]]) { seen[x[0]] = 1; out.push(x[0]); } });
+    p.f.forEach(function (x) { if (!seen[x[0]]) { seen[x[0]] = 1; out.push(makeName(x[0])); } });
     return out;
+  }
+  function modelsOf(p) {
+    var seen = {}, out = [];
+    p.f.forEach(function (x) { if (!seen[x[1]]) { seen[x[1]] = 1; out.push(x[1]); } });
+    return out;
+  }
+  /* Fitment: [makeIdx, model, varIdx, kW, yMin, yMax, ec, engIdx] */
+  function fitLabel(x) {
+    var parts = [x[1]];
+    if (x[2] > -1 && VARIANTS[x[2]]) parts.push(VARIANTS[x[2]]);
+    var tail = [];
+    if (x[7] > -1 && ENGINES[x[7]]) tail.push(ENGINES[x[7]]);
+    if (x[3]) tail.push(x[3] + " " + tr().kw);
+    var yr = "";
+    if (x[4]) yr = x[4] + (x[5] ? "–" + x[5] : "–");
+    else if (x[5]) yr = "–" + x[5];
+    if (yr) tail.push(yr);
+    var s = parts.join(" ");
+    if (tail.length) s += " · " + tail.join(" · ");
+    return s;
+  }
+  /* EC-Status fir Anzeige: {cls, key} */
+  function ecStatus(p) {
+    var fits = p.f;
+    if (state.mode === "vehicle" && state.brand) {
+      var bi = MAKE_IDX[state.brand];
+      fits = p.f.filter(function (x) { return x[0] === bi && (!state.model || x[1] === state.model); });
+      if (!fits.length) fits = p.f;
+    }
+    var yes = 0;
+    fits.forEach(function (x) { if (x[6]) yes++; });
+    if (yes === fits.length) return { cls: "ok", key: "ec_ok" };
+    if (yes === 0) return { cls: "no", key: "ec_no" };
+    return { cls: "some", key: "ec_some" };
   }
 
   /* ---------- Filter ---------- */
@@ -151,11 +211,19 @@
     if (state.cat !== "all" && p.c !== state.cat) return false;
     if (state.mode === "search" && state.q) {
       var q = state.q.toLowerCase();
-      return p.a.toLowerCase().indexOf(q) !== -1 || p.n.toLowerCase().indexOf(q) !== -1;
+      if (p.n.toLowerCase().indexOf(q) !== -1) return true;
+      if (p.i.toLowerCase().indexOf(q) !== -1) return true;
+      return p.f.some(function (x) {
+        if (makeName(x[0]).toLowerCase().indexOf(q) !== -1) return true;
+        if ((x[1] || "").toLowerCase().indexOf(q) !== -1) return true;
+        if (x[2] > -1 && VARIANTS[x[2]] && VARIANTS[x[2]].toLowerCase().indexOf(q) !== -1) return true;
+        return false;
+      });
     }
     if (state.mode === "vehicle" && state.brand) {
+      var bi = MAKE_IDX[state.brand];
       return p.f.some(function (x) {
-        return x[0] === state.brand && (!state.model || x[1] === state.model);
+        return x[0] === bi && (!state.model || x[1] === state.model);
       });
     }
     return true;
@@ -166,7 +234,7 @@
     var t = tr(), wrap = $("cat-chips");
     if (!wrap) return;
     wrap.innerHTML = "";
-    ["all", "system", "tail", "adapter"].forEach(function (c) {
+    ["all", "system", "sound", "tail", "adapter"].forEach(function (c) {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "cat-chip" + (state.cat === c ? " active" : "");
@@ -177,47 +245,22 @@
   }
 
   /* ---------- Katalog rendern ---------- */
+  function sortList(list) {
+    return list.slice().sort(function (a, b) {
+      if (a.s !== b.s) return b.s - a.s;     // op Lager fir d'éischt
+      return a.n < b.n ? -1 : a.n > b.n ? 1 : 0;
+    });
+  }
   function render() {
     var t = tr(), grid = $("shop-grid"), info = $("shop-result-info"), empty = $("shop-empty");
     if (!grid) return;
     renderChips();
-    var list = PRODUCTS.filter(matches);
+    var list = sortList(PRODUCTS.filter(matches));
     var n = list.length;
     var shown = list.slice(0, RENDER_CAP);
     grid.innerHTML = "";
     shown.forEach(function (p) {
-      var c = document.createElement("article");
-      c.className = "shop-card";
-      var cat = document.createElement("span");
-      cat.className = "shop-cat";
-      cat.textContent = t.cats[p.c] || p.c;
-      var h = document.createElement("h3");
-      h.textContent = p.n;
-      var fit = document.createElement("p");
-      fit.className = "shop-fit";
-      var bl = brandsOf(p);
-      fit.textContent = t.fits + " " + bl.slice(0, 3).join(", ") + (bl.length > 3 ? " +" + (bl.length - 3) : "");
-      var foot = document.createElement("div");
-      foot.className = "shop-card-foot";
-      var art = document.createElement("span");
-      art.className = "shop-artnr";
-      art.textContent = t.artnr + " " + p.a;
-      var pr = document.createElement("span");
-      pr.className = "shop-price";
-      pr.textContent = centsToStr(p.p);
-      foot.appendChild(art);
-      foot.appendChild(pr);
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "btn btn-outline shop-add";
-      btn.textContent = t.add;
-      btn.addEventListener("click", function () { addToCart(p, btn); });
-      c.appendChild(cat);
-      c.appendChild(h);
-      c.appendChild(fit);
-      c.appendChild(foot);
-      c.appendChild(btn);
-      grid.appendChild(c);
+      grid.appendChild(card(p, t));
     });
     var txt;
     if (state.mode === "search" && state.q) txt = t.info_search.replace("{n}", n).replace("{q}", state.q);
@@ -228,6 +271,87 @@
     if (state.cat !== "all") txt = t.info_cat.replace("{n}", txt).replace("{c}", t.cats[state.cat]);
     if (info) info.textContent = txt;
     if (empty) empty.hidden = n > 0;
+  }
+
+  function card(p, t) {
+    var c = document.createElement("article");
+    c.className = "shop-card";
+
+    /* Media */
+    var media = document.createElement("div");
+    media.className = "shop-card-media";
+    var url = imgUrl(p.m, 600, 360);
+    if (url) {
+      var img = document.createElement("img");
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.width = 600; img.height = 360;
+      img.alt = p.n;
+      img.src = url;
+      img.addEventListener("error", function () { media.classList.add("no-img"); img.remove(); });
+      media.appendChild(img);
+    } else {
+      media.classList.add("no-img");
+    }
+    var catTag = document.createElement("span");
+    catTag.className = "shop-cat";
+    catTag.textContent = t.cats[p.c] || p.c;
+    media.appendChild(catTag);
+    c.appendChild(media);
+
+    /* Body */
+    var body = document.createElement("div");
+    body.className = "shop-card-body";
+
+    var h = document.createElement("h3");
+    h.textContent = p.n;
+    body.appendChild(h);
+
+    var fit = document.createElement("p");
+    fit.className = "shop-fit";
+    if (state.mode === "vehicle" && state.brand) {
+      var bi = MAKE_IDX[state.brand];
+      var mf = p.f.filter(function (x) { return x[0] === bi && (!state.model || x[1] === state.model); });
+      fit.textContent = t.fits + " " + (mf.length ? fitLabel(mf[0]) : modelsOf(p).slice(0, 3).join(", "));
+    } else {
+      var ms = modelsOf(p);
+      fit.textContent = t.fits + " " + ms.slice(0, 3).join(", ") + (ms.length > 3 ? " +" + (ms.length - 3) : "");
+    }
+    body.appendChild(fit);
+
+    /* Badges (EC-Zoulassung – Lagerstatus gëtt bewosst net ugewisen) */
+    var badges = document.createElement("div");
+    badges.className = "shop-badges";
+    var ec = ecStatus(p);
+    var ecb = document.createElement("span");
+    ecb.className = "badge badge-ec " + ec.cls;
+    ecb.textContent = (ec.cls === "ok" ? "✓ " : "") + t[ec.key];
+    badges.appendChild(ecb);
+    body.appendChild(badges);
+
+    /* Foot */
+    var foot = document.createElement("div");
+    foot.className = "shop-card-foot";
+    var art = document.createElement("span");
+    art.className = "shop-artnr";
+    art.textContent = t.artnr + " " + p.i;
+    var pr = document.createElement("span");
+    pr.className = "shop-price";
+    pr.textContent = p.p ? centsToStr(p.p) : "—";
+    foot.appendChild(art);
+    foot.appendChild(pr);
+    body.appendChild(foot);
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn btn-outline shop-add";
+    btn.textContent = t.add;
+    btn.disabled = !p.p;
+    btn.addEventListener("click", function () { addToCart(p, btn); });
+    body.appendChild(btn);
+
+    c.appendChild(body);
+    return c;
   }
 
   /* ---------- Combobox (Textfeld + filterbar Lëscht) ---------- */
@@ -396,9 +520,10 @@
   function cartCount() { return cart.reduce(function (s, l) { return s + l.qty; }, 0); }
   function cartTotal() { return cart.reduce(function (s, l) { return s + l.cents * l.qty; }, 0); }
   function addToCart(p, srcEl) {
-    var line = cart.filter(function (l) { return l.id === p.a; })[0];
+    if (!p.p) return;
+    var line = cart.filter(function (l) { return l.id === p.i; })[0];
     if (line) line.qty++;
-    else cart.push({ id: p.a, name: p.n, cents: p.p, qty: 1 });
+    else cart.push({ id: p.i, name: p.n, cents: p.p, qty: 1 });
     saveCart(); renderCart();
     flyToCart(srcEl);
     var t = tr(), el = $("cart-toast");
