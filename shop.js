@@ -12,6 +12,7 @@
   var MAKES = window.SHOP_MAKES || [];
   var ENGINES = window.SHOP_ENGINES || [];
   var VARIANTS = window.SHOP_VARIANTS || [];
+  var GENS = window.SHOP_GENS || [];
   var IMAGES = window.SHOP_IMAGES || [];
   var IMGBASE = (window.SHOP_META && window.SHOP_META.imgbase) || "";
   var cart = [];
@@ -36,8 +37,8 @@
       info_search: "{n} Resultater fir „{q}“", info_veh: "{n} Produiten fir {v}",
       info_cat: "{n} · {c}",
       empty: "Keng Produiten fonnt. Rufft eis un – mir fannen dat richtegt Deel.",
-      fits: "Passt:", artnr: "Réf.", add: "An de Kuerf",
-      added: "„{n}“ an de Kuerf geluecht", vat: "All Präisser exkl. TVA (REMUS RRP).",
+      fits: "Passt:", artnr: "Réf.", add: "An de Kuerf", fits_on: "Passt op:", related: "Dobaibestellen", related_sub: "Weider passend Produiter fir datselwecht Gefier", rel_none: "Keng passend Zousatzdeeler fonnt.", pd_add: "+ derbäi", pd_close: "Zoumaachen",
+      added: "„{n}“ an de Kuerf geluecht", vat: "All Präisser inkl. 17% TVA.",
       stock_in: "Op Lager", stock_order: "Op Ufro",
       ec_ok: "EC-Zoulassung", ec_some: "EC je no Gefier", ec_no: "Rennsport · ouni EC",
       kw: "kW", from: "zanter",
@@ -46,7 +47,7 @@
       note_cta: "Deel ufroen",
       cart_title: "Äre Kuerf", cart_empty: "Äre Kuerf ass eidel.", cart_total: "Total",
       cart_checkout: "Bezuelen", cart_remove: "Ewechhuelen",
-      cart_note: "Sécher bezuelen iwwer Mollie – Kaart, Wero, Revolut oder Iwwerweisung. Präisser exkl. TVA.",
+      cart_note: "Sécher bezuelen iwwer Mollie – Kaart, Wero, Revolut oder Iwwerweisung. Präisser inkl. 17% TVA.",
       cart_redirect: "Gëtt op d’Bezuelung weidergeleet …",
       cart_err: "D’Bezuelung ass de Moment net erreechbar. Probéiert w.e.g. méi spéit oder rufft eis un.",
     },
@@ -62,8 +63,8 @@
       info_search: "{n} Ergebnisse für „{q}“", info_veh: "{n} Produkte für {v}",
       info_cat: "{n} · {c}",
       empty: "Keine Produkte gefunden. Rufen Sie uns an – wir finden das richtige Teil.",
-      fits: "Passt:", artnr: "Ref.", add: "In den Warenkorb",
-      added: "„{n}“ in den Warenkorb gelegt", vat: "Alle Preise zzgl. MwSt. (REMUS RRP).",
+      fits: "Passt:", artnr: "Ref.", add: "In den Warenkorb", fits_on: "Passt auf:", related: "Dazu bestellen", related_sub: "Weitere passende Produkte für dasselbe Fahrzeug", rel_none: "Kein passendes Zubehör gefunden.", pd_add: "+ dazu", pd_close: "Schließen",
+      added: "„{n}“ in den Warenkorb gelegt", vat: "Alle Preise inkl. 17% MwSt.",
       stock_in: "Auf Lager", stock_order: "Auf Anfrage",
       ec_ok: "EG-Zulassung", ec_some: "EG je nach Fahrzeug", ec_no: "Rennsport · ohne EG",
       kw: "kW", from: "ab",
@@ -72,7 +73,7 @@
       note_cta: "Teil anfragen",
       cart_title: "Ihr Warenkorb", cart_empty: "Ihr Warenkorb ist leer.", cart_total: "Gesamt",
       cart_checkout: "Bezahlen", cart_remove: "Entfernen",
-      cart_note: "Sicher bezahlen über Mollie – Karte, Wero, Revolut oder Überweisung. Preise zzgl. MwSt.",
+      cart_note: "Sicher bezahlen über Mollie – Karte, Wero, Revolut oder Überweisung. Preise inkl. 17% MwSt.",
       cart_redirect: "Weiterleitung zur Bezahlung …",
       cart_err: "Die Bezahlung ist derzeit nicht erreichbar. Bitte später erneut versuchen oder anrufen.",
     },
@@ -88,8 +89,8 @@
       info_search: "{n} résultats pour « {q} »", info_veh: "{n} produits pour {v}",
       info_cat: "{n} · {c}",
       empty: "Aucun produit trouvé. Appelez-nous – nous trouvons la bonne pièce.",
-      fits: "Compatible :", artnr: "Réf.", add: "Au panier",
-      added: "« {n} » ajouté au panier", vat: "Tous les prix HT (REMUS RRP).",
+      fits: "Compatible :", artnr: "Réf.", add: "Au panier", fits_on: "Compatible avec :", related: "À commander avec", related_sub: "Autres produits compatibles pour le même véhicule", rel_none: "Aucun accessoire compatible trouvé.", pd_add: "+ ajouter", pd_close: "Fermer",
+      added: "« {n} » ajouté au panier", vat: "Tous les prix TTC (TVA 17% incluse).",
       stock_in: "En stock", stock_order: "Sur demande",
       ec_ok: "Homologation CE", ec_some: "CE selon véhicule", ec_no: "Compétition · sans CE",
       kw: "kW", from: "dès",
@@ -98,7 +99,7 @@
       note_cta: "Demander une pièce",
       cart_title: "Votre panier", cart_empty: "Votre panier est vide.", cart_total: "Total",
       cart_checkout: "Payer", cart_remove: "Retirer",
-      cart_note: "Paiement sécurisé via Mollie – carte, Wero, Revolut ou virement. Prix HT.",
+      cart_note: "Paiement sécurisé via Mollie – carte, Wero, Revolut ou virement. Prix TTC.",
       cart_redirect: "Redirection vers le paiement …",
       cart_err: "Le paiement est momentanément indisponible. Réessayez plus tard ou appelez-nous.",
     },
@@ -114,8 +115,8 @@
       info_search: "{n} results for “{q}”", info_veh: "{n} products for {v}",
       info_cat: "{n} · {c}",
       empty: "No products found. Call us – we’ll find the right part.",
-      fits: "Fits:", artnr: "Ref.", add: "Add to cart",
-      added: "“{n}” added to cart", vat: "All prices excl. VAT (REMUS RRP).",
+      fits: "Fits:", artnr: "Ref.", add: "Add to cart", fits_on: "Fits:", related: "Order together", related_sub: "More matching products for the same vehicle", rel_none: "No matching accessories found.", pd_add: "+ add", pd_close: "Close",
+      added: "“{n}” added to cart", vat: "All prices incl. 17% VAT.",
       stock_in: "In stock", stock_order: "On request",
       ec_ok: "EC approval", ec_some: "EC depends on vehicle", ec_no: "Race · no EC",
       kw: "kW", from: "from",
@@ -124,7 +125,7 @@
       note_cta: "Request a part",
       cart_title: "Your cart", cart_empty: "Your cart is empty.", cart_total: "Total",
       cart_checkout: "Pay", cart_remove: "Remove",
-      cart_note: "Secure payment via Mollie – card, Wero, Revolut or bank transfer. Prices excl. VAT.",
+      cart_note: "Secure payment via Mollie – card, Wero, Revolut or bank transfer. Prices incl. 17% VAT.",
       cart_redirect: "Redirecting to payment …",
       cart_err: "Payment is currently unavailable. Please try again later or call us.",
     },
@@ -161,6 +162,9 @@
   }
   function tr() { return T[lang()] || T.lb; }
   function centsToStr(c) { return (c / 100).toFixed(2).replace(".", ",") + " €"; }
+  var VAT_RATE = 0.17; // Lëtzebuerger TVA – direkt am ugewisene Präis abegraff
+  function grossCents(net) { return Math.round(net * (1 + VAT_RATE)); }
+  function priceStr(net) { return centsToStr(grossCents(net)); }
   function imgUrl(idx, w, h) {
     if (idx == null || idx < 0 || !IMAGES[idx]) return "";
     return IMGBASE + IMAGES[idx] + "?w=" + w + "&h=" + h + "&fit=crop&auto=format";
@@ -176,16 +180,17 @@
     p.f.forEach(function (x) { if (!seen[x[1]]) { seen[x[1]] = 1; out.push(x[1]); } });
     return out;
   }
-  /* Fitment: [makeIdx, model, varIdx, kW, yMin, yMax, ec, engIdx] */
+  /* Fitment: [makeIdx, model, genIdx, varIdx, kW, yMin, yMax, ec, engIdx] */
   function fitLabel(x) {
     var parts = [x[1]];
-    if (x[2] > -1 && VARIANTS[x[2]]) parts.push(VARIANTS[x[2]]);
+    if (x[2] > -1 && GENS[x[2]]) parts.push(GENS[x[2]]);
+    if (x[3] > -1 && VARIANTS[x[3]]) parts.push(VARIANTS[x[3]]);
     var tail = [];
-    if (x[7] > -1 && ENGINES[x[7]]) tail.push(ENGINES[x[7]]);
-    if (x[3]) tail.push(x[3] + " " + tr().kw);
+    if (x[8] > -1 && ENGINES[x[8]]) tail.push(ENGINES[x[8]]);
+    if (x[4]) tail.push(x[4] + " " + tr().kw);
     var yr = "";
-    if (x[4]) yr = x[4] + (x[5] ? "–" + x[5] : "–");
-    else if (x[5]) yr = "–" + x[5];
+    if (x[5]) yr = x[5] + "–" + (x[6] ? x[6] : "");
+    else if (x[6]) yr = "–" + x[6];
     if (yr) tail.push(yr);
     var s = parts.join(" ");
     if (tail.length) s += " · " + tail.join(" · ");
@@ -200,7 +205,7 @@
       if (!fits.length) fits = p.f;
     }
     var yes = 0;
-    fits.forEach(function (x) { if (x[6]) yes++; });
+    fits.forEach(function (x) { if (x[7]) yes++; });
     if (yes === fits.length) return { cls: "ok", key: "ec_ok" };
     if (yes === 0) return { cls: "no", key: "ec_no" };
     return { cls: "some", key: "ec_some" };
@@ -234,7 +239,7 @@
     var t = tr(), wrap = $("cat-chips");
     if (!wrap) return;
     wrap.innerHTML = "";
-    ["all", "system", "sound", "tail", "adapter"].forEach(function (c) {
+    ["all", "system", "sound", "adapter"].forEach(function (c) {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "cat-chip" + (state.cat === c ? " active" : "");
@@ -337,7 +342,7 @@
     art.textContent = t.artnr + " " + p.i;
     var pr = document.createElement("span");
     pr.className = "shop-price";
-    pr.textContent = p.p ? centsToStr(p.p) : "—";
+    pr.textContent = p.p ? priceStr(p.p) : "—";
     foot.appendChild(art);
     foot.appendChild(pr);
     body.appendChild(foot);
@@ -347,11 +352,153 @@
     btn.className = "btn btn-outline shop-add";
     btn.textContent = t.add;
     btn.disabled = !p.p;
-    btn.addEventListener("click", function () { addToCart(p, btn); });
+    btn.addEventListener("click", function (e) { e.stopPropagation(); addToCart(p, btn); });
     body.appendChild(btn);
 
     c.appendChild(body);
+    c.classList.add("is-clickable");
+    c.addEventListener("click", function () { openProduct(p); });
     return c;
+  }
+
+  /* ---------- Produkt-Detail (Modal) + "Dobaibestellen" ---------- */
+  function relatedOf(p) {
+    /* Match op Mark|Modell|Generatioun (z.B. BMW|3 Series|E46) —
+       sou kommen nëmme Saachen déi op déiselwecht Gefier-Generatioun passen. */
+    var keys = {};
+    p.f.forEach(function (x) { keys[x[0] + "|" + x[1] + "|" + x[2]] = 1; });
+    var selModel = (state.mode === "vehicle" && state.model) ? state.model : null;
+    var scored = [];
+    PRODUCTS.forEach(function (o) {
+      if (o.i === p.i || !o.p) return;
+      var share = 0, exact = false;
+      o.f.forEach(function (x) {
+        if (keys[x[0] + "|" + x[1] + "|" + x[2]]) { share++; if (selModel && x[1] === selModel) exact = true; }
+      });
+      if (!share) return;
+      var catRank = o.c === "sound" ? 0 : o.c === "tail" ? 1 : o.c === "adapter" ? 2 : 3;
+      scored.push({ o: o, score: (exact ? 100 : 0) + share, catRank: catRank });
+    });
+    scored.sort(function (a, b) {
+      if (a.catRank !== b.catRank) return a.catRank - b.catRank;
+      if (a.score !== b.score) return b.score - a.score;
+      return a.o.n < b.o.n ? -1 : 1;
+    });
+    return scored.slice(0, 10).map(function (s) { return s.o; });
+  }
+
+  var pdEls = null;
+  function ensureModal() {
+    if (pdEls) return pdEls;
+    var back = document.createElement("div");
+    back.className = "pd-backdrop"; back.id = "pd-backdrop"; back.hidden = true;
+    var modal = document.createElement("div");
+    modal.className = "pd-modal"; modal.id = "pd-modal";
+    modal.setAttribute("role", "dialog"); modal.setAttribute("aria-modal", "true");
+    modal.hidden = true;
+    modal.innerHTML =
+      '<button type="button" class="pd-close" aria-label="×">✕</button>' +
+      '<div class="pd-media" id="pd-media"></div>' +
+      '<div class="pd-body">' +
+      '<span class="shop-cat" id="pd-cat"></span>' +
+      '<h2 class="pd-name" id="pd-name"></h2>' +
+      '<div class="shop-badges" id="pd-badges"></div>' +
+      '<p class="pd-fits-title" id="pd-fits-title"></p>' +
+      '<ul class="pd-fits" id="pd-fits"></ul>' +
+      '<div class="pd-foot"><span class="pd-ref" id="pd-ref"></span><span class="pd-price" id="pd-price"></span></div>' +
+      '<button type="button" class="btn btn-primary pd-add" id="pd-add"></button>' +
+      '<div class="pd-related" id="pd-related"></div>' +
+      '</div>';
+    document.body.appendChild(back);
+    document.body.appendChild(modal);
+    back.addEventListener("click", closeProduct);
+    modal.querySelector(".pd-close").addEventListener("click", closeProduct);
+    pdEls = { back: back, modal: modal };
+    return pdEls;
+  }
+  function closeProduct() {
+    if (!pdEls) return;
+    pdEls.modal.classList.remove("show");
+    pdEls.back.classList.remove("show");
+    setTimeout(function () {
+      if (pdEls && !pdEls.modal.classList.contains("show")) { pdEls.modal.hidden = true; pdEls.back.hidden = true; }
+    }, 250);
+  }
+  function openProduct(p) {
+    var t = tr();
+    ensureModal();
+    var media = $("pd-media");
+    var url = imgUrl(p.m, 900, 540);
+    media.className = "pd-media";
+    media.innerHTML = "";
+    if (url) {
+      var img = document.createElement("img");
+      img.loading = "lazy"; img.alt = p.n; img.src = url;
+      img.addEventListener("error", function () { media.classList.add("no-img"); img.remove(); });
+      media.appendChild(img);
+    } else { media.classList.add("no-img"); }
+    setTxt("pd-cat", t.cats[p.c] || p.c);
+    setTxt("pd-name", p.n);
+    /* EC-Badge */
+    var badges = $("pd-badges"); badges.innerHTML = "";
+    var ec = ecStatus(p);
+    var ecb = document.createElement("span");
+    ecb.className = "badge badge-ec " + ec.cls;
+    ecb.textContent = (ec.cls === "ok" ? "✓ " : "") + t[ec.key];
+    badges.appendChild(ecb);
+    /* Passform-Lëscht */
+    setTxt("pd-fits-title", t.fits_on);
+    var fitsEl = $("pd-fits"); fitsEl.innerHTML = "";
+    var seen = {}, shown = 0;
+    p.f.forEach(function (x) {
+      if (shown >= 10) return;
+      var label = makeName(x[0]) + " " + fitLabel(x);
+      if (seen[label]) return; seen[label] = 1; shown++;
+      var li = document.createElement("li"); li.textContent = label; fitsEl.appendChild(li);
+    });
+    setTxt("pd-ref", t.artnr + " " + p.i);
+    setTxt("pd-price", p.p ? priceStr(p.p) : "—");
+    var addBtn = $("pd-add");
+    addBtn.textContent = t.add; addBtn.disabled = !p.p;
+    addBtn.onclick = function () { addToCart(p, addBtn); };
+    /* Dobaibestellen */
+    var relWrap = $("pd-related"); relWrap.innerHTML = "";
+    var rel = relatedOf(p);
+    var h = document.createElement("h3"); h.textContent = t.related; relWrap.appendChild(h);
+    var sub = document.createElement("p"); sub.className = "pd-rel-sub"; sub.textContent = t.related_sub; relWrap.appendChild(sub);
+    if (!rel.length) {
+      var none = document.createElement("p"); none.className = "pd-rel-none"; none.textContent = t.rel_none; relWrap.appendChild(none);
+    } else {
+      var ul = document.createElement("ul"); ul.className = "pd-rel-list";
+      rel.forEach(function (o) { ul.appendChild(relItem(o, t)); });
+      relWrap.appendChild(ul);
+    }
+    pdEls.modal.scrollTop = 0;
+    pdEls.back.hidden = false; pdEls.modal.hidden = false;
+    requestAnimationFrame(function () { pdEls.modal.classList.add("show"); pdEls.back.classList.add("show"); });
+  }
+  function relItem(o, t) {
+    var li = document.createElement("li"); li.className = "pd-rel-item";
+    var thumb = document.createElement("div"); thumb.className = "pd-rel-thumb";
+    var url = imgUrl(o.m, 160, 120);
+    if (url) {
+      var im = document.createElement("img"); im.loading = "lazy"; im.alt = o.n; im.src = url;
+      im.addEventListener("error", function () { thumb.classList.add("no-img"); im.remove(); });
+      thumb.appendChild(im);
+    } else { thumb.classList.add("no-img"); }
+    var info = document.createElement("div"); info.className = "pd-rel-info";
+    var nm = document.createElement("div"); nm.className = "pd-rel-name"; nm.textContent = o.n;
+    var meta = document.createElement("div"); meta.className = "pd-rel-meta";
+    meta.textContent = (t.cats[o.c] || o.c) + " · " + priceStr(o.p);
+    info.appendChild(nm); info.appendChild(meta);
+    var add = document.createElement("button");
+    add.type = "button"; add.className = "btn btn-outline pd-rel-add"; add.textContent = t.pd_add;
+    add.disabled = !o.p;
+    add.addEventListener("click", function (e) { e.stopPropagation(); addToCart(o, add); });
+    li.appendChild(thumb); li.appendChild(info); li.appendChild(add);
+    /* Klick op d'Zeil -> op dee Produkt wiesselen */
+    li.addEventListener("click", function () { openProduct(o); });
+    return li;
   }
 
   /* ---------- Combobox (Textfeld + filterbar Lëscht) ---------- */
@@ -523,7 +670,7 @@
     if (!p.p) return;
     var line = cart.filter(function (l) { return l.id === p.i; })[0];
     if (line) line.qty++;
-    else cart.push({ id: p.i, name: p.n, cents: p.p, qty: 1 });
+    else cart.push({ id: p.i, name: p.n, cents: grossCents(p.p), qty: 1 });
     saveCart(); renderCart();
     flyToCart(srcEl);
     var t = tr(), el = $("cart-toast");
@@ -678,7 +825,7 @@
       var id = b.getAttribute("data-id"), act = b.getAttribute("data-act");
       if (act === "inc") setQty(id, 1); else if (act === "dec") setQty(id, -1); else if (act === "rm") removeLine(id);
     });
-    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeCart(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeCart(); closeProduct(); } });
     document.querySelectorAll(".lang-select").forEach(function (sel) {
       sel.addEventListener("change", function () { setTimeout(function () { applyStatics(); render(); }, 0); });
     });
