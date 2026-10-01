@@ -21,7 +21,9 @@
   var MAKE_IDX = {};
   MAKES.forEach(function (m, i) { MAKE_IDX[m] = i; });
 
-  var state = { mode: "all", q: "", cat: "all", brand: "", model: "" };
+  var state = { mode: "all", q: "", cat: "all", brand: "", model: "", generation: "", year: "", engine: "" };
+  var ALL_FITS = [];
+  PRODUCTS.forEach(function (p) { p.f.forEach(function (fit) { ALL_FITS.push(fit); }); });
 
   /* ---------- Iwwersetzungen ---------- */
   var T = {
@@ -151,6 +153,92 @@
       dev: "Preview mode – shop still “under construction”", hide: "hide" },
   };
 
+  /* Shop-spezifesch, konsequent formell Texter a Filter-/Rechtsinformatiounen */
+  Object.assign(T.lb, {
+    sub: "REMUS-Sportauspuffanlagen mat Bild, Präis a Lagerstatus. Wielt Äert Gefier oder sicht no engem Artikel – DBA-Bremsen kommen nach.",
+    tab_fahrzeug: "Gefier",
+    ph_text: "Bezeechnung oder Artikelnummer …",
+    ph_brand: "Mark wielen oder aginn",
+    ph_model: "Modell wielen oder aginn",
+    ph_generation: "Baurei wielen",
+    ph_year: "Baujoer wielen",
+    ph_engine: "Motoriséierung wielen",
+    btn_veh: "Passend Deeler fannen",
+    veh_note: "Wielt all Felder aus, fir nëmme passend Deeler fir Äert Gefier ze gesinn.",
+    info_all: "{n} Produkter",
+    info_more: "{n} Produkter (déi éischt {c} ginn ugewisen – wielt Äert Gefier oder verfeinert Är Sich)",
+    info_search: "{n} Resultater fir „{q}“",
+    info_veh: "{n} Produkter fir {v}",
+    empty: "Keng Produkter fonnt. Rufft eis un – mir fannen dat richtegt Deel.",
+    fits: "Gëeegent fir:",
+    artnr: "Artikelnr.",
+    add: "An den Akafskuerf",
+    related: "Dobäibestellen",
+    related_sub: "Passend Deeler fir Äert Gefier – fir eng komplett Anlag",
+    rel_none: "Keng passend Zousatzdeeler fonnt.",
+    added: "„{n}“ gouf an den Akafskuerf geluecht",
+    cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endréier", adapter: "Adapter" },
+    cart_title: "Ären Akafskuerf",
+    cart_empty: "Ären Akafskuerf ass eidel.",
+    cart_checkout: "Bezuelungspflichteg bestellen",
+    cart_remove: "Ewechhuelen",
+    cart_note: "Sécher iwwer Mollie bezuelen. All Präisser enthalen 17% TVA.",
+    cart_redirect: "Dir gitt op d’Bezuelung weidergeleet …",
+    cart_err: "D’Bezuelung ass de Moment net erreechbar. Probéiert w.e.g. méi spéit nach eng Kéier oder rufft eis un.",
+    legal_required: "Bestätegt w.e.g. d’Shop- a Verbraucherinformatiounen, ier Dir bestellt.",
+    legal_text: "Ech hunn d’Shop- a Verbraucherinformatioune gelies an akzeptéieren, datt d’Bestellung bezuelungspflichteg ass.",
+    legal_link: "Shop- a Verbraucherinformatiounen",
+    privacy_link: "Dateschutz",
+    legal_eyebrow: "Transparent bestellen",
+    legal_title: "Wichteg Informatioune virun der Bestellung",
+    legal_price_title: "Präisser",
+    legal_price_text: "All ugewise Präisser enthalen 17% TVA. Méiglech Liwwer- oder Ofhuelkäschte ginn Iech virun der verbindtlecher Bestellung ugewisen.",
+    legal_fit_title: "Passgenauegkeet",
+    legal_fit_text: "De Gefierfilter ass eng Sichhëllef. Mir kontrolléieren d’Kompatibilitéit virum Versand nach eng Kéier mat de Gefierdaten.",
+    legal_rights_title: "Är Rechter",
+    legal_rights_text: "Beim Onlinekaf gëllt am Reegelfall e Récktrëttsrecht vu 14 Deeg nom Empfang an déi gesetzlech Gewährleeschtung.",
+    legal_more: "Vollstänneg Shop- a Verbraucherinformatioune liesen →"
+  });
+  Object.assign(T.de, {
+    ph_generation: "Baureihe wählen", ph_year: "Baujahr wählen", ph_engine: "Motorisierung wählen",
+    veh_note: "Wählen Sie alle Felder aus, damit nur passende Teile für Ihr Fahrzeug angezeigt werden.",
+    cart_checkout: "Zahlungspflichtig bestellen",
+    legal_required: "Bitte bestätigen Sie die Shop- und Verbraucherinformationen, bevor Sie bestellen.",
+    legal_text: "Ich habe die Shop- und Verbraucherinformationen gelesen und bestätige die zahlungspflichtige Bestellung.",
+    legal_link: "Shop- und Verbraucherinformationen", privacy_link: "Datenschutz",
+    legal_eyebrow: "Transparent bestellen", legal_title: "Wichtige Informationen vor der Bestellung",
+    legal_price_title: "Preise", legal_price_text: "Alle angezeigten Preise enthalten 17% luxemburgische Mehrwertsteuer. Eventuelle Liefer- oder Abholkosten werden vor der verbindlichen Bestellung angezeigt.",
+    legal_fit_title: "Passgenauigkeit", legal_fit_text: "Der Fahrzeugfilter ist eine Suchhilfe. Wir prüfen die Kompatibilität vor dem Versand nochmals anhand der Fahrzeugdaten.",
+    legal_rights_title: "Ihre Rechte", legal_rights_text: "Beim Onlinekauf gilt grundsätzlich ein 14-tägiges Widerrufsrecht ab Erhalt sowie die gesetzliche Gewährleistung.",
+    legal_more: "Vollständige Shop- und Verbraucherinformationen lesen →"
+  });
+  Object.assign(T.fr, {
+    ph_generation: "Choisir la génération", ph_year: "Choisir l’année", ph_engine: "Choisir la motorisation",
+    veh_note: "Sélectionnez tous les champs afin de n’afficher que les pièces adaptées à votre véhicule.",
+    cart_checkout: "Commander avec obligation de paiement",
+    legal_required: "Veuillez confirmer les informations de vente et de consommation avant de commander.",
+    legal_text: "J’ai lu les informations de vente et de consommation et je confirme la commande avec obligation de paiement.",
+    legal_link: "Informations de vente et de consommation", privacy_link: "Protection des données",
+    legal_eyebrow: "Commander en toute transparence", legal_title: "Informations importantes avant la commande",
+    legal_price_title: "Prix", legal_price_text: "Tous les prix affichés comprennent 17% de TVA luxembourgeoise. Les éventuels frais de livraison ou de retrait sont affichés avant la commande ferme.",
+    legal_fit_title: "Compatibilité", legal_fit_text: "Le filtre véhicule est une aide à la recherche. Nous vérifions à nouveau la compatibilité à partir des données du véhicule avant l’expédition.",
+    legal_rights_title: "Vos droits", legal_rights_text: "En règle générale, l’achat en ligne bénéficie d’un droit de rétractation de 14 jours après réception et de la garantie légale.",
+    legal_more: "Lire toutes les informations de vente et de consommation →"
+  });
+  Object.assign(T.en, {
+    ph_generation: "Choose generation", ph_year: "Choose model year", ph_engine: "Choose engine",
+    veh_note: "Select every field to show only parts suitable for your vehicle.",
+    cart_checkout: "Place order with obligation to pay",
+    legal_required: "Please confirm the shop and consumer information before ordering.",
+    legal_text: "I have read the shop and consumer information and confirm that the order carries an obligation to pay.",
+    legal_link: "Shop and consumer information", privacy_link: "Privacy",
+    legal_eyebrow: "Order transparently", legal_title: "Important information before ordering",
+    legal_price_title: "Prices", legal_price_text: "All displayed prices include 17% Luxembourg VAT. Any delivery or collection charges are shown before the binding order.",
+    legal_fit_title: "Compatibility", legal_fit_text: "The vehicle filter is a search aid. We verify compatibility again against the vehicle details before dispatch.",
+    legal_rights_title: "Your rights", legal_rights_text: "Online purchases generally include a 14-day right of withdrawal after receipt and the statutory legal guarantee.",
+    legal_more: "Read the full shop and consumer information →"
+  });
+
   /* ---------- Helpers ---------- */
   function $(id) { return document.getElementById(id); }
   function setTxt(id, s) { var el = $(id); if (el) el.textContent = s; }
@@ -196,12 +284,41 @@
     if (tail.length) s += " · " + tail.join(" · ");
     return s;
   }
+  function generationLabel(x) {
+    return x[2] > -1 && GENS[x[2]] ? GENS[x[2]] : "—";
+  }
+  function engineLabel(x) {
+    var parts = [];
+    if (x[8] > -1 && ENGINES[x[8]]) parts.push(ENGINES[x[8]]);
+    if (x[3] > -1 && VARIANTS[x[3]]) parts.push(VARIANTS[x[3]]);
+    if (x[4]) parts.push(x[4] + " kW");
+    return parts.length ? parts.join(" · ") : "—";
+  }
+  function yearFits(x, year) {
+    if (!year) return true;
+    var y = parseInt(year, 10);
+    if (!y) return false;
+    return (!x[5] || y >= x[5]) && (!x[6] || y <= x[6]);
+  }
+  function fitMatchesVehicle(x) {
+    if (!state.brand || x[0] !== MAKE_IDX[state.brand]) return false;
+    if (state.model && x[1] !== state.model) return false;
+    if (state.generation && generationLabel(x) !== state.generation) return false;
+    if (state.year && !yearFits(x, state.year)) return false;
+    if (state.engine && engineLabel(x) !== state.engine) return false;
+    return true;
+  }
+  function selectedVehicleLabel() {
+    return [state.brand, state.model, state.generation !== "—" ? state.generation : "", state.year, state.engine !== "—" ? state.engine : ""]
+      .filter(Boolean).join(" · ");
+  }
+
   /* EC-Status fir Anzeige: {cls, key} */
   function ecStatus(p) {
     var fits = p.f;
     if (state.mode === "vehicle" && state.brand) {
       var bi = MAKE_IDX[state.brand];
-      fits = p.f.filter(function (x) { return x[0] === bi && (!state.model || x[1] === state.model); });
+      fits = p.f.filter(fitMatchesVehicle);
       if (!fits.length) fits = p.f;
     }
     var yes = 0;
@@ -221,15 +338,15 @@
       return p.f.some(function (x) {
         if (makeName(x[0]).toLowerCase().indexOf(q) !== -1) return true;
         if ((x[1] || "").toLowerCase().indexOf(q) !== -1) return true;
-        if (x[2] > -1 && VARIANTS[x[2]] && VARIANTS[x[2]].toLowerCase().indexOf(q) !== -1) return true;
+        if (x[2] > -1 && GENS[x[2]] && GENS[x[2]].toLowerCase().indexOf(q) !== -1) return true;
+        if (x[3] > -1 && VARIANTS[x[3]] && VARIANTS[x[3]].toLowerCase().indexOf(q) !== -1) return true;
+        if (x[8] > -1 && ENGINES[x[8]] && ENGINES[x[8]].toLowerCase().indexOf(q) !== -1) return true;
         return false;
       });
     }
     if (state.mode === "vehicle" && state.brand) {
       var bi = MAKE_IDX[state.brand];
-      return p.f.some(function (x) {
-        return x[0] === bi && (!state.model || x[1] === state.model);
-      });
+      return p.f.some(fitMatchesVehicle);
     }
     return true;
   }
@@ -270,7 +387,7 @@
     var txt;
     if (state.mode === "search" && state.q) txt = t.info_search.replace("{n}", n).replace("{q}", state.q);
     else if (state.mode === "vehicle" && state.brand)
-      txt = t.info_veh.replace("{n}", n).replace("{v}", state.brand + (state.model ? " " + state.model : ""));
+      txt = t.info_veh.replace("{n}", n).replace("{v}", selectedVehicleLabel());
     else if (n > RENDER_CAP) txt = t.info_more.replace("{n}", n).replace("{c}", RENDER_CAP);
     else txt = t.info_all.replace("{n}", n);
     if (state.cat !== "all") txt = t.info_cat.replace("{n}", txt).replace("{c}", t.cats[state.cat]);
@@ -316,7 +433,7 @@
     fit.className = "shop-fit";
     if (state.mode === "vehicle" && state.brand) {
       var bi = MAKE_IDX[state.brand];
-      var mf = p.f.filter(function (x) { return x[0] === bi && (!state.model || x[1] === state.model); });
+      var mf = p.f.filter(fitMatchesVehicle);
       fit.textContent = t.fits + " " + (mf.length ? fitLabel(mf[0]) : modelsOf(p).slice(0, 3).join(", "));
     } else {
       var ms = modelsOf(p);
@@ -570,20 +687,89 @@
     });
     input.addEventListener("blur", function () { setTimeout(close, 120); });
   }
+  function uniqueSorted(values, numericDesc) {
+    var seen = {};
+    var out = values.filter(function (v) {
+      if (v == null || seen[v]) return false;
+      seen[v] = true;
+      return true;
+    });
+    return out.sort(numericDesc
+      ? function (a, b) { return parseInt(b, 10) - parseInt(a, 10); }
+      : function (a, b) { return a.localeCompare(b, undefined, { numeric: true }); });
+  }
+  function fitsForSelection(level) {
+    var bi = MAKE_IDX[state.brand];
+    return ALL_FITS.filter(function (x) {
+      if (!state.brand || x[0] !== bi) return false;
+      if (level > 0 && state.model && x[1] !== state.model) return false;
+      if (level > 1 && state.generation && generationLabel(x) !== state.generation) return false;
+      if (level > 2 && state.year && !yearFits(x, state.year)) return false;
+      return true;
+    });
+  }
+  function generationOptions() {
+    return uniqueSorted(fitsForSelection(1).map(generationLabel));
+  }
+  function yearOptions() {
+    var years = [];
+    fitsForSelection(2).forEach(function (x) {
+      var from = x[5] || 1990;
+      var to = x[6] || new Date().getFullYear();
+      for (var y = to; y >= from; y--) years.push(String(y));
+    });
+    return uniqueSorted(years, true);
+  }
+  function engineOptions() {
+    return uniqueSorted(fitsForSelection(3).map(engineLabel));
+  }
+  function setVehicleField(id, enabled, clear) {
+    var el = $(id);
+    if (!el) return;
+    el.disabled = !enabled;
+    if (clear) el.value = "";
+  }
+  function updateVehicleButton() {
+    var btn = $("btn-veh-search");
+    if (btn) btn.disabled = !(state.brand && state.model && state.generation && state.year && state.engine);
+  }
+  function resetVehicleAfter(step) {
+    if (step < 1) { state.model = ""; setVehicleField("veh-model", !!state.brand, true); }
+    if (step < 2) { state.generation = ""; setVehicleField("veh-generation", !!state.model, true); }
+    if (step < 3) { state.year = ""; setVehicleField("veh-year", !!state.generation, true); }
+    if (step < 4) { state.engine = ""; setVehicleField("veh-engine", !!state.year, true); }
+    updateVehicleButton();
+  }
   function initCombos() {
     makeCombo("veh-brand", "list-brand",
       function () { return Object.keys(BRANDS); },
       function (val) {
         state.brand = BRANDS[val] ? val : "";
-        var m = $("veh-model");
-        if (m) { m.disabled = !state.brand; if (state.brand) { m.value = ""; state.model = ""; } }
+        resetVehicleAfter(0);
       });
     makeCombo("veh-model", "list-model",
       function () { return state.brand && BRANDS[state.brand] ? BRANDS[state.brand] : []; },
       function (val) {
         var ms = state.brand && BRANDS[state.brand] ? BRANDS[state.brand] : [];
         state.model = ms.indexOf(val) !== -1 ? val : "";
+        resetVehicleAfter(1);
       });
+    makeCombo("veh-generation", "list-generation", generationOptions,
+      function (val) {
+        state.generation = generationOptions().indexOf(val) !== -1 ? val : "";
+        resetVehicleAfter(2);
+      });
+    makeCombo("veh-year", "list-year", yearOptions,
+      function (val) {
+        state.year = yearOptions().indexOf(val) !== -1 ? val : "";
+        resetVehicleAfter(3);
+      });
+    makeCombo("veh-engine", "list-engine", engineOptions,
+      function (val) {
+        state.engine = engineOptions().indexOf(val) !== -1 ? val : "";
+        updateVehicleButton();
+      });
+    resetVehicleAfter(0);
   }
 
   /* ---------- Warekuerf + Mollie-Checkout ---------- */
@@ -766,8 +952,13 @@
     }, 300);
   }
   function checkout() {
-    var t = tr(), st = $("cart-status"), btn = $("cart-checkout");
+    var t = tr(), st = $("cart-status"), btn = $("cart-checkout"), legal = $("cart-legal");
     if (!cart.length) return;
+    if (!legal || !legal.checked) {
+      if (st) { st.className = "form-status err"; st.textContent = t.legal_required; }
+      if (legal) legal.focus();
+      return;
+    }
     if (st) { st.className = "form-status"; st.textContent = t.cart_redirect; }
     if (btn) btn.disabled = true;
     fetch(PAYMENT_ENDPOINT + "/create-payment", {
@@ -798,6 +989,10 @@
     var q = $("q-text"); if (q) q.placeholder = t.ph_text;
     var vb = $("veh-brand"); if (vb) vb.placeholder = t.ph_brand;
     var vm = $("veh-model"); if (vm) vm.placeholder = t.ph_model;
+    var vg = $("veh-generation"); if (vg) vg.placeholder = t.ph_generation;
+    var vy = $("veh-year"); if (vy) vy.placeholder = t.ph_year;
+    var ve = $("veh-engine"); if (ve) ve.placeholder = t.ph_engine;
+    setTxt("veh-filter-note", t.veh_note);
     setTxt("shop-note-title", t.note_title);
     setTxt("shop-note-text", t.note_text);
     setTxt("shop-note-cta", t.note_cta);
@@ -816,6 +1011,18 @@
     setTxt("cart-total-label", t.cart_total);
     setTxt("cart-checkout", t.cart_checkout);
     setTxt("cart-note", t.cart_note);
+    setTxt("cart-legal-text", t.legal_text);
+    setTxt("cart-legal-link", t.legal_link);
+    setTxt("cart-privacy-link", t.privacy_link);
+    setTxt("shop-legal-eyebrow", t.legal_eyebrow);
+    setTxt("shop-legal-title", t.legal_title);
+    setTxt("shop-legal-price-title", t.legal_price_title);
+    setTxt("shop-legal-price-text", t.legal_price_text);
+    setTxt("shop-legal-fit-title", t.legal_fit_title);
+    setTxt("shop-legal-fit-text", t.legal_fit_text);
+    setTxt("shop-legal-rights-title", t.legal_rights_title);
+    setTxt("shop-legal-rights-text", t.legal_rights_text);
+    setTxt("shop-legal-more", t.legal_more);
     renderCart();
   }
 
@@ -834,6 +1041,7 @@
     render(); scrollToCatalog();
   }
   function doVehSearch() {
+    if (!(state.brand && state.model && state.generation && state.year && state.engine)) return;
     state.mode = "vehicle"; state.cat = "all";
     render(); scrollToCatalog();
   }
