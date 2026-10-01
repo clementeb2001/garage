@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=46" />
+    <link rel="stylesheet" href="styles.css?v=47" />
     <script src="location-gate.js?v=1"></script>
   </head>
   <body class="rental-page">
@@ -233,6 +233,22 @@
               <textarea id="r-message" name="Noriicht" rows="3"></textarea>
             </div>
 
+
+            <section class="rental-review" aria-labelledby="rental-review-title">
+              <h3 id="rental-review-title">Ufro iwwerpréiwen</h3>
+              <dl class="rental-review-list">
+                <div><dt id="rental-review-items-label">Auswiel</dt><dd id="rental-review-items">Nach näischt ausgewielt</dd></div>
+                <div><dt id="rental-review-period-label">Zäitraum</dt><dd id="rental-review-period">Nach net uginn</dd></div>
+                <div><dt id="rental-review-contact-label">Kontakt</dt><dd id="rental-review-contact">Nach net uginn</dd></div>
+              </dl>
+              <p id="rental-review-hint">Kontrolléiert dës Donnéeën, ier Dir d’Ufro schéckt.</p>
+            </section>
+
+            <label class="privacy-confirm terms-confirm" for="r-terms">
+              <input id="r-terms" name="Mietinformationen gelesen" type="checkbox" />
+              <span id="r-terms-text">Ech hunn déi <a href="mietbedingungen.html" target="_blank" rel="noopener">virleefeg Mietinformatiounen</a> gelies.</span>
+            </label>
+
             <label class="privacy-confirm" for="r-privacy">
               <input id="r-privacy" name="Datenschutz bestätigt" type="checkbox" />
               <span id="r-privacy-text">Ech hunn d'Dateschutzerklärung gelies a verstinn, datt meng Donnéeën iwwer FormSubmit iwwermëttelt ginn.</span>
@@ -281,7 +297,7 @@
       <div class="footer-bottom">
         <div class="container">
           <span>© <span id="year">2026</span> Autoservice Bettenduerf. <span data-i18n="footer_rights">All Rechter reservéiert.</span></span>
-          <span class="footer-legal"><a href="impressum.html" data-i18n="footer_impressum">Impressum</a> · <a href="datenschutz.html" data-i18n="footer_datenschutz">Dateschutz</a></span>
+          <span class="footer-legal"><a href="impressum.html" data-i18n="footer_impressum">Impressum</a> · <a href="datenschutz.html" data-i18n="footer_datenschutz">Dateschutz</a> · <a href="mietbedingungen.html">Mietinformatiounen</a></span>
         </div>
       </div>
     </footer>
@@ -289,7 +305,7 @@
     <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
     <script src="script.js?v=18"></script>
-    <script src="location.js?v=4"></script>
+    <script src="location.js?v=5"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->
