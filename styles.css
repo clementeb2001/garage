@@ -5551,3 +5551,63 @@ html.shop-dev .shop-card-body .shop-price {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Location: request review */
+.rental-review {
+  margin: 20px 0;
+  padding: 18px;
+  border: 1px solid rgba(255, 170, 104, .28);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(198, 93, 46, .12), rgba(8, 15, 24, .42));
+}
+.rental-review h3 {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 1.05rem;
+}
+.rental-review-list {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+.rental-review-list > div {
+  display: grid;
+  grid-template-columns: minmax(90px, .36fr) 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.rental-review-list dt {
+  color: #ffaa68;
+  font-size: .8rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.rental-review-list dd {
+  margin: 0;
+  min-width: 0;
+  color: #e5ebf1;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.rental-review > p {
+  margin: 14px 0 0;
+  color: #9fb0c2;
+  font-size: .82rem;
+  line-height: 1.45;
+}
+.terms-confirm {
+  margin-bottom: 10px;
+}
+.terms-confirm a {
+  color: #ffd0ad;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+@media (max-width: 520px) {
+  .rental-review-list > div {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+}
