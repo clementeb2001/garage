@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=45" />
+    <link rel="stylesheet" href="styles.css?v=46" />
     <script src="location-gate.js?v=1"></script>
   </head>
   <body class="rental-page">
@@ -206,11 +206,11 @@
             <div class="field-row">
               <div class="field">
                 <label for="r-from" id="lbl-r-from">Vun</label>
-                <input type="date" id="r-from" name="Vun (Datum)" required />
+                <input type="datetime-local" id="r-from" name="Vun (Datum an Auerzäit)" step="1800" required />
               </div>
               <div class="field">
                 <label for="r-to" id="lbl-r-to">Bis</label>
-                <input type="date" id="r-to" name="Bis (Datum)" required />
+                <input type="datetime-local" id="r-to" name="Bis (Datum an Auerzäit)" step="1800" required />
               </div>
             </div>
 
@@ -289,7 +289,7 @@
     <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
     <script src="script.js?v=18"></script>
-    <script src="location.js?v=3"></script>
+    <script src="location.js?v=4"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->
