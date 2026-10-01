@@ -366,19 +366,23 @@
     var rs = tr().roles || {};
     return rs[r] || "";
   }
-  /* Zwee Deeler si KOMPLEMENTÄR (passen zesummen zu engem System),
-     net déiselwecht Roll (= keng Varianten vum selwechten Deel). */
-  var COMPLETE = { system: 1, catback: 1, axleback: 1, slipon: 1 };
-  var UPSTREAM = { downpipe: 1, header: 1 };
-  var ADDON = { sound: 1, adapter: 1 };
-  var ROLE_ORDER = { downpipe: 1, header: 2, mid: 3, rear: 4, front: 5, tail: 6, catback: 7, axleback: 7, system: 7, slipon: 7, sound: 8, adapter: 9 };
+  /* Roll-Gruppen: "complete" = komplett Auspuffanlagen (cat-back, axle-back,
+     rear silencer, system … – dat sinn Varianten vunenee); "up" = Downpipe /
+     Krümmer (virgelageert); "add" = Adapter / Sound Controller (Zousatz).
+     Komplementär = aner Grupp (z.B. komplett Anlag + Downpipe), NET zwou
+     komplett Anlagen (déi wieren Alternativen). */
+  function roleGroup(r) {
+    if (r === "downpipe" || r === "header") return "up";
+    if (r === "adapter" || r === "sound") return "add";
+    return "complete";
+  }
+  var ROLE_ORDER = { downpipe: 1, header: 2, adapter: 3, sound: 4, rear: 5, mid: 5, front: 5, catback: 6, axleback: 6, system: 6, slipon: 6, tail: 6 };
   function complements(ra, rb) {
-    if (ra === rb) return false;                 // selwecht Roll = Variant, net komplementär
-    if (ADDON[ra] || ADDON[rb]) return true;     // Sound/Adapter passen zu allem anerem
-    if (COMPLETE[ra] && COMPLETE[rb]) return false; // zwee komplett Systemer = Alternativen
-    if (COMPLETE[ra]) return !!UPSTREAM[rb];     // komplett + Downpipe/Krümmer = jo
-    if (COMPLETE[rb]) return !!UPSTREAM[ra];
-    return true;                                 // zwee verschidde Eenzeldeeler = komplementär
+    if (ra === rb) return false;                        // selwecht Roll = Variant
+    var ga = roleGroup(ra), gb = roleGroup(rb);
+    if (ga === "add" || gb === "add") return true;      // Adapter/Sound passt zu allem anerem
+    if (ga === "complete" && gb === "complete") return false; // zwou komplett Anlagen = Alternativen
+    return true;                                        // complete <-> Downpipe/Krümmer
   }
   function relatedOf(p) {
     /* Nëmme Saachen déi op déiselwecht Gefier-Generatioun (Mark|Modell|Gen)
@@ -487,17 +491,18 @@
     var addBtn = $("pd-add");
     addBtn.textContent = t.add; addBtn.disabled = !p.p;
     addBtn.onclick = function () { addToCart(p, addBtn); };
-    /* Dobaibestellen */
+    /* Dobaibestellen – nëmme weisen wann et wierklech komplementär Deeler gëtt */
     var relWrap = $("pd-related"); relWrap.innerHTML = "";
     var rel = relatedOf(p);
-    var h = document.createElement("h3"); h.textContent = t.related; relWrap.appendChild(h);
-    var sub = document.createElement("p"); sub.className = "pd-rel-sub"; sub.textContent = t.related_sub; relWrap.appendChild(sub);
-    if (!rel.length) {
-      var none = document.createElement("p"); none.className = "pd-rel-none"; none.textContent = t.rel_none; relWrap.appendChild(none);
-    } else {
+    if (rel.length) {
+      relWrap.style.display = "";
+      var h = document.createElement("h3"); h.textContent = t.related; relWrap.appendChild(h);
+      var sub = document.createElement("p"); sub.className = "pd-rel-sub"; sub.textContent = t.related_sub; relWrap.appendChild(sub);
       var ul = document.createElement("ul"); ul.className = "pd-rel-list";
       rel.forEach(function (o) { ul.appendChild(relItem(o, t)); });
       relWrap.appendChild(ul);
+    } else {
+      relWrap.style.display = "none";
     }
     pdEls.modal.scrollTop = 0;
     pdEls.back.hidden = false; pdEls.modal.hidden = false;
