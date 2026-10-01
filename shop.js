@@ -326,6 +326,27 @@
     compat_review: "Compatible – mandatory-part status will be checked"
   });
 
+  Object.assign(T.lb, {
+    config_bundle_ref: "Komplett REMUS-Bundle: {sku}",
+    related_alt_sub: "Alternativ komplett Anlagen fir déi selwecht exakt Gefier-Zouuerdnung.",
+    rel_none_detail: "Fir dëst Bundle si keng separat Zousatzdeeler am importéierte Katalog hannerluecht. De Pflichtëmfang ass am Komplett-Bundle abegraff."
+  });
+  Object.assign(T.de, {
+    config_bundle_ref: "Vollständiges REMUS-Bundle: {sku}",
+    related_alt_sub: "Alternative Komplettanlagen für dieselbe exakte Fahrzeugzuordnung.",
+    rel_none_detail: "Für dieses Bundle sind im importierten Katalog keine separaten Zusatzteile hinterlegt. Der Pflichtumfang ist im Komplett-Bundle enthalten."
+  });
+  Object.assign(T.fr, {
+    config_bundle_ref: "Bundle REMUS complet : {sku}",
+    related_alt_sub: "Systèmes complets alternatifs pour exactement la même affectation véhicule.",
+    rel_none_detail: "Aucune pièce complémentaire séparée n’est enregistrée dans le catalogue importé pour ce bundle. Les éléments obligatoires sont compris dans le bundle complet."
+  });
+  Object.assign(T.en, {
+    config_bundle_ref: "Complete REMUS bundle: {sku}",
+    related_alt_sub: "Alternative complete systems for the exact same vehicle fitment.",
+    rel_none_detail: "No separate add-on parts are recorded for this bundle in the imported catalogue. The required scope is included in the complete bundle."
+  });
+
   /* ---------- Helpers ---------- */
   function $(id) { return document.getElementById(id); }
   function setTxt(id, s) { var el = $(id); if (el) el.textContent = s; }
@@ -593,37 +614,51 @@
     if (ga === "complete" && gb === "complete") return false; // zwou komplett Anlagen = Alternativen
     return true;                                        // complete <-> Downpipe/Krümmer
   }
+  function exactFitKey(x) {
+    return [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[8]].join("|");
+  }
   function relatedOf(p) {
-    /* Nëmme Saachen déi op déiselwecht Gefier-Generatioun (Mark|Modell|Gen)
-       passen AN eng aner, komplementär Roll hunn. */
-    var keys = {};
-    p.f.forEach(function (x) { keys[x[0] + "|" + x[1] + "|" + x[2]] = 1; });
-    var selModel = (state.mode === "vehicle" && state.model) ? state.model : null;
-    var scored = [];
+    /* Fir "passend" nëmmen déi exakt Gefier-/Motor-Zouuerdnung benotzen.
+       Als éischt komplementär Deeler; wa keng existéieren, aner komplett
+       Anlagen fir genee datselwecht Gefier weisen. */
+    var exactKeys = {};
+    p.f.forEach(function (x) { exactKeys[exactFitKey(x)] = 1; });
+    var candidates = [];
     PRODUCTS.forEach(function (o) {
       if (o.i === p.i || !o.p) return;
-      if (!complements(p.r, o.r)) return;
-      var share = 0, exact = false;
-      o.f.forEach(function (x) {
-        if (keys[x[0] + "|" + x[1] + "|" + x[2]]) { share++; if (selModel && x[1] === selModel) exact = true; }
+      var share = 0;
+      o.f.forEach(function (x) { if (exactKeys[exactFitKey(x)]) share++; });
+      if (share) candidates.push({ o: o, share: share });
+    });
+
+    function sortAndLimit(list, mode) {
+      var seenGroup = {}, perRole = {}, out = [];
+      list.sort(function (a, b) {
+        var ar = ROLE_ORDER[a.o.r] || 9, br = ROLE_ORDER[b.o.r] || 9;
+        if (ar !== br) return ar - br;
+        if (a.share !== b.share) return b.share - a.share;
+        if (a.o.p !== b.o.p) return a.o.p - b.o.p;
+        return a.o.n < b.o.n ? -1 : 1;
       });
-      if (!share) return;
-      scored.push({ o: o, score: (exact ? 100 : 0) + share, rank: ROLE_ORDER[o.r] || 9 });
+      list.forEach(function (s) {
+        var group = bundleGroupKey(s.o);
+        if (seenGroup[group]) return;
+        seenGroup[group] = 1;
+        perRole[s.o.r] = (perRole[s.o.r] || 0) + 1;
+        if (perRole[s.o.r] <= 3 && out.length < 8) out.push(s.o);
+      });
+      out.mode = mode;
+      return out;
+    }
+
+    var complementary = candidates.filter(function (s) { return complements(p.r, s.o.r); });
+    if (complementary.length) return sortAndLimit(complementary, "parts");
+
+    var alternatives = candidates.filter(function (s) {
+      return roleGroup(s.o.r) === "complete" &&
+        bundleGroupKey(s.o) !== bundleGroupKey(p);
     });
-    scored.sort(function (a, b) {
-      if (a.rank !== b.rank) return a.rank - b.rank;
-      if (a.score !== b.score) return b.score - a.score;
-      if (a.o.p !== b.o.p) return a.o.p - b.o.p;
-      return a.o.n < b.o.n ? -1 : 1;
-    });
-    /* Pro Roll héchstens 2 (soss iwwerschwemmen Tip-Varianten vun engem Deel). */
-    var perRole = {}, out = [];
-    scored.forEach(function (s) {
-      var r = s.o.r;
-      perRole[r] = (perRole[r] || 0) + 1;
-      if (perRole[r] <= 2) out.push(s.o);
-    });
-    return out.slice(0, 8);
+    return sortAndLimit(alternatives, "alternatives");
   }
 
   var pdEls = null;
@@ -688,6 +723,11 @@
     status.className = "pd-required-status " + (p.c === "system" ? "is-complete" : "needs-system");
     status.textContent = (p.c === "system" ? t.config_required : t.config_component);
     wrap.appendChild(status);
+
+    var bundleRef = document.createElement("p");
+    bundleRef.className = "pd-config-single";
+    bundleRef.textContent = t.config_bundle_ref.replace("{sku}", p.i);
+    wrap.appendChild(bundleRef);
 
     var variants = bundleVariants(p);
     if (variants.length > 1) {
@@ -779,12 +819,16 @@
     if (rel.length) {
       relWrap.style.display = "";
       var h = document.createElement("h3"); h.textContent = t.related; relWrap.appendChild(h);
-      var sub = document.createElement("p"); sub.className = "pd-rel-sub"; sub.textContent = t.related_sub; relWrap.appendChild(sub);
+      var sub = document.createElement("p"); sub.className = "pd-rel-sub";
+      sub.textContent = rel.mode === "alternatives" ? t.related_alt_sub : t.related_sub;
+      relWrap.appendChild(sub);
       var ul = document.createElement("ul"); ul.className = "pd-rel-list";
       rel.forEach(function (o) { ul.appendChild(relItem(o, t)); });
       relWrap.appendChild(ul);
     } else {
-      relWrap.style.display = "none";
+      relWrap.style.display = "";
+      var emptyTitle = document.createElement("h3"); emptyTitle.textContent = t.related; relWrap.appendChild(emptyTitle);
+      var emptyText = document.createElement("p"); emptyText.className = "pd-rel-sub"; emptyText.textContent = t.rel_none_detail; relWrap.appendChild(emptyText);
     }
     pdEls.modal.scrollTop = 0;
     pdEls.back.hidden = false; pdEls.modal.hidden = false;
