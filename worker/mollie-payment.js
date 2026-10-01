@@ -3491,13 +3491,17 @@ export default {
       const items = Array.isArray(payload.items) ? payload.items : [];
       if (!items.length) return json({ error: "empty_cart" }, 400, origin);
 
-      // Betrag serverseiteg berechnen
+      // Betrag serverseiteg berechnen. D'PRICES-Lëscht ass netto (excl. TVA);
+      // mir rechnen 17% TVA pro Eenheet dobäi an rënnen – identesch wéi d'Websait
+      // (grossCents = Math.round(net * 1.17)), soss géifen d'Beträg ofwäichen.
+      const VAT_RATE = 0.17;
       let totalCents = 0;
       const lines = [];
       for (const it of items) {
-        const cents = PRICES[it.id];
+        const net = PRICES[it.id];
         const qty = Math.max(1, parseInt(it.qty, 10) || 0);
-        if (cents == null) return json({ error: "unknown_item", id: it.id }, 400, origin);
+        if (net == null) return json({ error: "unknown_item", id: it.id }, 400, origin);
+        const cents = Math.round(net * (1 + VAT_RATE));
         totalCents += cents * qty;
         lines.push({ id: it.id, qty, cents });
       }
