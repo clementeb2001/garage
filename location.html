@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=42" />
+    <link rel="stylesheet" href="styles.css?v=45" />
     <script src="location-gate.js?v=1"></script>
   </head>
   <body class="rental-page">
@@ -149,12 +149,42 @@
         </div>
       </section>
 
+
+      <!-- Ablauf und Bedingungen -->
+      <section class="rental-info" aria-labelledby="rental-info-title">
+        <div class="container">
+          <div class="rental-info-head">
+            <p class="eyebrow" id="rental-info-eyebrow">Virun der Ufro</p>
+            <h2 id="rental-info-title">Esou leeft d’Reservatioun</h2>
+            <p id="rental-info-intro">D’Online-Ufro ass nach keng verbindlech Buchung. Mir kontrolléieren d’Disponibilitéit a bestätegen Iech den Zäitraum perséinlech.</p>
+          </div>
+          <div class="rental-info-grid">
+            <article class="rental-info-card">
+              <span aria-hidden="true">✓</span>
+              <h3 id="rental-info-availability-title">Disponibilitéit</h3>
+              <p id="rental-info-availability-text">Mir kontrolléieren Är Datumer a mellen eis mat enger definitiver Bestätegung.</p>
+            </article>
+            <article class="rental-info-card">
+              <span aria-hidden="true">🪪</span>
+              <h3 id="rental-info-license-title">Führerschäin</h3>
+              <p id="rental-info-license-text">Déi néideg Kategorie hänkt vum Gefier, dem Unhänger an der zulässeger Gesamtmass of a gëtt virum Verlee kontrolléiert.</p>
+            </article>
+            <article class="rental-info-card">
+              <span aria-hidden="true">🛡️</span>
+              <h3 id="rental-info-terms-title">Konditiounen</h3>
+              <p id="rental-info-terms-text">Kautioun, Assurance, Kilometer, Ofhuelung, Retour a Storno gi virun der Bestätegung transparent matgedeelt.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <!-- Reservation -->
       <section class="rental-reserve" id="reserve">
         <div class="container rental-reserve-inner">
           <div class="rental-summary">
             <h2 id="rental-sel-h">Är Auswiel</h2>
             <p class="rental-empty" id="rental-empty">Nach näischt ausgewielt. Wielt uewen Äert Material aus.</p>
+            <p class="rental-availability-note" id="rental-availability-note">D’Disponibilitéit gëtt no Ärer Ufro manuell kontrolléiert.</p>
             <ul class="rental-sel-list" id="rental-sel-list"></ul>
           </div>
 
@@ -259,7 +289,7 @@
     <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
     <script src="script.js?v=18"></script>
-    <script src="location.js?v=2"></script>
+    <script src="location.js?v=3"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->
