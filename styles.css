@@ -3750,6 +3750,7 @@ html.shop-dev .shop-dev-badge a {
   color: #c6d0dc;
 }
 .rental-form input[type="date"],
+.rental-form input[type="datetime-local"],
 .rental-form input[type="text"],
 .rental-form input[type="email"],
 .rental-form input[type="tel"],
@@ -5532,4 +5533,21 @@ html.shop-dev .shop-card-body .shop-price {
 }
 @media (max-width: 820px) {
   .rental-info-grid { grid-template-columns: 1fr; }
+}
+
+
+/* Location: date and time inputs */
+.rental-form input[type="datetime-local"] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  color-scheme: dark;
+}
+.rental-form .field-row > .field {
+  min-width: 0;
+}
+@media (max-width: 620px) {
+  .rental-form .field-row {
+    grid-template-columns: 1fr;
+  }
 }
