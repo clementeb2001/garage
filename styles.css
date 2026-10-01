@@ -5346,3 +5346,115 @@ html.shop-dev .shop-card-body .shop-price {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* REMUS-style product configurator */
+.pd-config {
+  margin: 1.1rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(230, 57, 70, 0.2);
+  border-radius: 14px;
+  background: linear-gradient(145deg, #fff 0%, #f8f9fb 100%);
+}
+.pd-config-title {
+  margin: 0 0 .85rem;
+  font-size: 1.05rem;
+  color: var(--navy-900);
+}
+.pd-config-label {
+  display: block;
+  margin: .75rem 0 .35rem;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+  color: var(--text-mut);
+}
+.pd-config-system {
+  margin: 0;
+  font-weight: 750;
+  line-height: 1.45;
+  color: var(--navy-900);
+}
+.pd-required-status {
+  display: flex;
+  gap: .55rem;
+  align-items: flex-start;
+  margin: .8rem 0;
+  padding: .72rem .8rem;
+  border-radius: 10px;
+  font-size: .9rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.pd-required-status::before {
+  flex: 0 0 auto;
+  font-size: 1rem;
+}
+.pd-required-status.is-complete {
+  color: #155d3b;
+  background: #e9f7ef;
+  border: 1px solid #b8e2ca;
+}
+.pd-required-status.is-complete::before { content: "✓"; }
+.pd-required-status.needs-system {
+  color: #754b00;
+  background: #fff6df;
+  border: 1px solid #efd395;
+}
+.pd-required-status.needs-system::before { content: "!"; }
+.pd-variant {
+  width: 100%;
+  min-height: 46px;
+  padding: .7rem 2.5rem .7rem .75rem;
+  border: 1px solid #cfd6df;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.pd-variant:focus-visible {
+  outline: 3px solid rgba(230, 57, 70, .22);
+  border-color: var(--accent);
+}
+.pd-config-single {
+  margin: .3rem 0 0;
+  color: var(--text-mut);
+  line-height: 1.45;
+}
+.pd-config-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  margin-top: .9rem;
+  padding-top: .8rem;
+  border-top: 1px solid var(--line);
+  font-weight: 800;
+}
+.pd-config-total strong {
+  color: var(--accent-dark);
+  font-size: 1.15rem;
+}
+.pd-required-check {
+  margin: .8rem 0 0;
+  padding-left: .72rem;
+  border-left: 3px solid var(--accent);
+  color: var(--text-mut);
+  font-size: .82rem;
+  line-height: 1.45;
+}
+.pd-rel-review {
+  display: block;
+  margin-top: .28rem;
+  color: #4f6274;
+  font-size: .72rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+@media (max-width: 560px) {
+  .pd-config { padding: .85rem; }
+  .pd-config-total { align-items: center; }
+  .pd-variant { font-size: 16px; }
+}
