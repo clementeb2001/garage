@@ -27,7 +27,7 @@
       id: "plateau",
       cat: "trailer",
       icon: "flatbed",
-      name: { lb: "Plateau-Ahänger 750 kg", de: "Plateau-Anhänger 750 kg", fr: "Remorque plateau 750 kg", en: "Flatbed trailer 750 kg" },
+      name: { lb: "Plateau-Unhänger 750 kg", de: "Plateau-Anhänger 750 kg", fr: "Remorque plateau 750 kg", en: "Flatbed trailer 750 kg" },
       specs: {
         lb: ["Nutzlaascht bis 750 kg", "Ongebremst", "Führerschäin B duergeet"],
         de: ["Nutzlast bis 750 kg", "Ungebremst", "Führerschein B ausreichend"],
@@ -39,7 +39,7 @@
       id: "kipper",
       cat: "trailer",
       icon: "tipper",
-      name: { lb: "Kippanhänger 1300 kg", de: "Kippanhänger 1300 kg", fr: "Remorque benne 1300 kg", en: "Tipper trailer 1300 kg" },
+      name: { lb: "Kippunhänger 1300 kg", de: "Kippanhänger 1300 kg", fr: "Remorque benne 1300 kg", en: "Tipper trailer 1300 kg" },
       specs: {
         lb: ["Nutzlaascht bis 1300 kg", "Hydraulescht Kippen", "Gebremst · Führerschäin BE"],
         de: ["Nutzlast bis 1300 kg", "Hydraulisch kippbar", "Gebremst · Führerschein BE"],
@@ -63,7 +63,7 @@
       id: "koffer",
       cat: "trailer",
       icon: "box",
-      name: { lb: "Kofferanhänger (zou)", de: "Kofferanhänger (geschlossen)", fr: "Remorque fermée", en: "Enclosed box trailer" },
+      name: { lb: "Kofferunhänger (zou)", de: "Kofferanhänger (geschlossen)", fr: "Remorque fermée", en: "Enclosed box trailer" },
       specs: {
         lb: ["Dréchen a geséchert", "Ofschléissbar", "Fir empfindlecht Transportgutt"],
         de: ["Trocken & geschützt", "Abschließbar", "Für empfindliche Ladung"],
@@ -101,19 +101,19 @@
   var T = {
     lb: {
       eyebrow: "Location · Verlee",
-      title: "Material a Fahrzeuger verleeën",
-      sub: "Wielt Ären Ahänger oder Äert Fahrzeug aus, gitt Äre Reservéierungszäitraum un – mir bestätegen Iech Är Ufro.",
+      title: "Material a Gefierer verlounen",
+      sub: "Wielt Ären Unhänger oder Äert Gefier aus, gitt Äre Reservéierungszäitraum un – mir bestätegen Iech Är Ufro.",
       nav: "Location · geschwënn",
       soon_eyebrow: "Location · Verlee",
       soon_title: "Eise Verlee ass an der Aarbecht",
-      soon_text: "Mir sinn amgaang, eise Verlee vun Ahänger a Fahrzeuger opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
+      soon_text: "Mir sinn amgaang, eise Verlee vun Unhänger a Gefierer opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
       soon_cta: "Ufro schécken", soon_back: "Zréck op d’Startsäit",
       dev_badge: "Vorschau-Modus – Location öffentlech nach „an Arbecht“",
-      cat_all: "Alles", cat_trailer: "Ahänger", cat_vehicle: "Fahrzeuger",
-      cat_trailer_lbl: "Ahänger", cat_vehicle_lbl: "Fahrzeug",
+      cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",
+      cat_trailer_lbl: "Unhänger", cat_vehicle_lbl: "Gefier",
       price: "Präis op Ufro",
       select: "Auswielen", selected: "Ausgewielt", remove: "Ewechhuelen",
-      sel_h: "Är Auswiel", empty: "Nach näischt ausgewielt. Wielt uewen Äert Material aus.",
+      sel_h: "Är Auswiel", empty: "Nach näischt ausgewielt. Wielt uewen dat gewënschte Material aus.",
       form_h: "Reservéieren",
       from: "Vun", to: "Bis", name: "Numm", email: "E-Mail", phone: "Telefon",
       message: "Noriicht", phone_ph: "Optional",
@@ -225,6 +225,59 @@
     return "lb";
   }
   function t() { return T[lang()] || T.lb; }
+  Object.assign(T.lb, {
+    info_eyebrow: "Virun der Ufro",
+    info_title: "Esou leeft d’Reservatioun",
+    info_intro: "D’Online-Ufro ass nach keng verbindlech Buchung. Mir kontrolléieren d’Disponibilitéit a bestätegen Iech den Zäitraum perséinlech.",
+    availability_title: "Disponibilitéit",
+    availability_text: "Mir kontrolléieren Är Datumer a mellen eis mat enger definitiver Bestätegung.",
+    license_title: "Führerschäin",
+    license_text: "Déi néideg Kategorie hänkt vum Gefier, dem Unhänger an der zulässeger Gesamtmass of a gëtt virum Verlee kontrolléiert.",
+    terms_title: "Konditiounen",
+    terms_text: "Kautioun, Assurance, Kilometer, Ofhuelung, Retour a Storno gi virun der Bestätegung transparent matgedeelt.",
+    availability_note: "D’Disponibilitéit gëtt no Ärer Ufro manuell kontrolléiert.",
+    m_past: "en Datum vun haut oder méi spéit"
+  });
+  Object.assign(T.de, {
+    info_eyebrow: "Vor der Anfrage",
+    info_title: "So funktioniert die Reservierung",
+    info_intro: "Die Online-Anfrage ist noch keine verbindliche Buchung. Wir prüfen die Verfügbarkeit und bestätigen Ihnen den Zeitraum persönlich.",
+    availability_title: "Verfügbarkeit",
+    availability_text: "Wir prüfen Ihre Daten und melden uns mit einer endgültigen Bestätigung.",
+    license_title: "Führerschein",
+    license_text: "Die erforderliche Klasse hängt von Fahrzeug, Anhänger und zulässiger Gesamtmasse ab und wird vor der Vermietung geprüft.",
+    terms_title: "Bedingungen",
+    terms_text: "Kaution, Versicherung, Kilometer, Abholung, Rückgabe und Stornierung werden vor der Bestätigung transparent mitgeteilt.",
+    availability_note: "Die Verfügbarkeit wird nach Ihrer Anfrage manuell geprüft.",
+    m_past: "ein Datum ab heute"
+  });
+  Object.assign(T.fr, {
+    info_eyebrow: "Avant la demande",
+    info_title: "Déroulement de la réservation",
+    info_intro: "La demande en ligne ne constitue pas encore une réservation ferme. Nous vérifions la disponibilité et confirmons personnellement la période.",
+    availability_title: "Disponibilité",
+    availability_text: "Nous vérifions vos dates et vous contactons avec une confirmation définitive.",
+    license_title: "Permis de conduire",
+    license_text: "La catégorie requise dépend du véhicule, de la remorque et de la masse maximale autorisée; elle est vérifiée avant la location.",
+    terms_title: "Conditions",
+    terms_text: "La caution, l’assurance, le kilométrage, l’enlèvement, le retour et l’annulation sont communiqués clairement avant confirmation.",
+    availability_note: "La disponibilité est vérifiée manuellement après votre demande.",
+    m_past: "une date à partir d’aujourd’hui"
+  });
+  Object.assign(T.en, {
+    info_eyebrow: "Before your request",
+    info_title: "How the reservation works",
+    info_intro: "The online request is not yet a binding booking. We check availability and personally confirm the requested period.",
+    availability_title: "Availability",
+    availability_text: "We check your dates and contact you with final confirmation.",
+    license_title: "Driving licence",
+    license_text: "The required category depends on the vehicle, trailer and permitted gross weight and is checked before rental.",
+    terms_title: "Conditions",
+    terms_text: "Deposit, insurance, mileage, collection, return and cancellation terms are communicated clearly before confirmation.",
+    availability_note: "Availability is checked manually after your request.",
+    m_past: "a date from today onwards"
+  });
+
   function $(id) { return document.getElementById(id); }
   function setTxt(id, s) { var el = $(id); if (el) el.textContent = s; }
 
@@ -325,6 +378,16 @@
     setTxt("r-privacy-text", m.privacy);
     setTxt("rental-submit", m.submit);
     setTxt("rental-note", m.note);
+    setTxt("rental-info-eyebrow", m.info_eyebrow);
+    setTxt("rental-info-title", m.info_title);
+    setTxt("rental-info-intro", m.info_intro);
+    setTxt("rental-info-availability-title", m.availability_title);
+    setTxt("rental-info-availability-text", m.availability_text);
+    setTxt("rental-info-license-title", m.license_title);
+    setTxt("rental-info-license-text", m.license_text);
+    setTxt("rental-info-terms-title", m.terms_title);
+    setTxt("rental-info-terms-text", m.terms_text);
+    setTxt("rental-availability-note", m.availability_note);
     var ph = $("r-phone"); if (ph) ph.placeholder = m.phone_ph;
     // filter chip labels
     document.querySelectorAll("#rental-filter .rental-chip").forEach(function (b) {
@@ -390,6 +453,10 @@
     mark(from, false); mark(to, false); mark(name, false); mark(email, false);
     if (!from.value) { miss.push(m.m_from); mark(from, true); }
     if (!to.value) { miss.push(m.m_to); mark(to, true); }
+    var today = new Date();
+    var todayIso = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+    if (from.value && from.value < todayIso) { miss.push(m.m_past); mark(from, true); }
+    if (to.value && to.value < todayIso) { if (miss.indexOf(m.m_past) === -1) miss.push(m.m_past); mark(to, true); }
     if (from.value && to.value && to.value < from.value) { miss.push(m.m_daterange); mark(to, true); }
     if (!name.value.trim()) { miss.push(m.m_name); mark(name, true); }
     if (!emailOk) { miss.push(m.m_email); mark(email, true); }
@@ -455,6 +522,19 @@
     wireFilter();
     wireGrid();
     wireClear();
+    var fromDate = $("r-from"), toDate = $("r-to");
+    var now = new Date();
+    var minDate = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+    if (fromDate) {
+      fromDate.min = minDate;
+      fromDate.addEventListener("change", function () {
+        if (toDate) {
+          toDate.min = fromDate.value || minDate;
+          if (toDate.value && fromDate.value && toDate.value < fromDate.value) toDate.value = "";
+        }
+      });
+    }
+    if (toDate) toDate.min = minDate;
     document.addEventListener("submit", handleSubmit, true);
     document.querySelectorAll(".lang-select").forEach(function (s) {
       s.addEventListener("change", function () { setTimeout(refresh, 0); });
