@@ -226,6 +226,9 @@
   }
   function t() { return T[lang()] || T.lb; }
   Object.assign(T.lb, {
+    from: "Vun (Datum an Auerzäit)", to: "Bis (Datum an Auerzäit)",
+    m_from: "Ufanksdatum an -auerzäit", m_to: "Enndatum an -auerzäit",
+    m_daterange: "eng Ennzäit no der Ufankszäit",
     info_eyebrow: "Virun der Ufro",
     info_title: "Esou leeft d’Reservatioun",
     info_intro: "D’Online-Ufro ass nach keng verbindlech Buchung. Mir kontrolléieren d’Disponibilitéit a bestätegen Iech den Zäitraum perséinlech.",
@@ -236,9 +239,12 @@
     terms_title: "Konditiounen",
     terms_text: "Kautioun, Assurance, Kilometer, Ofhuelung, Retour a Storno gi virun der Bestätegung transparent matgedeelt.",
     availability_note: "D’Disponibilitéit gëtt no Ärer Ufro manuell kontrolléiert.",
-    m_past: "en Datum vun haut oder méi spéit"
+    m_past: "en Datum an eng Auerzäit vun elo un"
   });
   Object.assign(T.de, {
+    from: "Von (Datum und Uhrzeit)", to: "Bis (Datum und Uhrzeit)",
+    m_from: "Startdatum und -uhrzeit", m_to: "Enddatum und -uhrzeit",
+    m_daterange: "eine Endzeit nach der Startzeit",
     info_eyebrow: "Vor der Anfrage",
     info_title: "So funktioniert die Reservierung",
     info_intro: "Die Online-Anfrage ist noch keine verbindliche Buchung. Wir prüfen die Verfügbarkeit und bestätigen Ihnen den Zeitraum persönlich.",
@@ -249,9 +255,12 @@
     terms_title: "Bedingungen",
     terms_text: "Kaution, Versicherung, Kilometer, Abholung, Rückgabe und Stornierung werden vor der Bestätigung transparent mitgeteilt.",
     availability_note: "Die Verfügbarkeit wird nach Ihrer Anfrage manuell geprüft.",
-    m_past: "ein Datum ab heute"
+    m_past: "ein Datum und eine Uhrzeit ab jetzt"
   });
   Object.assign(T.fr, {
+    from: "Du (date et heure)", to: "Au (date et heure)",
+    m_from: "date et heure de début", m_to: "date et heure de fin",
+    m_daterange: "une heure de fin postérieure au début",
     info_eyebrow: "Avant la demande",
     info_title: "Déroulement de la réservation",
     info_intro: "La demande en ligne ne constitue pas encore une réservation ferme. Nous vérifions la disponibilité et confirmons personnellement la période.",
@@ -262,9 +271,12 @@
     terms_title: "Conditions",
     terms_text: "La caution, l’assurance, le kilométrage, l’enlèvement, le retour et l’annulation sont communiqués clairement avant confirmation.",
     availability_note: "La disponibilité est vérifiée manuellement après votre demande.",
-    m_past: "une date à partir d’aujourd’hui"
+    m_past: "une date et une heure à partir de maintenant"
   });
   Object.assign(T.en, {
+    from: "From (date and time)", to: "Until (date and time)",
+    m_from: "start date and time", m_to: "end date and time",
+    m_daterange: "an end time after the start time",
     info_eyebrow: "Before your request",
     info_title: "How the reservation works",
     info_intro: "The online request is not yet a binding booking. We check availability and personally confirm the requested period.",
@@ -275,7 +287,7 @@
     terms_title: "Conditions",
     terms_text: "Deposit, insurance, mileage, collection, return and cancellation terms are communicated clearly before confirmation.",
     availability_note: "Availability is checked manually after your request.",
-    m_past: "a date from today onwards"
+    m_past: "a date and time from now onwards"
   });
 
   function $(id) { return document.getElementById(id); }
@@ -435,6 +447,14 @@
     else el.classList.remove("field-invalid");
   }
 
+  function localDateTimeValue(date) {
+    return date.getFullYear() + "-" +
+      String(date.getMonth() + 1).padStart(2, "0") + "-" +
+      String(date.getDate()).padStart(2, "0") + "T" +
+      String(date.getHours()).padStart(2, "0") + ":" +
+      String(date.getMinutes()).padStart(2, "0");
+  }
+
   function handleSubmit(e) {
     var f = e.target;
     if (!f || f.id !== "rental-form") return;
@@ -453,11 +473,11 @@
     mark(from, false); mark(to, false); mark(name, false); mark(email, false);
     if (!from.value) { miss.push(m.m_from); mark(from, true); }
     if (!to.value) { miss.push(m.m_to); mark(to, true); }
-    var today = new Date();
-    var todayIso = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
-    if (from.value && from.value < todayIso) { miss.push(m.m_past); mark(from, true); }
-    if (to.value && to.value < todayIso) { if (miss.indexOf(m.m_past) === -1) miss.push(m.m_past); mark(to, true); }
-    if (from.value && to.value && to.value < from.value) { miss.push(m.m_daterange); mark(to, true); }
+    var now = new Date();
+    var nowIso = localDateTimeValue(now);
+    if (from.value && from.value < nowIso) { miss.push(m.m_past); mark(from, true); }
+    if (to.value && to.value < nowIso) { if (miss.indexOf(m.m_past) === -1) miss.push(m.m_past); mark(to, true); }
+    if (from.value && to.value && to.value <= from.value) { miss.push(m.m_daterange); mark(to, true); }
     if (!name.value.trim()) { miss.push(m.m_name); mark(name, true); }
     if (!emailOk) { miss.push(m.m_email); mark(email, true); }
     var priv = privacy.closest(".privacy-confirm");
@@ -524,17 +544,20 @@
     wireClear();
     var fromDate = $("r-from"), toDate = $("r-to");
     var now = new Date();
-    var minDate = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+    now.setSeconds(0, 0);
+    var remainder = now.getMinutes() % 30;
+    if (remainder) now.setMinutes(now.getMinutes() + (30 - remainder));
+    var minDateTime = localDateTimeValue(now);
     if (fromDate) {
-      fromDate.min = minDate;
+      fromDate.min = minDateTime;
       fromDate.addEventListener("change", function () {
         if (toDate) {
-          toDate.min = fromDate.value || minDate;
-          if (toDate.value && fromDate.value && toDate.value < fromDate.value) toDate.value = "";
+          toDate.min = fromDate.value || minDateTime;
+          if (toDate.value && fromDate.value && toDate.value <= fromDate.value) toDate.value = "";
         }
       });
     }
-    if (toDate) toDate.min = minDate;
+    if (toDate) toDate.min = minDateTime;
     document.addEventListener("submit", handleSubmit, true);
     document.querySelectorAll(".lang-select").forEach(function (s) {
       s.addEventListener("change", function () { setTimeout(refresh, 0); });
