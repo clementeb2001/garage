@@ -25,6 +25,36 @@
   var ALL_FITS = [];
   PRODUCTS.forEach(function (p) { p.f.forEach(function (fit) { ALL_FITS.push(fit); }); });
 
+  /* REMUS Bundle-Varianten: selwechte Systemëmfang + Passform, aner Ausféierung/Endréier */
+  function bundleBaseName(p) {
+    return (p.n.split("|")[0] || p.n).trim();
+  }
+  function bundleVariantName(p) {
+    var parts = p.n.split("|");
+    return parts.length > 1 ? parts.slice(1).join("|").trim() : p.n;
+  }
+  function bundleFitKey(p) {
+    return p.f.map(function (x) { return x.join(","); }).sort().join(";");
+  }
+  function bundleGroupKey(p) {
+    return [p.m, p.r, bundleBaseName(p), bundleFitKey(p)].join("||");
+  }
+  var BUNDLE_GROUPS = {};
+  PRODUCTS.forEach(function (p) {
+    var key = bundleGroupKey(p);
+    if (!BUNDLE_GROUPS[key]) BUNDLE_GROUPS[key] = [];
+    BUNDLE_GROUPS[key].push(p);
+  });
+  Object.keys(BUNDLE_GROUPS).forEach(function (key) {
+    BUNDLE_GROUPS[key].sort(function (a, b) {
+      if (a.p !== b.p) return a.p - b.p;
+      return a.n < b.n ? -1 : 1;
+    });
+  });
+  function bundleVariants(p) {
+    return BUNDLE_GROUPS[bundleGroupKey(p)] || [p];
+  }
+
   /* ---------- Iwwersetzungen ---------- */
   var T = {
     lb: {
@@ -237,6 +267,63 @@
     legal_fit_title: "Compatibility", legal_fit_text: "The vehicle filter is a search aid. We verify compatibility again against the vehicle details before dispatch.",
     legal_rights_title: "Your rights", legal_rights_text: "Online purchases generally include a 14-day right of withdrawal after receipt and the statutory legal guarantee.",
     legal_more: "Read the full shop and consumer information →"
+  });
+
+  Object.assign(T.lb, {
+    configure: "Upassen",
+    config_title: "Är REMUS-Konfiguratioun",
+    config_system: "Grondanlag / Systemëmfang",
+    config_variant: "Ausféierung / Endréier wielen *",
+    config_required: "Pflichtëmfang am komplette REMUS-Bundle abegraff",
+    config_single: "Dës Variant huet keng weider auswielbar Bundle-Ausféierung.",
+    config_component: "Eenzelkomponent: déi néideg Haaptanlag gëtt separat gebraucht.",
+    config_check: "Separat Pflichtdeeler sinn am Export net eendeiteg verknëppt. Mir kontrolléieren d’Konfiguratioun virun der Bestellung.",
+    config_total: "Bundle-Präis",
+    related: "Passend Ergänzungen",
+    related_sub: "Kompatibel Ergänzungen – net automatesch Pflichtdeeler.",
+    compat_review: "Kompatibel – Pflichtdeelstatus gëtt kontrolléiert"
+  });
+  Object.assign(T.de, {
+    configure: "Konfigurieren",
+    config_title: "Ihre REMUS-Konfiguration",
+    config_system: "Grundsystem / Lieferumfang",
+    config_variant: "Ausführung / Endrohr wählen *",
+    config_required: "Pflichtumfang im vollständigen REMUS-Bundle enthalten",
+    config_single: "Für diese Variante ist keine weitere Bundle-Ausführung hinterlegt.",
+    config_component: "Einzelkomponente: Die erforderliche Hauptanlage wird separat benötigt.",
+    config_check: "Separate Pflichtteile sind im Export nicht eindeutig verknüpft. Wir prüfen die Konfiguration vor der Bestellung.",
+    config_total: "Bundle-Preis",
+    related: "Passende Ergänzungen",
+    related_sub: "Kompatible Ergänzungen – nicht automatisch Pflichtteile.",
+    compat_review: "Kompatibel – Pflichtteilstatus wird geprüft"
+  });
+  Object.assign(T.fr, {
+    configure: "Configurer",
+    config_title: "Votre configuration REMUS",
+    config_system: "Système de base / contenu",
+    config_variant: "Choisir la finition / les sorties *",
+    config_required: "Éléments obligatoires inclus dans le bundle REMUS complet",
+    config_single: "Aucune autre variante de bundle n’est enregistrée pour cet article.",
+    config_component: "Composant individuel: le système principal requis doit être choisi séparément.",
+    config_check: "Les pièces obligatoires séparées ne sont pas reliées de façon univoque dans l’export. Nous vérifions la configuration avant la commande.",
+    config_total: "Prix du bundle",
+    related: "Compléments compatibles",
+    related_sub: "Compléments compatibles – pas automatiquement obligatoires.",
+    compat_review: "Compatible – statut obligatoire à vérifier"
+  });
+  Object.assign(T.en, {
+    configure: "Configure",
+    config_title: "Your REMUS configuration",
+    config_system: "Base system / bundle contents",
+    config_variant: "Choose finish / tail pipes *",
+    config_required: "Required scope included in the complete REMUS bundle",
+    config_single: "No additional bundle variant is recorded for this item.",
+    config_component: "Individual component: the required main system must be selected separately.",
+    config_check: "Separate mandatory parts are not linked unambiguously in the export. We verify the configuration before ordering.",
+    config_total: "Bundle price",
+    related: "Compatible additions",
+    related_sub: "Compatible additions – not automatically mandatory.",
+    compat_review: "Compatible – mandatory-part status will be checked"
   });
 
   /* ---------- Helpers ---------- */
@@ -465,11 +552,16 @@
     body.appendChild(foot);
 
     var btn = document.createElement("button");
+    var variants = bundleVariants(p);
     btn.type = "button";
     btn.className = "btn btn-outline shop-add";
-    btn.textContent = t.add;
+    btn.textContent = variants.length > 1 ? t.configure : t.add;
     btn.disabled = !p.p;
-    btn.addEventListener("click", function (e) { e.stopPropagation(); addToCart(p, btn); });
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (variants.length > 1) openProduct(p);
+      else addToCart(p, btn);
+    });
     body.appendChild(btn);
 
     c.appendChild(body);
@@ -550,6 +642,7 @@
       '<span class="shop-cat" id="pd-cat"></span>' +
       '<h2 class="pd-name" id="pd-name"></h2>' +
       '<div class="shop-badges" id="pd-badges"></div>' +
+      '<div class="pd-config" id="pd-config"></div>' +
       '<p class="pd-fits-title" id="pd-fits-title"></p>' +
       '<ul class="pd-fits" id="pd-fits"></ul>' +
       '<div class="pd-foot"><span class="pd-ref" id="pd-ref"></span><span class="pd-price" id="pd-price"></span></div>' +
@@ -571,6 +664,77 @@
       if (pdEls && !pdEls.modal.classList.contains("show")) { pdEls.modal.hidden = true; pdEls.back.hidden = true; }
     }, 250);
   }
+  function renderProductConfig(p, t) {
+    var wrap = $("pd-config");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+
+    var title = document.createElement("h3");
+    title.className = "pd-config-title";
+    title.textContent = t.config_title;
+    wrap.appendChild(title);
+
+    var systemLabel = document.createElement("span");
+    systemLabel.className = "pd-config-label";
+    systemLabel.textContent = t.config_system;
+    wrap.appendChild(systemLabel);
+
+    var system = document.createElement("p");
+    system.className = "pd-config-system";
+    system.textContent = bundleBaseName(p);
+    wrap.appendChild(system);
+
+    var status = document.createElement("p");
+    status.className = "pd-required-status " + (p.c === "system" ? "is-complete" : "needs-system");
+    status.textContent = (p.c === "system" ? t.config_required : t.config_component);
+    wrap.appendChild(status);
+
+    var variants = bundleVariants(p);
+    if (variants.length > 1) {
+      var label = document.createElement("label");
+      label.className = "pd-config-label";
+      label.setAttribute("for", "pd-variant");
+      label.textContent = t.config_variant;
+      wrap.appendChild(label);
+
+      var select = document.createElement("select");
+      select.className = "pd-variant";
+      select.id = "pd-variant";
+      variants.forEach(function (variant) {
+        var option = document.createElement("option");
+        option.value = variant.i;
+        option.selected = variant.i === p.i;
+        option.textContent = bundleVariantName(variant) + " · " + priceStr(variant.p);
+        select.appendChild(option);
+      });
+      select.addEventListener("change", function () {
+        var selected = variants.filter(function (variant) { return variant.i === select.value; })[0];
+        if (selected) openProduct(selected);
+      });
+      wrap.appendChild(select);
+    } else {
+      var single = document.createElement("p");
+      single.className = "pd-config-single";
+      single.textContent = t.config_single;
+      wrap.appendChild(single);
+    }
+
+    var total = document.createElement("div");
+    total.className = "pd-config-total";
+    var totalLabel = document.createElement("span");
+    totalLabel.textContent = t.config_total;
+    var totalPrice = document.createElement("strong");
+    totalPrice.textContent = p.p ? priceStr(p.p) : "—";
+    total.appendChild(totalLabel);
+    total.appendChild(totalPrice);
+    wrap.appendChild(total);
+
+    var check = document.createElement("p");
+    check.className = "pd-required-check";
+    check.textContent = t.config_check;
+    wrap.appendChild(check);
+  }
+
   function openProduct(p) {
     var t = tr();
     ensureModal();
@@ -593,6 +757,7 @@
     ecb.className = "badge badge-ec " + ec.cls;
     ecb.textContent = (ec.cls === "ok" ? "✓ " : "") + t[ec.key];
     badges.appendChild(ecb);
+    renderProductConfig(p, t);
     /* Passform-Lëscht */
     setTxt("pd-fits-title", t.fits_on);
     var fitsEl = $("pd-fits"); fitsEl.innerHTML = "";
@@ -638,7 +803,10 @@
     var nm = document.createElement("div"); nm.className = "pd-rel-name"; nm.textContent = o.n;
     var meta = document.createElement("div"); meta.className = "pd-rel-meta";
     meta.textContent = (roleLabel(o.r) || t.cats[o.c] || o.c) + " · " + priceStr(o.p);
-    info.appendChild(nm); info.appendChild(meta);
+    var review = document.createElement("span");
+    review.className = "pd-rel-review";
+    review.textContent = t.compat_review;
+    info.appendChild(nm); info.appendChild(meta); info.appendChild(review);
     var add = document.createElement("button");
     add.type = "button"; add.className = "btn btn-outline pd-rel-add"; add.textContent = t.pd_add;
     add.disabled = !o.p;
