@@ -21,7 +21,7 @@
   var MAKE_IDX = {};
   MAKES.forEach(function (m, i) { MAKE_IDX[m] = i; });
 
-  var state = { mode: "all", q: "", cat: "all", brand: "", model: "", generation: "", year: "", engine: "" };
+  var state = { mode: "all", q: "", mf: "all", cat: "all", brand: "", model: "", generation: "", year: "", engine: "" };
   var ALL_FITS = [];
   PRODUCTS.forEach(function (p) { p.f.forEach(function (fit) { ALL_FITS.push(fit); }); });
 
@@ -59,12 +59,12 @@
   var T = {
     lb: {
       eyebrow: "Onlineshop", title: "Autodeeler-Shop",
-      sub: "REMUS Sportauspuffanlagen mat Bild, Präis a Lagerstatus. Wiel däi Won oder sich en Artikel – DBA-Bremsen kommen nach.",
+      sub: "REMUS Sportauspuffanlagen a DBA-Bremsen – mat Bild a Präis. Wiel d'Marque oder däi Won, oder sich en Artikel.",
       tab_artikel: "Artikel", tab_fahrzeug: "Won",
       ph_text: "Bezeechnung oder Artikelnummer …", btn_text: "Sichen",
       ph_brand: "Marke wielen oder aginn", ph_model: "Modell wielen oder aginn",
       btn_veh: "Passend Deeler fannen",
-      cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohren", adapter: "Adapter" },
+      cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohren", adapter: "Adapter", disc: "Bremsscheiwen", pads: "Bremsbelee", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraaftverstärker", park: "Handbrems", drum: "Bremstrommel", shoes: "Bremsschong", other: "Anerer" },
       info_all: "{n} Produiten", info_more: "{n} Produiten (déi éischt {c} gewisen – wiel däi Won oder verfeinert d’Sich)",
       info_search: "{n} Resultater fir „{q}“", info_veh: "{n} Produiten fir {v}",
       info_cat: "{n} · {c}",
@@ -73,7 +73,7 @@
       added: "„{n}“ an de Kuerf geluecht", vat: "All Präisser inkl. 17% TVA.",
       stock_in: "Op Lager", stock_order: "Op Ufro",
       ec_ok: "EC-Zoulassung", ec_some: "EC je no Gefier", ec_no: "Rennsport · ouni EC",
-      kw: "kW", from: "zanter",
+      kw: "kW", from: "zanter", mf_all: "All Marquen", axle_f: "Virdakse", axle_r: "Hannerakse",
       note_title: "Deel net fonnt?",
       note_text: "Mir fannen Iech déi richteg REMUS-Anlag fir Äre Won – rufft un oder schéckt eng Ufro.",
       note_cta: "Deel ufroen",
@@ -85,12 +85,12 @@
     },
     de: {
       eyebrow: "Onlineshop", title: "Autoteile-Shop",
-      sub: "REMUS Sportauspuffanlagen mit Bild, Preis und Lagerstatus. Fahrzeug wählen oder Artikel suchen – DBA-Bremsen folgen.",
+      sub: "REMUS Sportauspuffanlagen und DBA-Bremsen – mit Bild und Preis. Marke oder Fahrzeug wählen oder Artikel suchen.",
       tab_artikel: "Artikel", tab_fahrzeug: "Fahrzeug",
       ph_text: "Bezeichnung oder Artikelnummer …", btn_text: "Suchen",
       ph_brand: "Marke wählen oder eingeben", ph_model: "Modell wählen oder eingeben",
       btn_veh: "Passende Teile finden",
-      cats: { all: "Alle", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohre", adapter: "Adapter" },
+      cats: { all: "Alle", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohre", adapter: "Adapter", disc: "Bremsscheiben", pads: "Bremsbeläge", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraftverstärker", park: "Handbremse", drum: "Bremstrommeln", shoes: "Bremsbacken", other: "Sonstige" },
       info_all: "{n} Produkte", info_more: "{n} Produkte (erste {c} angezeigt – Fahrzeug wählen oder Suche verfeinern)",
       info_search: "{n} Ergebnisse für „{q}“", info_veh: "{n} Produkte für {v}",
       info_cat: "{n} · {c}",
@@ -99,7 +99,7 @@
       added: "„{n}“ in den Warenkorb gelegt", vat: "Alle Preise inkl. 17% MwSt.",
       stock_in: "Auf Lager", stock_order: "Auf Anfrage",
       ec_ok: "EG-Zulassung", ec_some: "EG je nach Fahrzeug", ec_no: "Rennsport · ohne EG",
-      kw: "kW", from: "ab",
+      kw: "kW", from: "ab", mf_all: "Alle Marken", axle_f: "Vorderachse", axle_r: "Hinterachse",
       note_title: "Teil nicht gefunden?",
       note_text: "Wir finden die passende REMUS-Anlage für Ihr Fahrzeug – rufen Sie an oder senden Sie eine Anfrage.",
       note_cta: "Teil anfragen",
@@ -111,12 +111,12 @@
     },
     fr: {
       eyebrow: "Boutique", title: "Boutique de pièces",
-      sub: "Lignes d’échappement sport REMUS avec photo, prix et disponibilité. Choisissez votre véhicule ou cherchez un article – freins DBA à venir.",
+      sub: "Échappements sport REMUS et freins DBA – avec photo et prix. Choisissez la marque ou votre véhicule, ou cherchez un article.",
       tab_artikel: "Article", tab_fahrzeug: "Véhicule",
       ph_text: "Désignation ou numéro d’article …", btn_text: "Rechercher",
       ph_brand: "Choisir ou saisir la marque", ph_model: "Choisir ou saisir le modèle",
       btn_veh: "Trouver les pièces",
-      cats: { all: "Tout", system: "Lignes d’échappement", sound: "Sound Controller", tail: "Sorties", adapter: "Adaptateurs" },
+      cats: { all: "Tout", system: "Lignes d’échappement", sound: "Sound Controller", tail: "Sorties", adapter: "Adaptateurs", disc: "Disques de frein", pads: "Plaquettes", caliper: "Étriers", bbk: "Big Brake Kits", booster: "Servofrein", park: "Frein à main", drum: "Tambours", shoes: "Mâchoires", other: "Autres" },
       info_all: "{n} produits", info_more: "{n} produits ({c} premiers affichés – choisissez votre véhicule ou affinez)",
       info_search: "{n} résultats pour « {q} »", info_veh: "{n} produits pour {v}",
       info_cat: "{n} · {c}",
@@ -125,7 +125,7 @@
       added: "« {n} » ajouté au panier", vat: "Tous les prix TTC (TVA 17% incluse).",
       stock_in: "En stock", stock_order: "Sur demande",
       ec_ok: "Homologation CE", ec_some: "CE selon véhicule", ec_no: "Compétition · sans CE",
-      kw: "kW", from: "dès",
+      kw: "kW", from: "dès", mf_all: "Toutes marques", axle_f: "Essieu avant", axle_r: "Essieu arrière",
       note_title: "Pièce introuvable ?",
       note_text: "Nous trouvons la ligne REMUS adaptée à votre véhicule – appelez ou envoyez une demande.",
       note_cta: "Demander une pièce",
@@ -137,12 +137,12 @@
     },
     en: {
       eyebrow: "Online shop", title: "Car parts shop",
-      sub: "REMUS sport exhaust systems with photo, price and stock status. Pick your vehicle or search an article – DBA brakes coming.",
+      sub: "REMUS sport exhausts and DBA brakes – with photo and price. Pick the brand or your vehicle, or search an article.",
       tab_artikel: "Article", tab_fahrzeug: "Vehicle",
       ph_text: "Name or part number …", btn_text: "Search",
       ph_brand: "Choose or type make", ph_model: "Choose or type model",
       btn_veh: "Find matching parts",
-      cats: { all: "All", system: "Exhaust systems", sound: "Sound Controller", tail: "Tail pipes", adapter: "Adapters" },
+      cats: { all: "All", system: "Exhaust systems", sound: "Sound Controller", tail: "Tail pipes", adapter: "Adapters", disc: "Brake discs", pads: "Brake pads", caliper: "Calipers", bbk: "Big Brake Kits", booster: "Brake booster", park: "Park brake", drum: "Brake drums", shoes: "Brake shoes", other: "Other" },
       info_all: "{n} products", info_more: "{n} products (first {c} shown – pick your vehicle or refine)",
       info_search: "{n} results for “{q}”", info_veh: "{n} products for {v}",
       info_cat: "{n} · {c}",
@@ -151,7 +151,7 @@
       added: "“{n}” added to cart", vat: "All prices incl. 17% VAT.",
       stock_in: "In stock", stock_order: "On request",
       ec_ok: "EC approval", ec_some: "EC depends on vehicle", ec_no: "Race · no EC",
-      kw: "kW", from: "from",
+      kw: "kW", from: "from", mf_all: "All brands", axle_f: "Front axle", axle_r: "Rear axle",
       note_title: "Part not found?",
       note_text: "We’ll find the right REMUS system for your car – call or send a request.",
       note_cta: "Request a part",
@@ -347,6 +347,21 @@
     rel_none_detail: "No separate add-on parts are recorded for this bundle in the imported catalogue. The required scope is included in the complete bundle."
   });
 
+  /* Multi-Marque (REMUS + DBA): komplett Kategorien + Marque-/Axe-Labelen.
+     Hei LESCHT gesat, soudatt d'DBA-Kategorien net vun uewe verluer ginn. */
+  Object.assign(T.lb, { mf_all: "All Marquen", axle_f: "Virdakse", axle_r: "Hannerakse",
+    sub: "REMUS-Sportauspuffanlagen an DBA-Bremsen – mat Bild a Präis. Wielt d’Marque oder Äert Gefier, oder sicht no engem Artikel.",
+    cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endréier", adapter: "Adapter", disc: "Bremsscheiwen", pads: "Bremsbelee", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraaftverstärker", park: "Handbrems", drum: "Bremstrommel", shoes: "Bremsschong", other: "Anerer" } });
+  Object.assign(T.de, { mf_all: "Alle Marken", axle_f: "Vorderachse", axle_r: "Hinterachse",
+    sub: "REMUS-Sportauspuffanlagen und DBA-Bremsen – mit Bild und Preis. Marke oder Fahrzeug wählen oder Artikel suchen.",
+    cats: { all: "Alle", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohre", adapter: "Adapter", disc: "Bremsscheiben", pads: "Bremsbeläge", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraftverstärker", park: "Handbremse", drum: "Bremstrommeln", shoes: "Bremsbacken", other: "Sonstige" } });
+  Object.assign(T.fr, { mf_all: "Toutes marques", axle_f: "Essieu avant", axle_r: "Essieu arrière",
+    sub: "Échappements sport REMUS et freins DBA – avec photo et prix. Choisissez la marque ou votre véhicule, ou cherchez un article.",
+    cats: { all: "Tout", system: "Lignes d’échappement", sound: "Sound Controller", tail: "Sorties", adapter: "Adaptateurs", disc: "Disques de frein", pads: "Plaquettes", caliper: "Étriers", bbk: "Big Brake Kits", booster: "Servofrein", park: "Frein à main", drum: "Tambours", shoes: "Mâchoires", other: "Autres" } });
+  Object.assign(T.en, { mf_all: "All brands", axle_f: "Front axle", axle_r: "Rear axle",
+    sub: "REMUS sport exhausts and DBA brakes – with photo and price. Pick the brand or your vehicle, or search an article.",
+    cats: { all: "All", system: "Exhaust systems", sound: "Sound Controller", tail: "Tail pipes", adapter: "Adapters", disc: "Brake discs", pads: "Brake pads", caliper: "Calipers", bbk: "Big Brake Kits", booster: "Brake booster", park: "Park brake", drum: "Brake drums", shoes: "Brake shoes", other: "Other" } });
+
   /* ---------- Helpers ---------- */
   function $(id) { return document.getElementById(id); }
   function setTxt(id, s) { var el = $(id); if (el) el.textContent = s; }
@@ -363,8 +378,12 @@
   function priceStr(net) { return centsToStr(grossCents(net)); }
   function imgUrl(idx, w, h) {
     if (idx == null || idx < 0 || !IMAGES[idx]) return "";
-    return IMGBASE + IMAGES[idx] + "?w=" + w + "&h=" + h + "&fit=crop&auto=format";
+    var v = IMAGES[idx];
+    if (v.indexOf("://") !== -1) return v; // extern (DBA / 3cerp) – direkt lueden
+    return IMGBASE + v + "?w=" + w + "&h=" + h + "&fit=crop&auto=format";
   }
+  function mfOf(p) { return p.mf || "REMUS"; }
+  function displayRef(p) { return (p.i || "").replace(/^DBA-/, ""); }
   function makeName(i) { return MAKES[i] || ""; }
   function makesOf(p) {
     var seen = {}, out = [];
@@ -436,13 +455,43 @@
     return { cls: "some", key: "ec_some" };
   }
 
+  function mfBadge(p) {
+    var mf = mfOf(p);
+    var span = document.createElement("span");
+    span.className = "shop-mf shop-mf-" + mf;
+    span.textContent = mf;
+    span.setAttribute("title", mf);
+    return span;
+  }
+  /* Badgen ënner dem Numm: DBA → Axe (Virun/Hannen); REMUS → EC-Zoulassung */
+  function partBadges(p, t) {
+    var out = [];
+    if (mfOf(p) === "DBA") {
+      if (p.ax) {
+        var ab = document.createElement("span");
+        ab.className = "badge badge-axle";
+        ab.textContent = axleLabel(p.ax);
+        out.push(ab);
+      }
+      return out;
+    }
+    var ec = ecStatus(p);
+    var ecb = document.createElement("span");
+    ecb.className = "badge badge-ec " + ec.cls;
+    ecb.textContent = (ec.cls === "ok" ? "✓ " : "") + t[ec.key];
+    out.push(ecb);
+    return out;
+  }
+
   /* ---------- Filter ---------- */
   function matches(p) {
+    if (state.mf !== "all" && mfOf(p) !== state.mf) return false;
     if (state.cat !== "all" && p.c !== state.cat) return false;
     if (state.mode === "search" && state.q) {
       var q = state.q.toLowerCase();
       if (p.n.toLowerCase().indexOf(q) !== -1) return true;
       if (p.i.toLowerCase().indexOf(q) !== -1) return true;
+      if (mfOf(p).toLowerCase().indexOf(q) !== -1) return true;
       return p.f.some(function (x) {
         if (makeName(x[0]).toLowerCase().indexOf(q) !== -1) return true;
         if ((x[1] || "").toLowerCase().indexOf(q) !== -1) return true;
@@ -459,16 +508,45 @@
     return true;
   }
 
-  /* ---------- Kategorie-Chips ---------- */
+  /* ---------- Marque- a Kategorie-Chips ---------- */
+  var MANUFACTURERS = (window.SHOP_META && window.SHOP_META.manufacturers) || ["REMUS"];
+  function axleLabel(ax) {
+    var t = tr();
+    return ax === "F" ? t.axle_f : ax === "R" ? t.axle_r : "";
+  }
+  function catsFor(mf) {
+    if (mf === "DBA") return ["all", "disc", "pads", "caliper", "bbk"];
+    if (mf === "REMUS") return ["all", "system", "sound", "adapter"];
+    return ["all"]; // gemëscht: keng Ënner-Kategorien
+  }
+  function renderMfChips() {
+    var t = tr(), wrap = $("mf-chips");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    var opts = [["all", t.mf_all]].concat(MANUFACTURERS.map(function (m) { return [m, m]; }));
+    opts.forEach(function (o) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "mf-chip" + (state.mf === o[0] ? " active" : "") + (o[0] !== "all" ? " mf-chip-" + o[0] : "");
+      b.textContent = o[1];
+      b.addEventListener("click", function () {
+        state.mf = o[0];
+        if (catsFor(state.mf).indexOf(state.cat) === -1) state.cat = "all";
+        render();
+      });
+      wrap.appendChild(b);
+    });
+  }
   function renderChips() {
+    renderMfChips();
     var t = tr(), wrap = $("cat-chips");
     if (!wrap) return;
     wrap.innerHTML = "";
-    ["all", "system", "sound", "adapter"].forEach(function (c) {
+    catsFor(state.mf).forEach(function (c) {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "cat-chip" + (state.cat === c ? " active" : "");
-      b.textContent = t.cats[c];
+      b.textContent = t.cats[c] || c;
       b.addEventListener("click", function () { state.cat = c; render(); });
       wrap.appendChild(b);
     });
@@ -509,7 +587,7 @@
 
     /* Media */
     var media = document.createElement("div");
-    media.className = "shop-card-media";
+    media.className = "shop-card-media mf-" + mfOf(p);
     var url = imgUrl(p.m, 600, 360);
     if (url) {
       var img = document.createElement("img");
@@ -527,6 +605,7 @@
     catTag.className = "shop-cat";
     catTag.textContent = t.cats[p.c] || p.c;
     media.appendChild(catTag);
+    media.appendChild(mfBadge(p));
     c.appendChild(media);
 
     /* Body */
@@ -549,14 +628,10 @@
     }
     body.appendChild(fit);
 
-    /* Badges (EC-Zoulassung – Lagerstatus gëtt bewosst net ugewisen) */
+    /* Badges: REMUS → EC-Zoulassung · DBA → Axe (Virun/Hannen) */
     var badges = document.createElement("div");
     badges.className = "shop-badges";
-    var ec = ecStatus(p);
-    var ecb = document.createElement("span");
-    ecb.className = "badge badge-ec " + ec.cls;
-    ecb.textContent = (ec.cls === "ok" ? "✓ " : "") + t[ec.key];
-    badges.appendChild(ecb);
+    partBadges(p, t).forEach(function (bd) { badges.appendChild(bd); });
     body.appendChild(badges);
 
     /* Foot */
@@ -564,7 +639,7 @@
     foot.className = "shop-card-foot";
     var art = document.createElement("span");
     art.className = "shop-artnr";
-    art.textContent = t.artnr + " " + p.i;
+    art.textContent = t.artnr + " " + displayRef(p);
     var pr = document.createElement("span");
     pr.className = "shop-price";
     pr.textContent = p.p ? priceStr(p.p) : "—";
@@ -617,7 +692,38 @@
   function exactFitKey(x) {
     return [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[8]].join("|");
   }
+  /* DBA: komplementär = selwecht Gefier (Mark+Modell), awer aner Kategorie
+     (Scheiwen ↔ Belee) oder aner Axe (Virun ↔ Hannen). */
+  function relatedDBA(p) {
+    var vk = {};
+    p.f.forEach(function (x) { vk[x[0] + "|" + x[1]] = 1; });
+    var cands = [];
+    PRODUCTS.forEach(function (o) {
+      if (mfOf(o) !== "DBA" || o.i === p.i || !o.p) return;
+      var share = 0;
+      o.f.forEach(function (x) { if (vk[x[0] + "|" + x[1]]) share++; });
+      if (!share) return;
+      var diffCat = o.c !== p.c;
+      var diffAxle = o.ax && p.ax && o.ax !== p.ax;
+      if (!diffCat && !diffAxle) return; // selwecht Kategorie+Axe = quasi Variant
+      cands.push({ o: o, share: share, rank: diffCat ? 0 : 1 });
+    });
+    cands.sort(function (a, b) {
+      if (a.rank !== b.rank) return a.rank - b.rank;
+      if (a.share !== b.share) return b.share - a.share;
+      return a.o.p - b.o.p;
+    });
+    var per = {}, out = [];
+    cands.forEach(function (s) {
+      var k = s.o.c + "|" + (s.o.ax || "");
+      per[k] = (per[k] || 0) + 1;
+      if (per[k] <= 3 && out.length < 8) out.push(s.o);
+    });
+    out.mode = "parts";
+    return out;
+  }
   function relatedOf(p) {
+    if (mfOf(p) === "DBA") return relatedDBA(p);
     /* Fir "passend" nëmmen déi exakt Gefier-/Motor-Zouuerdnung benotzen.
        Als éischt komplementär Deeler; wa keng existéieren, aner komplett
        Anlagen fir genee datselwecht Gefier weisen. */
@@ -625,7 +731,7 @@
     p.f.forEach(function (x) { exactKeys[exactFitKey(x)] = 1; });
     var candidates = [];
     PRODUCTS.forEach(function (o) {
-      if (o.i === p.i || !o.p) return;
+      if (mfOf(o) !== "REMUS" || o.i === p.i || !o.p) return;
       var share = 0;
       o.f.forEach(function (x) { if (exactKeys[exactFitKey(x)]) share++; });
       if (share) candidates.push({ o: o, share: share });
@@ -780,7 +886,7 @@
     ensureModal();
     var media = $("pd-media");
     var url = imgUrl(p.m, 900, 540);
-    media.className = "pd-media";
+    media.className = "pd-media mf-" + mfOf(p);
     media.innerHTML = "";
     if (url) {
       var img = document.createElement("img");
@@ -788,16 +894,16 @@
       img.addEventListener("error", function () { media.classList.add("no-img"); img.remove(); });
       media.appendChild(img);
     } else { media.classList.add("no-img"); }
+    media.appendChild(mfBadge(p));
     setTxt("pd-cat", roleLabel(p.r) || t.cats[p.c] || p.c);
     setTxt("pd-name", p.n);
-    /* EC-Badge */
+    /* Badgen: REMUS → EC · DBA → Axe */
     var badges = $("pd-badges"); badges.innerHTML = "";
-    var ec = ecStatus(p);
-    var ecb = document.createElement("span");
-    ecb.className = "badge badge-ec " + ec.cls;
-    ecb.textContent = (ec.cls === "ok" ? "✓ " : "") + t[ec.key];
-    badges.appendChild(ecb);
-    renderProductConfig(p, t);
+    partBadges(p, t).forEach(function (bd) { badges.appendChild(bd); });
+    /* Configurator (Bundle-Varianten) nëmme fir REMUS */
+    var cfg = $("pd-config");
+    if (cfg) { cfg.innerHTML = ""; cfg.style.display = mfOf(p) === "REMUS" ? "" : "none"; }
+    if (mfOf(p) === "REMUS") renderProductConfig(p, t);
     /* Passform-Lëscht */
     setTxt("pd-fits-title", t.fits_on);
     var fitsEl = $("pd-fits"); fitsEl.innerHTML = "";
@@ -808,7 +914,7 @@
       if (seen[label]) return; seen[label] = 1; shown++;
       var li = document.createElement("li"); li.textContent = label; fitsEl.appendChild(li);
     });
-    setTxt("pd-ref", t.artnr + " " + p.i);
+    setTxt("pd-ref", t.artnr + " " + displayRef(p));
     setTxt("pd-price", p.p ? priceStr(p.p) : "—");
     var addBtn = $("pd-add");
     addBtn.textContent = t.add; addBtn.disabled = !p.p;
@@ -836,7 +942,7 @@
   }
   function relItem(o, t) {
     var li = document.createElement("li"); li.className = "pd-rel-item";
-    var thumb = document.createElement("div"); thumb.className = "pd-rel-thumb";
+    var thumb = document.createElement("div"); thumb.className = "pd-rel-thumb mf-" + mfOf(o);
     var url = imgUrl(o.m, 160, 120);
     if (url) {
       var im = document.createElement("img"); im.loading = "lazy"; im.alt = o.n; im.src = url;
@@ -846,7 +952,7 @@
     var info = document.createElement("div"); info.className = "pd-rel-info";
     var nm = document.createElement("div"); nm.className = "pd-rel-name"; nm.textContent = o.n;
     var meta = document.createElement("div"); meta.className = "pd-rel-meta";
-    meta.textContent = (roleLabel(o.r) || t.cats[o.c] || o.c) + " · " + priceStr(o.p);
+    meta.textContent = (roleLabel(o.r) || t.cats[o.c] || o.c) + (o.ax ? " · " + axleLabel(o.ax) : "") + " · " + priceStr(o.p);
     var review = document.createElement("span");
     review.className = "pd-rel-review";
     review.textContent = t.compat_review;
