@@ -100,6 +100,27 @@
   function remusPartsOf(p, type) {
     return (p.ps || []).filter(function (sku) { return remusPartType(sku) === type; });
   }
+  function remusSlotDefs(variants) {
+    var types = ["system", "tail", "sound", "adapter"], defs = [];
+    types.forEach(function (type) {
+      var max = variants.reduce(function (n, variant) {
+        return Math.max(n, remusPartsOf(variant, type).length);
+      }, 0);
+      for (var i = 0; i < max; i++) defs.push({ type: type, index: i });
+    });
+    return defs;
+  }
+  function remusSlotValue(p, def) { return remusPartsOf(p, def.type)[def.index] || ""; }
+  function collapseCatalog(list) {
+    var out = [], remus = {};
+    list.forEach(function (p) {
+      if (mfOf(p) !== "REMUS") { out.push(p); return; }
+      var key = remusFamilyKey(p);
+      if (!remus[key] || (!remus[key].p && p.p) || (p.p && p.p < remus[key].p)) remus[key] = p;
+    });
+    Object.keys(remus).forEach(function (key) { out.push(remus[key]); });
+    return out;
+  }
 
   /* ---------- Iwwersetzungen ---------- */
   var T = {
@@ -329,6 +350,8 @@
     config_sound_parts: "Sound Controller",
     config_adapter_parts: "Adapter",
     config_without_sound: "ouni Sound Controller",
+    config_none: "Ouni Auswiel",
+    config_component_choice: "Anlagekomponent {n}",
     config_single: "Dës Variant huet keng weider auswielbar Bundle-Ausféierung.",
     config_component: "Eenzelkomponent: déi néideg Haaptanlag gëtt separat gebraucht.",
     config_check: "Mir kontrolléieren d’Stécklëscht an d’Passform nach eng Kéier mat Äre komplette Gefierdaten virun der Bestellung.",
@@ -351,6 +374,8 @@
     config_sound_parts: "Sound Controller",
     config_adapter_parts: "Adapter",
     config_without_sound: "ohne Sound Controller",
+    config_none: "Ohne Auswahl",
+    config_component_choice: "Anlagenkomponente {n}",
     config_single: "Für diese Variante ist keine weitere Bundle-Ausführung hinterlegt.",
     config_component: "Einzelkomponente: Die erforderliche Hauptanlage wird separat benötigt.",
     config_check: "Wir prüfen Stückliste und Passform vor der Bestellung noch einmal anhand Ihrer vollständigen Fahrzeugdaten.",
@@ -373,6 +398,8 @@
     config_sound_parts: "Sound Controller",
     config_adapter_parts: "Adaptateurs",
     config_without_sound: "sans Sound Controller",
+    config_none: "Sans sélection",
+    config_component_choice: "Composant du système {n}",
     config_single: "Aucune autre variante de bundle n’est enregistrée pour cet article.",
     config_component: "Composant individuel: le système principal requis doit être choisi séparément.",
     config_check: "Avant la commande, nous vérifions à nouveau la nomenclature et la compatibilité à partir des données complètes du véhicule.",
@@ -395,6 +422,8 @@
     config_sound_parts: "Sound Controller",
     config_adapter_parts: "Adapters",
     config_without_sound: "without Sound Controller",
+    config_none: "No selection",
+    config_component_choice: "System component {n}",
     config_single: "No additional bundle variant is recorded for this item.",
     config_component: "Individual component: the required main system must be selected separately.",
     config_check: "Before ordering, we verify the bill of materials and fitment again using the complete vehicle details.",
@@ -706,7 +735,7 @@
     catsFor(state.mf).forEach(function (c) {
       var previousCategory = state.cat;
       state.cat = c;
-      var count = PRODUCTS.filter(matches).length;
+      var count = collapseCatalog(PRODUCTS.filter(matches)).length;
       state.cat = previousCategory;
       var b = document.createElement("button");
       b.type = "button";
@@ -729,7 +758,7 @@
     var t = tr(), grid = $("shop-grid"), info = $("shop-result-info"), empty = $("shop-empty");
     if (!grid) return;
     renderChips();
-    var list = sortList(PRODUCTS.filter(matches));
+    var list = sortList(collapseCatalog(PRODUCTS.filter(matches)));
     var n = list.length;
     var shown = list.slice(0, visibleCount);
     grid.innerHTML = "";
@@ -1170,31 +1199,60 @@
 
     var variants = remusConfigVariants(p);
     if (variants.length > 1) {
-      var label = document.createElement("label");
-      label.className = "pd-config-label";
-      label.setAttribute("for", "pd-variant");
-      label.textContent = t.config_valid;
-      wrap.appendChild(label);
+      var configLabel = document.createElement("span");
+      configLabel.className = "pd-config-label";
+      configLabel.textContent = t.config_valid;
+      wrap.appendChild(configLabel);
 
-      var select = document.createElement("select");
-      select.className = "pd-variant";
-      select.id = "pd-variant";
-      variants.forEach(function (variant) {
-        var option = document.createElement("option");
-        option.value = variant.i;
-        option.selected = variant.i === p.i;
-        var main = remusPartsOf(variant, "system").join(" + ");
-        var tail = remusPartsOf(variant, "tail").join(" + ");
-        var sound = remusPartsOf(variant, "sound").join(" + ") || t.config_without_sound;
-        var adapter = remusPartsOf(variant, "adapter").join(" + ");
-        option.textContent = [main, tail, sound, adapter, priceStr(variant.p)].filter(Boolean).join(" · ");
-        select.appendChild(option);
+      var slotDefs = remusSlotDefs(variants);
+      slotDefs.forEach(function (def, slotIndex) {
+        var values = [];
+        variants.forEach(function (variant) {
+          var value = remusSlotValue(variant, def);
+          if (values.indexOf(value) === -1) values.push(value);
+        });
+        if (values.length < 2) return;
+
+        var field = document.createElement("div");
+        field.className = "pd-option-field pd-option-" + def.type;
+        var id = "pd-option-" + slotIndex;
+        var label = document.createElement("label");
+        label.className = "pd-option-label";
+        label.setAttribute("for", id);
+        if (def.type === "system") label.textContent = t.config_component_choice.replace("{n}", def.index + 1);
+        else if (def.type === "tail") label.textContent = t.config_tail_parts + (def.index ? " " + (def.index + 1) : "");
+        else if (def.type === "sound") label.textContent = t.config_sound_parts;
+        else label.textContent = t.config_adapter_parts + (def.index ? " " + (def.index + 1) : "");
+        field.appendChild(label);
+
+        var select = document.createElement("select");
+        select.className = "pd-variant pd-option-select";
+        select.id = id;
+        values.sort().forEach(function (value) {
+          var option = document.createElement("option");
+          option.value = value;
+          option.selected = value === remusSlotValue(p, def);
+          option.textContent = value || t.config_none;
+          select.appendChild(option);
+        });
+        select.addEventListener("change", function () {
+          var candidates = variants.filter(function (variant) {
+            return remusSlotValue(variant, def) === select.value;
+          });
+          candidates.sort(function (a, b) {
+            function score(variant) {
+              return slotDefs.reduce(function (sum, other) {
+                if (other === def) return sum;
+                return sum + (remusSlotValue(variant, other) === remusSlotValue(p, other) ? 1 : 0);
+              }, 0);
+            }
+            return score(b) - score(a) || a.p - b.p;
+          });
+          if (candidates[0]) openProduct(candidates[0]);
+        });
+        field.appendChild(select);
+        wrap.appendChild(field);
       });
-      select.addEventListener("change", function () {
-        var selected = variants.filter(function (variant) { return variant.i === select.value; })[0];
-        if (selected) openProduct(selected);
-      });
-      wrap.appendChild(select);
     } else {
       var single = document.createElement("p");
       single.className = "pd-config-single";

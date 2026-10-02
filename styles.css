@@ -5451,6 +5451,25 @@ html.shop-dev .shop-card-body .shop-price {
   outline: 3px solid rgba(230, 57, 70, .22);
   border-color: var(--accent);
 }
+
+.pd-option-field {
+  margin-top: .7rem;
+}
+
+.pd-option-label {
+  display: block;
+  margin-bottom: .3rem;
+  color: var(--navy-900);
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.pd-option-sound {
+  padding: .65rem;
+  border: 1px solid rgba(216, 20, 31, .22);
+  border-radius: 10px;
+  background: rgba(216, 20, 31, .045);
+}
 .pd-config-single {
   margin: .3rem 0 0;
   color: var(--text-mut);
