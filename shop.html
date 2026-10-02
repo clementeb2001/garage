@@ -34,7 +34,7 @@
     <link rel="dns-prefetch" href="//cdn.sanity.io" />
     <link rel="preconnect" href="https://3cerp.eu" crossorigin />
     <link rel="dns-prefetch" href="//3cerp.eu" />
-    <link rel="stylesheet" href="styles.css?v=54" />
+    <link rel="stylesheet" href="styles.css?v=55" />
     <script src="shop-gate.js?v=1"></script>
   </head>
   <body class="shop-page">
@@ -260,6 +260,8 @@
             role="group"
             aria-label="Kategorien"
           ></div>
+          <div class="shop-vehicle-summary" id="shop-vehicle-summary" hidden><strong id="shop-vehicle-summary-text"></strong><button type="button" id="shop-vehicle-change">Fahrzeug ändern</button><button type="button" id="shop-vehicle-clear">Zurücksetzen</button></div>
+          <button class="shop-filter-mobile-toggle" id="shop-filter-mobile-toggle" type="button" aria-expanded="false" aria-controls="shop-filterbar">Filter &amp; Sortierung</button>
           <div class="shop-filterbar" id="shop-filterbar" aria-label="Produktfilter">
             <label><span id="filter-axle-label">Achse</span><select id="filter-axle"><option value="all">Alle Achsen</option><option value="F">Vorderachse</option><option value="R">Hinterachse</option></select></label>
             <label><span id="filter-approval-label">Zulassung</span><select id="filter-approval"><option value="all">Alle Zulassungen</option><option value="road">Straßenzulassung</option><option value="race">Ohne Straßenzulassung</option></select></label>
@@ -472,7 +474,7 @@
 
     <script src="script.js?v=18"></script>
     <script src="shop-data.js?v=8"></script>
-    <script src="shop.js?v=38"></script>
+    <script src="shop.js?v=39"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"

@@ -769,6 +769,22 @@
   var yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  /* Shop-Passformufro aus der Produktdetail-Säit virfëllen. */
+  try {
+    var shopParams = new URLSearchParams(window.location.search);
+    var shopProduct = shopParams.get("shopProduct");
+    if (shopProduct) {
+      var shopName = shopParams.get("shopName") || "Produkt";
+      var shopVehicle = shopParams.get("shopVehicle") || "";
+      var msg = document.getElementById("message");
+      var vehicleInput = document.getElementById("fahrzeug");
+      var serviceSelect = document.getElementById("service");
+      if (msg) msg.value = "Passformprüfung für " + shopName + "\nArtikelnummer: " + shopProduct + (shopVehicle ? "\nFahrzeug: " + shopVehicle : "") + "\n\nBitte prüfen Sie, ob dieses Teil zu meinem Fahrzeug passt.";
+      if (vehicleInput && shopVehicle) vehicleInput.value = shopVehicle;
+      if (serviceSelect) serviceSelect.selectedIndex = serviceSelect.options.length - 1;
+    }
+  } catch (e) {}
+
   /* Back-to-top */
   var backBtn = document.getElementById("back-to-top");
   if (backBtn) {

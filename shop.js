@@ -24,7 +24,9 @@
 
   var state = { mode: "all", q: "", mf: "all", cat: "all", brand: "", model: "", generation: "", year: "", engine: "", axle: "all", approval: "all", sort: "name", favoritesOnly: false };
   var favorites = loadJson("gk_shop_favorites", []);
-  var compareIds = [];
+  var compareIds = loadJson("gk_shop_compare", []);
+  var activeCompareDialog = null;
+  var lastDialogFocus = null;
 
   function loadJson(key, fallback) {
     try { var value = JSON.parse(localStorage.getItem(key)); return value || fallback; }
@@ -408,6 +410,7 @@
   Object.assign(T.lb, { compare:"Vergläichen", compare_add:"Vergläichen", compare_count:"{n} Produkter ausgewielt", compare_clear:"Eidel maachen" });
   Object.assign(T.fr, { compare:"Comparer", compare_add:"Comparer", compare_count:"{n} produits sélectionnés", compare_clear:"Vider" });
   Object.assign(T.en, { compare:"Compare", compare_add:"Compare", compare_count:"{n} products selected", compare_clear:"Clear" });
+  T.lb.compare_limit="Dir kënnt maximal 3 Produkter vergläichen."; T.de.compare_limit="Sie können maximal 3 Produkte vergleichen."; T.fr.compare_limit="Vous pouvez comparer au maximum 3 produits."; T.en.compare_limit="You can compare up to 3 products.";
 
   /* ---------- Helpers ---------- */
   function $(id) { return document.getElementById(id); }
@@ -447,6 +450,13 @@
   }
   function mfOf(p) { return p.mf || "REMUS"; }
   function displayRef(p) { return (p.i || "").replace(/^DBA-/, ""); }
+  function productName(p) {
+    if (mfOf(p) !== "DBA" || p.c !== "bbk" || !/^Brake Kit/i.test(p.n)) return p.n;
+    var series = (p.n.match(/(5000 Series[^&(]*|4000 Series[^&(]*|Street Series[^&(]*)/i) || [])[1] || "Performance";
+    series = series.replace(/\s+/g, " ").trim();
+    var axle = p.ax === "F" ? axleLabel("F") : p.ax === "R" ? axleLabel("R") : "";
+    return "DBA Bremsen-Kit" + (axle ? " " + axle : "") + " – " + series;
+  }
   function makeName(i) { return MAKES[i] || ""; }
   function makesOf(p) {
     var seen = {}, out = [];
@@ -631,10 +641,14 @@
     if (!wrap) return;
     wrap.innerHTML = "";
     catsFor(state.mf).forEach(function (c) {
+      var previousCategory = state.cat;
+      state.cat = c;
+      var count = PRODUCTS.filter(matches).length;
+      state.cat = previousCategory;
       var b = document.createElement("button");
       b.type = "button";
       b.className = "cat-chip" + (state.cat === c ? " active" : "");
-      b.textContent = t.cats[c] || c;
+      b.textContent = (t.cats[c] || c) + " (" + count + ")";
       b.addEventListener("click", function () { state.cat = c; visibleCount = PAGE_SIZE; saveState(); render(); });
       wrap.appendChild(b);
     });
@@ -667,11 +681,18 @@
     else txt = t.info_all.replace("{n}", n);
     if (state.cat !== "all") txt = t.info_cat.replace("{n}", txt).replace("{c}", t.cats[state.cat]);
     if (info) info.textContent = txt;
-    if (empty) empty.hidden = n > 0;
+    if (empty) {
+      empty.hidden = n > 0;
+      if (!empty.hidden) empty.textContent = state.favoritesOnly
+        ? (lang() === "fr" ? "Votre liste de favoris est vide." : lang() === "en" ? "Your favourites list is empty." : lang() === "lb" ? "Är Favorittelëscht ass eidel." : "Ihre Merkliste ist leer.")
+        : t.empty;
+    }
     var more = $("shop-load-more");
     if (more) { more.hidden = visibleCount >= n; more.textContent = t.load_more.replace("{n}", Math.max(0, n - visibleCount)); }
     var favToggle = $("favorites-toggle");
     if (favToggle) { favToggle.classList.toggle("active", state.favoritesOnly); favToggle.setAttribute("aria-pressed", state.favoritesOnly ? "true" : "false"); }
+    var vs=$("shop-vehicle-summary"), vst=$("shop-vehicle-summary-text");
+    if(vs){vs.hidden=!(state.mode==="vehicle"&&state.brand);if(vst&&!vs.hidden)vst.textContent=(lang()==="fr"?"Véhicule sélectionné : ":lang()==="en"?"Selected vehicle: ":lang()==="lb"?"Ausgewielt Gefier: ":"Ausgewähltes Fahrzeug: ")+selectedVehicleLabel();}
     saveState();
   }
 
@@ -723,7 +744,7 @@
     body.className = "shop-card-body";
 
     var h = document.createElement("h3");
-    h.textContent = p.n;
+    h.textContent = productName(p);
     body.appendChild(h);
 
     var fav = document.createElement("button");
@@ -788,7 +809,8 @@
     compare.textContent = (compareIds.indexOf(p.i) !== -1 ? "✓ " : "+ ") + t.compare_add;
     compare.addEventListener("click", function (e) {
       e.stopPropagation(); var at=compareIds.indexOf(p.i);
-      if (at !== -1) compareIds.splice(at,1); else if (compareIds.length < 3) compareIds.push(p.i);
+      if (at !== -1) compareIds.splice(at,1); else if (compareIds.length < 3) compareIds.push(p.i); else showToast(t.compare_limit || "Maximal 3 Produkte vergleichen.");
+      saveJson("gk_shop_compare", compareIds);
       updateCompareBar(); render();
     });
     body.appendChild(compare);
@@ -804,19 +826,21 @@
     bar.hidden=compareIds.length===0;
     setTxt("shop-compare-count", t.compare_count.replace("{n}", compareIds.length));
     setTxt("shop-compare-open", t.compare); setTxt("shop-compare-clear", t.compare_clear);
+    var open=$("shop-compare-open"); if(open) open.disabled=compareIds.length<2;
   }
   function openCompare() {
     if (compareIds.length < 2) return;
     var t=tr(), selected=compareIds.map(function(id){ return PRODUCTS.filter(function(p){return p.i===id;})[0]; }).filter(Boolean);
     var back=document.createElement("div"); back.className="compare-dialog-back";
-    var dialog=document.createElement("div"); dialog.className="compare-dialog"; dialog.setAttribute("role","dialog"); dialog.setAttribute("aria-modal","true");
-    var close=document.createElement("button"); close.className="pd-close"; close.type="button"; close.textContent="✕";
-    function shut(){ back.remove(); dialog.remove(); }
+    var dialog=document.createElement("div"); dialog.className="compare-dialog"; dialog.setAttribute("role","dialog"); dialog.setAttribute("aria-modal","true"); dialog.setAttribute("aria-labelledby","compare-dialog-title");
+    var close=document.createElement("button"); close.className="pd-close"; close.type="button"; close.textContent="✕"; close.setAttribute("aria-label", t.close_label || "Schließen");
+    lastDialogFocus=document.activeElement; document.body.classList.add("dialog-open");
+    function shut(){ back.remove(); dialog.remove(); document.body.classList.remove("dialog-open"); activeCompareDialog=null; if(lastDialogFocus&&lastDialogFocus.focus)lastDialogFocus.focus(); }
     close.addEventListener("click",shut); back.addEventListener("click",shut); dialog.appendChild(close);
-    var h=document.createElement("h2"); h.textContent=t.compare; dialog.appendChild(h);
+    var h=document.createElement("h2"); h.id="compare-dialog-title"; h.textContent=t.compare; dialog.appendChild(h);
     var table=document.createElement("div"); table.className="compare-grid";
-    selected.forEach(function(p){ var a=document.createElement("article"); var n=document.createElement("h3"); n.textContent=p.n; var meta=document.createElement("p"); meta.textContent=mfOf(p)+" · "+(t.cats[p.c]||p.c); var price=document.createElement("strong"); price.textContent=p.p?priceStr(p.p):"—"; var ref=document.createElement("p"); ref.textContent=t.artnr+" "+displayRef(p); var fit=document.createElement("p"); fit.textContent=t.fits+" "+modelsOf(p).slice(0,4).join(", "); a.appendChild(n);a.appendChild(meta);a.appendChild(price);a.appendChild(ref);a.appendChild(fit);table.appendChild(a); });
-    dialog.appendChild(table); document.body.appendChild(back); document.body.appendChild(dialog);
+    selected.forEach(function(p){ var a=document.createElement("article"); var n=document.createElement("h3"); n.textContent=productName(p); var meta=document.createElement("p"); meta.textContent=mfOf(p)+" · "+(t.cats[p.c]||p.c)+(p.ax?" · "+axleLabel(p.ax):""); var price=document.createElement("strong"); price.textContent=p.p?priceStr(p.p):"—"; var ref=document.createElement("p"); ref.textContent=t.artnr+" "+displayRef(p); var fit=document.createElement("p"); fit.textContent=t.fits+" "+modelsOf(p).slice(0,4).join(", "); a.appendChild(n);a.appendChild(meta);a.appendChild(price);a.appendChild(ref);a.appendChild(fit);table.appendChild(a); });
+    dialog.appendChild(table); document.body.appendChild(back); document.body.appendChild(dialog); activeCompareDialog={dialog:dialog,close:shut}; close.focus();
   }
 
   /* ---------- Produkt-Detail (Modal) + "Dobaibestellen" ---------- */
@@ -927,7 +951,7 @@
     back.className = "pd-backdrop"; back.id = "pd-backdrop"; back.hidden = true;
     var modal = document.createElement("div");
     modal.className = "pd-modal"; modal.id = "pd-modal";
-    modal.setAttribute("role", "dialog"); modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("role", "dialog"); modal.setAttribute("aria-modal", "true"); modal.setAttribute("aria-labelledby", "pd-name");
     modal.hidden = true;
     modal.innerHTML =
       '<button type="button" class="pd-close" aria-label="×">✕</button>' +
@@ -936,6 +960,7 @@
       '<span class="shop-cat" id="pd-cat"></span>' +
       '<h2 class="pd-name" id="pd-name"></h2>' +
       '<div class="shop-badges" id="pd-badges"></div>' +
+      '<dl class="pd-specs" id="pd-specs"></dl>' +
       '<div class="pd-config" id="pd-config"></div>' +
       '<p class="pd-fits-title" id="pd-fits-title"></p>' +
       '<ul class="pd-fits" id="pd-fits"></ul>' +
@@ -955,6 +980,7 @@
     if (!pdEls) return;
     pdEls.modal.classList.remove("show");
     pdEls.back.classList.remove("show");
+    var cleanUrl=new URL(location.href); cleanUrl.searchParams.delete("product"); history.replaceState(null,"",cleanUrl.pathname+cleanUrl.search+cleanUrl.hash);
     setTimeout(function () {
       if (pdEls && !pdEls.modal.classList.contains("show")) { pdEls.modal.hidden = true; pdEls.back.hidden = true; }
     }, 250);
@@ -1050,10 +1076,12 @@
     } else { media.classList.add("no-img"); }
     media.appendChild(mfBadge(p));
     setTxt("pd-cat", roleLabel(p.r) || t.cats[p.c] || p.c);
-    setTxt("pd-name", p.n);
+    setTxt("pd-name", productName(p));
     /* Badgen: REMUS → EC · DBA → Axe */
     var badges = $("pd-badges"); badges.innerHTML = "";
     partBadges(p, t).forEach(function (bd) { badges.appendChild(bd); });
+    var specs=$("pd-specs"); specs.innerHTML="";
+    [[t.artnr,displayRef(p)],[lang()==="fr"?"Fabricant":lang()==="en"?"Manufacturer":lang()==="lb"?"Hiersteller":"Hersteller",mfOf(p)],[lang()==="fr"?"Catégorie":lang()==="en"?"Category":lang()==="lb"?"Kategorie":"Kategorie",t.cats[p.c]||p.c],[lang()==="fr"?"Essieu":lang()==="en"?"Axle":lang()==="lb"?"Achs":"Achse",p.ax?axleLabel(p.ax):"—"]].forEach(function(pair){var dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=pair[0];dd.textContent=pair[1];specs.appendChild(dt);specs.appendChild(dd);});
     /* Configurator (Bundle-Varianten) nëmme fir REMUS */
     var cfg = $("pd-config");
     if (cfg) { cfg.innerHTML = ""; cfg.style.display = mfOf(p) === "REMUS" ? "" : "none"; }
@@ -1085,7 +1113,7 @@
       var subject = t.inquiry + " – " + displayRef(p);
       var body = p.n + "\n" + t.artnr + " " + displayRef(p) + (vehicle ? "\n" + vehicle : "") + "\n\n" + t.inquiry;
       inquiry.textContent = t.inquiry;
-      inquiry.href = "mailto:Autoservicebettenduerf@outlook.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+      inquiry.href = "index.html?shopProduct=" + encodeURIComponent(displayRef(p)) + "&shopName=" + encodeURIComponent(productName(p)) + "&shopVehicle=" + encodeURIComponent(vehicle) + "#kontakt";
     }
     /* Dobaibestellen – nëmme weisen wann et wierklech komplementär Deeler gëtt */
     var relWrap = $("pd-related"); relWrap.innerHTML = "";
@@ -1106,6 +1134,7 @@
     }
     pdEls.modal.scrollTop = 0;
     pdEls.back.hidden = false; pdEls.modal.hidden = false;
+    var productUrl=new URL(location.href); productUrl.searchParams.set("product",p.i); history.replaceState(null,"",productUrl.pathname+productUrl.search+productUrl.hash);
     requestAnimationFrame(function () { pdEls.modal.classList.add("show"); pdEls.back.classList.add("show"); });
   }
   function relItem(o, t) {
@@ -1585,6 +1614,9 @@
     var reset = $("filter-reset"); if (reset) reset.addEventListener("click", function () { state.axle="all"; state.approval="all"; state.sort="name"; state.favoritesOnly=false; visibleCount=PAGE_SIZE; applyStatics(); render(); });
     var favs = $("favorites-toggle"); if (favs) favs.addEventListener("click", function () { state.favoritesOnly=!state.favoritesOnly; visibleCount=PAGE_SIZE; render(); });
     var more = $("shop-load-more"); if (more) more.addEventListener("click", function () { visibleCount += PAGE_SIZE; render(); });
+    var filterToggle=$("shop-filter-mobile-toggle"); if(filterToggle)filterToggle.addEventListener("click",function(){var open=this.getAttribute("aria-expanded")!=="true";this.setAttribute("aria-expanded",open?"true":"false");$("shop-filterbar").classList.toggle("is-mobile-open",open);});
+    var vehicleChange=$("shop-vehicle-change"); if(vehicleChange)vehicleChange.addEventListener("click",function(){switchTab("fahrzeug");$("tab-fahrzeug").scrollIntoView({behavior:"smooth",block:"center"});});
+    var vehicleClear=$("shop-vehicle-clear"); if(vehicleClear)vehicleClear.addEventListener("click",function(){state.mode="all";state.brand="";state.model="";state.generation="";state.year="";state.engine="";["brand","model","generation","year","engine"].forEach(function(k){var e=$("veh-"+k);if(e)e.value="";});visibleCount=PAGE_SIZE;saveState();render();});
     var compareOpen=$("shop-compare-open"); if(compareOpen) compareOpen.addEventListener("click",openCompare);
     var compareClear=$("shop-compare-clear"); if(compareClear) compareClear.addEventListener("click",function(){compareIds=[];updateCompareBar();render();});
     var ct = $("cart-toggle"); if (ct) ct.addEventListener("click", openCart);
@@ -1597,7 +1629,7 @@
       var id = b.getAttribute("data-id"), act = b.getAttribute("data-act");
       if (act === "inc") setQty(id, 1); else if (act === "dec") setQty(id, -1); else if (act === "rm") removeLine(id);
     });
-    document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeCart(); closeProduct(); } });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if(activeCompareDialog)activeCompareDialog.close(); closeCart(); closeProduct(); } if(e.key==="Tab"&&activeCompareDialog){var fs=activeCompareDialog.dialog.querySelectorAll('button,a,[tabindex]:not([tabindex="-1"])');if(!fs.length)return;var first=fs[0],last=fs[fs.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}} });
     document.querySelectorAll(".lang-select").forEach(function (sel) {
       sel.addEventListener("change", function () { setTimeout(function () { applyStatics(); render(); }, 0); });
     });
@@ -1613,6 +1645,7 @@
     bind();
     render();
     renderCart();
+    var requestedProduct=new URLSearchParams(location.search).get("product"); if(requestedProduct){var found=PRODUCTS.filter(function(p){return p.i===requestedProduct;})[0];if(found)openProduct(found);}
     window.addEventListener("pagehide", saveState);
     var savedScroll = 0; try { savedScroll = parseInt(sessionStorage.getItem("gk_shop_scroll") || "0", 10); } catch (e) {}
     if (savedScroll) requestAnimationFrame(function () { window.scrollTo(0, savedScroll); });
