@@ -562,7 +562,9 @@
   function catsFor(mf) {
     if (mf === "DBA") return ["all", "disc", "pads", "caliper", "bbk"];
     if (mf === "REMUS") return ["all", "system", "sound", "adapter"];
-    return ["all"]; // gemëscht: keng Ënner-Kategorien
+    // Bei "All Marquen" béid Produktwelten weisen, fir datt d'Leit
+    // no der Zort Deel filtere kënnen, ouni den Hiersteller ze kennen.
+    return ["all", "system", "sound", "adapter", "disc", "pads", "caliper", "bbk"];
   }
   function renderMfChips() {
     var t = tr(), wrap = $("mf-chips");
