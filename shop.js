@@ -1895,7 +1895,7 @@
     if (dbaRequested) return;
     dbaRequested = true;
     var s = document.createElement("script");
-    s.src = "shop-data-dba.js?v=2";
+    s.src = "shop-data-dba.js?v=3";
     s.async = true;
     s.onerror = function () { dbaRequested = false; };
     document.head.appendChild(s);
