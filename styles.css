@@ -2913,6 +2913,17 @@ body {
   margin: 0;
   flex: 1;
 }
+.shop-spec {
+  font-size: 0.78rem;
+  color: var(--text, #26323f);
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+.shop-spec::before {
+  content: "⚙ ";
+  opacity: 0.6;
+  font-weight: 400;
+}
 .shop-card-foot {
   display: flex;
   justify-content: space-between;
