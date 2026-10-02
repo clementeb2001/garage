@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=42" />
+    <link rel="stylesheet" href="styles.css?v=48" />
     <script src="location-gate.js?v=1"></script>
   </head>
   <body class="rental-page">
@@ -149,14 +149,43 @@
         </div>
       </section>
 
+
+      <!-- Ablauf und Bedingungen -->
+      <section class="rental-info" aria-labelledby="rental-info-title">
+        <div class="container">
+          <div class="rental-info-head">
+            <p class="eyebrow" id="rental-info-eyebrow">Virun der Ufro</p>
+            <h2 id="rental-info-title">Esou leeft d’Reservatioun</h2>
+            <p id="rental-info-intro">D’Online-Ufro ass nach keng verbindlech Buchung. Mir kontrolléieren d’Disponibilitéit a bestätegen Iech den Zäitraum perséinlech.</p>
+          </div>
+          <div class="rental-info-grid">
+            <article class="rental-info-card">
+              <span aria-hidden="true">✓</span>
+              <h3 id="rental-info-availability-title">Disponibilitéit</h3>
+              <p id="rental-info-availability-text">Mir kontrolléieren Är Datumer a mellen eis mat enger definitiver Bestätegung.</p>
+            </article>
+            <article class="rental-info-card">
+              <span aria-hidden="true">🪪</span>
+              <h3 id="rental-info-license-title">Führerschäin</h3>
+              <p id="rental-info-license-text">Déi néideg Kategorie hänkt vum Gefier, dem Unhänger an der zulässeger Gesamtmass of a gëtt virum Verlee kontrolléiert.</p>
+            </article>
+            <article class="rental-info-card">
+              <span aria-hidden="true">🛡️</span>
+              <h3 id="rental-info-terms-title">Konditiounen</h3>
+              <p id="rental-info-terms-text">Kautioun, Assurance, Kilometer, Ofhuelung, Retour a Storno gi virun der Bestätegung transparent matgedeelt.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <!-- Reservation -->
       <section class="rental-reserve" id="reserve">
         <div class="container rental-reserve-inner">
           <div class="rental-summary">
             <h2 id="rental-sel-h">Är Auswiel</h2>
             <p class="rental-empty" id="rental-empty">Nach näischt ausgewielt. Wielt uewen Äert Material aus.</p>
+            <p class="rental-availability-note" id="rental-availability-note">D’Disponibilitéit gëtt no Ärer Ufro manuell kontrolléiert.</p>
             <ul class="rental-sel-list" id="rental-sel-list"></ul>
-            <p class="rental-note rental-sel-period" id="rental-sel-period" hidden></p>
           </div>
 
           <form
@@ -177,11 +206,11 @@
             <div class="field-row">
               <div class="field">
                 <label for="r-from" id="lbl-r-from">Vun</label>
-                <input type="date" id="r-from" name="Vun (Datum)" required />
+                <input type="datetime-local" id="r-from" name="Vun (Datum an Auerzäit)" step="1800" required />
               </div>
               <div class="field">
                 <label for="r-to" id="lbl-r-to">Bis</label>
-                <input type="date" id="r-to" name="Bis (Datum)" required />
+                <input type="datetime-local" id="r-to" name="Bis (Datum an Auerzäit)" step="1800" required />
               </div>
             </div>
 
@@ -203,6 +232,22 @@
               <label for="r-message" id="lbl-r-message">Noriicht</label>
               <textarea id="r-message" name="Noriicht" rows="3"></textarea>
             </div>
+
+
+            <section class="rental-review" aria-labelledby="rental-review-title">
+              <h3 id="rental-review-title">Ufro iwwerpréiwen</h3>
+              <dl class="rental-review-list">
+                <div><dt id="rental-review-items-label">Auswiel</dt><dd id="rental-review-items">Nach näischt ausgewielt</dd></div>
+                <div><dt id="rental-review-period-label">Zäitraum</dt><dd id="rental-review-period">Nach net uginn</dd></div>
+                <div><dt id="rental-review-contact-label">Kontakt</dt><dd id="rental-review-contact">Nach net uginn</dd></div>
+              </dl>
+              <p id="rental-review-hint">Kontrolléiert dës Donnéeën, ier Dir d’Ufro schéckt.</p>
+            </section>
+
+            <label class="privacy-confirm terms-confirm" for="r-terms">
+              <input id="r-terms" name="Mietinformationen gelesen" type="checkbox" />
+              <span id="r-terms-text">Ech hunn déi <a href="mietbedingungen.html" target="_blank" rel="noopener">virleefeg Mietinformatiounen</a> gelies.</span>
+            </label>
 
             <label class="privacy-confirm" for="r-privacy">
               <input id="r-privacy" name="Datenschutz bestätigt" type="checkbox" />
@@ -252,7 +297,7 @@
       <div class="footer-bottom">
         <div class="container">
           <span>© <span id="year">2026</span> Autoservice Bettenduerf. <span data-i18n="footer_rights">All Rechter reservéiert.</span></span>
-          <span class="footer-legal"><a href="impressum.html" data-i18n="footer_impressum">Impressum</a> · <a href="datenschutz.html" data-i18n="footer_datenschutz">Dateschutz</a></span>
+          <span class="footer-legal"><a href="impressum.html" data-i18n="footer_impressum">Impressum</a> · <a href="datenschutz.html" data-i18n="footer_datenschutz">Dateschutz</a> · <a href="mietbedingungen.html">Mietinformatiounen</a></span>
         </div>
       </div>
     </footer>
@@ -260,7 +305,7 @@
     <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
     <script src="script.js?v=18"></script>
-    <script src="location.js?v=3"></script>
+    <script src="location.js?v=6"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->

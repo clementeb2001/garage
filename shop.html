@@ -7,7 +7,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.sanity.io; connect-src 'self' https://formsubmit.co https://cloudflareinsights.com https://mollie-pay.autoservicebettenduerf.lu; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
     <meta
       name="description"
-      content="Autodeeler-Shop vum Autoservice Bettenduerf – Autodeeler fir all Marken a Modeller. Sich no Bezeechnung, Artikelnummer oder no Ärem Won."
+      content="Autodeeler-Shop vum Autoservice Bettenduerf – REMUS-Deeler fir vill gängeg Marken a Modeller. Sich no Bezeechnung, Artikelnummer oder no Ärem Gefier."
     />
     <meta name="theme-color" content="#0d1b2a" />
     <!-- Shop noch "in Arbeit": vorerst nicht indexieren -->
@@ -17,7 +17,7 @@
     <meta property="og:title" content="Autoservice Bettenduerf – Shop" />
     <meta
       property="og:description"
-      content="Autodeeler fir all Marken a Modeller – Sich no Artikel oder no Won."
+      content="REMUS-Autodeeler fir vill gängeg Marken a Modeller – Sich no Artikel oder no Gefier."
     />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="lb_LU" />
@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=42" />
+    <link rel="stylesheet" href="styles.css?v=48" />
     <script src="shop-gate.js?v=1"></script>
   </head>
   <body class="shop-page">
@@ -207,8 +207,8 @@
             <div class="shop-panel" id="panel-fahrzeug" role="tabpanel" hidden>
               <div class="veh-row">
                 <div class="veh-field combo">
-                  <label class="sr-only" for="veh-brand">Marke</label>
-                  <input id="veh-brand" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-brand" placeholder="Marke wielen oder aginn" />
+                  <label class="sr-only" for="veh-brand">Mark</label>
+                  <input id="veh-brand" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-brand" placeholder="Mark wielen oder aginn" />
                   <ul class="combo-list" id="list-brand" role="listbox" hidden></ul>
                 </div>
                 <div class="veh-field combo">
@@ -216,14 +216,26 @@
                   <input id="veh-model" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-model" placeholder="Modell wielen oder aginn" disabled />
                   <ul class="combo-list" id="list-model" role="listbox" hidden></ul>
                 </div>
-                <button
-                  class="btn btn-primary"
-                  id="btn-veh-search"
-                  type="button"
-                >
+                <div class="veh-field combo">
+                  <label class="sr-only" for="veh-generation">Baurei</label>
+                  <input id="veh-generation" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-generation" placeholder="Baurei wielen" disabled />
+                  <ul class="combo-list" id="list-generation" role="listbox" hidden></ul>
+                </div>
+                <div class="veh-field combo">
+                  <label class="sr-only" for="veh-year">Baujoer</label>
+                  <input id="veh-year" class="combo-input" type="text" inputmode="numeric" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-year" placeholder="Baujoer wielen" disabled />
+                  <ul class="combo-list" id="list-year" role="listbox" hidden></ul>
+                </div>
+                <div class="veh-field combo">
+                  <label class="sr-only" for="veh-engine">Motoriséierung</label>
+                  <input id="veh-engine" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-engine" placeholder="Motoriséierung wielen" disabled />
+                  <ul class="combo-list" id="list-engine" role="listbox" hidden></ul>
+                </div>
+                <button class="btn btn-primary" id="btn-veh-search" type="button" disabled>
                   <span id="lbl-btn-veh">Passend Deeler fannen</span>
                 </button>
               </div>
+              <p class="veh-filter-note" id="veh-filter-note">Wielt all Felder aus, fir nëmme passend Deeler fir Äert Gefier ze gesinn.</p>
             </div>
           </div>
         </div>
@@ -242,6 +254,21 @@
           <p class="shop-vat-note" id="shop-vat-note"></p>
           <div class="shop-grid" id="shop-grid"></div>
           <p class="shop-empty" id="shop-empty" hidden>Keng Artikelen fonnt.</p>
+        </div>
+      </section>
+
+      <section class="section shop-legal-summary" id="shop-legal-summary" aria-labelledby="shop-legal-title">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow" id="shop-legal-eyebrow">Transparent bestellen</p>
+            <h2 id="shop-legal-title">Wichteg Informatioune virun der Bestellung</h2>
+          </div>
+          <div class="shop-legal-grid">
+            <article><h3 id="shop-legal-price-title">Präisser</h3><p id="shop-legal-price-text">All ugewise Präisser enthalen 17% TVA. Méiglech Liwwer- oder Ofhuelkäschte ginn Iech virun der verbindtlecher Bestellung ugewisen.</p></article>
+            <article><h3 id="shop-legal-fit-title">Passgenauegkeet</h3><p id="shop-legal-fit-text">De Gefierfilter ass eng Sichhëllef. Mir kontrolléieren d’Kompatibilitéit virum Versand nach eng Kéier mat de Gefierdaten.</p></article>
+            <article><h3 id="shop-legal-rights-title">Är Rechter</h3><p id="shop-legal-rights-text">Beim Onlinekaf gëllt am Reegelfall e Récktrëttsrecht vu 14 Deeg nom Empfang an déi gesetzlech Gewährleeschtung.</p></article>
+          </div>
+          <p class="shop-legal-more"><a href="shop-rechtliches.html" id="shop-legal-more">Vollstänneg Shop- a Verbraucherinformatioune liesen →</a></p>
         </div>
       </section>
 
@@ -308,8 +335,13 @@
           <span id="cart-total-label">Total</span>
           <span class="cart-total" id="cart-total">0,00 €</span>
         </div>
-        <button type="button" class="btn btn-primary btn-block" id="cart-checkout">Bezuelen</button>
-        <p class="cart-note" id="cart-note">Sécher bezuelen iwwer Mollie – Kaart, Wero, Revolut oder Iwwerweisung.</p>
+        <label class="cart-legal-confirm" for="cart-legal">
+          <input type="checkbox" id="cart-legal" />
+          <span id="cart-legal-text">Ech hunn d’Shop- a Verbraucherinformatioune gelies an akzeptéieren, datt d’Bestellung bezuelungspflichteg ass.</span>
+        </label>
+        <p class="cart-legal-links"><a href="shop-rechtliches.html" target="_blank" rel="noopener" id="cart-legal-link">Shop- a Verbraucherinformatiounen</a> · <a href="datenschutz.html" target="_blank" rel="noopener" id="cart-privacy-link">Dateschutz</a></p>
+        <button type="button" class="btn btn-primary btn-block" id="cart-checkout">Bezuelungspflichteg bestellen</button>
+        <p class="cart-note" id="cart-note">Sécher bezuelen iwwer Mollie – Kaart, Wero, Revolut oder Iwwerweisung. Präisser inkl. 17% TVA.</p>
         <p class="form-status" id="cart-status" role="status" aria-live="polite"></p>
       </div>
     </aside>
@@ -406,7 +438,7 @@
 
     <script src="script.js?v=18"></script>
     <script src="shop-data.js?v=5"></script>
-    <script src="shop.js?v=24"></script>
+    <script src="shop.js?v=27"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"

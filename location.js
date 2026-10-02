@@ -27,7 +27,7 @@
       id: "plateau",
       cat: "trailer",
       icon: "flatbed",
-      name: { lb: "Plateau-Ahänger 750 kg", de: "Plateau-Anhänger 750 kg", fr: "Remorque plateau 750 kg", en: "Flatbed trailer 750 kg" },
+      name: { lb: "Plateau-Unhänger 750 kg", de: "Plateau-Anhänger 750 kg", fr: "Remorque plateau 750 kg", en: "Flatbed trailer 750 kg" },
       specs: {
         lb: ["Nutzlaascht bis 750 kg", "Ongebremst", "Führerschäin B duergeet"],
         de: ["Nutzlast bis 750 kg", "Ungebremst", "Führerschein B ausreichend"],
@@ -39,7 +39,7 @@
       id: "kipper",
       cat: "trailer",
       icon: "tipper",
-      name: { lb: "Kippanhänger 1300 kg", de: "Kippanhänger 1300 kg", fr: "Remorque benne 1300 kg", en: "Tipper trailer 1300 kg" },
+      name: { lb: "Kippunhänger 1300 kg", de: "Kippanhänger 1300 kg", fr: "Remorque benne 1300 kg", en: "Tipper trailer 1300 kg" },
       specs: {
         lb: ["Nutzlaascht bis 1300 kg", "Hydraulescht Kippen", "Gebremst · Führerschäin BE"],
         de: ["Nutzlast bis 1300 kg", "Hydraulisch kippbar", "Gebremst · Führerschein BE"],
@@ -63,7 +63,7 @@
       id: "koffer",
       cat: "trailer",
       icon: "box",
-      name: { lb: "Kofferanhänger (zou)", de: "Kofferanhänger (geschlossen)", fr: "Remorque fermée", en: "Enclosed box trailer" },
+      name: { lb: "Kofferunhänger (zou)", de: "Kofferanhänger (geschlossen)", fr: "Remorque fermée", en: "Enclosed box trailer" },
       specs: {
         lb: ["Dréchen a geséchert", "Ofschléissbar", "Fir empfindlecht Transportgutt"],
         de: ["Trocken & geschützt", "Abschließbar", "Für empfindliche Ladung"],
@@ -101,19 +101,19 @@
   var T = {
     lb: {
       eyebrow: "Location · Verlee",
-      title: "Material a Fahrzeuger verleeën",
-      sub: "Wielt Ären Ahänger oder Äert Fahrzeug aus, gitt Äre Reservéierungszäitraum un – mir bestätegen Iech Är Ufro.",
+      title: "Material a Gefierer verlounen",
+      sub: "Wielt Ären Unhänger oder Äert Gefier aus, gitt Äre Reservéierungszäitraum un – mir bestätegen Iech Är Ufro.",
       nav: "Location · geschwënn",
       soon_eyebrow: "Location · Verlee",
       soon_title: "Eise Verlee ass an der Aarbecht",
-      soon_text: "Mir sinn amgaang, eise Verlee vun Ahänger a Fahrzeuger opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
+      soon_text: "Mir sinn amgaang, eise Verlee vun Unhänger a Gefierer opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
       soon_cta: "Ufro schécken", soon_back: "Zréck op d’Startsäit",
       dev_badge: "Vorschau-Modus – Location öffentlech nach „an Arbecht“",
-      cat_all: "Alles", cat_trailer: "Ahänger", cat_vehicle: "Fahrzeuger",
-      cat_trailer_lbl: "Ahänger", cat_vehicle_lbl: "Fahrzeug",
+      cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",
+      cat_trailer_lbl: "Unhänger", cat_vehicle_lbl: "Gefier",
       price: "Präis op Ufro",
       select: "Auswielen", selected: "Ausgewielt", remove: "Ewechhuelen",
-      sel_h: "Är Auswiel", empty: "Nach näischt ausgewielt. Wielt uewen Äert Material aus.",
+      sel_h: "Är Auswiel", empty: "Nach näischt ausgewielt. Wielt uewen dat gewënschte Material aus.",
       form_h: "Reservéieren",
       from: "Vun", to: "Bis", name: "Numm", email: "E-Mail", phone: "Telefon",
       message: "Noriicht", phone_ph: "Optional",
@@ -225,6 +225,100 @@
     return "lb";
   }
   function t() { return T[lang()] || T.lb; }
+  Object.assign(T.lb, {
+    from: "Vun (Datum an Auerzäit)", to: "Bis (Datum an Auerzäit)",
+    m_from: "Ufanksdatum an -auerzäit", m_to: "Enndatum an -auerzäit",
+    m_daterange: "eng Ennzäit no der Ufankszäit",
+    info_eyebrow: "Virun der Ufro",
+    info_title: "Esou leeft d’Reservatioun",
+    info_intro: "D’Online-Ufro ass nach keng verbindlech Buchung. Mir kontrolléieren d’Disponibilitéit a bestätegen Iech den Zäitraum perséinlech.",
+    availability_title: "Disponibilitéit",
+    availability_text: "Mir kontrolléieren Är Datumer a mellen eis mat enger definitiver Bestätegung.",
+    license_title: "Führerschäin",
+    license_text: "Déi néideg Kategorie hänkt vum Gefier, dem Unhänger an der zulässeger Gesamtmass of a gëtt virum Verlee kontrolléiert.",
+    terms_title: "Konditiounen",
+    terms_text: "Kautioun, Assurance, Kilometer, Ofhuelung, Retour a Storno gi virun der Bestätegung transparent matgedeelt.",
+    availability_note: "D’Disponibilitéit gëtt no Ärer Ufro manuell kontrolléiert.",
+    m_past: "en Datum an eng Auerzäit vun elo un"
+  });
+  Object.assign(T.de, {
+    from: "Von (Datum und Uhrzeit)", to: "Bis (Datum und Uhrzeit)",
+    m_from: "Startdatum und -uhrzeit", m_to: "Enddatum und -uhrzeit",
+    m_daterange: "eine Endzeit nach der Startzeit",
+    info_eyebrow: "Vor der Anfrage",
+    info_title: "So funktioniert die Reservierung",
+    info_intro: "Die Online-Anfrage ist noch keine verbindliche Buchung. Wir prüfen die Verfügbarkeit und bestätigen Ihnen den Zeitraum persönlich.",
+    availability_title: "Verfügbarkeit",
+    availability_text: "Wir prüfen Ihre Daten und melden uns mit einer endgültigen Bestätigung.",
+    license_title: "Führerschein",
+    license_text: "Die erforderliche Klasse hängt von Fahrzeug, Anhänger und zulässiger Gesamtmasse ab und wird vor der Vermietung geprüft.",
+    terms_title: "Bedingungen",
+    terms_text: "Kaution, Versicherung, Kilometer, Abholung, Rückgabe und Stornierung werden vor der Bestätigung transparent mitgeteilt.",
+    availability_note: "Die Verfügbarkeit wird nach Ihrer Anfrage manuell geprüft.",
+    m_past: "ein Datum und eine Uhrzeit ab jetzt"
+  });
+  Object.assign(T.fr, {
+    from: "Du (date et heure)", to: "Au (date et heure)",
+    m_from: "date et heure de début", m_to: "date et heure de fin",
+    m_daterange: "une heure de fin postérieure au début",
+    info_eyebrow: "Avant la demande",
+    info_title: "Déroulement de la réservation",
+    info_intro: "La demande en ligne ne constitue pas encore une réservation ferme. Nous vérifions la disponibilité et confirmons personnellement la période.",
+    availability_title: "Disponibilité",
+    availability_text: "Nous vérifions vos dates et vous contactons avec une confirmation définitive.",
+    license_title: "Permis de conduire",
+    license_text: "La catégorie requise dépend du véhicule, de la remorque et de la masse maximale autorisée; elle est vérifiée avant la location.",
+    terms_title: "Conditions",
+    terms_text: "La caution, l’assurance, le kilométrage, l’enlèvement, le retour et l’annulation sont communiqués clairement avant confirmation.",
+    availability_note: "La disponibilité est vérifiée manuellement après votre demande.",
+    m_past: "une date et une heure à partir de maintenant"
+  });
+  Object.assign(T.en, {
+    from: "From (date and time)", to: "Until (date and time)",
+    m_from: "start date and time", m_to: "end date and time",
+    m_daterange: "an end time after the start time",
+    info_eyebrow: "Before your request",
+    info_title: "How the reservation works",
+    info_intro: "The online request is not yet a binding booking. We check availability and personally confirm the requested period.",
+    availability_title: "Availability",
+    availability_text: "We check your dates and contact you with final confirmation.",
+    license_title: "Driving licence",
+    license_text: "The required category depends on the vehicle, trailer and permitted gross weight and is checked before rental.",
+    terms_title: "Conditions",
+    terms_text: "Deposit, insurance, mileage, collection, return and cancellation terms are communicated clearly before confirmation.",
+    availability_note: "Availability is checked manually after your request.",
+    m_past: "a date and time from now onwards"
+  });
+
+  Object.assign(T.lb, {
+    review_title: "Ufro iwwerpréiwen", review_items: "Auswiel", review_period: "Zäitraum",
+    review_contact: "Kontakt", review_empty: "Nach näischt ausgewielt", review_missing: "Nach net uginn",
+    review_hint: "Kontrolléiert dës Donnéeën, ier Dir d’Ufro schéckt.",
+    terms_html: "Ech hunn déi <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">virleefeg Mietinformatiounen</a> gelies.",
+    m_terms: "Bestätegung vun de Mietinformatiounen"
+  });
+  Object.assign(T.de, {
+    review_title: "Anfrage überprüfen", review_items: "Auswahl", review_period: "Zeitraum",
+    review_contact: "Kontakt", review_empty: "Noch nichts ausgewählt", review_missing: "Noch nicht angegeben",
+    review_hint: "Prüfen Sie diese Angaben, bevor Sie die Anfrage senden.",
+    terms_html: "Ich habe die <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">vorläufigen Mietinformationen</a> gelesen.",
+    m_terms: "Bestätigung der Mietinformationen"
+  });
+  Object.assign(T.fr, {
+    review_title: "Vérifier la demande", review_items: "Sélection", review_period: "Période",
+    review_contact: "Contact", review_empty: "Aucun élément sélectionné", review_missing: "Non renseigné",
+    review_hint: "Vérifiez ces informations avant d’envoyer la demande.",
+    terms_html: "J’ai lu les <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">informations provisoires de location</a>.",
+    m_terms: "confirmation des informations de location"
+  });
+  Object.assign(T.en, {
+    review_title: "Review request", review_items: "Selection", review_period: "Period",
+    review_contact: "Contact", review_empty: "Nothing selected yet", review_missing: "Not provided yet",
+    review_hint: "Check these details before sending your request.",
+    terms_html: "I have read the <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">preliminary rental information</a>.",
+    m_terms: "confirmation of the rental information"
+  });
+
   function $(id) { return document.getElementById(id); }
   function setTxt(id, s) { var el = $(id); if (el) el.textContent = s; }
 
@@ -292,6 +386,38 @@
         })
         .join(", ");
     }
+    updateReview();
+  }
+
+  function formatReviewDate(value) {
+    if (!value) return "";
+    var d = new Date(value);
+    if (isNaN(d.getTime())) return value;
+    var locales = { lb: "lb-LU", de: "de-LU", fr: "fr-LU", en: "en-GB" };
+    return d.toLocaleString(locales[lang()] || "de-LU", {
+      weekday: "short", day: "2-digit", month: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit"
+    });
+  }
+
+  function updateReview() {
+    var m = t();
+    var names = state.selected.map(function (id) {
+      var it = CATALOG.filter(function (x) { return x.id === id; })[0];
+      return it ? (it.name[lang()] || it.name.lb) : id;
+    });
+    setTxt("rental-review-items", names.length ? names.join(", ") : m.review_empty);
+    var from = $("r-from"), to = $("r-to");
+    var period = from && to && from.value && to.value
+      ? formatReviewDate(from.value) + " → " + formatReviewDate(to.value)
+      : m.review_missing;
+    setTxt("rental-review-period", period);
+    var contact = [];
+    var name = $("r-name"), email = $("r-email"), phone = $("r-phone");
+    if (name && name.value.trim()) contact.push(name.value.trim());
+    if (email && email.value.trim()) contact.push(email.value.trim());
+    if (phone && phone.value.trim()) contact.push(phone.value.trim());
+    setTxt("rental-review-contact", contact.length ? contact.join(" · ") : m.review_missing);
   }
 
   function toggle(id) {
@@ -300,31 +426,6 @@
     else state.selected.splice(i, 1);
     renderCatalog();
     renderSelection();
-  }
-
-  function fmtDate(v) {
-    if (!v) return "";
-    var p = v.split("-");
-    return p.length === 3 ? p[2] + "." + p[1] + "." + p[0] : v;
-  }
-  function setDateMins() {
-    var d = new Date();
-    var iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-    var from = $("r-from"), to = $("r-to");
-    if (from && !from.min) from.min = iso;
-    if (to && !to.min) to.min = iso;
-  }
-  function updatePeriod() {
-    var m = t(), el = $("rental-sel-period");
-    if (!el) return;
-    var from = $("r-from"), to = $("r-to");
-    var fv = from && from.value, tv = to && to.value;
-    if (to && fv) to.min = fv;            // „Bis" ni virun „Vun"
-    if (!fv || !tv || tv < fv) { el.hidden = true; el.textContent = ""; return; }
-    var days = Math.round((new Date(tv) - new Date(fv)) / 86400000);
-    if (days < 1) days = 1;
-    el.hidden = false;
-    el.textContent = "📅 " + m.period + ": " + fmtDate(fv) + " – " + fmtDate(tv) + " · " + days + " " + (days === 1 ? m.day : m.days);
   }
 
   function applyStatics() {
@@ -354,6 +455,22 @@
     }
     setTxt("rental-submit", m.submit);
     setTxt("rental-note", m.note);
+    setTxt("rental-info-eyebrow", m.info_eyebrow);
+    setTxt("rental-info-title", m.info_title);
+    setTxt("rental-info-intro", m.info_intro);
+    setTxt("rental-info-availability-title", m.availability_title);
+    setTxt("rental-info-availability-text", m.availability_text);
+    setTxt("rental-info-license-title", m.license_title);
+    setTxt("rental-info-license-text", m.license_text);
+    setTxt("rental-info-terms-title", m.terms_title);
+    setTxt("rental-info-terms-text", m.terms_text);
+    setTxt("rental-availability-note", m.availability_note);
+    setTxt("rental-review-title", m.review_title);
+    setTxt("rental-review-items-label", m.review_items);
+    setTxt("rental-review-period-label", m.review_period);
+    setTxt("rental-review-contact-label", m.review_contact);
+    setTxt("rental-review-hint", m.review_hint);
+    var termsText = $("r-terms-text"); if (termsText) termsText.innerHTML = m.terms_html;
     var ph = $("r-phone"); if (ph) ph.placeholder = m.phone_ph;
     // filter chip labels
     document.querySelectorAll("#rental-filter .rental-chip").forEach(function (b) {
@@ -401,6 +518,14 @@
     else el.classList.remove("field-invalid");
   }
 
+  function localDateTimeValue(date) {
+    return date.getFullYear() + "-" +
+      String(date.getMonth() + 1).padStart(2, "0") + "-" +
+      String(date.getDate()).padStart(2, "0") + "T" +
+      String(date.getHours()).padStart(2, "0") + ":" +
+      String(date.getMinutes()).padStart(2, "0");
+  }
+
   function handleSubmit(e) {
     var f = e.target;
     if (!f || f.id !== "rental-form") return;
@@ -411,7 +536,7 @@
     st.className = "form-status";
     st.textContent = "";
 
-    var from = $("r-from"), to = $("r-to"), name = $("r-name"), email = $("r-email"), privacy = $("r-privacy");
+    var from = $("r-from"), to = $("r-to"), name = $("r-name"), email = $("r-email"), privacy = $("r-privacy"), terms = $("r-terms");
     var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email.value || "").trim());
     var miss = [];
 
@@ -419,12 +544,19 @@
     mark(from, false); mark(to, false); mark(name, false); mark(email, false);
     if (!from.value) { miss.push(m.m_from); mark(from, true); }
     if (!to.value) { miss.push(m.m_to); mark(to, true); }
-    if (from.value && to.value && to.value < from.value) { miss.push(m.m_daterange); mark(to, true); }
+    var now = new Date();
+    var nowIso = localDateTimeValue(now);
+    if (from.value && from.value < nowIso) { miss.push(m.m_past); mark(from, true); }
+    if (to.value && to.value < nowIso) { if (miss.indexOf(m.m_past) === -1) miss.push(m.m_past); mark(to, true); }
+    if (from.value && to.value && to.value <= from.value) { miss.push(m.m_daterange); mark(to, true); }
     if (!name.value.trim()) { miss.push(m.m_name); mark(name, true); }
     if (!emailOk) { miss.push(m.m_email); mark(email, true); }
     var priv = privacy.closest(".privacy-confirm");
     if (!privacy.checked) { miss.push(m.m_privacy); if (priv) priv.classList.add("privacy-invalid"); }
     else if (priv) priv.classList.remove("privacy-invalid");
+    var termsWrap = terms.closest(".terms-confirm");
+    if (!terms.checked) { miss.push(m.m_terms); if (termsWrap) termsWrap.classList.add("privacy-invalid"); }
+    else if (termsWrap) termsWrap.classList.remove("privacy-invalid");
 
     if (miss.length) {
       st.className = "form-status err";
@@ -454,25 +586,25 @@
         state.selected = [];
         renderCatalog();
         renderSelection();
-        updatePeriod();
       })
       .catch(function () { st.className = "form-status err"; st.textContent = m.senderr; })
       .then(function () { if (btn) btn.disabled = false; });
   }
 
   function wireClear() {
-    ["r-from", "r-to", "r-name", "r-email"].forEach(function (id) {
+    ["r-from", "r-to", "r-name", "r-email", "r-phone", "r-message"].forEach(function (id) {
       var el = $(id);
-      if (el) el.addEventListener("input", function () { mark(el, false); });
-    });
-    ["r-from", "r-to"].forEach(function (id) {
-      var el = $(id);
-      if (el) el.addEventListener("change", updatePeriod);
+      if (el) el.addEventListener("input", function () { mark(el, false); updateReview(); });
     });
     var priv = $("r-privacy");
     if (priv) priv.addEventListener("change", function () {
       var p = priv.closest(".privacy-confirm");
       if (p && priv.checked) p.classList.remove("privacy-invalid");
+    });
+    var terms = $("r-terms");
+    if (terms) terms.addEventListener("change", function () {
+      var p = terms.closest(".terms-confirm");
+      if (p && terms.checked) p.classList.remove("privacy-invalid");
     });
   }
 
@@ -480,18 +612,31 @@
     applyStatics();
     renderCatalog();
     renderSelection();
-    updatePeriod();
   }
 
   function init() {
     applyStatics();
     renderCatalog();
     renderSelection();
-    setDateMins();
-    updatePeriod();
     wireFilter();
     wireGrid();
     wireClear();
+    var fromDate = $("r-from"), toDate = $("r-to");
+    var now = new Date();
+    now.setSeconds(0, 0);
+    var remainder = now.getMinutes() % 30;
+    if (remainder) now.setMinutes(now.getMinutes() + (30 - remainder));
+    var minDateTime = localDateTimeValue(now);
+    if (fromDate) {
+      fromDate.min = minDateTime;
+      fromDate.addEventListener("change", function () {
+        if (toDate) {
+          toDate.min = fromDate.value || minDateTime;
+          if (toDate.value && fromDate.value && toDate.value <= fromDate.value) toDate.value = "";
+        }
+      });
+    }
+    if (toDate) toDate.min = minDateTime;
     document.addEventListener("submit", handleSubmit, true);
     document.querySelectorAll(".lang-select").forEach(function (s) {
       s.addEventListener("change", function () { setTimeout(refresh, 0); });

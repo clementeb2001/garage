@@ -21,7 +21,39 @@
   var MAKE_IDX = {};
   MAKES.forEach(function (m, i) { MAKE_IDX[m] = i; });
 
-  var state = { mode: "all", q: "", cat: "all", brand: "", model: "" };
+  var state = { mode: "all", q: "", cat: "all", brand: "", model: "", generation: "", year: "", engine: "" };
+  var ALL_FITS = [];
+  PRODUCTS.forEach(function (p) { p.f.forEach(function (fit) { ALL_FITS.push(fit); }); });
+
+  /* REMUS Bundle-Varianten: selwechte Systemëmfang + Passform, aner Ausféierung/Endréier */
+  function bundleBaseName(p) {
+    return (p.n.split("|")[0] || p.n).trim();
+  }
+  function bundleVariantName(p) {
+    var parts = p.n.split("|");
+    return parts.length > 1 ? parts.slice(1).join("|").trim() : p.n;
+  }
+  function bundleFitKey(p) {
+    return p.f.map(function (x) { return x.join(","); }).sort().join(";");
+  }
+  function bundleGroupKey(p) {
+    return [p.m, p.r, bundleBaseName(p), bundleFitKey(p)].join("||");
+  }
+  var BUNDLE_GROUPS = {};
+  PRODUCTS.forEach(function (p) {
+    var key = bundleGroupKey(p);
+    if (!BUNDLE_GROUPS[key]) BUNDLE_GROUPS[key] = [];
+    BUNDLE_GROUPS[key].push(p);
+  });
+  Object.keys(BUNDLE_GROUPS).forEach(function (key) {
+    BUNDLE_GROUPS[key].sort(function (a, b) {
+      if (a.p !== b.p) return a.p - b.p;
+      return a.n < b.n ? -1 : 1;
+    });
+  });
+  function bundleVariants(p) {
+    return BUNDLE_GROUPS[bundleGroupKey(p)] || [p];
+  }
 
   /* ---------- Iwwersetzungen ---------- */
   var T = {
@@ -151,6 +183,170 @@
       dev: "Preview mode – shop still “under construction”", hide: "hide" },
   };
 
+  /* Shop-spezifesch, konsequent formell Texter a Filter-/Rechtsinformatiounen */
+  Object.assign(T.lb, {
+    sub: "REMUS-Sportauspuffanlagen mat Bild, Präis a Lagerstatus. Wielt Äert Gefier oder sicht no engem Artikel – DBA-Bremsen kommen nach.",
+    tab_fahrzeug: "Gefier",
+    ph_text: "Bezeechnung oder Artikelnummer …",
+    ph_brand: "Mark wielen oder aginn",
+    ph_model: "Modell wielen oder aginn",
+    ph_generation: "Baurei wielen",
+    ph_year: "Baujoer wielen",
+    ph_engine: "Motoriséierung wielen",
+    btn_veh: "Passend Deeler fannen",
+    veh_note: "Wielt all Felder aus, fir nëmme passend Deeler fir Äert Gefier ze gesinn.",
+    info_all: "{n} Produkter",
+    info_more: "{n} Produkter (déi éischt {c} ginn ugewisen – wielt Äert Gefier oder verfeinert Är Sich)",
+    info_search: "{n} Resultater fir „{q}“",
+    info_veh: "{n} Produkter fir {v}",
+    empty: "Keng Produkter fonnt. Rufft eis un – mir fannen dat richtegt Deel.",
+    fits: "Gëeegent fir:",
+    artnr: "Artikelnr.",
+    add: "An den Akafskuerf",
+    related: "Dobäibestellen",
+    related_sub: "Passend Deeler fir Äert Gefier – fir eng komplett Anlag",
+    rel_none: "Keng passend Zousatzdeeler fonnt.",
+    added: "„{n}“ gouf an den Akafskuerf geluecht",
+    cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endréier", adapter: "Adapter" },
+    cart_title: "Ären Akafskuerf",
+    cart_empty: "Ären Akafskuerf ass eidel.",
+    cart_checkout: "Bezuelungspflichteg bestellen",
+    cart_remove: "Ewechhuelen",
+    cart_note: "Sécher iwwer Mollie bezuelen. All Präisser enthalen 17% TVA.",
+    cart_redirect: "Dir gitt op d’Bezuelung weidergeleet …",
+    cart_err: "D’Bezuelung ass de Moment net erreechbar. Probéiert w.e.g. méi spéit nach eng Kéier oder rufft eis un.",
+    legal_required: "Bestätegt w.e.g. d’Shop- a Verbraucherinformatiounen, ier Dir bestellt.",
+    legal_text: "Ech hunn d’Shop- a Verbraucherinformatioune gelies an akzeptéieren, datt d’Bestellung bezuelungspflichteg ass.",
+    legal_link: "Shop- a Verbraucherinformatiounen",
+    privacy_link: "Dateschutz",
+    legal_eyebrow: "Transparent bestellen",
+    legal_title: "Wichteg Informatioune virun der Bestellung",
+    legal_price_title: "Präisser",
+    legal_price_text: "All ugewise Präisser enthalen 17% TVA. Méiglech Liwwer- oder Ofhuelkäschte ginn Iech virun der verbindtlecher Bestellung ugewisen.",
+    legal_fit_title: "Passgenauegkeet",
+    legal_fit_text: "De Gefierfilter ass eng Sichhëllef. Mir kontrolléieren d’Kompatibilitéit virum Versand nach eng Kéier mat de Gefierdaten.",
+    legal_rights_title: "Är Rechter",
+    legal_rights_text: "Beim Onlinekaf gëllt am Reegelfall e Récktrëttsrecht vu 14 Deeg nom Empfang an déi gesetzlech Gewährleeschtung.",
+    legal_more: "Vollstänneg Shop- a Verbraucherinformatioune liesen →"
+  });
+  Object.assign(T.de, {
+    ph_generation: "Baureihe wählen", ph_year: "Baujahr wählen", ph_engine: "Motorisierung wählen",
+    veh_note: "Wählen Sie alle Felder aus, damit nur passende Teile für Ihr Fahrzeug angezeigt werden.",
+    cart_checkout: "Zahlungspflichtig bestellen",
+    legal_required: "Bitte bestätigen Sie die Shop- und Verbraucherinformationen, bevor Sie bestellen.",
+    legal_text: "Ich habe die Shop- und Verbraucherinformationen gelesen und bestätige die zahlungspflichtige Bestellung.",
+    legal_link: "Shop- und Verbraucherinformationen", privacy_link: "Datenschutz",
+    legal_eyebrow: "Transparent bestellen", legal_title: "Wichtige Informationen vor der Bestellung",
+    legal_price_title: "Preise", legal_price_text: "Alle angezeigten Preise enthalten 17% luxemburgische Mehrwertsteuer. Eventuelle Liefer- oder Abholkosten werden vor der verbindlichen Bestellung angezeigt.",
+    legal_fit_title: "Passgenauigkeit", legal_fit_text: "Der Fahrzeugfilter ist eine Suchhilfe. Wir prüfen die Kompatibilität vor dem Versand nochmals anhand der Fahrzeugdaten.",
+    legal_rights_title: "Ihre Rechte", legal_rights_text: "Beim Onlinekauf gilt grundsätzlich ein 14-tägiges Widerrufsrecht ab Erhalt sowie die gesetzliche Gewährleistung.",
+    legal_more: "Vollständige Shop- und Verbraucherinformationen lesen →"
+  });
+  Object.assign(T.fr, {
+    ph_generation: "Choisir la génération", ph_year: "Choisir l’année", ph_engine: "Choisir la motorisation",
+    veh_note: "Sélectionnez tous les champs afin de n’afficher que les pièces adaptées à votre véhicule.",
+    cart_checkout: "Commander avec obligation de paiement",
+    legal_required: "Veuillez confirmer les informations de vente et de consommation avant de commander.",
+    legal_text: "J’ai lu les informations de vente et de consommation et je confirme la commande avec obligation de paiement.",
+    legal_link: "Informations de vente et de consommation", privacy_link: "Protection des données",
+    legal_eyebrow: "Commander en toute transparence", legal_title: "Informations importantes avant la commande",
+    legal_price_title: "Prix", legal_price_text: "Tous les prix affichés comprennent 17% de TVA luxembourgeoise. Les éventuels frais de livraison ou de retrait sont affichés avant la commande ferme.",
+    legal_fit_title: "Compatibilité", legal_fit_text: "Le filtre véhicule est une aide à la recherche. Nous vérifions à nouveau la compatibilité à partir des données du véhicule avant l’expédition.",
+    legal_rights_title: "Vos droits", legal_rights_text: "En règle générale, l’achat en ligne bénéficie d’un droit de rétractation de 14 jours après réception et de la garantie légale.",
+    legal_more: "Lire toutes les informations de vente et de consommation →"
+  });
+  Object.assign(T.en, {
+    ph_generation: "Choose generation", ph_year: "Choose model year", ph_engine: "Choose engine",
+    veh_note: "Select every field to show only parts suitable for your vehicle.",
+    cart_checkout: "Place order with obligation to pay",
+    legal_required: "Please confirm the shop and consumer information before ordering.",
+    legal_text: "I have read the shop and consumer information and confirm that the order carries an obligation to pay.",
+    legal_link: "Shop and consumer information", privacy_link: "Privacy",
+    legal_eyebrow: "Order transparently", legal_title: "Important information before ordering",
+    legal_price_title: "Prices", legal_price_text: "All displayed prices include 17% Luxembourg VAT. Any delivery or collection charges are shown before the binding order.",
+    legal_fit_title: "Compatibility", legal_fit_text: "The vehicle filter is a search aid. We verify compatibility again against the vehicle details before dispatch.",
+    legal_rights_title: "Your rights", legal_rights_text: "Online purchases generally include a 14-day right of withdrawal after receipt and the statutory legal guarantee.",
+    legal_more: "Read the full shop and consumer information →"
+  });
+
+  Object.assign(T.lb, {
+    configure: "Upassen",
+    config_title: "Är REMUS-Konfiguratioun",
+    config_system: "Grondanlag / Systemëmfang",
+    config_variant: "Ausféierung / Endréier wielen *",
+    config_required: "Pflichtëmfang am komplette REMUS-Bundle abegraff",
+    config_single: "Dës Variant huet keng weider auswielbar Bundle-Ausféierung.",
+    config_component: "Eenzelkomponent: déi néideg Haaptanlag gëtt separat gebraucht.",
+    config_check: "Separat Pflichtdeeler sinn am Export net eendeiteg verknëppt. Mir kontrolléieren d’Konfiguratioun virun der Bestellung.",
+    config_total: "Bundle-Präis",
+    related: "Passend Ergänzungen",
+    related_sub: "Kompatibel Ergänzungen – net automatesch Pflichtdeeler.",
+    compat_review: "Kompatibel – Pflichtdeelstatus gëtt kontrolléiert"
+  });
+  Object.assign(T.de, {
+    configure: "Konfigurieren",
+    config_title: "Ihre REMUS-Konfiguration",
+    config_system: "Grundsystem / Lieferumfang",
+    config_variant: "Ausführung / Endrohr wählen *",
+    config_required: "Pflichtumfang im vollständigen REMUS-Bundle enthalten",
+    config_single: "Für diese Variante ist keine weitere Bundle-Ausführung hinterlegt.",
+    config_component: "Einzelkomponente: Die erforderliche Hauptanlage wird separat benötigt.",
+    config_check: "Separate Pflichtteile sind im Export nicht eindeutig verknüpft. Wir prüfen die Konfiguration vor der Bestellung.",
+    config_total: "Bundle-Preis",
+    related: "Passende Ergänzungen",
+    related_sub: "Kompatible Ergänzungen – nicht automatisch Pflichtteile.",
+    compat_review: "Kompatibel – Pflichtteilstatus wird geprüft"
+  });
+  Object.assign(T.fr, {
+    configure: "Configurer",
+    config_title: "Votre configuration REMUS",
+    config_system: "Système de base / contenu",
+    config_variant: "Choisir la finition / les sorties *",
+    config_required: "Éléments obligatoires inclus dans le bundle REMUS complet",
+    config_single: "Aucune autre variante de bundle n’est enregistrée pour cet article.",
+    config_component: "Composant individuel: le système principal requis doit être choisi séparément.",
+    config_check: "Les pièces obligatoires séparées ne sont pas reliées de façon univoque dans l’export. Nous vérifions la configuration avant la commande.",
+    config_total: "Prix du bundle",
+    related: "Compléments compatibles",
+    related_sub: "Compléments compatibles – pas automatiquement obligatoires.",
+    compat_review: "Compatible – statut obligatoire à vérifier"
+  });
+  Object.assign(T.en, {
+    configure: "Configure",
+    config_title: "Your REMUS configuration",
+    config_system: "Base system / bundle contents",
+    config_variant: "Choose finish / tail pipes *",
+    config_required: "Required scope included in the complete REMUS bundle",
+    config_single: "No additional bundle variant is recorded for this item.",
+    config_component: "Individual component: the required main system must be selected separately.",
+    config_check: "Separate mandatory parts are not linked unambiguously in the export. We verify the configuration before ordering.",
+    config_total: "Bundle price",
+    related: "Compatible additions",
+    related_sub: "Compatible additions – not automatically mandatory.",
+    compat_review: "Compatible – mandatory-part status will be checked"
+  });
+
+  Object.assign(T.lb, {
+    config_bundle_ref: "Komplett REMUS-Bundle: {sku}",
+    related_alt_sub: "Alternativ komplett Anlagen fir déi selwecht exakt Gefier-Zouuerdnung.",
+    rel_none_detail: "Fir dëst Bundle si keng separat Zousatzdeeler am importéierte Katalog hannerluecht. De Pflichtëmfang ass am Komplett-Bundle abegraff."
+  });
+  Object.assign(T.de, {
+    config_bundle_ref: "Vollständiges REMUS-Bundle: {sku}",
+    related_alt_sub: "Alternative Komplettanlagen für dieselbe exakte Fahrzeugzuordnung.",
+    rel_none_detail: "Für dieses Bundle sind im importierten Katalog keine separaten Zusatzteile hinterlegt. Der Pflichtumfang ist im Komplett-Bundle enthalten."
+  });
+  Object.assign(T.fr, {
+    config_bundle_ref: "Bundle REMUS complet : {sku}",
+    related_alt_sub: "Systèmes complets alternatifs pour exactement la même affectation véhicule.",
+    rel_none_detail: "Aucune pièce complémentaire séparée n’est enregistrée dans le catalogue importé pour ce bundle. Les éléments obligatoires sont compris dans le bundle complet."
+  });
+  Object.assign(T.en, {
+    config_bundle_ref: "Complete REMUS bundle: {sku}",
+    related_alt_sub: "Alternative complete systems for the exact same vehicle fitment.",
+    rel_none_detail: "No separate add-on parts are recorded for this bundle in the imported catalogue. The required scope is included in the complete bundle."
+  });
+
   /* ---------- Helpers ---------- */
   function $(id) { return document.getElementById(id); }
   function setTxt(id, s) { var el = $(id); if (el) el.textContent = s; }
@@ -196,12 +392,41 @@
     if (tail.length) s += " · " + tail.join(" · ");
     return s;
   }
+  function generationLabel(x) {
+    return x[2] > -1 && GENS[x[2]] ? GENS[x[2]] : "—";
+  }
+  function engineLabel(x) {
+    var parts = [];
+    if (x[8] > -1 && ENGINES[x[8]]) parts.push(ENGINES[x[8]]);
+    if (x[3] > -1 && VARIANTS[x[3]]) parts.push(VARIANTS[x[3]]);
+    if (x[4]) parts.push(x[4] + " kW");
+    return parts.length ? parts.join(" · ") : "—";
+  }
+  function yearFits(x, year) {
+    if (!year) return true;
+    var y = parseInt(year, 10);
+    if (!y) return false;
+    return (!x[5] || y >= x[5]) && (!x[6] || y <= x[6]);
+  }
+  function fitMatchesVehicle(x) {
+    if (!state.brand || x[0] !== MAKE_IDX[state.brand]) return false;
+    if (state.model && x[1] !== state.model) return false;
+    if (state.generation && generationLabel(x) !== state.generation) return false;
+    if (state.year && !yearFits(x, state.year)) return false;
+    if (state.engine && engineLabel(x) !== state.engine) return false;
+    return true;
+  }
+  function selectedVehicleLabel() {
+    return [state.brand, state.model, state.generation !== "—" ? state.generation : "", state.year, state.engine !== "—" ? state.engine : ""]
+      .filter(Boolean).join(" · ");
+  }
+
   /* EC-Status fir Anzeige: {cls, key} */
   function ecStatus(p) {
     var fits = p.f;
     if (state.mode === "vehicle" && state.brand) {
       var bi = MAKE_IDX[state.brand];
-      fits = p.f.filter(function (x) { return x[0] === bi && (!state.model || x[1] === state.model); });
+      fits = p.f.filter(fitMatchesVehicle);
       if (!fits.length) fits = p.f;
     }
     var yes = 0;
@@ -221,15 +446,15 @@
       return p.f.some(function (x) {
         if (makeName(x[0]).toLowerCase().indexOf(q) !== -1) return true;
         if ((x[1] || "").toLowerCase().indexOf(q) !== -1) return true;
-        if (x[2] > -1 && VARIANTS[x[2]] && VARIANTS[x[2]].toLowerCase().indexOf(q) !== -1) return true;
+        if (x[2] > -1 && GENS[x[2]] && GENS[x[2]].toLowerCase().indexOf(q) !== -1) return true;
+        if (x[3] > -1 && VARIANTS[x[3]] && VARIANTS[x[3]].toLowerCase().indexOf(q) !== -1) return true;
+        if (x[8] > -1 && ENGINES[x[8]] && ENGINES[x[8]].toLowerCase().indexOf(q) !== -1) return true;
         return false;
       });
     }
     if (state.mode === "vehicle" && state.brand) {
       var bi = MAKE_IDX[state.brand];
-      return p.f.some(function (x) {
-        return x[0] === bi && (!state.model || x[1] === state.model);
-      });
+      return p.f.some(fitMatchesVehicle);
     }
     return true;
   }
@@ -270,7 +495,7 @@
     var txt;
     if (state.mode === "search" && state.q) txt = t.info_search.replace("{n}", n).replace("{q}", state.q);
     else if (state.mode === "vehicle" && state.brand)
-      txt = t.info_veh.replace("{n}", n).replace("{v}", state.brand + (state.model ? " " + state.model : ""));
+      txt = t.info_veh.replace("{n}", n).replace("{v}", selectedVehicleLabel());
     else if (n > RENDER_CAP) txt = t.info_more.replace("{n}", n).replace("{c}", RENDER_CAP);
     else txt = t.info_all.replace("{n}", n);
     if (state.cat !== "all") txt = t.info_cat.replace("{n}", txt).replace("{c}", t.cats[state.cat]);
@@ -316,7 +541,7 @@
     fit.className = "shop-fit";
     if (state.mode === "vehicle" && state.brand) {
       var bi = MAKE_IDX[state.brand];
-      var mf = p.f.filter(function (x) { return x[0] === bi && (!state.model || x[1] === state.model); });
+      var mf = p.f.filter(fitMatchesVehicle);
       fit.textContent = t.fits + " " + (mf.length ? fitLabel(mf[0]) : modelsOf(p).slice(0, 3).join(", "));
     } else {
       var ms = modelsOf(p);
@@ -348,11 +573,16 @@
     body.appendChild(foot);
 
     var btn = document.createElement("button");
+    var variants = bundleVariants(p);
     btn.type = "button";
     btn.className = "btn btn-outline shop-add";
-    btn.textContent = t.add;
+    btn.textContent = variants.length > 1 ? t.configure : t.add;
     btn.disabled = !p.p;
-    btn.addEventListener("click", function (e) { e.stopPropagation(); addToCart(p, btn); });
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (variants.length > 1) openProduct(p);
+      else addToCart(p, btn);
+    });
     body.appendChild(btn);
 
     c.appendChild(body);
@@ -384,37 +614,51 @@
     if (ga === "complete" && gb === "complete") return false; // zwou komplett Anlagen = Alternativen
     return true;                                        // complete <-> Downpipe/Krümmer
   }
+  function exactFitKey(x) {
+    return [x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[8]].join("|");
+  }
   function relatedOf(p) {
-    /* Nëmme Saachen déi op déiselwecht Gefier-Generatioun (Mark|Modell|Gen)
-       passen AN eng aner, komplementär Roll hunn. */
-    var keys = {};
-    p.f.forEach(function (x) { keys[x[0] + "|" + x[1] + "|" + x[2]] = 1; });
-    var selModel = (state.mode === "vehicle" && state.model) ? state.model : null;
-    var scored = [];
+    /* Fir "passend" nëmmen déi exakt Gefier-/Motor-Zouuerdnung benotzen.
+       Als éischt komplementär Deeler; wa keng existéieren, aner komplett
+       Anlagen fir genee datselwecht Gefier weisen. */
+    var exactKeys = {};
+    p.f.forEach(function (x) { exactKeys[exactFitKey(x)] = 1; });
+    var candidates = [];
     PRODUCTS.forEach(function (o) {
       if (o.i === p.i || !o.p) return;
-      if (!complements(p.r, o.r)) return;
-      var share = 0, exact = false;
-      o.f.forEach(function (x) {
-        if (keys[x[0] + "|" + x[1] + "|" + x[2]]) { share++; if (selModel && x[1] === selModel) exact = true; }
+      var share = 0;
+      o.f.forEach(function (x) { if (exactKeys[exactFitKey(x)]) share++; });
+      if (share) candidates.push({ o: o, share: share });
+    });
+
+    function sortAndLimit(list, mode) {
+      var seenGroup = {}, perRole = {}, out = [];
+      list.sort(function (a, b) {
+        var ar = ROLE_ORDER[a.o.r] || 9, br = ROLE_ORDER[b.o.r] || 9;
+        if (ar !== br) return ar - br;
+        if (a.share !== b.share) return b.share - a.share;
+        if (a.o.p !== b.o.p) return a.o.p - b.o.p;
+        return a.o.n < b.o.n ? -1 : 1;
       });
-      if (!share) return;
-      scored.push({ o: o, score: (exact ? 100 : 0) + share, rank: ROLE_ORDER[o.r] || 9 });
+      list.forEach(function (s) {
+        var group = bundleGroupKey(s.o);
+        if (seenGroup[group]) return;
+        seenGroup[group] = 1;
+        perRole[s.o.r] = (perRole[s.o.r] || 0) + 1;
+        if (perRole[s.o.r] <= 3 && out.length < 8) out.push(s.o);
+      });
+      out.mode = mode;
+      return out;
+    }
+
+    var complementary = candidates.filter(function (s) { return complements(p.r, s.o.r); });
+    if (complementary.length) return sortAndLimit(complementary, "parts");
+
+    var alternatives = candidates.filter(function (s) {
+      return roleGroup(s.o.r) === "complete" &&
+        bundleGroupKey(s.o) !== bundleGroupKey(p);
     });
-    scored.sort(function (a, b) {
-      if (a.rank !== b.rank) return a.rank - b.rank;
-      if (a.score !== b.score) return b.score - a.score;
-      if (a.o.p !== b.o.p) return a.o.p - b.o.p;
-      return a.o.n < b.o.n ? -1 : 1;
-    });
-    /* Pro Roll héchstens 2 (soss iwwerschwemmen Tip-Varianten vun engem Deel). */
-    var perRole = {}, out = [];
-    scored.forEach(function (s) {
-      var r = s.o.r;
-      perRole[r] = (perRole[r] || 0) + 1;
-      if (perRole[r] <= 2) out.push(s.o);
-    });
-    return out.slice(0, 8);
+    return sortAndLimit(alternatives, "alternatives");
   }
 
   var pdEls = null;
@@ -433,6 +677,7 @@
       '<span class="shop-cat" id="pd-cat"></span>' +
       '<h2 class="pd-name" id="pd-name"></h2>' +
       '<div class="shop-badges" id="pd-badges"></div>' +
+      '<div class="pd-config" id="pd-config"></div>' +
       '<p class="pd-fits-title" id="pd-fits-title"></p>' +
       '<ul class="pd-fits" id="pd-fits"></ul>' +
       '<div class="pd-foot"><span class="pd-ref" id="pd-ref"></span><span class="pd-price" id="pd-price"></span></div>' +
@@ -454,6 +699,82 @@
       if (pdEls && !pdEls.modal.classList.contains("show")) { pdEls.modal.hidden = true; pdEls.back.hidden = true; }
     }, 250);
   }
+  function renderProductConfig(p, t) {
+    var wrap = $("pd-config");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+
+    var title = document.createElement("h3");
+    title.className = "pd-config-title";
+    title.textContent = t.config_title;
+    wrap.appendChild(title);
+
+    var systemLabel = document.createElement("span");
+    systemLabel.className = "pd-config-label";
+    systemLabel.textContent = t.config_system;
+    wrap.appendChild(systemLabel);
+
+    var system = document.createElement("p");
+    system.className = "pd-config-system";
+    system.textContent = bundleBaseName(p);
+    wrap.appendChild(system);
+
+    var status = document.createElement("p");
+    status.className = "pd-required-status " + (p.c === "system" ? "is-complete" : "needs-system");
+    status.textContent = (p.c === "system" ? t.config_required : t.config_component);
+    wrap.appendChild(status);
+
+    var bundleRef = document.createElement("p");
+    bundleRef.className = "pd-config-single";
+    bundleRef.textContent = t.config_bundle_ref.replace("{sku}", p.i);
+    wrap.appendChild(bundleRef);
+
+    var variants = bundleVariants(p);
+    if (variants.length > 1) {
+      var label = document.createElement("label");
+      label.className = "pd-config-label";
+      label.setAttribute("for", "pd-variant");
+      label.textContent = t.config_variant;
+      wrap.appendChild(label);
+
+      var select = document.createElement("select");
+      select.className = "pd-variant";
+      select.id = "pd-variant";
+      variants.forEach(function (variant) {
+        var option = document.createElement("option");
+        option.value = variant.i;
+        option.selected = variant.i === p.i;
+        option.textContent = bundleVariantName(variant) + " · " + priceStr(variant.p);
+        select.appendChild(option);
+      });
+      select.addEventListener("change", function () {
+        var selected = variants.filter(function (variant) { return variant.i === select.value; })[0];
+        if (selected) openProduct(selected);
+      });
+      wrap.appendChild(select);
+    } else {
+      var single = document.createElement("p");
+      single.className = "pd-config-single";
+      single.textContent = t.config_single;
+      wrap.appendChild(single);
+    }
+
+    var total = document.createElement("div");
+    total.className = "pd-config-total";
+    var totalLabel = document.createElement("span");
+    totalLabel.textContent = t.config_total;
+    var totalPrice = document.createElement("strong");
+    totalPrice.textContent = p.p ? priceStr(p.p) : "—";
+    total.appendChild(totalLabel);
+    total.appendChild(totalPrice);
+    wrap.appendChild(total);
+
+    var check = document.createElement("p");
+    check.className = "pd-required-check";
+    check.textContent = t.config_check;
+    wrap.appendChild(check);
+  }
+
   function openProduct(p) {
     var t = tr();
     ensureModal();
@@ -476,6 +797,7 @@
     ecb.className = "badge badge-ec " + ec.cls;
     ecb.textContent = (ec.cls === "ok" ? "✓ " : "") + t[ec.key];
     badges.appendChild(ecb);
+    renderProductConfig(p, t);
     /* Passform-Lëscht */
     setTxt("pd-fits-title", t.fits_on);
     var fitsEl = $("pd-fits"); fitsEl.innerHTML = "";
@@ -497,12 +819,16 @@
     if (rel.length) {
       relWrap.style.display = "";
       var h = document.createElement("h3"); h.textContent = t.related; relWrap.appendChild(h);
-      var sub = document.createElement("p"); sub.className = "pd-rel-sub"; sub.textContent = t.related_sub; relWrap.appendChild(sub);
+      var sub = document.createElement("p"); sub.className = "pd-rel-sub";
+      sub.textContent = rel.mode === "alternatives" ? t.related_alt_sub : t.related_sub;
+      relWrap.appendChild(sub);
       var ul = document.createElement("ul"); ul.className = "pd-rel-list";
       rel.forEach(function (o) { ul.appendChild(relItem(o, t)); });
       relWrap.appendChild(ul);
     } else {
-      relWrap.style.display = "none";
+      relWrap.style.display = "";
+      var emptyTitle = document.createElement("h3"); emptyTitle.textContent = t.related; relWrap.appendChild(emptyTitle);
+      var emptyText = document.createElement("p"); emptyText.className = "pd-rel-sub"; emptyText.textContent = t.rel_none_detail; relWrap.appendChild(emptyText);
     }
     pdEls.modal.scrollTop = 0;
     pdEls.back.hidden = false; pdEls.modal.hidden = false;
@@ -521,7 +847,10 @@
     var nm = document.createElement("div"); nm.className = "pd-rel-name"; nm.textContent = o.n;
     var meta = document.createElement("div"); meta.className = "pd-rel-meta";
     meta.textContent = (roleLabel(o.r) || t.cats[o.c] || o.c) + " · " + priceStr(o.p);
-    info.appendChild(nm); info.appendChild(meta);
+    var review = document.createElement("span");
+    review.className = "pd-rel-review";
+    review.textContent = t.compat_review;
+    info.appendChild(nm); info.appendChild(meta); info.appendChild(review);
     var add = document.createElement("button");
     add.type = "button"; add.className = "btn btn-outline pd-rel-add"; add.textContent = t.pd_add;
     add.disabled = !o.p;
@@ -570,20 +899,89 @@
     });
     input.addEventListener("blur", function () { setTimeout(close, 120); });
   }
+  function uniqueSorted(values, numericDesc) {
+    var seen = {};
+    var out = values.filter(function (v) {
+      if (v == null || seen[v]) return false;
+      seen[v] = true;
+      return true;
+    });
+    return out.sort(numericDesc
+      ? function (a, b) { return parseInt(b, 10) - parseInt(a, 10); }
+      : function (a, b) { return a.localeCompare(b, undefined, { numeric: true }); });
+  }
+  function fitsForSelection(level) {
+    var bi = MAKE_IDX[state.brand];
+    return ALL_FITS.filter(function (x) {
+      if (!state.brand || x[0] !== bi) return false;
+      if (level > 0 && state.model && x[1] !== state.model) return false;
+      if (level > 1 && state.generation && generationLabel(x) !== state.generation) return false;
+      if (level > 2 && state.year && !yearFits(x, state.year)) return false;
+      return true;
+    });
+  }
+  function generationOptions() {
+    return uniqueSorted(fitsForSelection(1).map(generationLabel));
+  }
+  function yearOptions() {
+    var years = [];
+    fitsForSelection(2).forEach(function (x) {
+      var from = x[5] || 1990;
+      var to = x[6] || new Date().getFullYear();
+      for (var y = to; y >= from; y--) years.push(String(y));
+    });
+    return uniqueSorted(years, true);
+  }
+  function engineOptions() {
+    return uniqueSorted(fitsForSelection(3).map(engineLabel));
+  }
+  function setVehicleField(id, enabled, clear) {
+    var el = $(id);
+    if (!el) return;
+    el.disabled = !enabled;
+    if (clear) el.value = "";
+  }
+  function updateVehicleButton() {
+    var btn = $("btn-veh-search");
+    if (btn) btn.disabled = !(state.brand && state.model && state.generation && state.year && state.engine);
+  }
+  function resetVehicleAfter(step) {
+    if (step < 1) { state.model = ""; setVehicleField("veh-model", !!state.brand, true); }
+    if (step < 2) { state.generation = ""; setVehicleField("veh-generation", !!state.model, true); }
+    if (step < 3) { state.year = ""; setVehicleField("veh-year", !!state.generation, true); }
+    if (step < 4) { state.engine = ""; setVehicleField("veh-engine", !!state.year, true); }
+    updateVehicleButton();
+  }
   function initCombos() {
     makeCombo("veh-brand", "list-brand",
       function () { return Object.keys(BRANDS); },
       function (val) {
         state.brand = BRANDS[val] ? val : "";
-        var m = $("veh-model");
-        if (m) { m.disabled = !state.brand; if (state.brand) { m.value = ""; state.model = ""; } }
+        resetVehicleAfter(0);
       });
     makeCombo("veh-model", "list-model",
       function () { return state.brand && BRANDS[state.brand] ? BRANDS[state.brand] : []; },
       function (val) {
         var ms = state.brand && BRANDS[state.brand] ? BRANDS[state.brand] : [];
         state.model = ms.indexOf(val) !== -1 ? val : "";
+        resetVehicleAfter(1);
       });
+    makeCombo("veh-generation", "list-generation", generationOptions,
+      function (val) {
+        state.generation = generationOptions().indexOf(val) !== -1 ? val : "";
+        resetVehicleAfter(2);
+      });
+    makeCombo("veh-year", "list-year", yearOptions,
+      function (val) {
+        state.year = yearOptions().indexOf(val) !== -1 ? val : "";
+        resetVehicleAfter(3);
+      });
+    makeCombo("veh-engine", "list-engine", engineOptions,
+      function (val) {
+        state.engine = engineOptions().indexOf(val) !== -1 ? val : "";
+        updateVehicleButton();
+      });
+    resetVehicleAfter(0);
   }
 
   /* ---------- Warekuerf + Mollie-Checkout ---------- */
@@ -766,8 +1164,13 @@
     }, 300);
   }
   function checkout() {
-    var t = tr(), st = $("cart-status"), btn = $("cart-checkout");
+    var t = tr(), st = $("cart-status"), btn = $("cart-checkout"), legal = $("cart-legal");
     if (!cart.length) return;
+    if (!legal || !legal.checked) {
+      if (st) { st.className = "form-status err"; st.textContent = t.legal_required; }
+      if (legal) legal.focus();
+      return;
+    }
     if (st) { st.className = "form-status"; st.textContent = t.cart_redirect; }
     if (btn) btn.disabled = true;
     fetch(PAYMENT_ENDPOINT + "/create-payment", {
@@ -798,6 +1201,10 @@
     var q = $("q-text"); if (q) q.placeholder = t.ph_text;
     var vb = $("veh-brand"); if (vb) vb.placeholder = t.ph_brand;
     var vm = $("veh-model"); if (vm) vm.placeholder = t.ph_model;
+    var vg = $("veh-generation"); if (vg) vg.placeholder = t.ph_generation;
+    var vy = $("veh-year"); if (vy) vy.placeholder = t.ph_year;
+    var ve = $("veh-engine"); if (ve) ve.placeholder = t.ph_engine;
+    setTxt("veh-filter-note", t.veh_note);
     setTxt("shop-note-title", t.note_title);
     setTxt("shop-note-text", t.note_text);
     setTxt("shop-note-cta", t.note_cta);
@@ -816,6 +1223,18 @@
     setTxt("cart-total-label", t.cart_total);
     setTxt("cart-checkout", t.cart_checkout);
     setTxt("cart-note", t.cart_note);
+    setTxt("cart-legal-text", t.legal_text);
+    setTxt("cart-legal-link", t.legal_link);
+    setTxt("cart-privacy-link", t.privacy_link);
+    setTxt("shop-legal-eyebrow", t.legal_eyebrow);
+    setTxt("shop-legal-title", t.legal_title);
+    setTxt("shop-legal-price-title", t.legal_price_title);
+    setTxt("shop-legal-price-text", t.legal_price_text);
+    setTxt("shop-legal-fit-title", t.legal_fit_title);
+    setTxt("shop-legal-fit-text", t.legal_fit_text);
+    setTxt("shop-legal-rights-title", t.legal_rights_title);
+    setTxt("shop-legal-rights-text", t.legal_rights_text);
+    setTxt("shop-legal-more", t.legal_more);
     renderCart();
   }
 
@@ -834,6 +1253,7 @@
     render(); scrollToCatalog();
   }
   function doVehSearch() {
+    if (!(state.brand && state.model && state.generation && state.year && state.engine)) return;
     state.mode = "vehicle"; state.cat = "all";
     render(); scrollToCatalog();
   }
