@@ -612,8 +612,8 @@
     var n = list.length;
     var shown = list.slice(0, RENDER_CAP);
     grid.innerHTML = "";
-    shown.forEach(function (p) {
-      grid.appendChild(card(p, t));
+    shown.forEach(function (p, index) {
+      grid.appendChild(card(p, t, index));
     });
     var txt;
     if (state.mode === "search" && state.q) txt = t.info_search.replace("{n}", n).replace("{q}", state.q);
@@ -626,24 +626,40 @@
     if (empty) empty.hidden = n > 0;
   }
 
-  function card(p, t) {
+  function card(p, t, index) {
     var c = document.createElement("article");
     c.className = "shop-card";
 
     /* Media */
     var media = document.createElement("div");
-    media.className = "shop-card-media mf-" + mfOf(p);
+    media.className = "shop-card-media mf-" + mfOf(p) + " is-loading";
     var url = imgUrl(p.m, 600, 360);
     if (url) {
       var img = document.createElement("img");
-      img.loading = "lazy";
+      // Déi éischt siichtbar Resultater direkt lueden; de Rescht bleift lazy.
+      // Dëst mécht virun allem nei Sichresultater däitlech méi séier sichtbar.
+      img.loading = index < 8 ? "eager" : "lazy";
       img.decoding = "async";
+      if (index < 4) img.setAttribute("fetchpriority", "high");
       img.width = 600; img.height = 360;
       img.alt = p.n;
+      img.addEventListener("load", function () {
+        media.classList.remove("is-loading");
+        img.classList.add("is-loaded");
+      });
+      img.addEventListener("error", function () {
+        media.classList.remove("is-loading");
+        media.classList.add("no-img");
+        img.remove();
+      });
       img.src = url;
-      img.addEventListener("error", function () { media.classList.add("no-img"); img.remove(); });
+      if (img.complete && img.naturalWidth) {
+        media.classList.remove("is-loading");
+        img.classList.add("is-loaded");
+      }
       media.appendChild(img);
     } else {
+      media.classList.remove("is-loading");
       media.classList.add("no-img");
     }
     var catTag = document.createElement("span");
