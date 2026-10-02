@@ -5611,3 +5611,34 @@ html.shop-dev .shop-card-body .shop-price {
     gap: 3px;
   }
 }
+
+/* === Multi-Marque Shop: Marque-Filter, Marque-Badge, Axe-Badge === */
+.mf-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.mf-chip {
+  padding: 8px 17px; border-radius: 999px; border: 1.5px solid #d9dee4;
+  background: #fff; color: #2a3744; font-weight: 800; font-size: 0.82rem;
+  letter-spacing: 0.02em; cursor: pointer; transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+}
+.mf-chip:hover { border-color: #b9c0c8; }
+.mf-chip.active { background: #0d1b2a; color: #fff; border-color: #0d1b2a; }
+.mf-chip.mf-chip-REMUS.active { background: #d90018; border-color: #d90018; }
+.mf-chip.mf-chip-DBA.active { background: #111820; border-color: #111820; }
+
+/* Marque-Badge op dem Produktbild (uewe riets) */
+.shop-card-media, .pd-media { position: relative; }
+.shop-mf {
+  position: absolute; top: 10px; right: 10px; z-index: 2;
+  font-family: var(--font-head, "Archivo", sans-serif); font-weight: 900; font-style: italic;
+  font-size: 0.72rem; letter-spacing: -0.02em; padding: 3px 9px 2px; border-radius: 4px;
+  color: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.32); line-height: 1.25;
+}
+.pd-media .shop-mf { top: 14px; right: 14px; font-size: 0.95rem; padding: 4px 12px 3px; }
+.shop-mf-REMUS { background: #d90018; }
+.shop-mf-DBA { background: #111820; box-shadow: inset 0 0 0 1.5px #d4161d, 0 2px 6px rgba(0, 0, 0, 0.4); }
+
+.badge-axle { background: #e9f1fb; color: #2063c4; border: 1px solid #c5dbf5; }
+
+/* Bild-Fallback markenspezifesch: DBA weist "DBA" amplaz "REMUS" */
+.shop-card-media.mf-DBA.no-img::after,
+.pd-media.mf-DBA.no-img::after { content: "DBA"; }
+.pd-rel-thumb.mf-DBA.no-img::after { content: "D"; }

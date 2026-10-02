@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.sanity.io; connect-src 'self' https://formsubmit.co https://cloudflareinsights.com https://mollie-pay.autoservicebettenduerf.lu; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.sanity.io https://3cerp.eu; connect-src 'self' https://formsubmit.co https://cloudflareinsights.com https://mollie-pay.autoservicebettenduerf.lu; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
     <meta
       name="description"
       content="Autodeeler-Shop vum Autoservice Bettenduerf – REMUS-Deeler fir vill gängeg Marken a Modeller. Sich no Bezeechnung, Artikelnummer oder no Ärem Gefier."
@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=48" />
+    <link rel="stylesheet" href="styles.css?v=51" />
     <script src="shop-gate.js?v=1"></script>
   </head>
   <body class="shop-page">
@@ -245,6 +245,12 @@
       <section class="section" id="shop-catalog">
         <div class="container">
           <div
+            class="mf-chips"
+            id="mf-chips"
+            role="group"
+            aria-label="Marque"
+          ></div>
+          <div
             class="cat-chips"
             id="cat-chips"
             role="group"
@@ -437,8 +443,8 @@
     >
 
     <script src="script.js?v=18"></script>
-    <script src="shop-data.js?v=5"></script>
-    <script src="shop.js?v=27"></script>
+    <script src="shop-data.js?v=6"></script>
+    <script src="shop.js?v=28"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"
