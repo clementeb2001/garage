@@ -5195,6 +5195,17 @@ html.shop-dev .shop-card-body .shop-price {
   padding-left: 16px; position: relative;
 }
 .pd-fits li::before { content: "›"; position: absolute; left: 2px; color: #d90018; font-weight: 800; }
+.pd-fits-title:has(+ .pd-fits .is-selected-fit) {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-left: 4px solid #168447;
+  border-radius: 7px;
+  background: #edf8f1;
+  color: #115f35;
+  font-size: .95rem;
+}
+.pd-fits .is-selected-fit { color: #22303d; font-weight: 650; }
+.pd-fits .is-selected-fit::before { content: "✓"; color: #168447; }
 .pd-foot {
   display: flex; justify-content: space-between; align-items: baseline;
   gap: 10px; margin: 16px 0 10px; padding-top: 12px; border-top: 1px solid #e6e9ee;

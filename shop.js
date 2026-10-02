@@ -1058,15 +1058,21 @@
     var cfg = $("pd-config");
     if (cfg) { cfg.innerHTML = ""; cfg.style.display = mfOf(p) === "REMUS" ? "" : "none"; }
     if (mfOf(p) === "REMUS") renderProductConfig(p, t);
-    /* Passform-Lëscht */
-    setTxt("pd-fits-title", t.fits_on);
+    /* Bei enger Gefiersich nëmmen déi passend Zouuerdnunge weisen. Sou ass
+       direkt kloer, firwat de Produit am Resultat erschéngt. */
+    var selectedFits = state.mode === "vehicle" && state.brand ? p.f.filter(fitMatchesVehicle) : [];
+    var fitsToShow = selectedFits.length ? selectedFits : p.f;
+    var selectedTitle = lang() === "fr" ? "Compatible avec : " : lang() === "en" ? "Fits: " : lang() === "lb" ? "Passend fir: " : "Passend für: ";
+    setTxt("pd-fits-title", selectedFits.length ? selectedTitle + selectedVehicleLabel() : t.fits_on);
     var fitsEl = $("pd-fits"); fitsEl.innerHTML = "";
     var seen = {}, shown = 0;
-    p.f.forEach(function (x) {
+    fitsToShow.forEach(function (x) {
       if (shown >= 10) return;
       var label = makeName(x[0]) + " " + fitLabel(x);
       if (seen[label]) return; seen[label] = 1; shown++;
-      var li = document.createElement("li"); li.textContent = label; fitsEl.appendChild(li);
+      var li = document.createElement("li"); li.textContent = label;
+      if (selectedFits.length) li.className = "is-selected-fit";
+      fitsEl.appendChild(li);
     });
     setTxt("pd-ref", t.artnr + " " + displayRef(p));
     setTxt("pd-price", p.p ? priceStr(p.p) : "—");
