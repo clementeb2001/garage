@@ -562,12 +562,38 @@
     }
     onMissing();
   }
+  function dbaKitComponents(p) {
+    if (mfOf(p) !== "DBA" || p.c !== "bbk") return null;
+    var match = displayRef(p).match(/^(DBA[^-]+)-(.+)$/);
+    if (!match) return null;
+    var discRef = match[1];
+    var padRef = /^DB/i.test(match[2]) ? match[2] : "DB" + match[2];
+    function byRef(ref) {
+      return PRODUCTS.filter(function (item) { return displayRef(item) === ref; })[0] || null;
+    }
+    return { discRef: discRef, padRef: padRef, disc: byRef(discRef), pad: byRef(padRef) };
+  }
+  function cleanDbaSpec(spec) {
+    return String(spec || "").replace(/;\s*for PR:\s*/i, " · PR ").replace(/-Sättel\b/g, "").replace(/,\s*/g, "/").trim();
+  }
+  function dbaKitSummary(p) {
+    var parts = dbaKitComponents(p);
+    if (!parts) return "";
+    var labels = {
+      de: { discs: "Scheiben", pads: "Beläge" }, lb: { discs: "Scheiwen", pads: "Bremsbeläg" },
+      fr: { discs: "Disques", pads: "Plaquettes" }, en: { discs: "Discs", pads: "Pads" }
+    }[lang()] || { discs: "Scheiben", pads: "Beläge" };
+    return labels.discs + ": 2× " + parts.discRef + (parts.disc && parts.disc.sp ? " · " + cleanDbaSpec(parts.disc.sp) : "") +
+      " · " + labels.pads + ": " + parts.padRef + (parts.pad && parts.pad.sp ? " · " + cleanDbaSpec(parts.pad.sp) : "");
+  }
   function productName(p) {
     if (mfOf(p) !== "DBA" || p.c !== "bbk" || !/^Brake Kit/i.test(p.n)) return p.n;
     var series = (p.n.match(/(5000 Series[^&(]*|4000 Series[^&(]*|Street Series[^&(]*)/i) || [])[1] || "Performance";
     series = series.replace(/\s+/g, " ").trim();
     var axle = p.ax === "F" ? axleLabel("F") : p.ax === "R" ? axleLabel("R") : "";
-    return "DBA Bremsen-Kit" + (axle ? " " + axle : "") + " – " + series;
+    var parts = dbaKitComponents(p);
+    var discSpec = parts && parts.disc ? cleanDbaSpec(parts.disc.sp) : "";
+    return "DBA Bremsen-Kit" + (axle ? " " + axle : "") + " – " + series + (discSpec ? " · " + discSpec : "");
   }
   function makeName(i) { return MAKES[i] || ""; }
   function makesOf(p) {
@@ -902,6 +928,14 @@
       spec.className = "shop-spec";
       spec.textContent = p.sp;
       body.appendChild(spec);
+    } else if (p.c === "bbk") {
+      var kitSpec = dbaKitSummary(p);
+      if (kitSpec) {
+        var kitSpecEl = document.createElement("p");
+        kitSpecEl.className = "shop-spec shop-kit-spec";
+        kitSpecEl.textContent = kitSpec;
+        body.appendChild(kitSpecEl);
+      }
     }
 
     /* Badges: REMUS → EC-Zoulassung · DBA → Axe (Virun/Hannen) */
@@ -1340,6 +1374,13 @@
     var specRows=[[t.artnr,displayRef(p)],[lang()==="fr"?"Fabricant":lang()==="en"?"Manufacturer":lang()==="lb"?"Hiersteller":"Hersteller",mfOf(p)],[lang()==="fr"?"Catégorie":lang()==="en"?"Category":lang()==="lb"?"Kategorie":"Kategorie",t.cats[p.c]||p.c],[lang()==="fr"?"Essieu":lang()==="en"?"Axle":lang()==="lb"?"Achs":"Achse",p.ax?axleLabel(p.ax):"—"]];
     /* DBA-Technik: "Ø 326 mm · Brembo-Sättel" opsplécken a beschëlteren */
     if(p.sp){p.sp.split(" · ").forEach(function(seg){seg=seg.trim();if(!seg)return;var lbl;if(/^Ø/.test(seg))lbl=lang()==="fr"?"Diamètre disque":lang()==="en"?"Disc diameter":lang()==="lb"?"Scheiwendiameter":"Scheibendurchmesser";else lbl=lang()==="fr"?"Étriers recommandés":lang()==="en"?"Recommended calipers":lang()==="lb"?"Empfohlen Bremssättel":"Empf. Bremssättel";specRows.push([lbl,seg.replace(/-Sättel$/,"")]);});}
+    var kitParts=dbaKitComponents(p);
+    if(kitParts){
+      var discLabel=lang()==="fr"?"Disques inclus":lang()==="en"?"Included discs":lang()==="lb"?"Enthale Scheiwen":"Enthaltene Scheiben";
+      var padLabel=lang()==="fr"?"Plaquettes incluses":lang()==="en"?"Included pads":lang()==="lb"?"Enthale Bremsbeläg":"Enthaltene Beläge";
+      specRows.push([discLabel,"2× "+kitParts.discRef+(kitParts.disc&&kitParts.disc.sp?" · "+cleanDbaSpec(kitParts.disc.sp):"")]);
+      specRows.push([padLabel,kitParts.padRef+(kitParts.pad&&kitParts.pad.sp?" · "+cleanDbaSpec(kitParts.pad.sp):"")]);
+    }
     specRows.forEach(function(pair){var dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=pair[0];dd.textContent=pair[1];specs.appendChild(dt);specs.appendChild(dd);});
     /* Configurator (Bundle-Varianten) nëmme fir REMUS */
     var cfg = $("pd-config");
