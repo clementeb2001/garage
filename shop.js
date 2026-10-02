@@ -966,7 +966,7 @@
       '<ul class="pd-fits" id="pd-fits"></ul>' +
       '<div class="pd-foot"><span class="pd-ref" id="pd-ref"></span><span class="pd-price" id="pd-price"></span></div>' +
       '<button type="button" class="btn btn-primary pd-add" id="pd-add"></button>' +
-      '<button type="button" class="btn btn-primary pd-inquiry" id="pd-inquiry"></button>' +
+      '<button type="button" class="btn btn-outline pd-inquiry" id="pd-inquiry"></button>' +
       '<div class="pd-related" id="pd-related"></div>' +
       '</div>';
     document.body.appendChild(back);
@@ -1166,7 +1166,7 @@
     addBtn.onclick = function () { addToCart(p, addBtn); };
     var inquiry = $("pd-inquiry");
     if (inquiry) {
-      inquiry.textContent = "✓ " + t.inquiry;
+      inquiry.textContent = t.inquiry;
       inquiry.onclick = function () { openInquiry(p); };
     }
     /* Dobaibestellen – nëmme weisen wann et wierklech komplementär Deeler gëtt */
