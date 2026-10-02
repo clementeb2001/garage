@@ -4983,7 +4983,27 @@ html.shop-dev .shop-card::before {
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.4s ease;
+  opacity: 0;
+  transition: opacity 0.22s ease, transform 0.4s ease;
+}
+.shop-card-media img.is-loaded {
+  opacity: 1;
+}
+.shop-card-media.is-loading::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.09) 45%, transparent 60%),
+    linear-gradient(145deg, #171d24, #0b1016);
+  background-size: 220% 100%, 100% 100%;
+  animation: shop-image-loading 1.25s linear infinite;
+}
+@keyframes shop-image-loading {
+  to { background-position: -220% 0, 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shop-card-media.is-loading::before { animation: none; }
 }
 html.shop-dev .shop-card:hover .shop-card-media img {
   transform: scale(1.05);
