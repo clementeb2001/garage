@@ -19,9 +19,9 @@
   var IMGBASE = (window.SHOP_META && window.SHOP_META.imgbase) || "";
   var cart = [];
 
-  /* makeName -> index (fir Fitment-Filter) */
+  /* makeName -> index (fir Fitment-Filter). Gëtt via buildIndexes() opgebaut,
+     well DBA spéider nogelueden gëtt an d'Tabellen erweidert. */
   var MAKE_IDX = {};
-  MAKES.forEach(function (m, i) { MAKE_IDX[m] = i; });
 
   var state = { mode: "all", q: "", mf: "all", cat: "all", brand: "", model: "", generation: "", year: "", engine: "", axle: "all", approval: "all", sort: "name", favoritesOnly: false };
   var favorites = loadJson("gk_shop_favorites", []);
@@ -44,10 +44,6 @@
     Object.keys(state).forEach(function (key) { if (Object.prototype.hasOwnProperty.call(saved, key)) state[key] = saved[key]; });
   }
   var ALL_FITS = [];
-  PRODUCTS.forEach(function (p) {
-    if (mfOf(p) === "REMUS" && REMUS_PARTS[p.i]) p.ps = REMUS_PARTS[p.i];
-    p.f.forEach(function (fit) { ALL_FITS.push(fit); });
-  });
 
   /* REMUS Bundle-Varianten: selwechte Systemëmfang + Passform, aner Ausféierung/Endréier */
   function bundleBaseName(p) {
@@ -64,17 +60,30 @@
     return [p.m, p.r, bundleBaseName(p), bundleFitKey(p)].join("||");
   }
   var BUNDLE_GROUPS = {};
-  PRODUCTS.forEach(function (p) {
-    var key = bundleGroupKey(p);
-    if (!BUNDLE_GROUPS[key]) BUNDLE_GROUPS[key] = [];
-    BUNDLE_GROUPS[key].push(p);
-  });
-  Object.keys(BUNDLE_GROUPS).forEach(function (key) {
-    BUNDLE_GROUPS[key].sort(function (a, b) {
-      if (a.p !== b.p) return a.p - b.p;
-      return a.n < b.n ? -1 : 1;
+  /* Baut all ofgeleet Indizes nei op. Gëtt beim Luede opgeruff an erëm nodeems
+     DBA via shop-data-dba.js nogelueden an an d'global Tabellen gemerged ass. */
+  function buildIndexes() {
+    MAKE_IDX = {};
+    MAKES.forEach(function (m, i) { MAKE_IDX[m] = i; });
+    ALL_FITS.length = 0;
+    PRODUCTS.forEach(function (p) {
+      if (mfOf(p) === "REMUS" && REMUS_PARTS[p.i]) p.ps = REMUS_PARTS[p.i];
+      p.f.forEach(function (fit) { ALL_FITS.push(fit); });
     });
-  });
+    BUNDLE_GROUPS = {};
+    PRODUCTS.forEach(function (p) {
+      var key = bundleGroupKey(p);
+      if (!BUNDLE_GROUPS[key]) BUNDLE_GROUPS[key] = [];
+      BUNDLE_GROUPS[key].push(p);
+    });
+    Object.keys(BUNDLE_GROUPS).forEach(function (key) {
+      BUNDLE_GROUPS[key].sort(function (a, b) {
+        if (a.p !== b.p) return a.p - b.p;
+        return a.n < b.n ? -1 : 1;
+      });
+    });
+  }
+  buildIndexes();
   function bundleVariants(p) {
     if (mfOf(p) === "DBA") return [p];
     return BUNDLE_GROUPS[bundleGroupKey(p)] || [p];
@@ -739,6 +748,7 @@
       b.addEventListener("click", function () {
         state.mf = o[0];
         if (catsFor(state.mf).indexOf(state.cat) === -1) state.cat = "all";
+        if (o[0] === "DBA" || o[0] === "all") ensureDba(function () { render(); });
         visibleCount = PAGE_SIZE; saveState(); render();
       });
       wrap.appendChild(b);
@@ -885,6 +895,14 @@
       fit.textContent = t.fits + " " + ms.slice(0, 3).join(", ") + (ms.length > 3 ? " +" + (ms.length - 3) : "");
     }
     body.appendChild(fit);
+
+    /* Technesch Spezifikatioun (DBA: Scheiwendiameter, Bremssättel …) */
+    if (p.sp) {
+      var spec = document.createElement("p");
+      spec.className = "shop-spec";
+      spec.textContent = p.sp;
+      body.appendChild(spec);
+    }
 
     /* Badges: REMUS → EC-Zoulassung · DBA → Axe (Virun/Hannen) */
     var badges = document.createElement("div");
@@ -1319,7 +1337,10 @@
     var badges = $("pd-badges"); badges.innerHTML = "";
     partBadges(p, t).forEach(function (bd) { badges.appendChild(bd); });
     var specs=$("pd-specs"); specs.innerHTML="";
-    [[t.artnr,displayRef(p)],[lang()==="fr"?"Fabricant":lang()==="en"?"Manufacturer":lang()==="lb"?"Hiersteller":"Hersteller",mfOf(p)],[lang()==="fr"?"Catégorie":lang()==="en"?"Category":lang()==="lb"?"Kategorie":"Kategorie",t.cats[p.c]||p.c],[lang()==="fr"?"Essieu":lang()==="en"?"Axle":lang()==="lb"?"Achs":"Achse",p.ax?axleLabel(p.ax):"—"]].forEach(function(pair){var dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=pair[0];dd.textContent=pair[1];specs.appendChild(dt);specs.appendChild(dd);});
+    var specRows=[[t.artnr,displayRef(p)],[lang()==="fr"?"Fabricant":lang()==="en"?"Manufacturer":lang()==="lb"?"Hiersteller":"Hersteller",mfOf(p)],[lang()==="fr"?"Catégorie":lang()==="en"?"Category":lang()==="lb"?"Kategorie":"Kategorie",t.cats[p.c]||p.c],[lang()==="fr"?"Essieu":lang()==="en"?"Axle":lang()==="lb"?"Achs":"Achse",p.ax?axleLabel(p.ax):"—"]];
+    /* DBA-Technik: "Ø 326 mm · Brembo-Sättel" opsplécken a beschëlteren */
+    if(p.sp){p.sp.split(" · ").forEach(function(seg){seg=seg.trim();if(!seg)return;var lbl;if(/^Ø/.test(seg))lbl=lang()==="fr"?"Diamètre disque":lang()==="en"?"Disc diameter":lang()==="lb"?"Scheiwendiameter":"Scheibendurchmesser";else lbl=lang()==="fr"?"Étriers recommandés":lang()==="en"?"Recommended calipers":lang()==="lb"?"Empfohlen Bremssättel":"Empf. Bremssättel";specRows.push([lbl,seg.replace(/-Sättel$/,"")]);});}
+    specRows.forEach(function(pair){var dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=pair[0];dd.textContent=pair[1];specs.appendChild(dt);specs.appendChild(dd);});
     /* Configurator (Bundle-Varianten) nëmme fir REMUS */
     var cfg = $("pd-config");
     if (cfg) { cfg.innerHTML = ""; cfg.style.display = mfOf(p) === "REMUS" ? "" : "none"; }
@@ -1825,11 +1846,13 @@
   }
   function doTextSearch() {
     state.mode = "search"; state.q = ($("q-text").value || "").trim(); state.cat = "all";
+    ensureDba(function () { if (state.mode === "search") render(); });
     render(); scrollToCatalog();
   }
   function doVehSearch() {
     if (!(state.brand && state.model)) return; // Mark + Modell duergeet
     state.mode = "vehicle"; state.cat = "all";
+    ensureDba(function () { if (state.mode === "vehicle") render(); });
     render(); scrollToCatalog();
   }
   function scrollToCatalog() { var el = $("shop-catalog"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }
@@ -1874,6 +1897,40 @@
     });
   }
 
+  /* ---------- DBA spéit nolueden (Performance) ----------
+     REMUS kënnt direkt mat shop-data.js. DBA (méi grouss) gëtt no am Idle
+     nogelueden, respektiv op Ufro wann een eppes mécht wat DBA brauch. */
+  var dbaRequested = false;
+  var dbaCallbacks = [];
+  window.__onDbaLoaded = function () {
+    buildIndexes();
+    var dcb = dbaCallbacks.slice(); dbaCallbacks = [];
+    render();
+    dcb.forEach(function (cb) { try { cb(); } catch (e) {} });
+    // Falls en DBA-Produkt iwwer ?product= opgeruff gouf iere DBA do war
+    var rp = new URLSearchParams(location.search).get("product");
+    if (rp && /^DBA-/.test(rp) && !document.querySelector(".product-dialog[open], .product-modal:not([hidden])")) {
+      var f = PRODUCTS.filter(function (p) { return p.i === rp; })[0];
+      if (f) { try { openProduct(f); } catch (e) {} }
+    }
+  };
+  function ensureDba(cb) {
+    if (window.SHOP_DBA_LOADED) { if (cb) cb(); return; }
+    if (cb) dbaCallbacks.push(cb);
+    if (dbaRequested) return;
+    dbaRequested = true;
+    var s = document.createElement("script");
+    s.src = "shop-data-dba.js?v=4";
+    s.async = true;
+    s.onerror = function () { dbaRequested = false; };
+    document.head.appendChild(s);
+  }
+  function scheduleDbaPreload() {
+    var go = function () { ensureDba(); };
+    if (window.requestIdleCallback) window.requestIdleCallback(go, { timeout: 4000 });
+    else setTimeout(go, 1200);
+  }
+
   function init() {
     cart = loadCart();
     restoreState();
@@ -1884,10 +1941,11 @@
     bind();
     render();
     renderCart();
-    var requestedProduct=new URLSearchParams(location.search).get("product"); if(requestedProduct){var found=PRODUCTS.filter(function(p){return p.i===requestedProduct;})[0];if(found)openProduct(found);}
+    var requestedProduct=new URLSearchParams(location.search).get("product"); if(requestedProduct){var found=PRODUCTS.filter(function(p){return p.i===requestedProduct;})[0];if(found)openProduct(found);else if(/^DBA-/.test(requestedProduct))ensureDba();}
     window.addEventListener("pagehide", saveState);
     var savedScroll = 0; try { savedScroll = parseInt(sessionStorage.getItem("gk_shop_scroll") || "0", 10); } catch (e) {}
     if (savedScroll) requestAnimationFrame(function () { window.scrollTo(0, savedScroll); });
+    scheduleDbaPreload();
   }
   if (document.readyState !== "loading") init();
   else document.addEventListener("DOMContentLoaded", init);
