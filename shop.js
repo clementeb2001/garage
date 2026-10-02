@@ -15,6 +15,7 @@
   var VARIANTS = window.SHOP_VARIANTS || [];
   var GENS = window.SHOP_GENS || [];
   var IMAGES = window.SHOP_IMAGES || [];
+  var REMUS_PARTS = window.REMUS_PARTS || {};
   var IMGBASE = (window.SHOP_META && window.SHOP_META.imgbase) || "";
   var cart = [];
 
@@ -43,7 +44,10 @@
     Object.keys(state).forEach(function (key) { if (Object.prototype.hasOwnProperty.call(saved, key)) state[key] = saved[key]; });
   }
   var ALL_FITS = [];
-  PRODUCTS.forEach(function (p) { p.f.forEach(function (fit) { ALL_FITS.push(fit); }); });
+  PRODUCTS.forEach(function (p) {
+    if (mfOf(p) === "REMUS" && REMUS_PARTS[p.i]) p.ps = REMUS_PARTS[p.i];
+    p.f.forEach(function (fit) { ALL_FITS.push(fit); });
+  });
 
   /* REMUS Bundle-Varianten: selwechte Systemëmfang + Passform, aner Ausféierung/Endréier */
   function bundleBaseName(p) {
@@ -296,9 +300,11 @@
     config_system: "Grondanlag / Systemëmfang",
     config_variant: "Ausféierung / Endréier wielen *",
     config_required: "Pflichtëmfang am komplette REMUS-Bundle abegraff",
+    config_parts: "Enthale Pflichtdeeler",
+    config_parts_note: "Dës Deeler gehéieren no der REMUS-Stécklëscht zu dëser Konfiguratioun a sinn am Bundle-Präis abegraff.",
     config_single: "Dës Variant huet keng weider auswielbar Bundle-Ausféierung.",
     config_component: "Eenzelkomponent: déi néideg Haaptanlag gëtt separat gebraucht.",
-    config_check: "Separat Pflichtdeeler sinn am Export net eendeiteg verknëppt. Mir kontrolléieren d’Konfiguratioun virun der Bestellung.",
+    config_check: "Mir kontrolléieren d’Stécklëscht an d’Passform nach eng Kéier mat Äre komplette Gefierdaten virun der Bestellung.",
     config_total: "Bundle-Präis",
     related: "Passend Ergänzungen",
     related_sub: "Kompatibel Ergänzungen – net automatesch Pflichtdeeler.",
@@ -310,9 +316,11 @@
     config_system: "Grundsystem / Lieferumfang",
     config_variant: "Ausführung / Endrohr wählen *",
     config_required: "Pflichtumfang im vollständigen REMUS-Bundle enthalten",
+    config_parts: "Enthaltene Pflichtteile",
+    config_parts_note: "Diese Teile gehören laut REMUS-Stückliste zu dieser Konfiguration und sind im Bundle-Preis enthalten.",
     config_single: "Für diese Variante ist keine weitere Bundle-Ausführung hinterlegt.",
     config_component: "Einzelkomponente: Die erforderliche Hauptanlage wird separat benötigt.",
-    config_check: "Separate Pflichtteile sind im Export nicht eindeutig verknüpft. Wir prüfen die Konfiguration vor der Bestellung.",
+    config_check: "Wir prüfen Stückliste und Passform vor der Bestellung noch einmal anhand Ihrer vollständigen Fahrzeugdaten.",
     config_total: "Bundle-Preis",
     related: "Passende Ergänzungen",
     related_sub: "Kompatible Ergänzungen – nicht automatisch Pflichtteile.",
@@ -324,9 +332,11 @@
     config_system: "Système de base / contenu",
     config_variant: "Choisir la finition / les sorties *",
     config_required: "Éléments obligatoires inclus dans le bundle REMUS complet",
+    config_parts: "Pièces obligatoires incluses",
+    config_parts_note: "Selon la nomenclature REMUS, ces pièces font partie de cette configuration et sont incluses dans le prix du bundle.",
     config_single: "Aucune autre variante de bundle n’est enregistrée pour cet article.",
     config_component: "Composant individuel: le système principal requis doit être choisi séparément.",
-    config_check: "Les pièces obligatoires séparées ne sont pas reliées de façon univoque dans l’export. Nous vérifions la configuration avant la commande.",
+    config_check: "Avant la commande, nous vérifions à nouveau la nomenclature et la compatibilité à partir des données complètes du véhicule.",
     config_total: "Prix du bundle",
     related: "Compléments compatibles",
     related_sub: "Compléments compatibles – pas automatiquement obligatoires.",
@@ -338,9 +348,11 @@
     config_system: "Base system / bundle contents",
     config_variant: "Choose finish / tail pipes *",
     config_required: "Required scope included in the complete REMUS bundle",
+    config_parts: "Included required parts",
+    config_parts_note: "According to the REMUS bill of materials, these parts belong to this configuration and are included in the bundle price.",
     config_single: "No additional bundle variant is recorded for this item.",
     config_component: "Individual component: the required main system must be selected separately.",
-    config_check: "Separate mandatory parts are not linked unambiguously in the export. We verify the configuration before ordering.",
+    config_check: "Before ordering, we verify the bill of materials and fitment again using the complete vehicle details.",
     config_total: "Bundle price",
     related: "Compatible additions",
     related_sub: "Compatible additions – not automatically mandatory.",
@@ -1071,6 +1083,27 @@
     bundleRef.className = "pd-config-single";
     bundleRef.textContent = t.config_bundle_ref.replace("{sku}", p.i);
     wrap.appendChild(bundleRef);
+
+    if (p.ps && p.ps.length) {
+      var partsLabel = document.createElement("span");
+      partsLabel.className = "pd-config-label pd-parts-label";
+      partsLabel.textContent = t.config_parts;
+      wrap.appendChild(partsLabel);
+
+      var parts = document.createElement("ul");
+      parts.className = "pd-parts";
+      p.ps.forEach(function (sku) {
+        var item = document.createElement("li");
+        item.textContent = sku;
+        parts.appendChild(item);
+      });
+      wrap.appendChild(parts);
+
+      var partsNote = document.createElement("p");
+      partsNote.className = "pd-parts-note";
+      partsNote.textContent = t.config_parts_note;
+      wrap.appendChild(partsNote);
+    }
 
     var variants = bundleVariants(p);
     if (variants.length > 1) {

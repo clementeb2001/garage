@@ -5456,6 +5456,36 @@ html.shop-dev .shop-card-body .shop-price {
   color: var(--text-mut);
   line-height: 1.45;
 }
+
+.pd-parts-label {
+  display: block;
+  margin-top: .9rem;
+}
+
+.pd-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  margin: .5rem 0 .4rem;
+  padding: 0;
+  list-style: none;
+}
+
+.pd-parts li {
+  padding: .38rem .62rem;
+  border: 1px solid rgba(216, 20, 31, .24);
+  border-radius: 999px;
+  background: rgba(216, 20, 31, .07);
+  color: var(--text);
+  font: 700 .78rem/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.pd-parts-note {
+  margin: 0 0 .85rem;
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.45;
+}
 .pd-config-total {
   display: flex;
   justify-content: space-between;
