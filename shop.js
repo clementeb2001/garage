@@ -1037,7 +1037,7 @@
     });
   }
   function generationOptions() {
-    return uniqueSorted(fitsForSelection(1).map(generationLabel));
+    return uniqueSorted(fitsForSelection(1).map(generationLabel)).filter(function (o) { return o !== "—"; });
   }
   function yearOptions() {
     var years = [];
@@ -1049,7 +1049,7 @@
     return uniqueSorted(years, true);
   }
   function engineOptions() {
-    return uniqueSorted(fitsForSelection(3).map(engineLabel));
+    return uniqueSorted(fitsForSelection(3).map(engineLabel)).filter(function (o) { return o !== "—"; });
   }
   function setVehicleField(id, enabled, clear) {
     var el = $(id);
