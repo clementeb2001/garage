@@ -5700,10 +5700,10 @@ html.shop-dev .shop-card-body .shop-price {
 .compare-grid article { padding:16px; border:1px solid #dde3e8; border-radius:12px; }
 .compare-grid h3 { font-size:1rem; overflow-wrap:anywhere; }
 .shop-load-wrap { display:flex; justify-content:center; margin-top:28px; }
-.pd-inquiry { display:flex; justify-content:center; margin-top:10px; }
-.fit-inquiry-back { position:fixed; inset:0; z-index:130; background:rgba(4,10,16,.78); backdrop-filter:blur(3px); }
+.pd-inquiry { display:flex; justify-content:center; width:100%; margin-top:10px; }
+.fit-inquiry-back { position:fixed; inset:0; z-index:1300; background:rgba(4,10,16,.78); backdrop-filter:blur(3px); }
 .fit-inquiry-back[hidden],.fit-inquiry-modal[hidden] { display:none; }
-.fit-inquiry-modal { position:fixed; left:50%; top:50%; z-index:131; transform:translate(-50%,-50%); width:min(760px,calc(100% - 28px)); max-height:90vh; overflow:auto; padding:30px; border-radius:18px; background:#fff; color:#17232f; box-shadow:0 26px 80px rgba(0,0,0,.48); }
+.fit-inquiry-modal { position:fixed; left:50%; top:50%; z-index:1301; transform:translate(-50%,-50%); width:min(760px,calc(100% - 28px)); max-height:90vh; overflow:auto; padding:30px; border-radius:18px; background:#fff; color:#17232f; box-shadow:0 26px 80px rgba(0,0,0,.48); }
 .fit-inquiry-head { padding-right:36px; }
 .fit-inquiry-head h2 { margin:0 0 8px; }
 .fit-inquiry-head p { margin:0 0 20px; color:#52606d; line-height:1.55; }
@@ -5716,6 +5716,10 @@ html.shop-dev .shop-card-body .shop-price {
 .fit-inquiry-modal input,.fit-inquiry-modal textarea { width:100%; padding:11px 12px; border:1px solid #cbd4dc; border-radius:9px; color:#17232f; font:inherit; }
 .fit-product-summary { display:grid; gap:3px; margin-bottom:20px; padding:14px 16px; border-left:4px solid #d4161d; border-radius:8px; background:#f5f7f9; }
 .fit-product-summary small { color:#657481; font-weight:700; }
+.fit-product-row { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid #dfe5ea; }
+.fit-product-row > span { display:grid; flex:1; gap:2px; }
+.fit-product-row button { width:30px; height:30px; border:1px solid #d5dde4; border-radius:50%; background:#fff; color:#a41218; font-size:1.15rem; cursor:pointer; }
+.fit-add-more { justify-self:start; margin-top:8px; padding:7px 0; border:0; background:transparent; color:#b70f15; font:inherit; font-weight:850; text-decoration:underline; cursor:pointer; }
 .fit-inquiry-modal .privacy-confirm { display:flex; align-items:flex-start; gap:9px; margin:4px 0 18px; font-size:.88rem; font-weight:500; line-height:1.45; }
 .fit-inquiry-modal .privacy-confirm input { width:auto; margin-top:3px; }
 .fit-inquiry-modal .form-note { margin:10px 0 0; text-align:center; }
