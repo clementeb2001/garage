@@ -159,8 +159,8 @@
           </p>
           <div class="shop-preview-status">
             <span aria-hidden="true">🔒</span>
-            <strong>Interne Virschau</strong>
-            <span>Dëse Beräich ass nëmme mam Virschau-Link sichtbar.</span>
+            <strong id="shop-preview-title">Intern Virschau</strong>
+            <span id="shop-preview-text">Dëse Beräich ass nëmme mam Virschau-Link sichtbar.</span>
           </div>
 
           <div class="shop-search">
@@ -207,27 +207,27 @@
             <div class="shop-panel" id="panel-fahrzeug" role="tabpanel" hidden>
               <div class="veh-row">
                 <div class="veh-field combo">
-                  <label class="sr-only" for="veh-brand">Mark</label>
+                  <label class="sr-only" for="veh-brand" id="label-veh-brand">Mark</label>
                   <input id="veh-brand" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-brand" placeholder="Mark wielen oder aginn" />
                   <ul class="combo-list" id="list-brand" role="listbox" hidden></ul>
                 </div>
                 <div class="veh-field combo">
-                  <label class="sr-only" for="veh-model">Modell</label>
+                  <label class="sr-only" for="veh-model" id="label-veh-model">Modell</label>
                   <input id="veh-model" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-model" placeholder="Modell wielen oder aginn" disabled />
                   <ul class="combo-list" id="list-model" role="listbox" hidden></ul>
                 </div>
                 <div class="veh-field combo">
-                  <label class="sr-only" for="veh-generation">Baurei</label>
+                  <label class="sr-only" for="veh-generation" id="label-veh-generation">Baurei</label>
                   <input id="veh-generation" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-generation" placeholder="Baurei wielen" disabled />
                   <ul class="combo-list" id="list-generation" role="listbox" hidden></ul>
                 </div>
                 <div class="veh-field combo">
-                  <label class="sr-only" for="veh-year">Baujoer</label>
+                  <label class="sr-only" for="veh-year" id="label-veh-year">Baujoer</label>
                   <input id="veh-year" class="combo-input" type="text" inputmode="numeric" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-year" placeholder="Baujoer wielen" disabled />
                   <ul class="combo-list" id="list-year" role="listbox" hidden></ul>
                 </div>
                 <div class="veh-field combo">
-                  <label class="sr-only" for="veh-engine">Motoriséierung</label>
+                  <label class="sr-only" for="veh-engine" id="label-veh-engine">Motoriséierung</label>
                   <input id="veh-engine" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-engine" placeholder="Motoriséierung wielen" disabled />
                   <ul class="combo-list" id="list-engine" role="listbox" hidden></ul>
                 </div>
@@ -444,7 +444,7 @@
 
     <script src="script.js?v=18"></script>
     <script src="shop-data.js?v=8"></script>
-    <script src="shop.js?v=32"></script>
+    <script src="shop.js?v=33"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"
