@@ -5,7 +5,8 @@
   "use strict";
 
   var PAYMENT_ENDPOINT = "https://mollie-pay.autoservicebettenduerf.lu";
-  var RENDER_CAP = 48;
+  var PAGE_SIZE = 48;
+  var visibleCount = PAGE_SIZE;
 
   var PRODUCTS = window.SHOP_PRODUCTS || [];
   var BRANDS = window.SHOP_BRANDS || {};
@@ -21,7 +22,24 @@
   var MAKE_IDX = {};
   MAKES.forEach(function (m, i) { MAKE_IDX[m] = i; });
 
-  var state = { mode: "all", q: "", mf: "all", cat: "all", brand: "", model: "", generation: "", year: "", engine: "" };
+  var state = { mode: "all", q: "", mf: "all", cat: "all", brand: "", model: "", generation: "", year: "", engine: "", axle: "all", approval: "all", sort: "name", favoritesOnly: false };
+  var favorites = loadJson("gk_shop_favorites", []);
+  var compareIds = [];
+
+  function loadJson(key, fallback) {
+    try { var value = JSON.parse(localStorage.getItem(key)); return value || fallback; }
+    catch (e) { return fallback; }
+  }
+  function saveJson(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
+  function saveState() {
+    saveJson("gk_shop_state", state);
+    try { sessionStorage.setItem("gk_shop_scroll", String(window.scrollY || 0)); } catch (e) {}
+  }
+  function restoreState() {
+    var saved = loadJson("gk_shop_state", null);
+    if (!saved) return;
+    Object.keys(state).forEach(function (key) { if (Object.prototype.hasOwnProperty.call(saved, key)) state[key] = saved[key]; });
+  }
   var ALL_FITS = [];
   PRODUCTS.forEach(function (p) { p.f.forEach(function (fit) { ALL_FITS.push(fit); }); });
 
@@ -52,6 +70,7 @@
     });
   });
   function bundleVariants(p) {
+    if (mfOf(p) === "DBA") return [p];
     return BUNDLE_GROUPS[bundleGroupKey(p)] || [p];
   }
 
@@ -382,6 +401,14 @@
     info_veh: "{n} potentially compatible products for {v}",
     cats: { all: "All", system: "Exhaust systems", sound: "Sound Controller", tail: "Tail pipes", adapter: "Adapters", disc: "Brake discs", pads: "Brake pads", caliper: "Calipers", bbk: "Big Brake Kits", booster: "Brake booster", park: "Park brake", drum: "Brake drums", shoes: "Brake shoes", other: "Other" } });
 
+  Object.assign(T.lb, { filter_axle:"Achs", filter_axle_all:"All Achsen", filter_approval:"Zoulassung", filter_approval_all:"All Zoulassungen", filter_road:"Stroossenzoulassung", filter_race:"Ouni Stroossenzoulassung", filter_sort:"Sortéieren", sort_name:"Numm A–Z", sort_price_asc:"Präis opsteigend", sort_price_desc:"Präis ofsteigend", filter_reset:"Filter zerécksetzen", favorites:"Merklëscht", load_more:"Méi weisen ({n} nach)", inquiry:"Passform iwwerpréiwe loossen", favorite_add:"Op d’Merklëscht", favorite_remove:"Vun der Merklëscht ewechhuelen", guide_eyebrow:"Orientéierung", guide_title:"Wéi eng Produktlinn passt bei mech?", guide_dba_street:"Fir den Alldag a sportlech Notzung op der Strooss.", guide_dba_race:"Fir héich thermesch Belaaschtung, Trackdays a Motorsport – Zoulassung individuell iwwerpréiwen.", guide_remus:"Vum zougeloossene Stroossesystem bis zur Motorsport-Komponent. D’Kennzeechnung beim Produkt ass entscheedend.", trust_title:"Onsécher bei der Passform?", trust_text:"Mir iwwerpréiwen d’Artikelnummer, d’Gefierdaten an déi néideg Zousatzdeeler perséinlech virun der Bestellung.", trust_cta:"Berodung ufroen" });
+  Object.assign(T.de, { filter_axle:"Achse", filter_axle_all:"Alle Achsen", filter_approval:"Zulassung", filter_approval_all:"Alle Zulassungen", filter_road:"Straßenzulassung", filter_race:"Ohne Straßenzulassung", filter_sort:"Sortierung", sort_name:"Name A–Z", sort_price_asc:"Preis aufsteigend", sort_price_desc:"Preis absteigend", filter_reset:"Filter zurücksetzen", favorites:"Merkliste", load_more:"Mehr anzeigen ({n} weitere)", inquiry:"Passform prüfen lassen", favorite_add:"Auf die Merkliste", favorite_remove:"Von der Merkliste entfernen", compare:"Vergleichen", compare_add:"Zum Vergleich", compare_count:"{n} Produkte ausgewählt", compare_clear:"Leeren", guide_eyebrow:"Orientierung", guide_title:"Welche Produktlinie passt zu mir?", guide_dba_street:"Für Alltag und sportliche Straßennutzung.", guide_dba_race:"Für hohe thermische Belastung, Trackdays und Motorsport – Zulassung individuell prüfen.", guide_remus:"Vom zugelassenen Straßensystem bis zur Motorsport-Komponente. Die Kennzeichnung am Produkt ist entscheidend.", trust_title:"Unsicher bei der Passform?", trust_text:"Wir prüfen Artikelnummer, Fahrzeugdaten und benötigte Zusatzteile vor der Bestellung persönlich.", trust_cta:"Beratung anfragen" });
+  Object.assign(T.fr, { filter_axle:"Essieu", filter_axle_all:"Tous les essieux", filter_approval:"Homologation", filter_approval_all:"Toutes homologations", filter_road:"Homologué route", filter_race:"Sans homologation route", filter_sort:"Tri", sort_name:"Nom A–Z", sort_price_asc:"Prix croissant", sort_price_desc:"Prix décroissant", filter_reset:"Réinitialiser", favorites:"Favoris", load_more:"Afficher plus ({n} restants)", inquiry:"Faire vérifier l’affectation", favorite_add:"Ajouter aux favoris", favorite_remove:"Retirer des favoris", guide_eyebrow:"Orientation", guide_title:"Quelle gamme me convient?", guide_dba_street:"Pour le quotidien et la conduite sportive sur route.", guide_dba_race:"Pour fortes contraintes thermiques, journées circuit et compétition – homologation à vérifier.", guide_remus:"Du système routier homologué à la pièce compétition. Le marquage du produit fait foi.", trust_title:"Un doute sur la compatibilité?", trust_text:"Nous vérifions personnellement la référence, les données du véhicule et les pièces complémentaires nécessaires.", trust_cta:"Demander conseil" });
+  Object.assign(T.en, { filter_axle:"Axle", filter_axle_all:"All axles", filter_approval:"Approval", filter_approval_all:"All approvals", filter_road:"Road approved", filter_race:"No road approval", filter_sort:"Sort", sort_name:"Name A–Z", sort_price_asc:"Price low to high", sort_price_desc:"Price high to low", filter_reset:"Reset filters", favorites:"Favourites", load_more:"Show more ({n} remaining)", inquiry:"Request fitment check", favorite_add:"Add to favourites", favorite_remove:"Remove from favourites", guide_eyebrow:"Guidance", guide_title:"Which product line is right for me?", guide_dba_street:"For everyday and sporty road use.", guide_dba_race:"For high thermal loads, track days and motorsport – check approval individually.", guide_remus:"From road-approved systems to motorsport components. The product marking is decisive.", trust_title:"Unsure about fitment?", trust_text:"We personally verify the part number, vehicle details and required additional parts before ordering.", trust_cta:"Ask for advice" });
+  Object.assign(T.lb, { compare:"Vergläichen", compare_add:"Vergläichen", compare_count:"{n} Produkter ausgewielt", compare_clear:"Eidel maachen" });
+  Object.assign(T.fr, { compare:"Comparer", compare_add:"Comparer", compare_count:"{n} produits sélectionnés", compare_clear:"Vider" });
+  Object.assign(T.en, { compare:"Compare", compare_add:"Compare", compare_count:"{n} products selected", compare_clear:"Clear" });
+
   /* ---------- Helpers ---------- */
   function $(id) { return document.getElementById(id); }
   function setTxt(id, s) { var el = $(id); if (el) el.textContent = s; }
@@ -519,6 +546,12 @@
         ab.textContent = axleLabel(p.ax);
         out.push(ab);
       }
+      var side = /(?:SL|CSL)$/i.test(p.i) ? "left" : /(?:SR|CSR)$/i.test(p.i) ? "right" : "";
+      if (side) {
+        var sb = document.createElement("span"); sb.className="badge badge-side";
+        sb.textContent = side === "left" ? (lang()==="fr"?"Côté gauche":lang()==="en"?"Left side":lang()==="lb"?"Lénks Säit":"Linke Seite") : (lang()==="fr"?"Côté droit":lang()==="en"?"Right side":lang()==="lb"?"Riets Säit":"Rechte Seite");
+        out.push(sb);
+      }
       if (state.mode === "vehicle" && state.brand) {
         var review = document.createElement("span");
         review.className = "badge badge-review";
@@ -541,6 +574,14 @@
   function matches(p) {
     if (state.mf !== "all" && mfOf(p) !== state.mf) return false;
     if (state.cat !== "all" && p.c !== state.cat) return false;
+    if (state.axle !== "all" && p.ax !== state.axle) return false;
+    if (state.approval !== "all") {
+      if (mfOf(p) !== "REMUS") return false;
+      var approval = ecStatus(p).cls;
+      if (state.approval === "road" && approval === "no") return false;
+      if (state.approval === "race" && approval !== "no") return false;
+    }
+    if (state.favoritesOnly && favorites.indexOf(p.i) === -1) return false;
     if (state.mode === "search" && state.q) {
       var terms = norm(state.q).split(" ").filter(Boolean);
       var haystack = searchableText(p);
@@ -579,7 +620,7 @@
       b.addEventListener("click", function () {
         state.mf = o[0];
         if (catsFor(state.mf).indexOf(state.cat) === -1) state.cat = "all";
-        render();
+        visibleCount = PAGE_SIZE; saveState(); render();
       });
       wrap.appendChild(b);
     });
@@ -594,7 +635,7 @@
       b.type = "button";
       b.className = "cat-chip" + (state.cat === c ? " active" : "");
       b.textContent = t.cats[c] || c;
-      b.addEventListener("click", function () { state.cat = c; render(); });
+      b.addEventListener("click", function () { state.cat = c; visibleCount = PAGE_SIZE; saveState(); render(); });
       wrap.appendChild(b);
     });
   }
@@ -602,7 +643,8 @@
   /* ---------- Katalog rendern ---------- */
   function sortList(list) {
     return list.slice().sort(function (a, b) {
-      if (a.s !== b.s) return b.s - a.s;     // op Lager fir d'éischt
+      if (state.sort === "price-asc" && a.p !== b.p) return (a.p || Infinity) - (b.p || Infinity);
+      if (state.sort === "price-desc" && a.p !== b.p) return (b.p || -1) - (a.p || -1);
       return a.n < b.n ? -1 : a.n > b.n ? 1 : 0;
     });
   }
@@ -612,7 +654,7 @@
     renderChips();
     var list = sortList(PRODUCTS.filter(matches));
     var n = list.length;
-    var shown = list.slice(0, RENDER_CAP);
+    var shown = list.slice(0, visibleCount);
     grid.innerHTML = "";
     shown.forEach(function (p, index) {
       grid.appendChild(card(p, t, index));
@@ -621,11 +663,16 @@
     if (state.mode === "search" && state.q) txt = t.info_search.replace("{n}", n).replace("{q}", state.q);
     else if (state.mode === "vehicle" && state.brand)
       txt = t.info_veh.replace("{n}", n).replace("{v}", selectedVehicleLabel());
-    else if (n > RENDER_CAP) txt = t.info_more.replace("{n}", n).replace("{c}", RENDER_CAP);
+    else if (n > visibleCount) txt = t.info_more.replace("{n}", n).replace("{c}", visibleCount);
     else txt = t.info_all.replace("{n}", n);
     if (state.cat !== "all") txt = t.info_cat.replace("{n}", txt).replace("{c}", t.cats[state.cat]);
     if (info) info.textContent = txt;
     if (empty) empty.hidden = n > 0;
+    var more = $("shop-load-more");
+    if (more) { more.hidden = visibleCount >= n; more.textContent = t.load_more.replace("{n}", Math.max(0, n - visibleCount)); }
+    var favToggle = $("favorites-toggle");
+    if (favToggle) { favToggle.classList.toggle("active", state.favoritesOnly); favToggle.setAttribute("aria-pressed", state.favoritesOnly ? "true" : "false"); }
+    saveState();
   }
 
   function card(p, t, index) {
@@ -679,6 +726,20 @@
     h.textContent = p.n;
     body.appendChild(h);
 
+    var fav = document.createElement("button");
+    fav.type = "button"; fav.className = "shop-favorite";
+    var isFav = favorites.indexOf(p.i) !== -1;
+    fav.textContent = isFav ? "♥" : "♡";
+    fav.setAttribute("aria-label", isFav ? t.favorite_remove : t.favorite_add);
+    fav.setAttribute("aria-pressed", isFav ? "true" : "false");
+    fav.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var pos = favorites.indexOf(p.i);
+      if (pos === -1) favorites.push(p.i); else favorites.splice(pos, 1);
+      saveJson("gk_shop_favorites", favorites); render();
+    });
+    body.appendChild(fav);
+
     var fit = document.createElement("p");
     fit.className = "shop-fit";
     if (state.mode === "vehicle" && state.brand) {
@@ -722,11 +783,40 @@
       else addToCart(p, btn);
     });
     body.appendChild(btn);
+    var compare = document.createElement("button");
+    compare.type="button"; compare.className="shop-compare-add";
+    compare.textContent = (compareIds.indexOf(p.i) !== -1 ? "✓ " : "+ ") + t.compare_add;
+    compare.addEventListener("click", function (e) {
+      e.stopPropagation(); var at=compareIds.indexOf(p.i);
+      if (at !== -1) compareIds.splice(at,1); else if (compareIds.length < 3) compareIds.push(p.i);
+      updateCompareBar(); render();
+    });
+    body.appendChild(compare);
 
     c.appendChild(body);
     c.classList.add("is-clickable");
     c.addEventListener("click", function () { openProduct(p); });
     return c;
+  }
+
+  function updateCompareBar() {
+    var t=tr(), bar=$("shop-compare-bar"); if (!bar) return;
+    bar.hidden=compareIds.length===0;
+    setTxt("shop-compare-count", t.compare_count.replace("{n}", compareIds.length));
+    setTxt("shop-compare-open", t.compare); setTxt("shop-compare-clear", t.compare_clear);
+  }
+  function openCompare() {
+    if (compareIds.length < 2) return;
+    var t=tr(), selected=compareIds.map(function(id){ return PRODUCTS.filter(function(p){return p.i===id;})[0]; }).filter(Boolean);
+    var back=document.createElement("div"); back.className="compare-dialog-back";
+    var dialog=document.createElement("div"); dialog.className="compare-dialog"; dialog.setAttribute("role","dialog"); dialog.setAttribute("aria-modal","true");
+    var close=document.createElement("button"); close.className="pd-close"; close.type="button"; close.textContent="✕";
+    function shut(){ back.remove(); dialog.remove(); }
+    close.addEventListener("click",shut); back.addEventListener("click",shut); dialog.appendChild(close);
+    var h=document.createElement("h2"); h.textContent=t.compare; dialog.appendChild(h);
+    var table=document.createElement("div"); table.className="compare-grid";
+    selected.forEach(function(p){ var a=document.createElement("article"); var n=document.createElement("h3"); n.textContent=p.n; var meta=document.createElement("p"); meta.textContent=mfOf(p)+" · "+(t.cats[p.c]||p.c); var price=document.createElement("strong"); price.textContent=p.p?priceStr(p.p):"—"; var ref=document.createElement("p"); ref.textContent=t.artnr+" "+displayRef(p); var fit=document.createElement("p"); fit.textContent=t.fits+" "+modelsOf(p).slice(0,4).join(", "); a.appendChild(n);a.appendChild(meta);a.appendChild(price);a.appendChild(ref);a.appendChild(fit);table.appendChild(a); });
+    dialog.appendChild(table); document.body.appendChild(back); document.body.appendChild(dialog);
   }
 
   /* ---------- Produkt-Detail (Modal) + "Dobaibestellen" ---------- */
@@ -851,6 +941,7 @@
       '<ul class="pd-fits" id="pd-fits"></ul>' +
       '<div class="pd-foot"><span class="pd-ref" id="pd-ref"></span><span class="pd-price" id="pd-price"></span></div>' +
       '<button type="button" class="btn btn-primary pd-add" id="pd-add"></button>' +
+      '<a class="btn btn-outline pd-inquiry" id="pd-inquiry"></a>' +
       '<div class="pd-related" id="pd-related"></div>' +
       '</div>';
     document.body.appendChild(back);
@@ -982,6 +1073,14 @@
     var addBtn = $("pd-add");
     addBtn.textContent = t.add; addBtn.disabled = !p.p;
     addBtn.onclick = function () { addToCart(p, addBtn); };
+    var inquiry = $("pd-inquiry");
+    if (inquiry) {
+      var vehicle = state.brand ? selectedVehicleLabel() : "";
+      var subject = t.inquiry + " – " + displayRef(p);
+      var body = p.n + "\n" + t.artnr + " " + displayRef(p) + (vehicle ? "\n" + vehicle : "") + "\n\n" + t.inquiry;
+      inquiry.textContent = t.inquiry;
+      inquiry.href = "mailto:Autoservicebettenduerf@outlook.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    }
     /* Dobaibestellen – nëmme weisen wann et wierklech komplementär Deeler gëtt */
     var relWrap = $("pd-related"); relWrap.innerHTML = "";
     var rel = relatedOf(p);
@@ -1417,6 +1516,24 @@
     setTxt("shop-legal-rights-title", t.legal_rights_title);
     setTxt("shop-legal-rights-text", t.legal_rights_text);
     setTxt("shop-legal-more", t.legal_more);
+    setTxt("filter-axle-label", t.filter_axle);
+    setTxt("filter-approval-label", t.filter_approval);
+    setTxt("filter-sort-label", t.filter_sort);
+    setTxt("filter-reset", t.filter_reset);
+    setTxt("favorites-toggle", "♡ " + t.favorites);
+    setTxt("shop-guide-eyebrow", t.guide_eyebrow);
+    setTxt("shop-guide-title", t.guide_title);
+    setTxt("guide-dba-street", t.guide_dba_street);
+    setTxt("guide-dba-race", t.guide_dba_race);
+    setTxt("guide-remus", t.guide_remus);
+    setTxt("shop-trust-title", t.trust_title);
+    setTxt("shop-trust-text", t.trust_text);
+    setTxt("shop-trust-cta", t.trust_cta);
+    updateCompareBar();
+    var axle = $("filter-axle"), approval = $("filter-approval"), sort = $("filter-sort");
+    if (axle) { axle.options[0].textContent=t.filter_axle_all; axle.options[1].textContent=t.axle_f; axle.options[2].textContent=t.axle_r; axle.value=state.axle; }
+    if (approval) { approval.options[0].textContent=t.filter_approval_all; approval.options[1].textContent=t.filter_road; approval.options[2].textContent=t.filter_race; approval.value=state.approval; }
+    if (sort) { sort.options[0].textContent=t.sort_name; sort.options[1].textContent=t.sort_price_asc; sort.options[2].textContent=t.sort_price_desc; sort.value=state.sort; }
     var status = $("cart-status"); if (status) { status.textContent = ""; status.className = "form-status"; }
     var toast = $("cart-toast"); if (toast) { toast.hidden = true; toast.classList.remove("show"); }
     renderCart();
@@ -1450,6 +1567,20 @@
     $("q-text").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); doTextSearch(); } });
     $("q-text").addEventListener("input", function () { if (!this.value) { state.mode = "all"; state.q = ""; render(); } });
     $("btn-veh-search").addEventListener("click", doVehSearch);
+    ["filter-axle", "filter-approval", "filter-sort"].forEach(function (id) {
+      var el = $(id); if (!el) return;
+      el.addEventListener("change", function () {
+        if (id === "filter-axle") state.axle = el.value;
+        if (id === "filter-approval") state.approval = el.value;
+        if (id === "filter-sort") state.sort = el.value;
+        visibleCount = PAGE_SIZE; saveState(); render();
+      });
+    });
+    var reset = $("filter-reset"); if (reset) reset.addEventListener("click", function () { state.axle="all"; state.approval="all"; state.sort="name"; state.favoritesOnly=false; visibleCount=PAGE_SIZE; applyStatics(); render(); });
+    var favs = $("favorites-toggle"); if (favs) favs.addEventListener("click", function () { state.favoritesOnly=!state.favoritesOnly; visibleCount=PAGE_SIZE; render(); });
+    var more = $("shop-load-more"); if (more) more.addEventListener("click", function () { visibleCount += PAGE_SIZE; render(); });
+    var compareOpen=$("shop-compare-open"); if(compareOpen) compareOpen.addEventListener("click",openCompare);
+    var compareClear=$("shop-compare-clear"); if(compareClear) compareClear.addEventListener("click",function(){compareIds=[];updateCompareBar();render();});
     var ct = $("cart-toggle"); if (ct) ct.addEventListener("click", openCart);
     var cc = $("cart-close"); if (cc) cc.addEventListener("click", closeCart);
     var cb = $("cart-backdrop"); if (cb) cb.addEventListener("click", closeCart);
@@ -1468,11 +1599,17 @@
 
   function init() {
     cart = loadCart();
+    restoreState();
     applyStatics();
     initCombos();
+    ["brand","model","generation","year","engine"].forEach(function (key) { var el=$("veh-"+key); if (el) el.value=state[key] || ""; });
+    updateVehicleButton();
     bind();
     render();
     renderCart();
+    window.addEventListener("pagehide", saveState);
+    var savedScroll = 0; try { savedScroll = parseInt(sessionStorage.getItem("gk_shop_scroll") || "0", 10); } catch (e) {}
+    if (savedScroll) requestAnimationFrame(function () { window.scrollTo(0, savedScroll); });
   }
   if (document.readyState !== "loading") init();
   else document.addEventListener("DOMContentLoaded", init);

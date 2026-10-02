@@ -34,7 +34,7 @@
     <link rel="dns-prefetch" href="//cdn.sanity.io" />
     <link rel="preconnect" href="https://3cerp.eu" crossorigin />
     <link rel="dns-prefetch" href="//3cerp.eu" />
-    <link rel="stylesheet" href="styles.css?v=52" />
+    <link rel="stylesheet" href="styles.css?v=53" />
     <script src="shop-gate.js?v=1"></script>
   </head>
   <body class="shop-page">
@@ -260,12 +260,36 @@
             role="group"
             aria-label="Kategorien"
           ></div>
+          <div class="shop-filterbar" id="shop-filterbar" aria-label="Produktfilter">
+            <label><span id="filter-axle-label">Achse</span><select id="filter-axle"><option value="all">Alle Achsen</option><option value="F">Vorderachse</option><option value="R">Hinterachse</option></select></label>
+            <label><span id="filter-approval-label">Zulassung</span><select id="filter-approval"><option value="all">Alle Zulassungen</option><option value="road">Straßenzulassung</option><option value="race">Ohne Straßenzulassung</option></select></label>
+            <label><span id="filter-sort-label">Sortierung</span><select id="filter-sort"><option value="name">Name A–Z</option><option value="price-asc">Preis aufsteigend</option><option value="price-desc">Preis absteigend</option></select></label>
+            <button class="shop-filter-reset" id="filter-reset" type="button">Filter zurücksetzen</button>
+            <button class="shop-favorites-toggle" id="favorites-toggle" type="button" aria-pressed="false">♡ Merkliste</button>
+          </div>
           <p class="shop-result-info" id="shop-result-info"></p>
           <p class="shop-vat-note" id="shop-vat-note"></p>
           <div class="shop-grid" id="shop-grid"></div>
           <p class="shop-empty" id="shop-empty" hidden>Keng Artikelen fonnt.</p>
+          <div class="shop-load-wrap"><button class="btn btn-outline" id="shop-load-more" type="button" hidden>Mehr anzeigen</button></div>
         </div>
       </section>
+
+      <section class="section shop-guide" id="shop-guide" aria-labelledby="shop-guide-title">
+        <div class="container">
+          <div class="section-head"><p class="eyebrow" id="shop-guide-eyebrow">Orientierung</p><h2 id="shop-guide-title">Welche Produktlinie passt zu mir?</h2></div>
+          <div class="shop-guide-grid">
+            <article><strong>DBA Street Series</strong><p id="guide-dba-street">Für Alltag und sportliche Straßennutzung.</p></article>
+            <article><strong>DBA 4000 / 5000 Series</strong><p id="guide-dba-race">Für hohe thermische Belastung, Trackdays und Motorsport – Zulassung individuell prüfen.</p></article>
+            <article><strong>REMUS Sportauspuff</strong><p id="guide-remus">Vom zugelassenen Straßensystem bis zur Motorsport-Komponente. Die Kennzeichnung am Produkt ist entscheidend.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section shop-trust" aria-label="Beratung und Passformprüfung">
+        <div class="container shop-trust-inner"><div><strong id="shop-trust-title">Unsicher bei der Passform?</strong><p id="shop-trust-text">Wir prüfen Artikelnummer, Fahrzeugdaten und benötigte Zusatzteile vor der Bestellung persönlich.</p></div><a class="btn btn-primary" href="index.html#kontakt" id="shop-trust-cta">Beratung anfragen</a></div>
+      </section>
+      <div class="shop-compare-bar" id="shop-compare-bar" hidden><span id="shop-compare-count"></span><button class="btn btn-primary" id="shop-compare-open" type="button">Vergleichen</button><button class="shop-compare-clear" id="shop-compare-clear" type="button">Leeren</button></div>
 
       <section class="section shop-legal-summary" id="shop-legal-summary" aria-labelledby="shop-legal-title">
         <div class="container">
@@ -448,7 +472,7 @@
 
     <script src="script.js?v=18"></script>
     <script src="shop-data.js?v=8"></script>
-    <script src="shop.js?v=36"></script>
+    <script src="shop.js?v=37"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"
