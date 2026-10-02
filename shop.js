@@ -1071,7 +1071,7 @@
   }
   function initCombos() {
     makeCombo("veh-brand", "list-brand",
-      function () { return Object.keys(BRANDS); },
+      function () { return Object.keys(BRANDS).sort(function (a, b) { return a.localeCompare(b); }); },
       function (val) {
         state.brand = BRANDS[val] ? val : "";
         resetVehicleAfter(0);
