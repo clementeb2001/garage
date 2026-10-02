@@ -966,7 +966,7 @@
       '<ul class="pd-fits" id="pd-fits"></ul>' +
       '<div class="pd-foot"><span class="pd-ref" id="pd-ref"></span><span class="pd-price" id="pd-price"></span></div>' +
       '<button type="button" class="btn btn-primary pd-add" id="pd-add"></button>' +
-      '<a class="btn btn-outline pd-inquiry" id="pd-inquiry"></a>' +
+      '<button type="button" class="btn btn-outline pd-inquiry" id="pd-inquiry"></button>' +
       '<div class="pd-related" id="pd-related"></div>' +
       '</div>';
     document.body.appendChild(back);
@@ -984,6 +984,44 @@
     setTimeout(function () {
       if (pdEls && !pdEls.modal.classList.contains("show")) { pdEls.modal.hidden = true; pdEls.back.hidden = true; }
     }, 250);
+  }
+
+  var inquiryEls = null;
+  function inquiryLabels() {
+    var l = lang();
+    if (l === "fr") return { title:"Vérification de compatibilité", intro:"L’article est déjà renseigné. Indiquez uniquement vos coordonnées et les données du véhicule.", article:"Article", name:"Nom et prénom", email:"E-mail", phone:"Téléphone", make:"Marque", model:"Modèle", year:"Année", engine:"Motorisation", vin:"Numéro de châssis (VIN)", note:"Informations complémentaires", privacy:"J’ai lu la déclaration de confidentialité et j’accepte la transmission via FormSubmit.", send:"Envoyer la demande", close:"Fermer" };
+    if (l === "en") return { title:"Fitment check", intro:"The product is already filled in. Please add only your contact and vehicle details.", article:"Product", name:"Full name", email:"Email", phone:"Phone", make:"Make", model:"Model", year:"Year", engine:"Engine", vin:"Vehicle identification number (VIN)", note:"Additional information", privacy:"I have read the privacy policy and agree to transmission via FormSubmit.", send:"Send request", close:"Close" };
+    if (l === "lb") return { title:"Passform iwwerpréiwen", intro:"Den Artikel ass schonn agedroen. Fëllt just Är perséinlech Donnéeën an d’Gefierdaten aus.", article:"Artikel", name:"Numm a Virnumm", email:"E-Mail", phone:"Telefon", make:"Mark", model:"Modell", year:"Baujoer", engine:"Motoriséierung", vin:"Chassisnummer (VIN)", note:"Zousätzlech Informatiounen", privacy:"Ech hunn d’Dateschutzerklärung gelies a si mat der Iwwermëttlung iwwer FormSubmit averstanen.", send:"Ufro schécken", close:"Zoumaachen" };
+    return { title:"Passform überprüfen", intro:"Der Artikel ist bereits eingetragen. Ergänzen Sie nur noch Ihre persönlichen Daten und Fahrzeugdaten.", article:"Artikel", name:"Vor- und Nachname", email:"E-Mail", phone:"Telefon", make:"Marke", model:"Modell", year:"Baujahr", engine:"Motorisierung", vin:"Fahrgestellnummer (VIN)", note:"Zusätzliche Informationen", privacy:"Ich habe die Datenschutzerklärung gelesen und stimme der Übermittlung über FormSubmit zu.", send:"Anfrage senden", close:"Schließen" };
+  }
+  function ensureInquiryModal() {
+    if (inquiryEls) return inquiryEls;
+    var back=document.createElement("div"); back.className="fit-inquiry-back"; back.hidden=true;
+    var modal=document.createElement("div"); modal.className="fit-inquiry-modal"; modal.hidden=true; modal.setAttribute("role","dialog"); modal.setAttribute("aria-modal","true"); modal.setAttribute("aria-labelledby","fit-inquiry-title");
+    modal.innerHTML='<button type="button" class="pd-close fit-inquiry-close">✕</button><div class="fit-inquiry-head"><h2 id="fit-inquiry-title"></h2><p id="fit-inquiry-intro"></p></div><form id="fit-inquiry-form" action="https://formsubmit.co/Autoservicebettenduerf@outlook.com" method="POST"><input type="hidden" name="_subject" id="fit-subject"><input type="hidden" name="Artikel" id="fit-article-value"><input type="hidden" name="_template" value="table"><input type="hidden" name="_captcha" value="false"><input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" class="form-honey"><div class="fit-product-summary"><strong id="fit-article-label"></strong><span id="fit-product-name"></span><small id="fit-product-ref"></small></div><div class="field-row"><div class="field"><label for="fit-name" id="fit-name-label"></label><input id="fit-name" name="Name" autocomplete="name" required></div><div class="field"><label for="fit-email" id="fit-email-label"></label><input id="fit-email" name="E-Mail" type="email" autocomplete="email" required></div></div><div class="field"><label for="fit-phone" id="fit-phone-label"></label><input id="fit-phone" name="Telefon" type="tel" autocomplete="tel" required></div><fieldset><legend id="fit-vehicle-title"></legend><div class="field-row"><div class="field"><label for="fit-make" id="fit-make-label"></label><input id="fit-make" name="Fahrzeugmarke" required></div><div class="field"><label for="fit-model" id="fit-model-label"></label><input id="fit-model" name="Fahrzeugmodell" required></div></div><div class="field-row"><div class="field"><label for="fit-year" id="fit-year-label"></label><input id="fit-year" name="Baujahr" inputmode="numeric" required></div><div class="field"><label for="fit-engine" id="fit-engine-label"></label><input id="fit-engine" name="Motorisierung" required></div></div><div class="field"><label for="fit-vin" id="fit-vin-label"></label><input id="fit-vin" name="Fahrgestellnummer (VIN)" maxlength="17" autocomplete="off" spellcheck="false"></div></fieldset><div class="field"><label for="fit-note" id="fit-note-label"></label><textarea id="fit-note" name="Zusätzliche Informationen" rows="3"></textarea></div><label class="privacy-confirm"><input type="checkbox" name="Datenschutz bestätigt" required><span id="fit-privacy-text"></span></label><button class="btn btn-primary btn-block" type="submit" id="fit-submit"></button><p class="form-note"><a href="datenschutz.html">Datenschutz</a></p></form>';
+    document.body.appendChild(back); document.body.appendChild(modal);
+    function close(){ modal.hidden=true; back.hidden=true; document.body.classList.remove("dialog-open"); }
+    back.addEventListener("click",close); modal.querySelector(".fit-inquiry-close").addEventListener("click",close);
+    inquiryEls={back:back,modal:modal,close:close}; return inquiryEls;
+  }
+  function openInquiry(p) {
+    var l=inquiryLabels(), els=ensureInquiryModal();
+    setTxt("fit-inquiry-title",l.title); setTxt("fit-inquiry-intro",l.intro); setTxt("fit-article-label",l.article); setTxt("fit-name-label",l.name); setTxt("fit-email-label",l.email); setTxt("fit-phone-label",l.phone); setTxt("fit-make-label",l.make); setTxt("fit-model-label",l.model); setTxt("fit-year-label",l.year); setTxt("fit-engine-label",l.engine); setTxt("fit-vin-label",l.vin); setTxt("fit-note-label",l.note); setTxt("fit-privacy-text",l.privacy); setTxt("fit-submit",l.send); setTxt("fit-vehicle-title",lang()==="fr"?"Données du véhicule":lang()==="en"?"Vehicle details":lang()==="lb"?"Gefierdaten":"Fahrzeugdaten");
+    els.modal.querySelector(".fit-inquiry-close").setAttribute("aria-label",l.close);
+    setTxt("fit-product-name",productName(p)); setTxt("fit-product-ref",tr().artnr+" "+displayRef(p));
+    var subject=l.title+" – "+displayRef(p)+" – "+productName(p);
+    var articleValue=productName(p)+" | "+displayRef(p);
+    $("fit-inquiry-form").onsubmit=function(){
+      $("fit-subject").value=subject;
+      $("fit-article-value").value=articleValue;
+    };
+    els.back.hidden=false; els.modal.hidden=false; document.body.classList.add("dialog-open");
+    setTimeout(function(){
+      $("fit-subject").value=subject; $("fit-subject").setAttribute("value",subject);
+      $("fit-article-value").value=articleValue; $("fit-article-value").setAttribute("value",articleValue);
+      $("fit-make").value=state.brand||""; $("fit-model").value=state.model||""; $("fit-year").value=state.year||""; $("fit-engine").value=state.engine||"";
+      $("fit-name").focus();
+    },0);
   }
   function renderProductConfig(p, t) {
     var wrap = $("pd-config");
@@ -1109,11 +1147,8 @@
     addBtn.onclick = function () { addToCart(p, addBtn); };
     var inquiry = $("pd-inquiry");
     if (inquiry) {
-      var vehicle = state.brand ? selectedVehicleLabel() : "";
-      var subject = t.inquiry + " – " + displayRef(p);
-      var body = p.n + "\n" + t.artnr + " " + displayRef(p) + (vehicle ? "\n" + vehicle : "") + "\n\n" + t.inquiry;
       inquiry.textContent = t.inquiry;
-      inquiry.href = "index.html?shopProduct=" + encodeURIComponent(displayRef(p)) + "&shopName=" + encodeURIComponent(productName(p)) + "&shopVehicle=" + encodeURIComponent(vehicle) + "#kontakt";
+      inquiry.onclick = function () { openInquiry(p); };
     }
     /* Dobaibestellen – nëmme weisen wann et wierklech komplementär Deeler gëtt */
     var relWrap = $("pd-related"); relWrap.innerHTML = "";
@@ -1629,7 +1664,7 @@
       var id = b.getAttribute("data-id"), act = b.getAttribute("data-act");
       if (act === "inc") setQty(id, 1); else if (act === "dec") setQty(id, -1); else if (act === "rm") removeLine(id);
     });
-    document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if(activeCompareDialog)activeCompareDialog.close(); closeCart(); closeProduct(); } if(e.key==="Tab"&&activeCompareDialog){var fs=activeCompareDialog.dialog.querySelectorAll('button,a,[tabindex]:not([tabindex="-1"])');if(!fs.length)return;var first=fs[0],last=fs[fs.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}} });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") { if(inquiryEls&&!inquiryEls.modal.hidden)inquiryEls.close(); else { if(activeCompareDialog)activeCompareDialog.close(); closeCart(); closeProduct(); } } if(e.key==="Tab"&&activeCompareDialog){var fs=activeCompareDialog.dialog.querySelectorAll('button,a,[tabindex]:not([tabindex="-1"])');if(!fs.length)return;var first=fs[0],last=fs[fs.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}} });
     document.querySelectorAll(".lang-select").forEach(function (sel) {
       sel.addEventListener("change", function () { setTimeout(function () { applyStatics(); render(); }, 0); });
     });
