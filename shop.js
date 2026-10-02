@@ -73,7 +73,7 @@
       added: "„{n}“ an de Kuerf geluecht", vat: "All Präisser inkl. 17% TVA.",
       stock_in: "Op Lager", stock_order: "Op Ufro",
       ec_ok: "EC-Zoulassung", ec_some: "EC je no Gefier", ec_no: "Rennsport · ouni EC",
-      kw: "kW", from: "zanter", mf_all: "All Marquen", axle_f: "Virdakse", axle_r: "Hannerakse",
+      kw: "kW", from: "zanter", mf_all: "All Marquen", axle_f: "Viischt Achs", axle_r: "Hënnescht Achs",
       note_title: "Deel net fonnt?",
       note_text: "Mir fannen Iech déi richteg REMUS-Anlag fir Äre Won – rufft un oder schéckt eng Ufro.",
       note_cta: "Deel ufroen",
@@ -349,7 +349,7 @@
 
   /* Multi-Marque (REMUS + DBA): komplett Kategorien + Marque-/Axe-Labelen.
      Hei LESCHT gesat, soudatt d'DBA-Kategorien net vun uewe verluer ginn. */
-  Object.assign(T.lb, { mf_all: "All Marquen", axle_f: "Virdakse", axle_r: "Hannerakse",
+  Object.assign(T.lb, { mf_all: "All Marquen", axle_f: "Viischt Achs", axle_r: "Hënnescht Achs",
     sub: "REMUS-Sportauspuffanlagen an DBA-Bremsen – mat Bild a Präis. Wielt d’Marque oder Äert Gefier, oder sicht no engem Artikel.",
     cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endréier", adapter: "Adapter", disc: "Bremsscheiwen", pads: "Bremsbelee", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraaftverstärker", park: "Handbrems", drum: "Bremstrommel", shoes: "Bremsschong", other: "Anerer" } });
   Object.assign(T.de, { mf_all: "Alle Marken", axle_f: "Vorderachse", axle_r: "Hinterachse",
@@ -437,9 +437,12 @@
   function fitMatchesVehicle(x) {
     if (!state.brand || x[0] !== MAKE_IDX[state.brand]) return false;
     if (state.model && !modelMatch(x[1], state.model)) return false;
-    if (state.generation && generationLabel(x) !== state.generation) return false;
+    // Baurei/Motor filteren nëmmen, wann d'Deel dës Donnéeën huet (REMUS).
+    // DBA-Bremsen hu keng Baurei/Motor -> net erausfilteren, soss falen se bei
+    // der spezifescher Sich eraus, obwuel se op d'Gefier passen.
+    if (state.generation && x[2] > -1 && generationLabel(x) !== state.generation) return false;
     if (state.year && !yearFits(x, state.year)) return false;
-    if (state.engine && engineLabel(x) !== state.engine) return false;
+    if (state.engine && x[8] > -1 && engineLabel(x) !== state.engine) return false;
     return true;
   }
   function selectedVehicleLabel() {
