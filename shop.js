@@ -352,7 +352,7 @@
   Object.assign(T.lb, { mf_all: "All Marquen", axle_f: "Viischt Achs", axle_r: "Hënnescht Achs",
     sub: "REMUS-Sportauspuffanlagen an DBA-Bremsen – mat Bild a Präis. Wielt d’Marque oder Äert Gefier, oder sicht no engem Artikel.",
     preview_title: "Intern Virschau", preview_text: "Dëse Beräich ass nëmme mam Virschau-Link sichtbar.",
-    label_brand: "Mark", label_model: "Modell", label_generation: "Baurei", label_year: "Baujoer", label_engine: "Motoriséierung",
+    label_brand: "Mark", label_model: "Modell", label_generation: "Baurei", label_year: "Baujoer", label_engine: "Motoriséierung", search_label: "Artikel sichen", mf_label: "Marque", cat_label: "Kategorien", close_label: "Zoumaachen",
     compat_review: "Passform iwwerpréiwen", compat_review_title: "D’DBA-Zouuerdnung baséiert deelweis nëmmen op Modell a Baujoer. Mir kontrolléieren d’Passform virum Versand mat de komplette Gefierdaten.",
     no_road_title: "Net fir den ëffentleche Stroosseverkéier zougelooss. Nëmme fir Motorsport oder zougeloossen Asaz benotzen.",
     info_veh: "{n} méiglecherweis passend Produkter fir {v}",
@@ -360,7 +360,7 @@
   Object.assign(T.de, { mf_all: "Alle Marken", axle_f: "Vorderachse", axle_r: "Hinterachse",
     sub: "REMUS-Sportauspuffanlagen und DBA-Bremsen – mit Bild und Preis. Marke oder Fahrzeug wählen oder Artikel suchen.",
     preview_title: "Interne Vorschau", preview_text: "Dieser Bereich ist nur über den Vorschau-Link sichtbar.",
-    label_brand: "Marke", label_model: "Modell", label_generation: "Baureihe", label_year: "Baujahr", label_engine: "Motorisierung",
+    label_brand: "Marke", label_model: "Modell", label_generation: "Baureihe", label_year: "Baujahr", label_engine: "Motorisierung", search_label: "Artikel suchen", mf_label: "Hersteller", cat_label: "Kategorien", close_label: "Schließen",
     compat_review: "Passform prüfen", compat_review_title: "Die DBA-Zuordnung basiert teilweise nur auf Modell und Baujahr. Wir prüfen die Passform vor dem Versand anhand der vollständigen Fahrzeugdaten.",
     no_road_title: "Nicht für den öffentlichen Straßenverkehr zugelassen. Nur im Motorsport oder in einem zulässigen Einsatzbereich verwenden.",
     info_veh: "{n} möglicherweise passende Produkte für {v}",
@@ -368,7 +368,7 @@
   Object.assign(T.fr, { mf_all: "Toutes marques", axle_f: "Essieu avant", axle_r: "Essieu arrière",
     sub: "Échappements sport REMUS et freins DBA – avec photo et prix. Choisissez la marque ou votre véhicule, ou cherchez un article.",
     preview_title: "Aperçu interne", preview_text: "Cette zone est uniquement visible via le lien d’aperçu.",
-    label_brand: "Marque", label_model: "Modèle", label_generation: "Génération", label_year: "Année", label_engine: "Motorisation",
+    label_brand: "Marque", label_model: "Modèle", label_generation: "Génération", label_year: "Année", label_engine: "Motorisation", search_label: "Rechercher un article", mf_label: "Fabricants", cat_label: "Catégories", close_label: "Fermer",
     compat_review: "Vérifier l’affectation", compat_review_title: "L’affectation DBA repose parfois uniquement sur le modèle et l’année. Nous vérifions la compatibilité avant l’expédition avec les données complètes du véhicule.",
     no_road_title: "Non homologué pour la voie publique. À utiliser uniquement en compétition ou dans un cadre autorisé.",
     info_veh: "{n} produits potentiellement compatibles pour {v}",
@@ -376,7 +376,7 @@
   Object.assign(T.en, { mf_all: "All brands", axle_f: "Front axle", axle_r: "Rear axle",
     sub: "REMUS sport exhausts and DBA brakes – with photo and price. Pick the brand or your vehicle, or search an article.",
     preview_title: "Internal preview", preview_text: "This area is only visible through the preview link.",
-    label_brand: "Make", label_model: "Model", label_generation: "Generation", label_year: "Model year", label_engine: "Engine",
+    label_brand: "Make", label_model: "Model", label_generation: "Generation", label_year: "Model year", label_engine: "Engine", search_label: "Search products", mf_label: "Manufacturers", cat_label: "Categories", close_label: "Close",
     compat_review: "Verify fitment", compat_review_title: "Some DBA fitments are based only on model and year. We verify compatibility against the complete vehicle data before dispatch.",
     no_road_title: "Not approved for public-road use. Use only in motorsport or another permitted setting.",
     info_veh: "{n} potentially compatible products for {v}",
@@ -1364,6 +1364,11 @@
     setTxt("label-veh-generation", t.label_generation);
     setTxt("label-veh-year", t.label_year);
     setTxt("label-veh-engine", t.label_engine);
+    var searchInput = $("q-text"); if (searchInput) searchInput.setAttribute("aria-label", t.search_label);
+    var mfGroup = $("mf-chips"); if (mfGroup) mfGroup.setAttribute("aria-label", t.mf_label);
+    var catGroup = $("cat-chips"); if (catGroup) catGroup.setAttribute("aria-label", t.cat_label);
+    var cartClose = $("cart-close"); if (cartClose) cartClose.setAttribute("aria-label", t.close_label);
+    var productClose = $("pd-close"); if (productClose) productClose.setAttribute("aria-label", t.close_label);
     setTxt("shop-note-title", t.note_title);
     setTxt("shop-note-text", t.note_text);
     setTxt("shop-note-cta", t.note_cta);
