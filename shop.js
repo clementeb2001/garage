@@ -536,6 +536,23 @@
   }
   function mfOf(p) { return p.mf || "REMUS"; }
   function displayRef(p) { return (p.i || "").replace(/^DBA-/, ""); }
+  var DBA_GENERIC_PAD_IMAGE = /(?:Street_Series_Pack\.png|dba-street-performance-pads\.jpg|dba-xtreme-performance-pads\.jpg|DBA_RP_box_2\.png|ss-enshield-kit\.webp)$/i;
+  function productImgUrl(p, w, h) {
+    var fallback = imgUrl(p.m, w, h);
+    if (mfOf(p) === "DBA" && p.c === "pads" && DBA_GENERIC_PAD_IMAGE.test(fallback)) {
+      return "https://dba.com.au/wp-content/uploads/dba-uploaded/" + encodeURIComponent(displayRef(p)) + ".jpg";
+    }
+    return fallback;
+  }
+  function useFallbackImage(img, p, w, h, onMissing) {
+    var fallback = imgUrl(p.m, w, h);
+    if (fallback && img.src !== fallback && !img.dataset.fallbackTried) {
+      img.dataset.fallbackTried = "1";
+      img.src = fallback;
+      return;
+    }
+    onMissing();
+  }
   function productName(p) {
     if (mfOf(p) !== "DBA" || p.c !== "bbk" || !/^Brake Kit/i.test(p.n)) return p.n;
     var series = (p.n.match(/(5000 Series[^&(]*|4000 Series[^&(]*|Street Series[^&(]*)/i) || [])[1] || "Performance";
@@ -795,7 +812,7 @@
     /* Media */
     var media = document.createElement("div");
     media.className = "shop-card-media mf-" + mfOf(p) + " is-loading";
-    var url = imgUrl(p.m, 600, 360);
+    var url = productImgUrl(p, 600, 360);
     if (url) {
       var img = document.createElement("img");
       // Déi éischt siichtbar Resultater direkt lueden; de Rescht bleift lazy.
@@ -810,6 +827,10 @@
         img.classList.add("is-loaded");
       });
       img.addEventListener("error", function () {
+        if (!img.dataset.fallbackTried && imgUrl(p.m, 600, 360) !== url) {
+          useFallbackImage(img, p, 600, 360, function () {});
+          return;
+        }
         media.classList.remove("is-loading");
         media.classList.add("no-img");
         img.remove();
@@ -1280,13 +1301,15 @@
     var t = tr();
     ensureModal();
     var media = $("pd-media");
-    var url = imgUrl(p.m, 900, 540);
+    var url = productImgUrl(p, 900, 540);
     media.className = "pd-media mf-" + mfOf(p);
     media.innerHTML = "";
     if (url) {
       var img = document.createElement("img");
       img.loading = "lazy"; img.alt = p.n; img.src = url;
-      img.addEventListener("error", function () { media.classList.add("no-img"); img.remove(); });
+      img.addEventListener("error", function () {
+        useFallbackImage(img, p, 900, 540, function () { media.classList.add("no-img"); img.remove(); });
+      });
       media.appendChild(img);
     } else { media.classList.add("no-img"); }
     media.appendChild(mfBadge(p));
@@ -1354,10 +1377,12 @@
   function relItem(o, t) {
     var li = document.createElement("li"); li.className = "pd-rel-item";
     var thumb = document.createElement("div"); thumb.className = "pd-rel-thumb mf-" + mfOf(o);
-    var url = imgUrl(o.m, 160, 120);
+    var url = productImgUrl(o, 160, 120);
     if (url) {
       var im = document.createElement("img"); im.loading = "lazy"; im.alt = o.n; im.src = url;
-      im.addEventListener("error", function () { thumb.classList.add("no-img"); im.remove(); });
+      im.addEventListener("error", function () {
+        useFallbackImage(im, o, 160, 120, function () { thumb.classList.add("no-img"); im.remove(); });
+      });
       thumb.appendChild(im);
     } else { thumb.classList.add("no-img"); }
     var info = document.createElement("div"); info.className = "pd-rel-info";
