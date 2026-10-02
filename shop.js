@@ -427,9 +427,16 @@
     if (!y) return false;
     return (!x[5] || y >= x[5]) && (!x[6] || y <= x[6]);
   }
+  /* Modell-Vergläich tolerant: REMUS benotzt Basis-Nimm ("A3", "3 Series"),
+     DBA dacks mat Chassis-Code ("A3 8P", "3 Series (E90)"). Een dee mam
+     aneren ufänkt zielt als Match (an allen zwou Richtungen). */
+  function modelMatch(fit, sel) {
+    if (!sel || fit === sel) return true;
+    return fit.indexOf(sel + " ") === 0 || sel.indexOf(fit + " ") === 0;
+  }
   function fitMatchesVehicle(x) {
     if (!state.brand || x[0] !== MAKE_IDX[state.brand]) return false;
-    if (state.model && x[1] !== state.model) return false;
+    if (state.model && !modelMatch(x[1], state.model)) return false;
     if (state.generation && generationLabel(x) !== state.generation) return false;
     if (state.year && !yearFits(x, state.year)) return false;
     if (state.engine && engineLabel(x) !== state.engine) return false;
@@ -1049,7 +1056,8 @@
   }
   function updateVehicleButton() {
     var btn = $("btn-veh-search");
-    if (btn) btn.disabled = !(state.brand && state.model && state.generation && state.year && state.engine);
+    // Mark + Modell duergeet fir ze sichen; Baurei/Baujoer/Motor si fräiwëlleg fir d'verfeinerung
+    if (btn) btn.disabled = !(state.brand && state.model);
   }
   function resetVehicleAfter(step) {
     if (step < 1) { state.model = ""; setVehicleField("veh-model", !!state.brand, true); }
@@ -1359,7 +1367,7 @@
     render(); scrollToCatalog();
   }
   function doVehSearch() {
-    if (!(state.brand && state.model && state.generation && state.year && state.engine)) return;
+    if (!(state.brand && state.model)) return; // Mark + Modell duergeet
     state.mode = "vehicle"; state.cat = "all";
     render(); scrollToCatalog();
   }
