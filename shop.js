@@ -80,6 +80,27 @@
     return BUNDLE_GROUPS[bundleGroupKey(p)] || [p];
   }
 
+  /* All valabel REMUS-Konfiguratioun ass am Export en eegene Bundle. D'Famill
+     virun der leschter Variantennummer verbënnt nëmmen offiziell Kombinatiounen. */
+  function remusFamilyKey(p) { return (p.i || "").replace(/-\d+$/, ""); }
+  function remusConfigVariants(p) {
+    if (mfOf(p) !== "REMUS") return [p];
+    var key = remusFamilyKey(p);
+    return PRODUCTS.filter(function (o) {
+      return mfOf(o) === "REMUS" && remusFamilyKey(o) === key;
+    }).sort(function (a, b) { return a.p - b.p || (a.i < b.i ? -1 : 1); });
+  }
+  function remusPartType(sku) {
+    if (/^STE\b/i.test(sku)) return "sound";
+    if (/^AD/i.test(sku)) return "adapter";
+    var bits = sku.trim().split(/\s+/);
+    if (bits.length > 1 && /[A-Z]/i.test(bits.slice(1).join(""))) return "tail";
+    return "system";
+  }
+  function remusPartsOf(p, type) {
+    return (p.ps || []).filter(function (sku) { return remusPartType(sku) === type; });
+  }
+
   /* ---------- Iwwersetzungen ---------- */
   var T = {
     lb: {
@@ -302,6 +323,12 @@
     config_required: "Pflichtëmfang am komplette REMUS-Bundle abegraff",
     config_parts: "Enthale Pflichtdeeler",
     config_parts_note: "Dës Deeler gehéieren no der REMUS-Stécklëscht zu dëser Konfiguratioun a sinn am Bundle-Präis abegraff.",
+    config_valid: "Gülteg REMUS-Konfiguratioun wielen *",
+    config_main_parts: "Anlag / Verbindungsdeeler",
+    config_tail_parts: "Endréier",
+    config_sound_parts: "Sound Controller",
+    config_adapter_parts: "Adapter",
+    config_without_sound: "ouni Sound Controller",
     config_single: "Dës Variant huet keng weider auswielbar Bundle-Ausféierung.",
     config_component: "Eenzelkomponent: déi néideg Haaptanlag gëtt separat gebraucht.",
     config_check: "Mir kontrolléieren d’Stécklëscht an d’Passform nach eng Kéier mat Äre komplette Gefierdaten virun der Bestellung.",
@@ -318,6 +345,12 @@
     config_required: "Pflichtumfang im vollständigen REMUS-Bundle enthalten",
     config_parts: "Enthaltene Pflichtteile",
     config_parts_note: "Diese Teile gehören laut REMUS-Stückliste zu dieser Konfiguration und sind im Bundle-Preis enthalten.",
+    config_valid: "Gültige REMUS-Konfiguration wählen *",
+    config_main_parts: "Anlage / Verbindungsrohre",
+    config_tail_parts: "Endrohre",
+    config_sound_parts: "Sound Controller",
+    config_adapter_parts: "Adapter",
+    config_without_sound: "ohne Sound Controller",
     config_single: "Für diese Variante ist keine weitere Bundle-Ausführung hinterlegt.",
     config_component: "Einzelkomponente: Die erforderliche Hauptanlage wird separat benötigt.",
     config_check: "Wir prüfen Stückliste und Passform vor der Bestellung noch einmal anhand Ihrer vollständigen Fahrzeugdaten.",
@@ -334,6 +367,12 @@
     config_required: "Éléments obligatoires inclus dans le bundle REMUS complet",
     config_parts: "Pièces obligatoires incluses",
     config_parts_note: "Selon la nomenclature REMUS, ces pièces font partie de cette configuration et sont incluses dans le prix du bundle.",
+    config_valid: "Choisir une configuration REMUS valide *",
+    config_main_parts: "Système / tubes de raccordement",
+    config_tail_parts: "Sorties d’échappement",
+    config_sound_parts: "Sound Controller",
+    config_adapter_parts: "Adaptateurs",
+    config_without_sound: "sans Sound Controller",
     config_single: "Aucune autre variante de bundle n’est enregistrée pour cet article.",
     config_component: "Composant individuel: le système principal requis doit être choisi séparément.",
     config_check: "Avant la commande, nous vérifions à nouveau la nomenclature et la compatibilité à partir des données complètes du véhicule.",
@@ -350,6 +389,12 @@
     config_required: "Required scope included in the complete REMUS bundle",
     config_parts: "Included required parts",
     config_parts_note: "According to the REMUS bill of materials, these parts belong to this configuration and are included in the bundle price.",
+    config_valid: "Choose a valid REMUS configuration *",
+    config_main_parts: "System / connection pipes",
+    config_tail_parts: "Tail pipes",
+    config_sound_parts: "Sound Controller",
+    config_adapter_parts: "Adapters",
+    config_without_sound: "without Sound Controller",
     config_single: "No additional bundle variant is recorded for this item.",
     config_component: "Individual component: the required main system must be selected separately.",
     config_check: "Before ordering, we verify the bill of materials and fitment again using the complete vehicle details.",
@@ -389,7 +434,7 @@
     compat_review: "Passform iwwerpréiwen", compat_review_title: "D’DBA-Zouuerdnung baséiert deelweis nëmmen op Modell a Baujoer. Mir kontrolléieren d’Passform virum Versand mat de komplette Gefierdaten.",
     no_road_title: "Net fir den ëffentleche Stroosseverkéier zougelooss. Nëmme fir Motorsport oder zougeloossen Asaz benotzen.",
     info_veh: "{n} méiglecherweis passend Produkter fir {v}",
-    cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endréier", adapter: "Adapter", disc: "Bremsscheiwen", pads: "Bremsbelee", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraaftverstärker", park: "Handbrems", drum: "Bremstrommel", shoes: "Bremsschong", other: "Anerer" } });
+    cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Mat Sound Controller", tail: "Endréier", adapter: "Mat Adapter", disc: "Bremsscheiwen", pads: "Bremsbelee", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraaftverstärker", park: "Handbrems", drum: "Bremstrommel", shoes: "Bremsschong", other: "Anerer" } });
   Object.assign(T.de, { mf_all: "Alle Marken", axle_f: "Vorderachse", axle_r: "Hinterachse",
     sub: "REMUS-Sportauspuffanlagen und DBA-Bremsen – mit Bild und Preis. Marke oder Fahrzeug wählen oder Artikel suchen.",
     preview_title: "Interne Vorschau", preview_text: "Dieser Bereich ist nur über den Vorschau-Link sichtbar.",
@@ -397,7 +442,7 @@
     compat_review: "Passform prüfen", compat_review_title: "Die DBA-Zuordnung basiert teilweise nur auf Modell und Baujahr. Wir prüfen die Passform vor dem Versand anhand der vollständigen Fahrzeugdaten.",
     no_road_title: "Nicht für den öffentlichen Straßenverkehr zugelassen. Nur im Motorsport oder in einem zulässigen Einsatzbereich verwenden.",
     info_veh: "{n} möglicherweise passende Produkte für {v}",
-    cats: { all: "Alle", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohre", adapter: "Adapter", disc: "Bremsscheiben", pads: "Bremsbeläge", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraftverstärker", park: "Handbremse", drum: "Bremstrommeln", shoes: "Bremsbacken", other: "Sonstige" } });
+    cats: { all: "Alle", system: "Sportauspuffanlagen", sound: "Mit Sound Controller", tail: "Endrohre", adapter: "Mit Adapter", disc: "Bremsscheiben", pads: "Bremsbeläge", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraftverstärker", park: "Handbremse", drum: "Bremstrommeln", shoes: "Bremsbacken", other: "Sonstige" } });
   Object.assign(T.fr, { mf_all: "Toutes marques", axle_f: "Essieu avant", axle_r: "Essieu arrière",
     sub: "Échappements sport REMUS et freins DBA – avec photo et prix. Choisissez la marque ou votre véhicule, ou cherchez un article.",
     preview_title: "Aperçu interne", preview_text: "Cette zone est uniquement visible via le lien d’aperçu.",
@@ -405,7 +450,7 @@
     compat_review: "Vérifier l’affectation", compat_review_title: "L’affectation DBA repose parfois uniquement sur le modèle et l’année. Nous vérifions la compatibilité avant l’expédition avec les données complètes du véhicule.",
     no_road_title: "Non homologué pour la voie publique. À utiliser uniquement en compétition ou dans un cadre autorisé.",
     info_veh: "{n} produits potentiellement compatibles pour {v}",
-    cats: { all: "Tout", system: "Lignes d’échappement", sound: "Sound Controller", tail: "Sorties", adapter: "Adaptateurs", disc: "Disques de frein", pads: "Plaquettes", caliper: "Étriers", bbk: "Big Brake Kits", booster: "Servofrein", park: "Frein à main", drum: "Tambours", shoes: "Mâchoires", other: "Autres" } });
+    cats: { all: "Tout", system: "Lignes d’échappement", sound: "Avec Sound Controller", tail: "Sorties", adapter: "Avec adaptateur", disc: "Disques de frein", pads: "Plaquettes", caliper: "Étriers", bbk: "Big Brake Kits", booster: "Servofrein", park: "Frein à main", drum: "Tambours", shoes: "Mâchoires", other: "Autres" } });
   Object.assign(T.en, { mf_all: "All brands", axle_f: "Front axle", axle_r: "Rear axle",
     sub: "REMUS sport exhausts and DBA brakes – with photo and price. Pick the brand or your vehicle, or search an article.",
     preview_title: "Internal preview", preview_text: "This area is only visible through the preview link.",
@@ -413,7 +458,7 @@
     compat_review: "Verify fitment", compat_review_title: "Some DBA fitments are based only on model and year. We verify compatibility against the complete vehicle data before dispatch.",
     no_road_title: "Not approved for public-road use. Use only in motorsport or another permitted setting.",
     info_veh: "{n} potentially compatible products for {v}",
-    cats: { all: "All", system: "Exhaust systems", sound: "Sound Controller", tail: "Tail pipes", adapter: "Adapters", disc: "Brake discs", pads: "Brake pads", caliper: "Calipers", bbk: "Big Brake Kits", booster: "Brake booster", park: "Park brake", drum: "Brake drums", shoes: "Brake shoes", other: "Other" } });
+    cats: { all: "All", system: "Exhaust systems", sound: "With Sound Controller", tail: "Tail pipes", adapter: "With adapter", disc: "Brake discs", pads: "Brake pads", caliper: "Calipers", bbk: "Big Brake Kits", booster: "Brake booster", park: "Park brake", drum: "Brake drums", shoes: "Brake shoes", other: "Other" } });
 
   Object.assign(T.lb, { filter_axle:"Achs", filter_axle_all:"All Achsen", filter_approval:"Zoulassung", filter_approval_all:"All Zoulassungen", filter_road:"Stroossenzoulassung", filter_race:"Ouni Stroossenzoulassung", filter_sort:"Sortéieren", sort_name:"Numm A–Z", sort_price_asc:"Präis opsteigend", sort_price_desc:"Präis ofsteigend", filter_reset:"Filter zerécksetzen", favorites:"Merklëscht", load_more:"Méi weisen ({n} nach)", inquiry:"Passform iwwerpréiwe loossen", favorite_add:"Op d’Merklëscht", favorite_remove:"Vun der Merklëscht ewechhuelen", guide_eyebrow:"Orientéierung", guide_title:"Wéi eng Produktlinn passt bei mech?", guide_dba_street:"Fir den Alldag a sportlech Notzung op der Strooss.", guide_dba_race:"Fir héich thermesch Belaaschtung, Trackdays a Motorsport – Zoulassung individuell iwwerpréiwen.", guide_remus:"Vum zougeloossene Stroossesystem bis zur Motorsport-Komponent. D’Kennzeechnung beim Produkt ass entscheedend.", trust_title:"Onsécher bei der Passform?", trust_text:"Mir iwwerpréiwen d’Artikelnummer, d’Gefierdaten an déi néideg Zousatzdeeler perséinlech virun der Bestellung.", trust_cta:"Berodung ufroen" });
   Object.assign(T.de, { filter_axle:"Achse", filter_axle_all:"Alle Achsen", filter_approval:"Zulassung", filter_approval_all:"Alle Zulassungen", filter_road:"Straßenzulassung", filter_race:"Ohne Straßenzulassung", filter_sort:"Sortierung", sort_name:"Name A–Z", sort_price_asc:"Preis aufsteigend", sort_price_desc:"Preis absteigend", filter_reset:"Filter zurücksetzen", favorites:"Merkliste", load_more:"Mehr anzeigen ({n} weitere)", inquiry:"Passform prüfen lassen", favorite_add:"Auf die Merkliste", favorite_remove:"Von der Merkliste entfernen", compare:"Vergleichen", compare_add:"Zum Vergleich", compare_count:"{n} Produkte ausgewählt", compare_clear:"Leeren", guide_eyebrow:"Orientierung", guide_title:"Welche Produktlinie passt zu mir?", guide_dba_street:"Für Alltag und sportliche Straßennutzung.", guide_dba_race:"Für hohe thermische Belastung, Trackdays und Motorsport – Zulassung individuell prüfen.", guide_remus:"Vom zugelassenen Straßensystem bis zur Motorsport-Komponente. Die Kennzeichnung am Produkt ist entscheidend.", trust_title:"Unsicher bei der Passform?", trust_text:"Wir prüfen Artikelnummer, Fahrzeugdaten und benötigte Zusatzteile vor der Bestellung persönlich.", trust_cta:"Beratung anfragen" });
@@ -595,7 +640,13 @@
   /* ---------- Filter ---------- */
   function matches(p) {
     if (state.mf !== "all" && mfOf(p) !== state.mf) return false;
-    if (state.cat !== "all" && p.c !== state.cat) return false;
+    if (state.cat !== "all") {
+      if (mfOf(p) === "REMUS" && state.cat === "sound") {
+        if (!remusPartsOf(p, "sound").length) return false;
+      } else if (mfOf(p) === "REMUS" && state.cat === "adapter") {
+        if (!remusPartsOf(p, "adapter").length) return false;
+      } else if (p.c !== state.cat) return false;
+    }
     if (state.axle !== "all" && p.ax !== state.axle) return false;
     if (state.approval !== "all") {
       if (mfOf(p) !== "REMUS") return false;
@@ -805,7 +856,7 @@
     body.appendChild(foot);
 
     var btn = document.createElement("button");
-    var variants = bundleVariants(p);
+    var variants = mfOf(p) === "REMUS" ? remusConfigVariants(p) : bundleVariants(p);
     btn.type = "button";
     btn.className = "btn btn-outline shop-add";
     btn.textContent = variants.length > 1 ? t.configure : t.add;
@@ -1075,8 +1126,8 @@
     wrap.appendChild(system);
 
     var status = document.createElement("p");
-    status.className = "pd-required-status " + (p.c === "system" ? "is-complete" : "needs-system");
-    status.textContent = (p.c === "system" ? t.config_required : t.config_component);
+    status.className = "pd-required-status " + (p.ps && p.ps.length ? "is-complete" : "needs-system");
+    status.textContent = (p.ps && p.ps.length ? t.config_required : t.config_component);
     wrap.appendChild(status);
 
     var bundleRef = document.createElement("p");
@@ -1090,14 +1141,26 @@
       partsLabel.textContent = t.config_parts;
       wrap.appendChild(partsLabel);
 
-      var parts = document.createElement("ul");
-      parts.className = "pd-parts";
-      p.ps.forEach(function (sku) {
-        var item = document.createElement("li");
-        item.textContent = sku;
-        parts.appendChild(item);
-      });
-      wrap.appendChild(parts);
+      [["system", t.config_main_parts], ["tail", t.config_tail_parts],
+       ["sound", t.config_sound_parts], ["adapter", t.config_adapter_parts]]
+        .forEach(function (group) {
+          var values = remusPartsOf(p, group[0]);
+          if (!values.length) return;
+          var box = document.createElement("div");
+          box.className = "pd-part-group pd-part-group-" + group[0];
+          var groupName = document.createElement("strong");
+          groupName.textContent = group[1];
+          box.appendChild(groupName);
+          var parts = document.createElement("ul");
+          parts.className = "pd-parts";
+          values.forEach(function (sku) {
+            var item = document.createElement("li");
+            item.textContent = sku;
+            parts.appendChild(item);
+          });
+          box.appendChild(parts);
+          wrap.appendChild(box);
+        });
 
       var partsNote = document.createElement("p");
       partsNote.className = "pd-parts-note";
@@ -1105,12 +1168,12 @@
       wrap.appendChild(partsNote);
     }
 
-    var variants = bundleVariants(p);
+    var variants = remusConfigVariants(p);
     if (variants.length > 1) {
       var label = document.createElement("label");
       label.className = "pd-config-label";
       label.setAttribute("for", "pd-variant");
-      label.textContent = t.config_variant;
+      label.textContent = t.config_valid;
       wrap.appendChild(label);
 
       var select = document.createElement("select");
@@ -1120,7 +1183,11 @@
         var option = document.createElement("option");
         option.value = variant.i;
         option.selected = variant.i === p.i;
-        option.textContent = bundleVariantName(variant) + " · " + priceStr(variant.p);
+        var main = remusPartsOf(variant, "system").join(" + ");
+        var tail = remusPartsOf(variant, "tail").join(" + ");
+        var sound = remusPartsOf(variant, "sound").join(" + ") || t.config_without_sound;
+        var adapter = remusPartsOf(variant, "adapter").join(" + ");
+        option.textContent = [main, tail, sound, adapter, priceStr(variant.p)].filter(Boolean).join(" · ");
         select.appendChild(option);
       });
       select.addEventListener("change", function () {
@@ -1204,7 +1271,9 @@
     }
     /* Dobaibestellen – nëmme weisen wann et wierklech komplementär Deeler gëtt */
     var relWrap = $("pd-related"); relWrap.innerHTML = "";
-    var rel = relatedOf(p);
+    /* REMUS-Deeler an Optioune kommen nëmmen aus der offizieller
+       Bundle-Stécklëscht uewen; keng gerode Produkter als Ergänzung weisen. */
+    var rel = mfOf(p) === "REMUS" ? [] : relatedOf(p);
     if (rel.length) {
       relWrap.style.display = "";
       var h = document.createElement("h3"); h.textContent = t.related; relWrap.appendChild(h);

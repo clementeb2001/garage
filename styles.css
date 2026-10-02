@@ -5471,6 +5471,25 @@ html.shop-dev .shop-card-body .shop-price {
   list-style: none;
 }
 
+.pd-part-group {
+  margin-top: .55rem;
+  padding: .65rem .72rem .35rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .72);
+}
+
+.pd-part-group > strong {
+  display: block;
+  color: var(--navy-900);
+  font-size: .82rem;
+}
+
+.pd-part-group-sound {
+  border-color: rgba(216, 20, 31, .32);
+  background: rgba(216, 20, 31, .055);
+}
+
 .pd-parts li {
   padding: .38rem .62rem;
   border: 1px solid rgba(216, 20, 31, .24);
