@@ -75,7 +75,7 @@
       ec_ok: "EC-Zoulassung", ec_some: "EC je no Gefier", ec_no: "Rennsport · ouni EC",
       kw: "kW", from: "zanter", mf_all: "All Marquen", axle_f: "Viischt Achs", axle_r: "Hënnescht Achs",
       note_title: "Deel net fonnt?",
-      note_text: "Mir fannen Iech déi richteg REMUS-Anlag fir Äre Won – rufft un oder schéckt eng Ufro.",
+      note_text: "Mir fannen dat passend REMUS- oder DBA-Deel fir Äert Gefier – rufft un oder schéckt eng Ufro.",
       note_cta: "Deel ufroen",
       cart_title: "Äre Kuerf", cart_empty: "Äre Kuerf ass eidel.", cart_total: "Total",
       cart_checkout: "Bezuelen", cart_remove: "Ewechhuelen",
@@ -101,7 +101,7 @@
       ec_ok: "EG-Zulassung", ec_some: "EG je nach Fahrzeug", ec_no: "Rennsport · ohne EG",
       kw: "kW", from: "ab", mf_all: "Alle Marken", axle_f: "Vorderachse", axle_r: "Hinterachse",
       note_title: "Teil nicht gefunden?",
-      note_text: "Wir finden die passende REMUS-Anlage für Ihr Fahrzeug – rufen Sie an oder senden Sie eine Anfrage.",
+      note_text: "Wir finden das passende REMUS- oder DBA-Teil für Ihr Fahrzeug – rufen Sie an oder senden Sie eine Anfrage.",
       note_cta: "Teil anfragen",
       cart_title: "Ihr Warenkorb", cart_empty: "Ihr Warenkorb ist leer.", cart_total: "Gesamt",
       cart_checkout: "Bezahlen", cart_remove: "Entfernen",
@@ -127,7 +127,7 @@
       ec_ok: "Homologation CE", ec_some: "CE selon véhicule", ec_no: "Compétition · sans CE",
       kw: "kW", from: "dès", mf_all: "Toutes marques", axle_f: "Essieu avant", axle_r: "Essieu arrière",
       note_title: "Pièce introuvable ?",
-      note_text: "Nous trouvons la ligne REMUS adaptée à votre véhicule – appelez ou envoyez une demande.",
+      note_text: "Nous trouvons la pièce REMUS ou DBA adaptée à votre véhicule – appelez-nous ou envoyez une demande.",
       note_cta: "Demander une pièce",
       cart_title: "Votre panier", cart_empty: "Votre panier est vide.", cart_total: "Total",
       cart_checkout: "Payer", cart_remove: "Retirer",
@@ -153,7 +153,7 @@
       ec_ok: "EC approval", ec_some: "EC depends on vehicle", ec_no: "Race · no EC",
       kw: "kW", from: "from", mf_all: "All brands", axle_f: "Front axle", axle_r: "Rear axle",
       note_title: "Part not found?",
-      note_text: "We’ll find the right REMUS system for your car – call or send a request.",
+      note_text: "We’ll find the right REMUS or DBA part for your vehicle – call us or send a request.",
       note_cta: "Request a part",
       cart_title: "Your cart", cart_empty: "Your cart is empty.", cart_total: "Total",
       cart_checkout: "Pay", cart_remove: "Remove",
@@ -166,19 +166,19 @@
   /* ---------- "In Arbeit"-Säit ---------- */
   var SOON = {
     lb: { eyebrow: "Onlineshop", title: "Eise Shop ass an der Aarbecht",
-      text: "Mir sinn amgaang, eisen Autodeeler-Shop opzebauen (REMUS Sportauspuffen, DBA-Bremsen geschwënn). Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
+      text: "Mir bauen eisen Autodeeler-Shop mat REMUS-Sportauspuffanlagen an DBA-Bremsen op. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
       cta: "Deel ufroen", back: "Zréck op d’Startsäit",
       dev: "Vorschau-Modus – Shop öffentlech nach „an Arbecht“", hide: "verstoppen" },
     de: { eyebrow: "Onlineshop", title: "Unser Shop ist in Arbeit",
-      text: "Wir bauen gerade unseren Autoteile-Shop auf (REMUS Sportauspuffanlagen, DBA-Bremsen folgen). Schauen Sie bald wieder vorbei – oder kontaktieren Sie uns direkt.",
+      text: "Wir bauen unseren Autoteile-Shop mit REMUS-Sportauspuffanlagen und DBA-Bremsen auf. Schauen Sie bald wieder vorbei – oder kontaktieren Sie uns direkt.",
       cta: "Teil anfragen", back: "Zurück zur Startseite",
       dev: "Vorschau-Modus – Shop öffentlich noch „in Arbeit“", hide: "ausblenden" },
     fr: { eyebrow: "Boutique", title: "Notre boutique est en préparation",
-      text: "Nous mettons en place notre boutique de pièces (échappements REMUS, freins DBA à venir). Revenez bientôt – ou contactez-nous directement.",
+      text: "Nous préparons notre boutique de pièces avec des échappements REMUS et des freins DBA. Revenez bientôt – ou contactez-nous directement.",
       cta: "Demander une pièce", back: "Retour à l’accueil",
       dev: "Mode aperçu – boutique encore « en construction »", hide: "masquer" },
     en: { eyebrow: "Online shop", title: "Our shop is in the works",
-      text: "We’re building our car-parts shop (REMUS exhausts, DBA brakes coming). Check back soon – or contact us directly.",
+      text: "We’re building our car-parts shop with REMUS exhausts and DBA brakes. Check back soon – or contact us directly.",
       cta: "Request a part", back: "Back to home",
       dev: "Preview mode – shop still “under construction”", hide: "hide" },
   };
@@ -351,15 +351,35 @@
      Hei LESCHT gesat, soudatt d'DBA-Kategorien net vun uewe verluer ginn. */
   Object.assign(T.lb, { mf_all: "All Marquen", axle_f: "Viischt Achs", axle_r: "Hënnescht Achs",
     sub: "REMUS-Sportauspuffanlagen an DBA-Bremsen – mat Bild a Präis. Wielt d’Marque oder Äert Gefier, oder sicht no engem Artikel.",
+    preview_title: "Intern Virschau", preview_text: "Dëse Beräich ass nëmme mam Virschau-Link sichtbar.",
+    label_brand: "Mark", label_model: "Modell", label_generation: "Baurei", label_year: "Baujoer", label_engine: "Motoriséierung",
+    compat_review: "Passform iwwerpréiwen", compat_review_title: "D’DBA-Zouuerdnung baséiert deelweis nëmmen op Modell a Baujoer. Mir kontrolléieren d’Passform virum Versand mat de komplette Gefierdaten.",
+    no_road_title: "Net fir den ëffentleche Stroosseverkéier zougelooss. Nëmme fir Motorsport oder zougeloossen Asaz benotzen.",
+    info_veh: "{n} méiglecherweis passend Produkter fir {v}",
     cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endréier", adapter: "Adapter", disc: "Bremsscheiwen", pads: "Bremsbelee", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraaftverstärker", park: "Handbrems", drum: "Bremstrommel", shoes: "Bremsschong", other: "Anerer" } });
   Object.assign(T.de, { mf_all: "Alle Marken", axle_f: "Vorderachse", axle_r: "Hinterachse",
     sub: "REMUS-Sportauspuffanlagen und DBA-Bremsen – mit Bild und Preis. Marke oder Fahrzeug wählen oder Artikel suchen.",
+    preview_title: "Interne Vorschau", preview_text: "Dieser Bereich ist nur über den Vorschau-Link sichtbar.",
+    label_brand: "Marke", label_model: "Modell", label_generation: "Baureihe", label_year: "Baujahr", label_engine: "Motorisierung",
+    compat_review: "Passform prüfen", compat_review_title: "Die DBA-Zuordnung basiert teilweise nur auf Modell und Baujahr. Wir prüfen die Passform vor dem Versand anhand der vollständigen Fahrzeugdaten.",
+    no_road_title: "Nicht für den öffentlichen Straßenverkehr zugelassen. Nur im Motorsport oder in einem zulässigen Einsatzbereich verwenden.",
+    info_veh: "{n} möglicherweise passende Produkte für {v}",
     cats: { all: "Alle", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohre", adapter: "Adapter", disc: "Bremsscheiben", pads: "Bremsbeläge", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraftverstärker", park: "Handbremse", drum: "Bremstrommeln", shoes: "Bremsbacken", other: "Sonstige" } });
   Object.assign(T.fr, { mf_all: "Toutes marques", axle_f: "Essieu avant", axle_r: "Essieu arrière",
     sub: "Échappements sport REMUS et freins DBA – avec photo et prix. Choisissez la marque ou votre véhicule, ou cherchez un article.",
+    preview_title: "Aperçu interne", preview_text: "Cette zone est uniquement visible via le lien d’aperçu.",
+    label_brand: "Marque", label_model: "Modèle", label_generation: "Génération", label_year: "Année", label_engine: "Motorisation",
+    compat_review: "Vérifier l’affectation", compat_review_title: "L’affectation DBA repose parfois uniquement sur le modèle et l’année. Nous vérifions la compatibilité avant l’expédition avec les données complètes du véhicule.",
+    no_road_title: "Non homologué pour la voie publique. À utiliser uniquement en compétition ou dans un cadre autorisé.",
+    info_veh: "{n} produits potentiellement compatibles pour {v}",
     cats: { all: "Tout", system: "Lignes d’échappement", sound: "Sound Controller", tail: "Sorties", adapter: "Adaptateurs", disc: "Disques de frein", pads: "Plaquettes", caliper: "Étriers", bbk: "Big Brake Kits", booster: "Servofrein", park: "Frein à main", drum: "Tambours", shoes: "Mâchoires", other: "Autres" } });
   Object.assign(T.en, { mf_all: "All brands", axle_f: "Front axle", axle_r: "Rear axle",
     sub: "REMUS sport exhausts and DBA brakes – with photo and price. Pick the brand or your vehicle, or search an article.",
+    preview_title: "Internal preview", preview_text: "This area is only visible through the preview link.",
+    label_brand: "Make", label_model: "Model", label_generation: "Generation", label_year: "Model year", label_engine: "Engine",
+    compat_review: "Verify fitment", compat_review_title: "Some DBA fitments are based only on model and year. We verify compatibility against the complete vehicle data before dispatch.",
+    no_road_title: "Not approved for public-road use. Use only in motorsport or another permitted setting.",
+    info_veh: "{n} potentially compatible products for {v}",
     cats: { all: "All", system: "Exhaust systems", sound: "Sound Controller", tail: "Tail pipes", adapter: "Adapters", disc: "Brake discs", pads: "Brake pads", caliper: "Calipers", bbk: "Big Brake Kits", booster: "Brake booster", park: "Park brake", drum: "Brake drums", shoes: "Brake shoes", other: "Other" } });
 
   /* ---------- Helpers ---------- */
@@ -372,6 +392,22 @@
     return "lb";
   }
   function tr() { return T[lang()] || T.lb; }
+  function norm(s) {
+    return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  }
+  function searchableText(p) {
+    var parts = [p.n, p.i, displayRef(p), mfOf(p), tr().cats[p.c] || p.c];
+    p.f.forEach(function (x) {
+      parts.push(makeName(x[0]), x[1]);
+      if (x[2] > -1) parts.push(GENS[x[2]]);
+      if (x[3] > -1) parts.push(VARIANTS[x[3]]);
+      if (x[8] > -1) parts.push(ENGINES[x[8]]);
+      if (x[4]) parts.push(String(x[4]), String(x[4]) + " kw");
+      if (x[5]) parts.push(String(x[5]));
+      if (x[6]) parts.push(String(x[6]));
+    });
+    return norm(parts.join(" "));
+  }
   function centsToStr(c) { return (c / 100).toFixed(2).replace(".", ",") + " €"; }
   var VAT_RATE = 0.17; // Lëtzebuerger TVA – direkt am ugewisene Präis abegraff
   function grossCents(net) { return Math.round(net * (1 + VAT_RATE)); }
@@ -483,12 +519,20 @@
         ab.textContent = axleLabel(p.ax);
         out.push(ab);
       }
+      if (state.mode === "vehicle" && state.brand) {
+        var review = document.createElement("span");
+        review.className = "badge badge-review";
+        review.textContent = t.compat_review;
+        review.title = t.compat_review_title;
+        out.push(review);
+      }
       return out;
     }
     var ec = ecStatus(p);
     var ecb = document.createElement("span");
     ecb.className = "badge badge-ec " + ec.cls;
     ecb.textContent = (ec.cls === "ok" ? "✓ " : "") + t[ec.key];
+    if (ec.cls === "no") ecb.title = t.no_road_title;
     out.push(ecb);
     return out;
   }
@@ -498,18 +542,9 @@
     if (state.mf !== "all" && mfOf(p) !== state.mf) return false;
     if (state.cat !== "all" && p.c !== state.cat) return false;
     if (state.mode === "search" && state.q) {
-      var q = state.q.toLowerCase();
-      if (p.n.toLowerCase().indexOf(q) !== -1) return true;
-      if (p.i.toLowerCase().indexOf(q) !== -1) return true;
-      if (mfOf(p).toLowerCase().indexOf(q) !== -1) return true;
-      return p.f.some(function (x) {
-        if (makeName(x[0]).toLowerCase().indexOf(q) !== -1) return true;
-        if ((x[1] || "").toLowerCase().indexOf(q) !== -1) return true;
-        if (x[2] > -1 && GENS[x[2]] && GENS[x[2]].toLowerCase().indexOf(q) !== -1) return true;
-        if (x[3] > -1 && VARIANTS[x[3]] && VARIANTS[x[3]].toLowerCase().indexOf(q) !== -1) return true;
-        if (x[8] > -1 && ENGINES[x[8]] && ENGINES[x[8]].toLowerCase().indexOf(q) !== -1) return true;
-        return false;
-      });
+      var terms = norm(state.q).split(" ").filter(Boolean);
+      var haystack = searchableText(p);
+      return terms.every(function (term) { return haystack.indexOf(term) !== -1; });
     }
     if (state.mode === "vehicle" && state.brand) {
       var bi = MAKE_IDX[state.brand];
@@ -1322,6 +1357,13 @@
     var vy = $("veh-year"); if (vy) vy.placeholder = t.ph_year;
     var ve = $("veh-engine"); if (ve) ve.placeholder = t.ph_engine;
     setTxt("veh-filter-note", t.veh_note);
+    setTxt("shop-preview-title", t.preview_title);
+    setTxt("shop-preview-text", t.preview_text);
+    setTxt("label-veh-brand", t.label_brand);
+    setTxt("label-veh-model", t.label_model);
+    setTxt("label-veh-generation", t.label_generation);
+    setTxt("label-veh-year", t.label_year);
+    setTxt("label-veh-engine", t.label_engine);
     setTxt("shop-note-title", t.note_title);
     setTxt("shop-note-text", t.note_text);
     setTxt("shop-note-cta", t.note_cta);
@@ -1352,6 +1394,8 @@
     setTxt("shop-legal-rights-title", t.legal_rights_title);
     setTxt("shop-legal-rights-text", t.legal_rights_text);
     setTxt("shop-legal-more", t.legal_more);
+    var status = $("cart-status"); if (status) { status.textContent = ""; status.className = "form-status"; }
+    var toast = $("cart-toast"); if (toast) { toast.hidden = true; toast.classList.remove("show"); }
     renderCart();
   }
 
