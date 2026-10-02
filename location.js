@@ -119,7 +119,7 @@
       message: "Noriicht", phone_ph: "Optional",
       privacy: "Ech hunn d'Dateschutzerklärung gelies a verstinn, datt meng Donnéeën iwwer FormSubmit iwwermëttelt ginn.",
       submit: "Reservéierung ufroen",
-      note: "D'Reservéierung ass eng Ufro a gëtt vun eis bestätegt.",
+      note: "D'Reservéierung ass eng Ufro a gëtt vun eis bestätegt.", period: "Zäitraum", day: "Dag", days: "Deeg", privacy_link: "Dateschutzerklärung",
       sending: "Gëtt geschéckt …",
       ok: "Merci! Är Location-Ufro ass ukomm. Mir mellen eis séier.",
       senderr: "Ups, dat huet net geklappt. Rufft eis w.e.g. un oder probéiert et méi spéit nach eng Kéier.",
@@ -147,7 +147,7 @@
       message: "Nachricht", phone_ph: "Optional",
       privacy: "Ich habe die Datenschutzerklärung gelesen und verstehe, dass meine Daten über FormSubmit übermittelt werden.",
       submit: "Reservierung anfragen",
-      note: "Die Reservierung ist eine Anfrage und wird von uns bestätigt.",
+      note: "Die Reservierung ist eine Anfrage und wird von uns bestätigt.", period: "Zeitraum", day: "Tag", days: "Tage", privacy_link: "Datenschutzerklärung",
       sending: "Wird gesendet …",
       ok: "Danke! Ihre Verleih-Anfrage ist angekommen. Wir melden uns zeitnah.",
       senderr: "Ups, das hat nicht geklappt. Bitte rufen Sie uns an oder versuchen Sie es später erneut.",
@@ -175,7 +175,7 @@
       message: "Message", phone_ph: "Facultatif",
       privacy: "J'ai lu la politique de confidentialité et j'accepte que mes données soient transmises via FormSubmit.",
       submit: "Demander la réservation",
-      note: "La réservation est une demande et sera confirmée par nos soins.",
+      note: "La réservation est une demande et sera confirmée par nos soins.", period: "Période", day: "jour", days: "jours", privacy_link: "politique de confidentialité",
       sending: "Envoi …",
       ok: "Merci ! Votre demande de location est bien arrivée. Nous vous recontactons rapidement.",
       senderr: "Oups, cela n'a pas fonctionné. Merci de nous appeler ou de réessayer plus tard.",
@@ -203,7 +203,7 @@
       message: "Message", phone_ph: "Optional",
       privacy: "I have read the privacy policy and understand that my data is transmitted via FormSubmit.",
       submit: "Request reservation",
-      note: "The reservation is a request and will be confirmed by us.",
+      note: "The reservation is a request and will be confirmed by us.", period: "Period", day: "day", days: "days", privacy_link: "privacy policy",
       sending: "Sending …",
       ok: "Thank you! Your rental request has arrived. We'll get back to you soon.",
       senderr: "Oops, that didn't work. Please call us or try again later.",
@@ -302,6 +302,31 @@
     renderSelection();
   }
 
+  function fmtDate(v) {
+    if (!v) return "";
+    var p = v.split("-");
+    return p.length === 3 ? p[2] + "." + p[1] + "." + p[0] : v;
+  }
+  function setDateMins() {
+    var d = new Date();
+    var iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    var from = $("r-from"), to = $("r-to");
+    if (from && !from.min) from.min = iso;
+    if (to && !to.min) to.min = iso;
+  }
+  function updatePeriod() {
+    var m = t(), el = $("rental-sel-period");
+    if (!el) return;
+    var from = $("r-from"), to = $("r-to");
+    var fv = from && from.value, tv = to && to.value;
+    if (to && fv) to.min = fv;            // „Bis" ni virun „Vun"
+    if (!fv || !tv || tv < fv) { el.hidden = true; el.textContent = ""; return; }
+    var days = Math.round((new Date(tv) - new Date(fv)) / 86400000);
+    if (days < 1) days = 1;
+    el.hidden = false;
+    el.textContent = "📅 " + m.period + ": " + fmtDate(fv) + " – " + fmtDate(tv) + " · " + days + " " + (days === 1 ? m.day : m.days);
+  }
+
   function applyStatics() {
     var m = t();
     setTxt("rsoon-eyebrow", m.soon_eyebrow);
@@ -322,7 +347,11 @@
     setTxt("lbl-r-email", m.email);
     setTxt("lbl-r-phone", m.phone);
     setTxt("lbl-r-message", m.message);
-    setTxt("r-privacy-text", m.privacy);
+    var pv = $("r-privacy-text");
+    if (pv) {
+      var link = '<a href="datenschutz.html" target="_blank" rel="noopener">' + m.privacy_link + "</a>";
+      pv.innerHTML = m.privacy.replace(m.privacy_link, link);
+    }
     setTxt("rental-submit", m.submit);
     setTxt("rental-note", m.note);
     var ph = $("r-phone"); if (ph) ph.placeholder = m.phone_ph;
@@ -345,7 +374,7 @@
       f.querySelectorAll(".rental-chip").forEach(function (x) {
         var on = x === b;
         x.classList.toggle("active", on);
-        x.setAttribute("aria-selected", on ? "true" : "false");
+        x.setAttribute("aria-pressed", on ? "true" : "false");
       });
       renderCatalog();
     });
@@ -425,6 +454,7 @@
         state.selected = [];
         renderCatalog();
         renderSelection();
+        updatePeriod();
       })
       .catch(function () { st.className = "form-status err"; st.textContent = m.senderr; })
       .then(function () { if (btn) btn.disabled = false; });
@@ -434,6 +464,10 @@
     ["r-from", "r-to", "r-name", "r-email"].forEach(function (id) {
       var el = $(id);
       if (el) el.addEventListener("input", function () { mark(el, false); });
+    });
+    ["r-from", "r-to"].forEach(function (id) {
+      var el = $(id);
+      if (el) el.addEventListener("change", updatePeriod);
     });
     var priv = $("r-privacy");
     if (priv) priv.addEventListener("change", function () {
@@ -446,12 +480,15 @@
     applyStatics();
     renderCatalog();
     renderSelection();
+    updatePeriod();
   }
 
   function init() {
     applyStatics();
     renderCatalog();
     renderSelection();
+    setDateMins();
+    updatePeriod();
     wireFilter();
     wireGrid();
     wireClear();

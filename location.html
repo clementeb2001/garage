@@ -134,10 +134,10 @@
           <p class="rental-sub" id="rental-sub">
             Wielt Ären Ahänger oder Äert Fahrzeug aus, gitt Äre Reservéierungszäitraum un – mir bestätegen Iech Är Ufro.
           </p>
-          <div class="rental-filter" id="rental-filter" role="tablist" aria-label="Kategorie">
-            <button class="rental-chip active" data-cat="all" role="tab" aria-selected="true"><span data-i18n="rental_cat_all">Alles</span></button>
-            <button class="rental-chip" data-cat="trailer" role="tab" aria-selected="false"><span data-i18n="rental_cat_trailer">Ahänger</span></button>
-            <button class="rental-chip" data-cat="vehicle" role="tab" aria-selected="false"><span data-i18n="rental_cat_vehicle">Fahrzeuger</span></button>
+          <div class="rental-filter" id="rental-filter" role="group" aria-label="Kategorie">
+            <button type="button" class="rental-chip active" data-cat="all" aria-pressed="true"><span data-i18n="rental_cat_all">Alles</span></button>
+            <button type="button" class="rental-chip" data-cat="trailer" aria-pressed="false"><span data-i18n="rental_cat_trailer">Ahänger</span></button>
+            <button type="button" class="rental-chip" data-cat="vehicle" aria-pressed="false"><span data-i18n="rental_cat_vehicle">Fahrzeuger</span></button>
           </div>
         </div>
       </section>
@@ -156,6 +156,7 @@
             <h2 id="rental-sel-h">Är Auswiel</h2>
             <p class="rental-empty" id="rental-empty">Nach näischt ausgewielt. Wielt uewen Äert Material aus.</p>
             <ul class="rental-sel-list" id="rental-sel-list"></ul>
+            <p class="rental-note rental-sel-period" id="rental-sel-period" hidden></p>
           </div>
 
           <form
@@ -259,7 +260,7 @@
     <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
     <script src="script.js?v=18"></script>
-    <script src="location.js?v=2"></script>
+    <script src="location.js?v=3"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->
