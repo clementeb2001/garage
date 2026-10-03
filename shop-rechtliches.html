@@ -20,6 +20,12 @@
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css?v=51" />
+    <style>
+      .legal-langbar{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 20px}
+      .legal-langbar button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.03em;padding:5px 12px;border:1px solid var(--line,#d9dee5);background:transparent;color:var(--text-mut,#667381);border-radius:999px;cursor:pointer}
+      .legal-langbar button.active{background:var(--navy-900,#0d1b2a);color:#fff;border-color:var(--navy-900,#0d1b2a)}
+      .legal-langbar button:focus-visible{outline:2px solid var(--accent,#d8232a);outline-offset:2px}
+    </style>
   </head>
   <body class="legal-page">
     <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -33,6 +39,13 @@
     <main class="legal-main" id="main">
       <div class="container">
         <article class="legal-card">
+          <div class="legal-langbar" role="group" aria-label="Sprache / Langue / Language">
+            <button type="button" data-set-lang="de">DE</button>
+            <button type="button" data-set-lang="fr">FR</button>
+            <button type="button" data-set-lang="en">EN</button>
+          </div>
+
+          <div data-lang-block="de">
           <a class="legal-back" href="shop.html">← Zurück zum Shop</a>
           <h1>Shop- und Verbraucherinformationen</h1>
           <p><strong>Hinweis:</strong> Der Onlineshop befindet sich weiterhin in der internen Vorschau. Vor der öffentlichen Freischaltung werden Versandgebiet, konkrete Versandkosten und Lieferzeiten abschließend hinterlegt und rechtlich geprüft.</p>
@@ -89,8 +102,128 @@
           <p>Informationen zur Verarbeitung personenbezogener Daten, zum lokal gespeicherten Warenkorb und zur Zahlungsabwicklung finden Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
 
           <p><small>Stand: Oktober 2026. Diese Informationen wurden für die Shop-Vorschau vorbereitet. Vor der öffentlichen Freischaltung ist eine individuelle rechtliche Prüfung, insbesondere der Liefer-, Retouren- und Zahlungsabläufe, empfohlen.</small></p>
+          </div>
+
+          <div data-lang-block="fr" hidden>
+          <a class="legal-back" href="shop.html">← Retour à la boutique</a>
+          <h1>Informations boutique et consommateurs</h1>
+          <p><strong>Remarque :</strong> La boutique en ligne est toujours en aperçu interne. Avant l’activation publique, la zone de livraison, les frais de livraison concrets et les délais de livraison seront définitivement renseignés et vérifiés juridiquement.</p>
+
+          <h2>Vendeur et contact</h2>
+          <p>
+            Autoservice Bettenduerf<br />
+            63, rue de Diekirch-Echternach<br />
+            L-9355 Bettendorf, Luxembourg<br />
+            Téléphone : <a href="tel:+352808687">+352 80 86 87</a><br />
+            Mobile : <a href="tel:+352621435495">+352 621 435 495</a><br />
+            E-mail : <a href="mailto:Autoservicebettenduerf@outlook.com">Autoservicebettenduerf@outlook.com</a><br />
+            RCS Luxembourg : A39773<br />
+            TVA : LU26600977
+          </p>
+
+          <h2>Produits et compatibilité véhicule</h2>
+          <p>Les caractéristiques essentielles des produits, les numéros d’article, les prix et les affectations véhicule connues figurent directement auprès de chaque article. Le filtre véhicule est une aide à la recherche et non une garantie de montage. Pour les pièces de freinage en particulier, l’affectation dans le catalogue ne peut reposer que sur le modèle et l’année de construction. Avant l’expédition, nous vérifions donc la compatibilité à l’aide des données véhicule complètes et demandons si nécessaire le numéro de châssis, la motorisation, le système de freinage ou les cotes techniques. En cas de doute, l’article n’est pas expédié sans concertation préalable.</p>
+
+          <h2>Montage, pièces obligatoires et homologation route</h2>
+          <p>Les composants connexes, adaptateurs et accessoires de montage sont vérifiés quant à leur exhaustivité avant l’exécution de la commande. Les mentions telles que « homologation CE » ne valent que pour la version concrètement affectée et le véhicule indiqué. Les produits portant la mention « Compétition · sans CE » ne sont pas autorisés pour la circulation publique et ne doivent pas y être utilisés. Les prescriptions légales de montage, de contrôle et d’homologation restent déterminantes.</p>
+
+          <h2>Prix et frais supplémentaires</h2>
+          <p>Tous les prix affichés aux consommateurs sont des prix totaux incluant 17 % de TVA luxembourgeoise. Les éventuels frais de livraison, d’expédition ou d’enlèvement doivent être affichés séparément et clairement avant toute commande ferme. Tant que ces informations ne sont pas entièrement disponibles au moment du paiement, la boutique reste fermée au public.</p>
+
+          <h2>Processus de commande et conclusion du contrat</h2>
+          <p>Vous ajoutez des articles au panier, vérifiez le récapitulatif de commande et confirmez les informations boutique et consommateurs. Seul le bouton clairement identifié comme payant déclenche le processus de paiement. Les erreurs de saisie peuvent être corrigées jusque-là en modifiant ou en supprimant les positions du panier. Une confirmation de commande et de contrat sera fournie, après l’activation de la boutique, sur un support durable, notamment par e-mail.</p>
+
+          <h2>Paiement</h2>
+          <p>Le paiement est prévu via le service de paiement Mollie. Les moyens de paiement réellement proposés sont affichés lors de l’étape de paiement. De plus amples informations sur le traitement des données de paiement figurent dans notre <a href="datenschutz.html">politique de confidentialité</a>.</p>
+
+          <h2>Livraison et enlèvement</h2>
+          <p>Les possibilités de livraison ou d’enlèvement disponibles, les restrictions de livraison, les coûts et les délais de livraison prévus sont affichés avant toute commande ferme. Pour les articles non immédiatement disponibles, nous convenons de la date de livraison avec vous.</p>
+
+          <h2>Droit de rétractation du consommateur</h2>
+          <p>Dans le cadre d’un contrat à distance, le consommateur dispose en principe du droit de se rétracter du contrat dans un délai de 14 jours sans avoir à motiver sa décision. Pour les biens, le délai commence en principe le jour où vous-même, ou un tiers désigné par vous, prenez possession du bien.</p>
+          <p>Pour exercer la rétractation, une déclaration claire par e-mail ou par courrier aux coordonnées indiquées ci-dessus suffit. Vous pouvez utiliser le texte suivant :</p>
+          <blockquote>
+            Je vous notifie par la présente ma rétractation du contrat portant sur la vente du bien suivant : …<br />
+            Commandé le / reçu le : …<br />
+            Nom et adresse : …<br />
+            Date : …
+          </blockquote>
+          <p>Après une rétractation valable, nous remboursons les paiements reçus, y compris les frais de la livraison standard la moins chère proposée, en principe dans un délai de 14 jours. Nous pouvons différer le remboursement jusqu’à ce que nous ayons récupéré le bien ou que vous ayez prouvé son envoi. Vous supportez les coûts directs de renvoi, sauf si nous avons expressément accepté de les prendre en charge.</p>
+          <p>Les exceptions légales demeurent, en particulier pour les biens confectionnés selon les spécifications du client ou nettement personnalisés. Une simple affectation de série spécifique au véhicule ne fait pas automatiquement d’un article une fabrication sur mesure.</p>
+
+          <h2>Garantie légale</h2>
+          <p>La garantie légale sur les biens s’applique aux consommateurs. Elle existe indépendamment d’une garantie supplémentaire du fabricant. En cas de produit défectueux, veuillez nous contacter aux coordonnées indiquées ci-dessus.</p>
+
+          <h2>Réclamations</h2>
+          <p>Les réclamations peuvent être introduites par téléphone, par courrier ou par e-mail. Nous nous efforçons de trouver une solution rapide et amiable. Si une réclamation d’un consommateur n’a pas pu être résolue directement, nous informons, sur un support durable, de l’organisme compétent pour le règlement extrajudiciaire des litiges et de notre éventuelle participation à une telle procédure.</p>
+
+          <h2>Protection des données</h2>
+          <p>Les informations sur le traitement des données à caractère personnel, sur le panier stocké localement et sur le traitement des paiements figurent dans notre <a href="datenschutz.html">politique de confidentialité</a>.</p>
+
+          <p><small>Mise à jour : octobre 2026. Ces informations ont été préparées pour l’aperçu de la boutique. Avant l’activation publique, une vérification juridique individuelle, notamment des processus de livraison, de retour et de paiement, est recommandée.</small></p>
+          </div>
+
+          <div data-lang-block="en" hidden>
+          <a class="legal-back" href="shop.html">← Back to the shop</a>
+          <h1>Shop and consumer information</h1>
+          <p><strong>Note:</strong> The online shop is still in internal preview. Before the public launch, the delivery area, concrete shipping costs and delivery times will be finalised and legally reviewed.</p>
+
+          <h2>Seller and contact</h2>
+          <p>
+            Autoservice Bettenduerf<br />
+            63, rue de Diekirch-Echternach<br />
+            L-9355 Bettendorf, Luxembourg<br />
+            Phone: <a href="tel:+352808687">+352 80 86 87</a><br />
+            Mobile: <a href="tel:+352621435495">+352 621 435 495</a><br />
+            E-mail: <a href="mailto:Autoservicebettenduerf@outlook.com">Autoservicebettenduerf@outlook.com</a><br />
+            RCS Luxembourg: A39773<br />
+            VAT: LU26600977
+          </p>
+
+          <h2>Products and vehicle compatibility</h2>
+          <p>The essential product characteristics, article numbers, prices and known vehicle assignments are shown directly with each article. The vehicle filter is a search aid and not a binding fitment guarantee. For braking parts in particular, the catalogue assignment can only be based on model and year of manufacture. Before shipping, we therefore check compatibility using the complete vehicle data and, where necessary, ask for the chassis number, engine, braking system or technical dimensions. In case of doubt, the article is not shipped without prior consultation.</p>
+
+          <h2>Fitting, mandatory parts and road approval</h2>
+          <p>Related components, adapters and fitting accessories are checked for completeness before the order is carried out. Notes such as “EC approval” apply only to the specifically assigned version and the stated vehicle. Products marked “Race · no EC” are not approved for public road traffic and must not be used there. Statutory fitting, inspection and approval regulations remain decisive.</p>
+
+          <h2>Prices and additional costs</h2>
+          <p>All prices shown to consumers are total prices including 17% Luxembourg VAT. Any delivery, shipping or collection costs must be shown separately and clearly before a binding order. As long as this information is not fully available at checkout, the shop remains closed to the public.</p>
+
+          <h2>Ordering process and conclusion of contract</h2>
+          <p>You add articles to the cart, review the order summary and confirm the shop and consumer information. Only the button clearly marked as subject to payment starts the payment process. Input errors can be corrected until then by changing or removing cart items. An order and contract confirmation will be provided, after activation of the shop, on a durable medium, in particular by e-mail.</p>
+
+          <h2>Payment</h2>
+          <p>Payment is intended via the payment service Mollie. The payment methods actually offered are shown during the payment step. Further information on the processing of payment data is contained in our <a href="datenschutz.html">privacy policy</a>.</p>
+
+          <h2>Delivery and collection</h2>
+          <p>Available delivery or collection options, delivery restrictions, costs and expected delivery times are shown before a binding order. For articles that are not immediately available, we agree the delivery date with you.</p>
+
+          <h2>Consumer right of withdrawal</h2>
+          <p>In the case of a distance contract, consumers generally have the right to withdraw from the contract within 14 days without giving reasons. For goods, the period generally begins on the day on which you, or a third party named by you, take possession of the goods.</p>
+          <p>To exercise the withdrawal, a clear statement by e-mail or post to the contact details given above is sufficient. You may use the following text:</p>
+          <blockquote>
+            I hereby withdraw from the contract concluded by me for the purchase of the following goods: …<br />
+            Ordered on / received on: …<br />
+            Name and address: …<br />
+            Date: …
+          </blockquote>
+          <p>After a valid withdrawal, we refund the payments received, including the costs of the cheapest standard delivery offered, generally within 14 days. We may withhold the refund until we have received the goods back or you have provided proof of dispatch. You bear the direct costs of returning the goods, unless we have expressly agreed to cover them.</p>
+          <p>Statutory exceptions remain, in particular for goods made to customer specifications or clearly personalised. A mere vehicle-specific series assignment does not automatically make an article a custom-made product.</p>
+
+          <h2>Statutory warranty</h2>
+          <p>The statutory warranty on goods applies to consumers. It exists independently of any additional manufacturer’s guarantee. In the event of a defective product, please contact us using the contact details given above.</p>
+
+          <h2>Complaints</h2>
+          <p>Complaints can be submitted by phone, post or e-mail. We strive for a quick and amicable solution. If a consumer complaint could not be resolved directly, we will inform you on a durable medium about the competent body for out-of-court dispute resolution and whether we take part in such a procedure.</p>
+
+          <h2>Data protection</h2>
+          <p>Information on the processing of personal data, on the locally stored cart and on payment processing can be found in our <a href="datenschutz.html">privacy policy</a>.</p>
+
+          <p><small>Last updated: October 2026. This information was prepared for the shop preview. Before the public launch, individual legal review – in particular of the delivery, returns and payment processes – is recommended.</small></p>
+          </div>
         </article>
       </div>
     </main>
+    <script src="legal-i18n.js?v=1"></script>
   </body>
 </html>
