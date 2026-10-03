@@ -20,6 +20,12 @@
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css?v=51" />
+    <style>
+      .legal-langbar{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 20px}
+      .legal-langbar button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.03em;padding:5px 12px;border:1px solid var(--line,#d9dee5);background:transparent;color:var(--text-mut,#667381);border-radius:999px;cursor:pointer}
+      .legal-langbar button.active{background:var(--navy-900,#0d1b2a);color:#fff;border-color:var(--navy-900,#0d1b2a)}
+      .legal-langbar button:focus-visible{outline:2px solid var(--accent,#d8232a);outline-offset:2px}
+    </style>
   </head>
   <body class="legal-page">
     <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -33,6 +39,13 @@
     <main class="legal-main" id="main">
       <div class="container">
         <article class="legal-card">
+          <div class="legal-langbar" role="group" aria-label="Sprache / Langue / Language">
+            <button type="button" data-set-lang="de">DE</button>
+            <button type="button" data-set-lang="fr">FR</button>
+            <button type="button" data-set-lang="en">EN</button>
+          </div>
+
+          <div data-lang-block="de">
           <a class="legal-back" href="location.html?dev=1">← Zurück zur Location</a>
           <h1>Vorläufige Miet- und Reservierungsinformationen</h1>
           <p><strong>Wichtiger Hinweis:</strong> Der Verleih befindet sich noch in der internen Vorschau. Diese Seite beschreibt den vorgesehenen Ablauf, ist aber noch kein vollständiger Mietvertrag und keine endgültige Fassung der Allgemeinen Mietbedingungen. Fahrzeugbezogene Preise, Kaution, Versicherung, Selbstbeteiligung, Kilometerregelung und weitere Bedingungen werden vor einer verbindlichen Bestätigung mitgeteilt.</p>
@@ -80,8 +93,110 @@
           <p>Fragen oder Beschwerden können telefonisch, postalisch oder per E-Mail eingereicht werden. Wir bemühen uns um eine schnelle und einvernehmliche Lösung.</p>
 
           <p><small>Stand: Oktober 2026. Diese vorläufigen Informationen gelten für die interne Vorschau. Vor der öffentlichen Freischaltung werden die fahrzeugbezogenen Konditionen ergänzt und die endgültigen Mietunterlagen individuell rechtlich geprüft.</small></p>
+          </div>
+
+          <div data-lang-block="fr" hidden>
+          <a class="legal-back" href="location.html?dev=1">← Retour à la Location</a>
+          <h1>Informations provisoires de location et de réservation</h1>
+          <p><strong>Remarque importante :</strong> La location est encore en aperçu interne. Cette page décrit le déroulement prévu, mais ne constitue pas encore un contrat de location complet ni une version définitive des conditions générales de location. Les prix liés au véhicule, la caution, l’assurance, la franchise, la règle de kilométrage et les autres conditions sont communiqués avant toute confirmation ferme.</p>
+
+          <h2>Prestataire et contact</h2>
+          <p>
+            Autoservice Bettenduerf<br />
+            63, rue de Diekirch-Echternach<br />
+            L-9355 Bettendorf, Luxembourg<br />
+            Téléphone : <a href="tel:+352808687">+352 80 86 87</a><br />
+            Mobile : <a href="tel:+352621435495">+352 621 435 495</a><br />
+            E-mail : <a href="mailto:Autoservicebettenduerf@outlook.com">Autoservicebettenduerf@outlook.com</a><br />
+            RCS Luxembourg : A39773<br />
+            TVA : LU26600977
+          </p>
+
+          <h2>Demande, disponibilité et conclusion du contrat</h2>
+          <p>L’envoi du formulaire en ligne est une demande de réservation sans engagement. Il ne crée ni contrat de location ni droit à un véhicule ou à une période déterminés. Nous vérifions la disponibilité et les informations, puis transmettons les conditions concrètes. Un contrat de location n’est conclu que par une confirmation expresse, c’est-à-dire la signature du contrat de location individuel.</p>
+
+          <h2>Objet loué et remise</h2>
+          <p>L’objet loué concret, son équipement, les dommages préexistants connus, le kilométrage ou l’état de fonctionnement ainsi que les accessoires présents sont documentés lors de la remise. Le locataire contrôle l’objet loué et signale les dommages non documentés avant le début du trajet. L’heure de restitution, le lieu de restitution et l’état sont fixés dans le contrat de location individuel.</p>
+
+          <h2>Conducteur, identité et permis de conduire</h2>
+          <p>Avant la remise, un document d’identité valable et le permis de conduire valable requis doivent être présentés. La catégorie de permis nécessaire dépend notamment du véhicule, de la remorque, du véhicule tracteur et des masses totales autorisées. L’aptitude définitive est vérifiée avant la location. L’objet loué ne peut être conduit que par les personnes autorisées dans le contrat de location.</p>
+
+          <h2>Prix, caution et paiement</h2>
+          <p>Le prix de location, les prestations incluses, les éventuelles limitations de kilométrage, les kilomètres supplémentaires, la caution, le mode de paiement et les éventuels frais supplémentaires sont clairement communiqués avant le contrat ferme. Sans ces informations, aucune réservation en ligne payante n’est déclenchée.</p>
+
+          <h2>Assurance, responsabilité et dommages</h2>
+          <p>L’étendue de l’assurance, l’éventuelle franchise, les règles de responsabilité et la marche à suivre en cas d’accident, de panne, de vol ou de dommage sont définies pour l’objet loué concret avant la conclusion du contrat. En cas d’accident ou de dommage, Autoservice Bettenduerf doit être informé sans délai ; les démarches administratives ou liées à l’assurance nécessaires dépendent de la situation concrète et du contrat de location. Les droits et règles de responsabilité légaux impératifs demeurent inchangés.</p>
+
+          <h2>Utilisation, diligence et usage interdit</h2>
+          <p>L’objet loué doit être utilisé avec soin, conformément à sa destination et dans le respect des règles de circulation, de chargement et de sécurité. La surcharge, la sous-location, l’utilisation par des conducteurs non autorisés ainsi qu’un usage illicite ou manifestement inadapté ne sont pas permis. Un usage particulier à l’étranger, de transport ou de remorque doit être indiqué au préalable et peut nécessiter un accord exprès.</p>
+
+          <h2>Prise en charge, restitution, retard et nettoyage</h2>
+          <p>Les heures convenues de prise en charge et de restitution doivent être respectées. Les retards prévisibles doivent être signalés sans délai, car l’objet loué peut ensuite être de nouveau réservé. Les règles relatives au carburant ou au niveau de charge, au nettoyage, à la restitution tardive et aux frais supplémentaires prouvés qui en résultent sont fixées dans le contrat de location individuel.</p>
+
+          <h2>Modification, annulation et droits légaux</h2>
+          <p>Tant qu’une demande n’a pas été confirmée, elle peut être modifiée ou retirée via les coordonnées indiquées. Les conditions de modification ou d’annulation après la conclusion du contrat sont communiquées avant la réservation ferme. Les droits légaux des consommateurs, y compris les éventuels droits d’information ou de rétractation, demeurent inchangés.</p>
+
+          <h2>Protection des données</h2>
+          <p>La demande de réservation est actuellement transmise à notre adresse e-mail via FormSubmit. Les détails sur le traitement, les destinataires et vos droits figurent dans notre <a href="datenschutz.html">politique de confidentialité</a>.</p>
+
+          <h2>Réclamations et prise de contact</h2>
+          <p>Les questions ou réclamations peuvent être introduites par téléphone, par courrier ou par e-mail. Nous nous efforçons de trouver une solution rapide et amiable.</p>
+
+          <p><small>Mise à jour : octobre 2026. Ces informations provisoires valent pour l’aperçu interne. Avant l’activation publique, les conditions liées au véhicule seront complétées et les documents de location définitifs feront l’objet d’une vérification juridique individuelle.</small></p>
+          </div>
+
+          <div data-lang-block="en" hidden>
+          <a class="legal-back" href="location.html?dev=1">← Back to Location</a>
+          <h1>Preliminary rental and reservation information</h1>
+          <p><strong>Important note:</strong> The rental service is still in internal preview. This page describes the intended process but is not yet a complete rental contract or a final version of the general rental terms. Vehicle-related prices, deposit, insurance, excess, mileage rules and other conditions are communicated before a binding confirmation.</p>
+
+          <h2>Provider and contact</h2>
+          <p>
+            Autoservice Bettenduerf<br />
+            63, rue de Diekirch-Echternach<br />
+            L-9355 Bettendorf, Luxembourg<br />
+            Phone: <a href="tel:+352808687">+352 80 86 87</a><br />
+            Mobile: <a href="tel:+352621435495">+352 621 435 495</a><br />
+            E-mail: <a href="mailto:Autoservicebettenduerf@outlook.com">Autoservicebettenduerf@outlook.com</a><br />
+            RCS Luxembourg: A39773<br />
+            VAT: LU26600977
+          </p>
+
+          <h2>Request, availability and conclusion of contract</h2>
+          <p>Submitting the online form is a non-binding reservation request. It does not create a rental contract or any claim to a particular vehicle or period. We check availability and details and then provide the concrete conditions. A rental contract is only concluded through express confirmation, i.e. the conclusion of the individual rental contract.</p>
+
+          <h2>Rented item and handover</h2>
+          <p>The specific rented item, its equipment, known pre-existing damage, mileage or operating status and any accessories present are documented at handover. The renter inspects the rented item and reports any undocumented damage before starting the journey. Return time, return location and condition are set out in the individual rental contract.</p>
+
+          <h2>Driver, identity and driving licence</h2>
+          <p>Before handover, a valid identity document and the required valid driving licence must be presented. Which licence category is required depends in particular on the vehicle, the trailer, the towing vehicle and the permissible total masses. Final eligibility is checked before the rental. The rented item may only be driven by the persons authorised in the rental contract.</p>
+
+          <h2>Prices, deposit and payment</h2>
+          <p>The rental price, included services, any mileage limits, additional mileage, deposit, payment method and any additional costs are clearly communicated before the binding contract. Without this information, no online booking subject to payment is triggered.</p>
+
+          <h2>Insurance, liability and damage</h2>
+          <p>The scope of insurance, any excess, liability rules and the procedure in the event of an accident, breakdown, theft or damage are defined for the specific rented item before the contract is concluded. In the event of an accident or damage, Autoservice Bettenduerf must be informed without delay; any necessary official or insurance-related steps depend on the specific situation and the rental contract. Mandatory statutory rights and liability rules remain unaffected.</p>
+
+          <h2>Use, care and prohibited use</h2>
+          <p>The rented item must be used carefully, for its intended purpose and in compliance with road-traffic, loading and safety regulations. Overloading, subletting, use by unauthorised drivers as well as any unlawful or clearly unsuitable use are not permitted. Any special use abroad, for transport or with a trailer must be stated in advance and may require express consent.</p>
+
+          <h2>Pick-up, return, delay and cleaning</h2>
+          <p>The agreed pick-up and return times must be observed. Foreseeable delays must be reported without delay, as the rented item may then be reserved again. Rules on fuel or charge level, cleaning, late return and the demonstrable additional costs arising from this are set out in the individual rental contract.</p>
+
+          <h2>Change, cancellation and legal rights</h2>
+          <p>As long as a request has not yet been confirmed, it can be changed or withdrawn via the contact details provided. Conditions for changes or cancellations after conclusion of the contract are communicated before the binding booking. Statutory consumer rights, including any existing information or withdrawal rights, remain unaffected.</p>
+
+          <h2>Data protection</h2>
+          <p>The reservation request is currently transmitted to our e-mail address via FormSubmit. Details on the processing, recipients and your rights can be found in our <a href="datenschutz.html">privacy policy</a>.</p>
+
+          <h2>Complaints and contact</h2>
+          <p>Questions or complaints can be submitted by phone, post or e-mail. We strive for a quick and amicable solution.</p>
+
+          <p><small>Last updated: October 2026. This preliminary information applies to the internal preview. Before the public launch, the vehicle-related conditions will be added and the final rental documents will undergo individual legal review.</small></p>
+          </div>
         </article>
       </div>
     </main>
+    <script src="legal-i18n.js?v=1"></script>
   </body>
 </html>
