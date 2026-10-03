@@ -652,10 +652,8 @@
     return m ? decodeURIComponent(m[1]) : null;
   }
   function updateServiceSeo(slug, L, d) {
-    var url = new URL(location.origin + location.pathname);
+    var url = new URL("/" + L + "/service.html", location.origin);
     url.searchParams.set("s", slug);
-    if (L === "lb") url.searchParams.delete("lang");
-    else url.searchParams.set("lang", L);
     var absolute = url.origin + url.pathname + url.search;
     var title = d.title + " – Autoservice Bettenduerf";
     document.title = title;
@@ -679,9 +677,8 @@
         link.hreflang = code;
         document.head.appendChild(link);
       }
-      var alt = new URL(absolute);
-      if (code === "lb") alt.searchParams.delete("lang");
-      else alt.searchParams.set("lang", code);
+      var alt = new URL("/" + code + "/service.html", location.origin);
+      alt.searchParams.set("s", slug);
       link.href = alt.href;
     });
     var defaultLink = document.querySelector('link[rel="alternate"][hreflang="x-default"]');
@@ -691,8 +688,8 @@
       defaultLink.hreflang = "x-default";
       document.head.appendChild(defaultLink);
     }
-    var defaultUrl = new URL(absolute);
-    defaultUrl.searchParams.delete("lang");
+    var defaultUrl = new URL("/lb/service.html", location.origin);
+    defaultUrl.searchParams.set("s", slug);
     defaultLink.href = defaultUrl.href;
   }
   var CRUMB = {
@@ -708,17 +705,16 @@
     var c = CRUMB[L] || CRUMB.lb;
     var isTip = slug.indexOf("tip-") === 0;
     var sectionLabel = isTip ? c.tips : c.services;
-    var sectionHref = isTip ? "index.html#saison" : "index.html#leistungen";
-    var langQ = L === "lb" ? "" : "?lang=" + L;
+    var sectionHref = "/" + L + "/#" + (isTip ? "saison" : "leistungen");
     el.innerHTML =
-      '<a href="index.html' + langQ + '">' + c.home + "</a>" +
+      '<a href="/' + L + '/">' + c.home + "</a>" +
       '<span class="crumb-sep" aria-hidden="true">›</span>' +
       '<a href="' + sectionHref + '">' + sectionLabel + "</a>" +
       '<span class="crumb-sep" aria-hidden="true">›</span>' +
       '<span class="crumb-current" aria-current="page">' + d.title + "</span>";
-    var homeUrl = ORIGIN + "/" + (L === "lb" ? "" : "?lang=" + L);
-    var sectionUrl = ORIGIN + "/#" + (isTip ? "saison" : "leistungen");
-    var curUrl = ORIGIN + "/service.html?s=" + slug + (L === "lb" ? "" : "&lang=" + L);
+    var homeUrl = ORIGIN + "/" + L + "/";
+    var sectionUrl = homeUrl + "#" + (isTip ? "saison" : "leistungen");
+    var curUrl = ORIGIN + "/" + L + "/service.html?s=" + slug;
     var data = {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -748,10 +744,10 @@
     document.getElementById("svc-title").textContent = d.title;
     var _back = document.getElementById("svc-back");
     if (slug.indexOf("tip-") === 0) {
-      _back.setAttribute("href", "index.html#saison");
+      _back.setAttribute("href", "/" + L + "/#saison");
       _back.textContent = "← " + (TIPBACK[L] || TIPBACK.lb);
     } else {
-      _back.setAttribute("href", "index.html#leistungen");
+      _back.setAttribute("href", "/" + L + "/#leistungen");
       _back.textContent = "← " + lab.back;
     }
     document.getElementById("svc-intro").textContent = d.intro;

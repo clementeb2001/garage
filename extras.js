@@ -440,7 +440,7 @@
       more.textContent = m.saison.more + " →";
       var a = document.createElement("a");
       a.className = "card-cover";
-      a.href = "service.html?s=" + it.slug;
+      a.href = "/" + lang() + "/service.html?s=" + it.slug;
       a.setAttribute("aria-label", it.title);
       c.appendChild(e);
       c.appendChild(s);
@@ -668,6 +668,7 @@
       if (img) {
         img.src = src;
         img.alt = flyerAlt[l][key] || "";
+        button.setAttribute("aria-label", flyerAlt[l][key] || "");
       }
     });
   }

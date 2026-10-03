@@ -18,6 +18,8 @@
       rental_nav: "Location · geschwënn",
       rental_cta: "Location · geschwënn",
       skip: "Direkt bei den Inhalt",
+      quick_actions: "Schnellaktiounen",
+      quick_contact: "Schnellkontakt",
       nav_cta: "Rendez-vous ufroen",
       topbar_partner: "Offiziell Partnergarage",
       hero_eyebrow: "Autosgarage · Bettendorf, Lëtzebuerg",
@@ -55,19 +57,19 @@
       spez_gear_d: "Fir datt d’Gäng sanft wiesselen an d’Boîte méi laang hält.",
       spez_axle_opt: "★ Achsvermiessung",
       spez_gear_opt: "★ Spullung vun der Boîte",
-      svc1_t: "Entretien, Inspektioun & Uelegwiessel",
+      svc1_t: "Entretien, Inspektioun an Uelegwiessel",
       svc1_d:
         "Entretien, Inspektioun, Ueleg- a Filterwiessel – alles fir de Wäert an d'Sécherheet vun Ärem Won.",
-      svc2_t: "Uelegwiessel & Filteren",
+      svc2_t: "Uelegwiessel a Filteren",
       svc2_d:
         "Frëschen Ueleg, nei Filteren an e Bléck op all d’Flëssegkeeten – séier a propper gemaach.",
       svc3_t: "Pneueservice",
       svc3_d:
         "Pneuewiessel, Ausbalancéieren, Alagerung a Berodung zu Summer-, Wanter- a Ganzjorespneuen.",
-      svc4_t: "Bremsen & Fuerwierk",
+      svc4_t: "Bremsen a Fuerwierk",
       svc4_d:
         "Bremsbeläg, Scheiwen, Stoussdämpfer an Achsvermiessung – fir optimalen Halt op der Strooss.",
-      svc5_t: "Feelerdiagnos & Elektrik",
+      svc5_t: "Feelerdiagnos an Elektrik",
       svc5_d:
         "Feelerdiagnos, Batterie, Beliichtung a Bordelektronik – zouverlässeg fonnt a behuewen.",
       svc6_t: "Klimaservice",
@@ -76,7 +78,7 @@
       svc7_t: "Contrôle technique",
       svc7_d:
         "Mir preparéieren Äre Won optimal op de Contrôle technique vir – a begleeden Iech op de Rendez-vous.",
-      svc8_t: "Batterie & Elektrik",
+      svc8_t: "Batterie an Elektrik",
       svc8_d:
         "Batterietest, Start-Stopp-Systemer, Beliichtung a Bordelektronik – alles am Bléck.",
       svc9_t: "Tuning & Motorsport",
@@ -86,11 +88,13 @@
       svc10_d:
         "Karosserieaarbechten, Spoiler, Verbreederungen a propper Lackéierung.",
       about_eyebrow: "Iwwer Autoservice Bettenduerf",
+      about_photo_note: "Symbolbild · Eng eege Foto kënnt nach",
+      about_photo_alt: "Symbolescht Werkstattfoto – eng eege Foto kënnt nach",
       about_title: "E Familljebetrib, deem Dir vertraue kënnt",
       about_p1:
-        "Zu Bettenduerf si mir déi zouverlässeg Adress, wann et ëm d’Wuel vun Ärem Won geet. Bei eis schaffen erfueren Mechaniker, déi hiert Handwierk verstinn – an Iech éierlech soen, wat wierklech néideg ass.",
+        "Zu Bettenduerf si mir déi zouverlässeg Adress, wann et ëm d’Wuel vun Ärem Won geet. Bei eis schaffen erfuere Mechaniker, déi hiert Handwierk verstinn – an Iech éierlech soen, wat wierklech néideg ass.",
       about_p2:
-        "Als Partner am 1·2·3 AutoService-Netzwierk verbanne mir perséinlech Betreiung mat moderner Technik a Qualitéitsdeeler. Egal ob klenge Won, Famillenauto oder Transporter – all Won kritt déiselwecht Suergfalt.",
+        "Als Partner am 1·2·3 AutoService-Netzwierk verbanne mir perséinlech Betreiung mat moderner Technik a Qualitéitsdeeler. Egal ob klenge Won, Familljenauto oder Transporter – all Won kritt déiselwecht Suergfalt.",
       about_c1: "Transparent Devisen – keng béis Iwwerraschungen",
       about_c2: "Original- a Qualitéitsersatzdeeler fir all Marken",
       about_c3: "Perséinlech Uspriechpartner, déi sech Zäit huelen",
@@ -100,10 +104,10 @@
       why_title: "Gutt Grënn fir Äre Besuch",
       feat1_t: "Éierlech Berodung",
       feat1_d:
-        "Mir reparéieren nëmmen dat, wat wierklech néideg ass – an erkläre jiddweree Schrëtt verständlech.",
+        "Mir reparéieren nëmmen dat, wat wierklech néideg ass – an erkläre all Schrëtt verständlech.",
       feat2_t: "Fair Präisser",
       feat2_d:
-        "Kloer Devisen ier d’Aarbecht ufänkt. Dir behalt ëmmer den Iwwerbléck.",
+        "Kloer Devisen, ier d’Aarbecht ufänkt. Dir behalt ëmmer den Iwwerbléck.",
       feat3_t: "All Marken",
       feat3_d:
         "Egal ob däitsch, franséisch oder asiatesch Autoen – mir kennen eis aus.",
@@ -117,7 +121,7 @@
       hours_appt_t: "Nëmme mat Rendez-vous",
       hours_appt_d:
         "Eisen Atelier ass net duerchgängeg op – mir schaffen ausschliisslech op Rendez-vous, fir datt mir eis genuch Zäit fir Äre Won huelen. Rufft un oder schéckt eis eng Ufro.",
-      contact_eyebrow: "Kontakt & Ufaart",
+      contact_eyebrow: "Kontakt an Ufaart",
       contact_title: "Rendez-vous ufroen",
       contact_intro:
         "Schreift eis kuerz, ëm wat et geet – mir mellen eis séier mat engem Rendez-vous-Virschlag.",
@@ -165,6 +169,8 @@
       rental_nav: "Verleih · bald",
       rental_cta: "Verleih · bald verfügbar",
       skip: "Zum Inhalt springen",
+      quick_actions: "Schnellaktionen",
+      quick_contact: "Schnellkontakt",
       nav_cta: "Termin anfragen",
       topbar_partner: "Offizieller Partnerbetrieb",
       hero_eyebrow: "Autowerkstatt · Bettendorf, Luxemburg",
@@ -233,6 +239,8 @@
       svc10_d:
         "Karosseriearbeiten, Spoiler, Verbreiterungen und saubere Lackierung.",
       about_eyebrow: "Über Autoservice Bettenduerf",
+      about_photo_note: "Symbolbild · Eigenes Foto folgt",
+      about_photo_alt: "Symbolisches Werkstattfoto – eigenes Foto folgt",
       about_title: "Ein Familienbetrieb, dem Sie vertrauen können",
       about_p1:
         "In Bettendorf sind wir die verlässliche Adresse, wenn es um das Wohl Ihres Fahrzeugs geht. Bei uns arbeiten erfahrene Mechaniker, die ihr Handwerk verstehen – und Ihnen ehrlich sagen, was wirklich nötig ist.",
@@ -312,6 +320,8 @@
       rental_nav: "Location · bientôt",
       rental_cta: "Location · bientôt",
       skip: "Aller au contenu",
+      quick_actions: "Actions rapides",
+      quick_contact: "Contact rapide",
       nav_cta: "Prendre rendez-vous",
       topbar_partner: "Garage partenaire officiel",
       hero_eyebrow: "Garage automobile · Bettendorf, Luxembourg",
@@ -380,6 +390,8 @@
       svc10_d:
         "Travaux de carrosserie, ailerons, élargisseurs et peinture soignée.",
       about_eyebrow: "À propos d’Autoservice Bettenduerf",
+      about_photo_note: "Photo d’illustration · Photo personnelle à venir",
+      about_photo_alt: "Photo d’illustration d’un atelier – photo personnelle à venir",
       about_title: "Une entreprise familiale de confiance",
       about_p1:
         "À Bettendorf, nous sommes l’adresse de confiance pour le bien-être de votre véhicule. Des mécaniciens expérimentés qui maîtrisent leur métier – et vous disent honnêtement ce qui est vraiment nécessaire.",
@@ -457,6 +469,8 @@
       rental_nav: "Rental · soon",
       rental_cta: "Rental · soon",
       skip: "Skip to content",
+      quick_actions: "Quick actions",
+      quick_contact: "Quick contact",
       nav_cta: "Book appointment",
       topbar_partner: "Official partner garage",
       hero_eyebrow: "Car garage · Bettendorf, Luxembourg",
@@ -524,6 +538,8 @@
       svc10_t: "Bodywork & paint",
       svc10_d: "Bodywork, spoilers, widenings and clean paintwork.",
       about_eyebrow: "About Autoservice Bettenduerf",
+      about_photo_note: "Stock image · Original photo coming soon",
+      about_photo_alt: "Illustrative workshop photo – original photo coming soon",
       about_title: "A family business you can trust",
       about_p1:
         "In Bettendorf we are the reliable address when it comes to the wellbeing of your vehicle. Experienced mechanics who know their craft – and tell you honestly what really needs doing.",
@@ -593,6 +609,7 @@
   var LANGS = ["lb", "de", "fr", "en"];
   var DEFAULT_LANG = "lb";
   var currentLang = DEFAULT_LANG;
+  var cleanLangMatch = location.pathname.match(/^\/(lb|de|fr|en)(?:\/|$)/);
   var SEO = {
     lb: {
       title: "Autoservice Bettenduerf – Autosgarage zu Bettendorf",
@@ -625,6 +642,35 @@
     if (el) el.setAttribute("content", value);
   }
 
+  function isSeoPage() {
+    return /(^|\/)index\.html$/.test(location.pathname) ||
+      /\/$/.test(location.pathname) || /(^|\/)service\.html$/.test(location.pathname);
+  }
+
+  function cleanLanguageUrl(lang) {
+    var servicePage = /(^|\/)service\.html$/.test(location.pathname);
+    var target = "/" + lang + "/" + (servicePage ? "service.html" : "");
+    var params = new URLSearchParams(location.search);
+    params.delete("lang");
+    return target + (params.toString() ? "?" + params.toString() : "") + location.hash;
+  }
+
+  function updateLanguageLinks(lang) {
+    if (!isSeoPage()) return;
+    document.querySelectorAll('a[href]').forEach(function (link) {
+      var raw = link.getAttribute("data-language-href") || link.getAttribute("href");
+      if (!raw || /^(?:https?:|mailto:|tel:)/.test(raw)) return;
+      if (!link.hasAttribute("data-language-href")) link.setAttribute("data-language-href", raw);
+      if (raw.charAt(0) === "#") {
+        link.setAttribute("href", "/" + lang + "/" + (/service\.html$/.test(location.pathname) ? "service.html" : "") + raw);
+      } else if (/^(?:\.\/)?service\.html/.test(raw)) {
+        link.setAttribute("href", "/" + lang + "/" + raw.replace(/^\.\//, ""));
+      } else if (/^(?:\.\/)?index\.html/.test(raw)) {
+        link.setAttribute("href", "/" + lang + "/" + raw.replace(/^(?:\.\/)?index\.html/, ""));
+      }
+    });
+  }
+
   function updateSeo(lang) {
     var seo = SEO[lang] || SEO.lb;
     var isHome = /(^|\/)index\.html$/.test(location.pathname) || /\/$/.test(location.pathname);
@@ -634,18 +680,27 @@
     setMeta('meta[property="og:locale"]', seo.locale);
     if (isHome) setMeta('meta[property="og:title"]', seo.title);
 
-    var url = new URL(location.href);
-    if (lang === DEFAULT_LANG) url.searchParams.delete("lang");
-    else url.searchParams.set("lang", lang);
-    history.replaceState(null, "", url.pathname + url.search + url.hash);
-    var canonicalUrl = new URL(location.origin + location.pathname);
-    if (lang !== DEFAULT_LANG) canonicalUrl.searchParams.set("lang", lang);
+    var canonicalUrl = new URL(cleanLanguageUrl(lang), location.origin);
+    canonicalUrl.hash = "";
     var canonical = document.querySelector('link[rel="canonical"]');
-    if (canonical && isHome) canonical.href = canonicalUrl.href;
+    if (canonical) canonical.href = canonicalUrl.href;
     if (isHome) setMeta('meta[property="og:url"]', canonicalUrl.href);
+    LANGS.forEach(function (code) {
+      var alternate = document.querySelector('link[rel="alternate"][hreflang="' + code + '"]');
+      if (!alternate) {
+        alternate = document.createElement("link");
+        alternate.rel = "alternate";
+        alternate.hreflang = code;
+        document.head.appendChild(alternate);
+      }
+      alternate.href = new URL(cleanLanguageUrl(code).replace(/#.*$/, ""), location.origin).href;
+    });
+    var fallback = document.querySelector('link[rel="alternate"][hreflang="x-default"]');
+    if (fallback) fallback.href = new URL(cleanLanguageUrl(DEFAULT_LANG).replace(/#.*$/, ""), location.origin).href;
   }
 
   function getStoredLang() {
+    if (cleanLangMatch) return cleanLangMatch[1];
     var requested = new URLSearchParams(location.search).get("lang");
     if (requested && LANGS.indexOf(requested) !== -1) return requested;
     try {
@@ -668,9 +723,18 @@
       var key = el.getAttribute("data-i18n-ph");
       if (dict[key] != null) el.setAttribute("placeholder", dict[key]);
     });
+    document.querySelectorAll("[data-i18n-alt]").forEach(function (el) {
+      var key = el.getAttribute("data-i18n-alt");
+      if (dict[key] != null) el.setAttribute("alt", dict[key]);
+    });
+    document.querySelectorAll("[data-i18n-aria]").forEach(function (el) {
+      var key = el.getAttribute("data-i18n-aria");
+      if (dict[key] != null) el.setAttribute("aria-label", dict[key]);
+    });
 
     document.documentElement.lang = lang;
     updateSeo(lang);
+    updateLanguageLinks(lang);
 
     document.querySelectorAll(".lang-select").forEach(function (select) {
       select.value = lang;
@@ -683,6 +747,11 @@
 
   document.querySelectorAll(".lang-select").forEach(function (select) {
     select.addEventListener("change", function () {
+      if (isSeoPage()) {
+        try { localStorage.setItem("gk_lang", select.value); } catch (e) {}
+        location.assign(cleanLanguageUrl(select.value));
+        return;
+      }
       applyLang(select.value);
       var mobileNav = document.getElementById("main-nav");
       var mobileToggle = document.getElementById("nav-toggle");
