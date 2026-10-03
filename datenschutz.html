@@ -23,6 +23,12 @@
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css?v=51" />
+    <style>
+      .legal-langbar{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 20px}
+      .legal-langbar button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.03em;padding:5px 12px;border:1px solid var(--line,#d9dee5);background:transparent;color:var(--text-mut,#667381);border-radius:999px;cursor:pointer}
+      .legal-langbar button.active{background:var(--navy-900,#0d1b2a);color:#fff;border-color:var(--navy-900,#0d1b2a)}
+      .legal-langbar button:focus-visible{outline:2px solid var(--accent,#d8232a);outline-offset:2px}
+    </style>
   </head>
   <body class="legal-page">
     <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
@@ -42,6 +48,13 @@
     <main class="legal-main" id="main">
       <div class="container">
         <article class="legal-card">
+          <div class="legal-langbar" role="group" aria-label="Sprache / Langue / Language">
+            <button type="button" data-set-lang="de">DE</button>
+            <button type="button" data-set-lang="fr">FR</button>
+            <button type="button" data-set-lang="en">EN</button>
+          </div>
+
+          <div data-lang-block="de">
           <a class="legal-back" href="index.html">← Zurück zur Startseite</a>
           <h1>Datenschutzerklärung</h1>
 
@@ -242,9 +255,413 @@
               keine individuelle Rechtsberatung.</small
             >
           </p>
+          </div>
+
+          <div data-lang-block="fr" hidden>
+            <a class="legal-back" href="index.html">← Retour à l’accueil</a>
+            <h1>Politique de confidentialité</h1>
+
+            <h2>Responsable du traitement</h2>
+            <p>
+              Autoservice Bettenduerf<br />63, rue de Diekirch-Echternach<br />L-9355
+              Bettendorf, Luxembourg<br />
+              E-mail :
+              <a href="mailto:Autoservicebettenduerf@outlook.com"
+                >Autoservicebettenduerf@outlook.com</a
+              >
+            </p>
+
+            <h2>Hébergement via GitHub Pages</h2>
+            <p>
+              Ce site est hébergé via GitHub Pages, un service de GitHub, Inc.,
+              88 Colin P Kelly Jr Street, San Francisco, CA 94107, États-Unis.
+              Lors de la consultation, GitHub traite les données de connexion
+              techniquement nécessaires, notamment l’adresse IP, la date et
+              l’heure, le fichier consulté, le volume de données transféré, le
+              référent ainsi que des informations sur le navigateur et le système
+              d’exploitation. GitHub indique que l’adresse IP des visiteurs d’un
+              site GitHub Pages est journalisée à des fins de sécurité.
+            </p>
+            <p>
+              Ce traitement sert à fournir le site de manière sûre, stable et
+              efficace et repose sur notre intérêt légitime conformément à
+              l’art. 6, par. 1, point f) du RGPD. Vous trouverez de plus amples
+              informations dans la
+              <a
+                href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement"
+                target="_blank"
+                rel="noopener noreferrer"
+                >politique de confidentialité de GitHub</a
+              >.
+            </p>
+
+            <h2>Demandes de rendez-vous via FormSubmit</h2>
+            <p>
+              Lorsque vous envoyez le formulaire de demande, les données que vous
+              saisissez sont transmises de manière chiffrée au service FormSubmit,
+              qui nous les transfère ensuite par e-mail. Sont traités, selon votre
+              saisie, le nom, l’adresse e-mail, le numéro de téléphone, la
+              prestation souhaitée, la date souhaitée et une date alternative, le
+              moment de la journée, le numéro de châssis (VIN) ainsi que le
+              contenu de votre message. Les champs obligatoires sont indiqués
+              comme tels ; sans ces informations, nous ne pouvons pas traiter la
+              demande via le formulaire.
+            </p>
+            <p>
+              Le traitement a lieu pour répondre à votre demande et pour exécuter
+              des mesures précontractuelles conformément à l’art. 6, par. 1,
+              point b) du RGPD. Les destinataires des données sont Autoservice
+              Bettenduerf, FormSubmit en tant que service technique de
+              transmission et les fournisseurs de messagerie concernés. Selon ses
+              propres indications, FormSubmit ne traite les données du formulaire
+              que pour fournir son service. De plus amples informations figurent
+              dans la
+              <a
+                href="https://formsubmit.co/privacy.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                >politique de confidentialité de FormSubmit</a
+              >.
+            </p>
+            <p>
+              FormSubmit et GitHub étant des services internationaux, un
+              traitement peut avoir lieu dans des pays situés en dehors de
+              l’Espace économique européen. Vous trouverez des informations sur
+              les destinataires, les lieux de traitement et les garanties
+              appliquées dans les politiques de confidentialité liées des
+              fournisseurs. Merci de ne pas transmettre, via le champ de texte
+              libre, de données de santé ou d’autres informations sensibles non
+              nécessaires.
+            </p>
+
+            <h2>Durée de conservation</h2>
+            <p>
+              Les demandes qui ne donnent pas lieu à une commande sont en principe
+              supprimées au plus tard douze mois après la fin de la communication,
+              sauf si des obligations légales ou la constatation, l’exercice ou la
+              défense de droits en justice exigent une conservation plus longue.
+              Si une commande est conclue, les données nécessaires sont conservées
+              pour son exécution puis conformément aux délais légaux de
+              conservation. Nous n’avons aucune influence directe sur la durée de
+              conservation propre à GitHub, FormSubmit et aux fournisseurs de
+              messagerie.
+            </p>
+
+            <h2>Panier et traitement des paiements dans la boutique</h2>
+            <p>
+              Dans l’aperçu interne de la boutique, le contenu du panier est
+              enregistré dans le stockage local de votre navigateur. Le numéro
+              d’article, la désignation, le prix et la quantité sont alors
+              enregistrés uniquement sur votre appareil, sous la clé
+              <code>gk_cart</code>. Vous pouvez supprimer ces données à tout moment
+              via les données de site de votre navigateur.
+            </p>
+            <p>
+              Après l’activation publique de la boutique, le paiement sera traité
+              par Mollie B.V., Keizersgracht 126, 1015 CW Amsterdam, Pays-Bas. Au
+              lancement d’un paiement sont traités les positions du panier, le
+              montant total, la langue choisie ainsi que les données de
+              transaction et de contact nécessaires au paiement et au traitement
+              de la commande. Selon le moyen de paiement, d’autres données peuvent
+              être transmises à Mollie ainsi qu’à l’établissement de crédit ou au
+              prestataire de paiement choisi.
+            </p>
+            <p>
+              Le traitement a lieu pour l’exécution de mesures précontractuelles
+              et du contrat de vente conformément à l’art. 6, par. 1, point b) du
+              RGPD, ainsi que pour respecter les obligations légales de
+              conservation et de preuve conformément à l’art. 6, par. 1, point c)
+              du RGPD. Vous trouverez de plus amples informations dans la
+              <a href="https://www.mollie.com/privacy" target="_blank"
+              rel="noopener noreferrer">politique de confidentialité de Mollie</a>.
+            </p>
+
+            <h2>Cloudflare Web Analytics</h2>
+            <p>
+              Nous utilisons Cloudflare Web Analytics, un service de Cloudflare,
+              Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis, afin
+              d’obtenir des statistiques agrégées sur les pages vues, les visiteurs
+              et les performances techniques du site. À cette fin, un beacon
+              JavaScript de Cloudflare est chargé lors de la consultation. Selon le
+              fournisseur, Cloudflare Web Analytics n’utilise pas de cookies et ne
+              suit pas les visiteurs individuels d’un site à l’autre.
+            </p>
+            <p>
+              Le traitement sert à l’analyse statistique ainsi qu’à l’amélioration
+              du contenu, de l’ergonomie et des performances de chargement du site,
+              et repose sur notre intérêt légitime conformément à l’art. 6, par. 1,
+              point f) du RGPD. Vous trouverez de plus amples informations dans la
+              <a
+                href="https://www.cloudflare.com/privacypolicy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >politique de confidentialité de Cloudflare</a
+              >.
+            </p>
+
+            <h2>Images produits dans la boutique (Sanity CDN &amp; 3cerp.eu)</h2>
+            <p>
+              Dans la section « Boutique », les images des articles REMUS sont
+              chargées via le réseau de diffusion de contenu de Sanity
+              (cdn.sanity.io, Sanity AS, Norvège). Les images des articles de
+              freinage DBA sont chargées via le serveur 3cerp.eu (3C ERP,
+              Danemark). Lors du chargement de ces images, votre adresse IP est,
+              pour des raisons techniques, transmise au service concerné. Les
+              images ne sont chargées que lorsque vous ouvrez la page de la
+              boutique. La base juridique est notre intérêt légitime à une
+              présentation attrayante et performante des articles conformément à
+              l’art. 6, par. 1, point f) du RGPD. À notre connaissance, aucun
+              cookie n’est alors déposé.
+            </p>
+
+            <h2>Réglage local de la langue</h2>
+            <p>
+              La langue du site que vous choisissez est enregistrée dans le
+              stockage local de votre navigateur. Cette information reste sur votre
+              appareil et n’est pas transmise à Autoservice Bettenduerf. Vous
+              pouvez la supprimer à tout moment en effaçant les données de site de
+              votre navigateur. Cloudflare Web Analytics ne dépose aucun cookie
+              d’analyse ou de marketing sur votre appareil.
+            </p>
+
+            <h2>Google Maps et liens externes</h2>
+            <p>
+              Le plan de localisation affiché sur la page de contact est chargé
+              localement et n’établit pas encore de connexion avec Google Maps.
+              Ce n’est que lorsque vous sélectionnez « Lancer la navigation » ou
+              « Calculer l’itinéraire » que vous ouvrez Google Maps. Des données,
+              en particulier votre adresse IP et le cas échéant des données de
+              localisation, peuvent alors être traitées par Google. Les règles de
+              confidentialité de Google s’appliquent à ce traitement. Il en va de
+              même pour d’autres liens externes à partir du moment où vous les
+              ouvrez.
+            </p>
+
+            <h2>Vos droits</h2>
+            <p>
+              Dans la mesure où les conditions légales sont remplies, vous pouvez
+              demander l’accès, la rectification, l’effacement, la limitation du
+              traitement et la portabilité des données. Vous pouvez vous opposer à
+              un traitement fondé sur des intérêts légitimes et retirer à tout
+              moment un consentement donné, avec effet pour l’avenir. Vous disposez
+              en outre d’un droit de réclamation auprès de l’autorité
+              luxembourgeoise de protection des données, la
+              <a href="https://cnpd.public.lu/" target="_blank" rel="noopener noreferrer"
+                >Commission nationale pour la protection des données (CNPD)</a
+              >. Pour exercer vos droits, veuillez vous adresser à l’adresse e-mail
+              indiquée ci-dessus.
+            </p>
+
+            <h2>Mise à jour de cette déclaration</h2>
+            <p>
+              Nous adaptons cette politique de confidentialité lorsque le site, les
+              services utilisés ou les exigences légales évoluent.
+            </p>
+
+            <p>
+              <small
+                >Mise à jour : octobre 2026. Cette politique de confidentialité a
+                été adaptée aux services actuellement utilisés par le site et ne
+                remplace pas un conseil juridique individuel.</small
+              >
+            </p>
+          </div>
+
+          <div data-lang-block="en" hidden>
+            <a class="legal-back" href="index.html">← Back to home</a>
+            <h1>Privacy policy</h1>
+
+            <h2>Controller</h2>
+            <p>
+              Autoservice Bettenduerf<br />63, rue de Diekirch-Echternach<br />L-9355
+              Bettendorf, Luxembourg<br />
+              E-mail:
+              <a href="mailto:Autoservicebettenduerf@outlook.com"
+                >Autoservicebettenduerf@outlook.com</a
+              >
+            </p>
+
+            <h2>Hosting via GitHub Pages</h2>
+            <p>
+              This website is provided via GitHub Pages, a service of GitHub, Inc.,
+              88 Colin P Kelly Jr Street, San Francisco, CA 94107, USA. When the
+              site is accessed, GitHub processes technically necessary connection
+              data, in particular the IP address, date and time, the file
+              requested, the volume of data transferred, the referrer as well as
+              browser and operating-system information. GitHub states that the IP
+              address of visitors to a GitHub Pages website is logged for security
+              purposes.
+            </p>
+            <p>
+              This processing serves to provide the website securely, stably and
+              efficiently and is based on our legitimate interest pursuant to
+              Art. 6(1)(f) GDPR. Further information can be found in
+              <a
+                href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GitHub’s privacy statement</a
+              >.
+            </p>
+
+            <h2>Appointment requests via FormSubmit</h2>
+            <p>
+              When you submit the request form, the data you enter is transmitted
+              in encrypted form to the FormSubmit service and forwarded from there
+              to us by e-mail. Depending on your input, we process your name,
+              e-mail address, phone number, the service requested, preferred and
+              alternative dates, time of day, vehicle identification number (VIN)
+              and the content of your message. Mandatory fields are marked as such;
+              without this information we cannot process the request via the form.
+            </p>
+            <p>
+              The processing is carried out to respond to your request and to take
+              pre-contractual steps pursuant to Art. 6(1)(b) GDPR. Recipients of
+              the data are Autoservice Bettenduerf, FormSubmit as the technical
+              transmission service and the e-mail providers involved. According to
+              its own statements, FormSubmit processes form data only to provide
+              its service. Further information is available in
+              <a
+                href="https://formsubmit.co/privacy.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                >FormSubmit’s privacy policy</a
+              >.
+            </p>
+            <p>
+              As FormSubmit and GitHub are international services, processing may
+              take place in countries outside the European Economic Area.
+              Information on recipients, places of processing and the safeguards
+              applied can be found in the providers’ linked privacy policies.
+              Please do not submit health data or other unnecessary sensitive
+              information via the free-text field.
+            </p>
+
+            <h2>Retention period</h2>
+            <p>
+              Requests that do not result in an order are generally deleted no
+              later than twelve months after the communication ends, unless legal
+              obligations or the establishment, exercise or defence of legal claims
+              require longer storage. If an order is placed, the necessary data is
+              stored for its processing and afterwards in accordance with statutory
+              retention periods. We have no direct influence on the storage periods
+              of GitHub, FormSubmit and the e-mail providers.
+            </p>
+
+            <h2>Cart and payment processing in the shop</h2>
+            <p>
+              In the internal shop preview, the contents of the cart are stored in
+              your browser’s local storage. The article number, article name, price
+              and quantity are stored solely on your device under the key
+              <code>gk_cart</code>. You can delete this data at any time via your
+              browser’s site data.
+            </p>
+            <p>
+              After the public activation of the shop, payment is intended to be
+              processed by Mollie B.V., Keizersgracht 126, 1015 CW Amsterdam, the
+              Netherlands. When a payment is started, the cart items, the total
+              amount, the chosen language and the transaction and contact data
+              required for payment and order processing are processed. Depending on
+              the payment method, further data may be transmitted to Mollie and to
+              the selected bank or payment provider.
+            </p>
+            <p>
+              The processing is carried out to take pre-contractual steps and to
+              perform the purchase contract pursuant to Art. 6(1)(b) GDPR, as well
+              as to comply with statutory retention and documentation obligations
+              pursuant to Art. 6(1)(c) GDPR. Further information can be found in
+              <a href="https://www.mollie.com/privacy" target="_blank"
+              rel="noopener noreferrer">Mollie’s privacy policy</a>.
+            </p>
+
+            <h2>Cloudflare Web Analytics</h2>
+            <p>
+              We use Cloudflare Web Analytics, a service of Cloudflare, Inc., 101
+              Townsend Street, San Francisco, CA 94107, USA, to obtain aggregated
+              statistics on page views, visitors and the technical performance of
+              the website. For this purpose, a JavaScript beacon from Cloudflare is
+              loaded when the page is accessed. According to the provider,
+              Cloudflare Web Analytics does not use cookies and does not track
+              individual visitors across different websites.
+            </p>
+            <p>
+              The processing serves statistical analysis as well as the improvement
+              of the content, usability and loading performance of the website and
+              is based on our legitimate interest pursuant to Art. 6(1)(f) GDPR.
+              Further information can be found in
+              <a
+                href="https://www.cloudflare.com/privacypolicy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Cloudflare’s privacy policy</a
+              >.
+            </p>
+
+            <h2>Product images in the shop (Sanity CDN &amp; 3cerp.eu)</h2>
+            <p>
+              In the “Shop” section, product images of REMUS articles are loaded via
+              Sanity’s content delivery network (cdn.sanity.io, Sanity AS, Norway).
+              Product images of DBA braking articles are loaded via the server
+              3cerp.eu (3C ERP, Denmark). When these images are loaded, your IP
+              address is, for technical reasons, transmitted to the respective
+              service. The images are only loaded when you open the shop page. The
+              legal basis is our legitimate interest in an appealing and performant
+              presentation of the articles pursuant to Art. 6(1)(f) GDPR. To our
+              knowledge, no cookies are set in the process.
+            </p>
+
+            <h2>Local language setting</h2>
+            <p>
+              The site language you choose is stored in your browser’s local
+              storage. This information stays on your device and is not transmitted
+              to Autoservice Bettenduerf. You can delete it at any time by clearing
+              your browser’s site data. Cloudflare Web Analytics does not set any
+              analytics or marketing cookies on your device.
+            </p>
+
+            <h2>Google Maps and external links</h2>
+            <p>
+              The location graphic shown on the contact page is loaded locally and
+              does not yet establish a connection to Google Maps. Only when you
+              select “Start navigation” or “Calculate route” do you open Google
+              Maps. In doing so, data – in particular your IP address and, where
+              applicable, location data – may be processed by Google. Google’s
+              privacy terms apply to this processing. The same applies to other
+              external links from the moment you open them.
+            </p>
+
+            <h2>Your rights</h2>
+            <p>
+              Where the legal requirements are met, you can request access,
+              rectification, erasure, restriction of processing and data
+              portability. You can object to processing based on legitimate
+              interests and withdraw any consent given at any time with effect for
+              the future. You also have the right to lodge a complaint with the
+              Luxembourg data protection authority, the
+              <a href="https://cnpd.public.lu/" target="_blank" rel="noopener noreferrer"
+                >Commission nationale pour la protection des données (CNPD)</a
+              >. To exercise your rights, please contact the e-mail address given
+              above.
+            </p>
+
+            <h2>Updates to this statement</h2>
+            <p>
+              We adapt this privacy policy when the website, the services used or
+              the legal requirements change.
+            </p>
+
+            <p>
+              <small
+                >Last updated: October 2026. This privacy policy has been aligned
+                with the services currently used by the website and does not
+                replace individual legal advice.</small
+              >
+            </p>
+          </div>
         </article>
       </div>
     </main>
+    <script src="legal-i18n.js?v=1"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"

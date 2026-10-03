@@ -23,6 +23,12 @@
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css?v=51" />
+    <style>
+      .legal-langbar{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 20px}
+      .legal-langbar button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.03em;padding:5px 12px;border:1px solid var(--line,#d9dee5);background:transparent;color:var(--text-mut,#667381);border-radius:999px;cursor:pointer}
+      .legal-langbar button.active{background:var(--navy-900,#0d1b2a);color:#fff;border-color:var(--navy-900,#0d1b2a)}
+      .legal-langbar button:focus-visible{outline:2px solid var(--accent,#d8232a);outline-offset:2px}
+    </style>
   </head>
   <body class="legal-page">
     <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
@@ -42,48 +48,140 @@
     <main class="legal-main" id="main">
       <div class="container">
         <article class="legal-card">
-          <a class="legal-back" href="index.html">← Zurück zur Startseite</a>
-          <h1>Impressum</h1>
+          <div class="legal-langbar" role="group" aria-label="Sprache / Langue / Language">
+            <button type="button" data-set-lang="de">DE</button>
+            <button type="button" data-set-lang="fr">FR</button>
+            <button type="button" data-set-lang="en">EN</button>
+          </div>
 
-          <h2>Diensteanbieter</h2>
-          <p>
-            Autoservice Bettenduerf<br />63, rue de Diekirch-Echternach<br />L-9355
-            Bettendorf<br />Luxemburg
-          </p>
+          <div data-lang-block="de">
+            <a class="legal-back" href="index.html">← Zurück zur Startseite</a>
+            <h1>Impressum</h1>
 
-          <h2>Kontakt</h2>
-          <p>
-            Telefon: <a href="tel:+352808687">+352 80 86 87</a><br />
-            Mobil: <a href="tel:+352621435495">+352 621 435 495</a><br />
-            E-Mail:
-            <a href="mailto:Autoservicebettenduerf@outlook.com"
-              >Autoservicebettenduerf@outlook.com</a
-            >
-          </p>
+            <h2>Diensteanbieter</h2>
+            <p>
+              Autoservice Bettenduerf<br />63, rue de Diekirch-Echternach<br />L-9355
+              Bettendorf<br />Luxemburg
+            </p>
 
-          <h2>Weitere Unternehmensangaben</h2>
-          <p>
-            Registre de Commerce et des Sociétés Luxembourg (RCS): A39773<br />
-            Umsatzsteuer-Identifikationsnummer (TVA): LU26600977
-          </p>
+            <h2>Kontakt</h2>
+            <p>
+              Telefon: <a href="tel:+352808687">+352 80 86 87</a><br />
+              Mobil: <a href="tel:+352621435495">+352 621 435 495</a><br />
+              E-Mail:
+              <a href="mailto:Autoservicebettenduerf@outlook.com"
+                >Autoservicebettenduerf@outlook.com</a
+              >
+            </p>
 
-          <h2>Haftung für Inhalte und Links</h2>
-          <p>
-            Die Inhalte dieser Website wurden mit Sorgfalt erstellt. Für externe
-            Seiten, auf die verlinkt wird, sind ausschließlich deren Betreiber
-            verantwortlich.
-          </p>
+            <h2>Weitere Unternehmensangaben</h2>
+            <p>
+              Registre de Commerce et des Sociétés Luxembourg (RCS): A39773<br />
+              Umsatzsteuer-Identifikationsnummer (TVA): LU26600977
+            </p>
 
-          <p>
-            <small
-              >Stand: August 2026. Dieser Text ist eine praktische
-              Informationsgrundlage und ersetzt keine individuelle
-              Rechtsberatung.</small
-            >
-          </p>
+            <h2>Haftung für Inhalte und Links</h2>
+            <p>
+              Die Inhalte dieser Website wurden mit Sorgfalt erstellt. Für externe
+              Seiten, auf die verlinkt wird, sind ausschließlich deren Betreiber
+              verantwortlich.
+            </p>
+
+            <p>
+              <small
+                >Stand: August 2026. Dieser Text ist eine praktische
+                Informationsgrundlage und ersetzt keine individuelle
+                Rechtsberatung.</small
+              >
+            </p>
+          </div>
+
+          <div data-lang-block="fr" hidden>
+            <a class="legal-back" href="index.html">← Retour à l’accueil</a>
+            <h1>Mentions légales</h1>
+
+            <h2>Prestataire</h2>
+            <p>
+              Autoservice Bettenduerf<br />63, rue de Diekirch-Echternach<br />L-9355
+              Bettendorf<br />Luxembourg
+            </p>
+
+            <h2>Contact</h2>
+            <p>
+              Téléphone : <a href="tel:+352808687">+352 80 86 87</a><br />
+              Mobile : <a href="tel:+352621435495">+352 621 435 495</a><br />
+              E-mail :
+              <a href="mailto:Autoservicebettenduerf@outlook.com"
+                >Autoservicebettenduerf@outlook.com</a
+              >
+            </p>
+
+            <h2>Autres informations sur l’entreprise</h2>
+            <p>
+              Registre de Commerce et des Sociétés Luxembourg (RCS) : A39773<br />
+              Numéro d’identification TVA : LU26600977
+            </p>
+
+            <h2>Responsabilité des contenus et des liens</h2>
+            <p>
+              Les contenus de ce site ont été élaborés avec soin. Les exploitants
+              des sites externes vers lesquels pointent des liens sont seuls
+              responsables de leur contenu.
+            </p>
+
+            <p>
+              <small
+                >Mise à jour : août 2026. Ce texte constitue une base
+                d’information pratique et ne remplace pas un conseil juridique
+                individuel.</small
+              >
+            </p>
+          </div>
+
+          <div data-lang-block="en" hidden>
+            <a class="legal-back" href="index.html">← Back to home</a>
+            <h1>Legal notice</h1>
+
+            <h2>Service provider</h2>
+            <p>
+              Autoservice Bettenduerf<br />63, rue de Diekirch-Echternach<br />L-9355
+              Bettendorf<br />Luxembourg
+            </p>
+
+            <h2>Contact</h2>
+            <p>
+              Phone: <a href="tel:+352808687">+352 80 86 87</a><br />
+              Mobile: <a href="tel:+352621435495">+352 621 435 495</a><br />
+              E-mail:
+              <a href="mailto:Autoservicebettenduerf@outlook.com"
+                >Autoservicebettenduerf@outlook.com</a
+              >
+            </p>
+
+            <h2>Further company details</h2>
+            <p>
+              Registre de Commerce et des Sociétés Luxembourg (RCS): A39773<br />
+              VAT identification number (TVA): LU26600977
+            </p>
+
+            <h2>Liability for content and links</h2>
+            <p>
+              The content of this website has been prepared with care. The
+              operators of external sites linked to here are solely responsible
+              for their content.
+            </p>
+
+            <p>
+              <small
+                >Last updated: August 2026. This text is a practical information
+                basis and does not replace individual legal advice.</small
+              >
+            </p>
+          </div>
         </article>
       </div>
     </main>
+    <script src="legal-i18n.js?v=1"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"

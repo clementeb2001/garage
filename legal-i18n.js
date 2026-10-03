@@ -21,8 +21,10 @@
       b.hidden = b.getAttribute("data-lang-block") !== show;
     });
     if (show) document.documentElement.setAttribute("lang", show);
+    /* Déi gewise Sprooch markéieren (net déi ugefrote) – sou ass bei engem
+       Fallback (z. B. lb → de) ëmmer dee richtege Knäppchen aktiv. */
     document.querySelectorAll("[data-set-lang]").forEach(function (btn) {
-      var on = btn.getAttribute("data-set-lang") === lang;
+      var on = btn.getAttribute("data-set-lang") === show;
       btn.classList.toggle("active", on);
       btn.setAttribute("aria-pressed", on ? "true" : "false");
     });
