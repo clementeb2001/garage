@@ -13,7 +13,10 @@
         hannerleeën a Worker deployéieren.
      3. RECHT: shop-rechtliches.html — Versandgebitt, konkret Käschten a
         Liwwerzäiten definitiv hannerleeën + rechtlech Préifung.
-     4. Eréischt DANN d'Gate hei ëmstellen (ëmmer shop-dev setzen / Gate
+     4. SEO: am shop.html d'<meta robots> "noindex" ewechhuelen, an der
+        robots.txt "Disallow: /shop.html" läschen, a shop.html an d'
+        sitemap.xml ophuelen, sou datt de Shop indexéiert gëtt.
+     5. Eréischt DANN d'Gate hei ëmstellen (ëmmer shop-dev setzen / Gate
         ewechhuelen), sou datt d'Public de Shop gesäit.
    ======================================================================== */
 (function () {
