@@ -2943,6 +2943,16 @@ body {
   font-weight: 800;
   color: var(--navy-900, #0d1b2a);
   white-space: nowrap;
+  text-align: right;
+}
+.shop-shipping-note {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-mut, #667381);
+  font-size: 0.64rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 .shop-price em {
   font-style: normal;
@@ -5222,6 +5232,7 @@ html.shop-dev .shop-card-body .shop-price {
   gap: 10px; margin: 16px 0 10px; padding-top: 12px; border-top: 1px solid #e6e9ee;
 }
 .pd-ref { font-size: 0.72rem; color: #8a96a2; font-family: ui-monospace, Menlo, monospace; }
+.pd-price-wrap { display: flex; flex-direction: column; align-items: flex-end; }
 .pd-price { font-size: 1.4rem; font-weight: 800; color: #0d1b2a; white-space: nowrap; }
 .pd-add { width: 100%; padding: 13px; border-radius: 12px; font-weight: 800; }
 .pd-add:disabled { opacity: 0.45; cursor: not-allowed; }

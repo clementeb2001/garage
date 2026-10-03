@@ -146,7 +146,7 @@
       info_cat: "{n} · {c}",
       empty: "Keng Produiten fonnt. Rufft eis un – mir fannen dat richtegt Deel.",
       fits: "Passt:", artnr: "Réf.", add: "An de Kuerf", fits_on: "Passt op:", related: "Dobaibestellen", related_sub: "Passend Deeler fir Äert Gefier – fir e komplett System", rel_none: "Keng passend Zousatzdeeler fonnt.", pd_add: "+ derbäi", pd_close: "Zoumaachen", roles: { system: "Komplett-System", catback: "Cat-Back", axleback: "Axle-Back", slipon: "Slip-On", rear: "Endschalldämpfer", mid: "Mëttelrouer", front: "Front-Schalldämpfer", downpipe: "Downpipe", header: "Krümmer", tail: "Endrohren", sound: "Sound Controller", adapter: "Adapter / Verbindung" },
-      added: "„{n}“ an de Kuerf geluecht", vat: "All Präisser inkl. 17% TVA.",
+      added: "„{n}“ an de Kuerf geluecht", vat: "All Präisser inkl. 17% TVA.", shipping_extra: "zzgl. Liwwerkäschten",
       stock_in: "Op Lager", stock_order: "Op Ufro",
       ec_ok: "EC-Zoulassung", ec_some: "EC je no Gefier", ec_no: "Rennsport · ouni EC",
       kw: "kW", from: "zanter", mf_all: "All Marquen", axle_f: "Viischt Achs", axle_r: "Hënnescht Achs",
@@ -172,7 +172,7 @@
       info_cat: "{n} · {c}",
       empty: "Keine Produkte gefunden. Rufen Sie uns an – wir finden das richtige Teil.",
       fits: "Passt:", artnr: "Ref.", add: "In den Warenkorb", fits_on: "Passt auf:", related: "Dazu bestellen", related_sub: "Passende Teile für Ihr Fahrzeug – für eine komplette Anlage", rel_none: "Kein passendes Zubehör gefunden.", pd_add: "+ dazu", pd_close: "Schließen", roles: { system: "Komplettanlage", catback: "Cat-Back", axleback: "Axle-Back", slipon: "Slip-On", rear: "Endschalldämpfer", mid: "Mittelrohr", front: "Vorschalldämpfer", downpipe: "Downpipe", header: "Krümmer", tail: "Endrohre", sound: "Sound Controller", adapter: "Adapter / Verbindung" },
-      added: "„{n}“ in den Warenkorb gelegt", vat: "Alle Preise inkl. 17% MwSt.",
+      added: "„{n}“ in den Warenkorb gelegt", vat: "Alle Preise inkl. 17% MwSt.", shipping_extra: "zzgl. Lieferkosten",
       stock_in: "Auf Lager", stock_order: "Auf Anfrage",
       ec_ok: "EG-Zulassung", ec_some: "EG je nach Fahrzeug", ec_no: "Rennsport · ohne EG",
       kw: "kW", from: "ab", mf_all: "Alle Marken", axle_f: "Vorderachse", axle_r: "Hinterachse",
@@ -198,7 +198,7 @@
       info_cat: "{n} · {c}",
       empty: "Aucun produit trouvé. Appelez-nous – nous trouvons la bonne pièce.",
       fits: "Compatible :", artnr: "Réf.", add: "Au panier", fits_on: "Compatible avec :", related: "À commander avec", related_sub: "Pièces compatibles pour votre véhicule – pour une ligne complète", rel_none: "Aucun accessoire compatible trouvé.", pd_add: "+ ajouter", pd_close: "Fermer", roles: { system: "Ligne complète", catback: "Cat-Back", axleback: "Axle-Back", slipon: "Slip-On", rear: "Silencieux arrière", mid: "Tube intermédiaire", front: "Silencieux avant", downpipe: "Downpipe", header: "Collecteur", tail: "Sorties", sound: "Sound Controller", adapter: "Adaptateur / raccord" },
-      added: "« {n} » ajouté au panier", vat: "Tous les prix TTC (TVA 17% incluse).",
+      added: "« {n} » ajouté au panier", vat: "Tous les prix TTC (TVA 17% incluse).", shipping_extra: "hors frais de livraison",
       stock_in: "En stock", stock_order: "Sur demande",
       ec_ok: "Homologation CE", ec_some: "CE selon véhicule", ec_no: "Compétition · sans CE",
       kw: "kW", from: "dès", mf_all: "Toutes marques", axle_f: "Essieu avant", axle_r: "Essieu arrière",
@@ -224,7 +224,7 @@
       info_cat: "{n} · {c}",
       empty: "No products found. Call us – we’ll find the right part.",
       fits: "Fits:", artnr: "Ref.", add: "Add to cart", fits_on: "Fits:", related: "Order together", related_sub: "Matching parts for your vehicle – to complete the system", rel_none: "No matching accessories found.", pd_add: "+ add", pd_close: "Close", roles: { system: "Full system", catback: "Cat-Back", axleback: "Axle-Back", slipon: "Slip-On", rear: "Rear silencer", mid: "Mid pipe", front: "Front silencer", downpipe: "Downpipe", header: "Header", tail: "Tail pipes", sound: "Sound Controller", adapter: "Adapter / link" },
-      added: "“{n}” added to cart", vat: "All prices incl. 17% VAT.",
+      added: "“{n}” added to cart", vat: "All prices incl. 17% VAT.", shipping_extra: "plus delivery costs",
       stock_in: "In stock", stock_order: "On request",
       ec_ok: "EC approval", ec_some: "EC depends on vehicle", ec_no: "Race · no EC",
       kw: "kW", from: "from", mf_all: "All brands", axle_f: "Front axle", axle_r: "Rear axle",
@@ -953,6 +953,12 @@
     var pr = document.createElement("span");
     pr.className = "shop-price";
     pr.textContent = p.p ? priceStr(p.p) : "—";
+    if (p.p) {
+      var shipping = document.createElement("small");
+      shipping.className = "shop-shipping-note";
+      shipping.textContent = t.shipping_extra;
+      pr.appendChild(shipping);
+    }
     foot.appendChild(art);
     foot.appendChild(pr);
     body.appendChild(foot);
@@ -1129,7 +1135,7 @@
       '<div class="pd-config" id="pd-config"></div>' +
       '<p class="pd-fits-title" id="pd-fits-title"></p>' +
       '<ul class="pd-fits" id="pd-fits"></ul>' +
-      '<div class="pd-foot"><span class="pd-ref" id="pd-ref"></span><span class="pd-price" id="pd-price"></span></div>' +
+      '<div class="pd-foot"><span class="pd-ref" id="pd-ref"></span><span class="pd-price-wrap"><span class="pd-price" id="pd-price"></span><small class="shop-shipping-note" id="pd-shipping"></small></span></div>' +
       '<button type="button" class="btn btn-primary pd-add" id="pd-add"></button>' +
       '<button type="button" class="btn btn-outline pd-inquiry" id="pd-inquiry"></button>' +
       '<div class="pd-related" id="pd-related"></div>' +
@@ -1404,6 +1410,7 @@
     });
     setTxt("pd-ref", t.artnr + " " + displayRef(p));
     setTxt("pd-price", p.p ? priceStr(p.p) : "—");
+    setTxt("pd-shipping", p.p ? t.shipping_extra : "");
     var addBtn = $("pd-add");
     addBtn.textContent = t.add; addBtn.disabled = !p.p;
     addBtn.onclick = function () { addToCart(p, addBtn); };
