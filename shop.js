@@ -16,6 +16,8 @@
   var GENS = window.SHOP_GENS || [];
   var IMAGES = window.SHOP_IMAGES || [];
   var REMUS_PARTS = window.REMUS_PARTS || {};
+  var remusPartsRequested = false;
+  var remusPartsCallbacks = [];
   var IMGBASE = (window.SHOP_META && window.SHOP_META.imgbase) || "";
   var cart = [];
 
@@ -587,7 +589,28 @@
       " · " + labels.pads + ": " + parts.padRef + (parts.pad && parts.pad.sp ? " · " + cleanDbaSpec(parts.pad.sp) : "");
   }
   function productName(p) {
-    if (mfOf(p) !== "DBA" || p.c !== "bbk" || !/^Brake Kit/i.test(p.n)) return p.n;
+    var name = String(p.n || "")
+      .replace(/\baproved\b/gi, "approved")
+      .replace(/\bSportexhaust\b/gi, "Sport Exhaust")
+      .replace(/^(4000 series)\s*-\s*4000 Series\s*-\s*/i, "$1 – ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (mfOf(p) === "DBA" && p.c === "pads") {
+      var padSeries = name.replace(/^Brake Pads\s*/i, "").replace(/\s*\|\s*(Front|Rear) Axle\s*$/i, "");
+      var padAxle = p.ax ? axleLabel(p.ax) : "";
+      var padPrefix = lang() === "fr" ? "Plaquettes DBA" : lang() === "en" ? "DBA Brake Pads" : lang() === "lb" ? "DBA Bremsbeläg" : "DBA Bremsbeläge";
+      return padPrefix + (padSeries ? " – " + padSeries : "") + (padAxle ? " · " + padAxle : "");
+    }
+    if (mfOf(p) === "REMUS" && lang() === "de") {
+      name = name
+        .replace(/^Axle-back Sport Exhaust for\s+/i, "REMUS Axle-Back-Sportauspuff für ")
+        .replace(/^GPF-Back Exhaust System for\s+/i, "REMUS GPF-Back-Abgasanlage für ")
+        .replace(/^Sport Exhaust Bundle for\s+/i, "REMUS Sportauspuff-Komplettset für ")
+        .replace(/^Sport Exhaust Set for\s+/i, "REMUS Sportauspuff-Set für ")
+        .replace(/^Sport Exhaust for\s+/i, "REMUS Sportauspuff für ")
+        .replace(/^Exhaust System for\s+/i, "REMUS Abgasanlage für ");
+    }
+    if (mfOf(p) !== "DBA" || p.c !== "bbk" || !/^Brake Kit/i.test(name)) return name;
     var series = (p.n.match(/(5000 Series[^&(]*|4000 Series[^&(]*|Street Series[^&(]*)/i) || [])[1] || "Performance";
     series = series.replace(/\s+/g, " ").trim();
     var axle = p.ax === "F" ? axleLabel("F") : p.ax === "R" ? axleLabel("R") : "";
@@ -1356,6 +1379,10 @@
   }
 
   function openProduct(p) {
+    if (mfOf(p) === "REMUS" && !window.REMUS_PARTS) {
+      ensureRemusParts(function () { openProduct(p); });
+      return;
+    }
     var t = tr();
     ensureModal();
     var media = $("pd-media");
@@ -1442,6 +1469,32 @@
     pdEls.back.hidden = false; pdEls.modal.hidden = false;
     var productUrl=new URL(location.href); productUrl.searchParams.set("product",p.i); history.replaceState(null,"",productUrl.pathname+productUrl.search+productUrl.hash);
     requestAnimationFrame(function () { pdEls.modal.classList.add("show"); pdEls.back.classList.add("show"); });
+  }
+
+  /* Déi grouss REMUS-Stécklëscht eréischt lueden, wann eng REMUS-Detailkaart
+     opgemaach gëtt. D'Katalog- a Gefiersich bleift doduerch däitlech méi liicht. */
+  function ensureRemusParts(cb) {
+    if (window.REMUS_PARTS) { REMUS_PARTS = window.REMUS_PARTS; if (cb) cb(); return; }
+    if (cb) remusPartsCallbacks.push(cb);
+    if (remusPartsRequested) return;
+    remusPartsRequested = true;
+    var script = document.createElement("script");
+    script.src = "remus-parts.js?v=3";
+    script.async = true;
+    script.onload = function () {
+      REMUS_PARTS = window.REMUS_PARTS || {};
+      buildIndexes();
+      render();
+      var callbacks = remusPartsCallbacks.slice();
+      remusPartsCallbacks = [];
+      callbacks.forEach(function (fn) { try { fn(); } catch (e) {} });
+    };
+    script.onerror = function () {
+      remusPartsRequested = false;
+      remusPartsCallbacks = [];
+      showToast(lang() === "de" ? "Produktdetails konnten nicht geladen werden. Bitte erneut versuchen." : "Product details could not be loaded. Please try again.");
+    };
+    document.head.appendChild(script);
   }
   function relItem(o, t) {
     var li = document.createElement("li"); li.className = "pd-rel-item";
@@ -1980,6 +2033,9 @@
   }
 
   function init() {
+    if ("serviceWorker" in navigator && location.protocol === "https:") {
+      navigator.serviceWorker.register("shop-sw.js", { scope: "/" }).catch(function () {});
+    }
     cart = loadCart();
     restoreState();
     applyStatics();
@@ -1994,6 +2050,9 @@
     var savedScroll = 0; try { savedScroll = parseInt(sessionStorage.getItem("gk_shop_scroll") || "0", 10); } catch (e) {}
     if (savedScroll) requestAnimationFrame(function () { window.scrollTo(0, savedScroll); });
     scheduleDbaPreload();
+    var loadRemusDetails = function () { ensureRemusParts(); };
+    if (window.requestIdleCallback) window.requestIdleCallback(loadRemusDetails, { timeout: 3000 });
+    else setTimeout(loadRemusDetails, 1800);
   }
   if (document.readyState !== "loading") init();
   else document.addEventListener("DOMContentLoaded", init);

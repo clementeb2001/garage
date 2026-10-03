@@ -1,0 +1,4 @@
+Contact: mailto:Autoservicebettenduerf@outlook.com
+Canonical: https://autoservicebettenduerf.lu/.well-known/security.txt
+Preferred-Languages: lb, de, fr, en
+Expires: 2027-10-04T00:00:00.000Z

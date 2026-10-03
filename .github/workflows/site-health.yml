@@ -1,0 +1,32 @@
+name: Website health check
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate generated pages, sitemap and product prices
+        run: python3 tools/check_site.py
+      - name: Check important live URLs
+        run: |
+          for url in \
+            https://autoservicebettenduerf.lu/ \
+            https://autoservicebettenduerf.lu/lb/ \
+            https://autoservicebettenduerf.lu/de/ \
+            https://autoservicebettenduerf.lu/fr/ \
+            https://autoservicebettenduerf.lu/en/ \
+            https://autoservicebettenduerf.lu/sitemap.xml
+          do
+            curl --fail --silent --show-error --location --retry 3 --max-time 20 "$url" > /dev/null
+          done
