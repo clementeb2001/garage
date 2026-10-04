@@ -83,10 +83,28 @@ Bestätegungs-E-Mail un de Client (a senger Sprooch). Dat leeft iwwer
      `Autoservice Bettenduerf <noreply@autoservicebettenduerf.lu>`
      (muss op der verifizéierter Domain leien).
 
+De Worker schéckt dräi Mailen (all mat HTML **an** Text-Deel, a jeeweils an
+der Sprooch vum Client — lb/de/fr/en):
+- **Nei Ufro** → un d'Garage (`MAIL_TO`, soss `Autoservicebettenduerf@outlook.com`).
+- **Bestätegung** → un de Client, wann eng Reservatioun bestätegt gëtt.
+- **Ofso** („et deet eis leed") → un de Client, wann eng Reservatioun ofgeleent gëtt.
+
 > Solaang `RESEND_API_KEY` net gesat ass, gëtt **keng** Mail geschéckt — alles
-> anescht funktionéiert normal weider. D'Notifikatioun bei enger **neier Ufro**
-> leeft souwisou schonn iwwer d'E-Mail vun der Location-Formulaire (FormSubmit),
-> elo mat engem Link op d'interne Säit.
+> anescht funktionéiert normal weider. All Mail-Versuch gëtt an der
+> Reservatiouns-Historie agedroen („… geschéckt" / „… feelgeschloen").
+
+### Fir d'Mailen net am Spam ze landen (Deliverability)
+Resend setzt beim Verifizéieren schonn **SPF** a **DKIM**. Fir datt
+Outlook/Hotmail d'Mailen sécher an d'Postfach leet, nach e **DMARC**-Antrag
+bei Cloudflare (DNS) derbäisetzen:
+
+| Typ | Numm | Wäert |
+|---|---|---|
+| TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:Autoservicebettenduerf@outlook.com` |
+
+(`p=none` = just iwwerwaachen, blockéiert näischt.) Zousätzlech hëlleft e
+plausibele Ofsender-Numm (schonn esou) an datt all Mail en Text-Deel huet
+(schonn esou).
 
 ## Custom-Domain änneren?
 Wann der eng aner URL benotzt wéi `garage-admin.autoservicebettenduerf.lu`,
