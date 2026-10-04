@@ -5,6 +5,10 @@ name = "garage-admin"
 main = "admin-api.js"
 compatibility_date = "2025-09-01"
 
+routes = [
+  { pattern = "garage-admin.autoservicebettenduerf.lu", custom_domain = true }
+]
+
 [vars]
 ALLOW_ORIGIN = "https://autoservicebettenduerf.lu"
 
