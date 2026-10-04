@@ -57,6 +57,8 @@
     addMember: function (u, n, role) { var users = dUsers(); if (users.filter(function (x) { return x.username === u; })[0]) return P({ error: "exists" }); var pw = randomPw(); users.push({ username: u, name: n, role: role, pw: pw, active: true }); lsSet(USERS_KEY, users); return P({ ok: true, tempPassword: pw }); },
     setRole: function (u, role) { var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); if (t.role === "admin" && role !== "admin" && dAdminCount(users) <= 1) return P({ error: "last_admin" }); t.role = role; lsSet(USERS_KEY, users); return P({ ok: true }); },
     delMember: function (u) { if (session && u === session.username) return P({ error: "self" }); var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); if (t.role === "admin" && dAdminCount(users) <= 1) return P({ error: "last_admin" }); lsSet(USERS_KEY, users.filter(function (x) { return x.username !== u; })); return P({ ok: true }); },
+    updateMember: function (u, patch) { var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); if (patch.name !== undefined) { if (!String(patch.name).trim()) return P({ error: "bad_input" }); t.name = String(patch.name).trim(); } var nu2 = null; if (patch.newUsername !== undefined) { var nu = String(patch.newUsername).trim().toLowerCase(); if (!/^[a-z0-9._-]{3,}$/.test(nu)) return P({ error: "bad_input" }); if (nu !== u) { if (users.filter(function (x) { return x.username === nu; })[0]) return P({ error: "exists" }); t.username = nu; nu2 = nu; if (session && session.username === u) session.username = nu; } } lsSet(USERS_KEY, users); return P({ ok: true, newUsername: nu2, selfRenamed: false }); },
+    resetPassword: function (u) { var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); var pw = randomPw(); t.pw = pw; lsSet(USERS_KEY, users); return P({ ok: true, tempPassword: pw }); },
     reset: function () { lsSet(USERS_KEY, seedUsers()); lsSet(DATA_KEY, seedBookings()); },
   };
 
@@ -87,6 +89,8 @@
     addMember: function (u, n, role) { return api("/members", { method: "POST", body: { username: u, name: n, role: role } }).then(function (r) { return r.status === 200 ? { ok: true, tempPassword: r.body.tempPassword } : { error: r.body.error }; }); },
     setRole: function (u, role) { return api("/members/" + u, { method: "POST", body: { role: role } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     delMember: function (u) { return api("/members/" + u, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
+    updateMember: function (u, patch) { return api("/members/" + u, { method: "POST", body: patch }).then(function (r) { return r.status === 200 ? { ok: true, newUsername: r.body.newUsername, selfRenamed: r.body.selfRenamed } : { error: r.body.error }; }); },
+    resetPassword: function (u) { return api("/members/" + u + "/reset", { method: "POST", body: {} }).then(function (r) { return r.status === 200 ? { ok: true, tempPassword: r.body.tempPassword } : { error: r.body.error }; }); },
     reset: null,
   };
 
@@ -97,7 +101,7 @@
   function errMsg(e) { return ERR[e] || "Feeler – probéiert nach eng Kéier."; }
 
   /* ---------- Views ---------- */
-  var activePage = "bookings", activeFilter = "all";
+  var activePage = "bookings", activeFilter = "all", editingMember = null;
   var STATUS = { new: "Nei", confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss" };
 
   function showLogin() { $("view-app").hidden = true; $("view-login").hidden = false; $("login-err").textContent = ""; $("login-form").reset(); }
@@ -110,6 +114,7 @@
   }
   function gotoPage(p) {
     if (p === "members" && !can("members.manage")) p = "bookings";
+    if (p !== "members") editingMember = null;
     activePage = p;
     $("page-bookings").hidden = p !== "bookings";
     $("page-members").hidden = p !== "members";
@@ -191,17 +196,43 @@
   }
 
   /* ---------- Members ---------- */
+  function afterSelfRename() { toast("Däi Benotzernumm gouf geännert – logg dech w.e.g. nei an."); setTimeout(function () { session = null; token = null; try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} showLogin(); }, 1400); }
   function renderMembers() {
     if (!can("members.manage")) return;
     STORE.listMembers().then(function (users) {
       var body = $("members-body"); body.innerHTML = "";
       users.forEach(function (u) {
         var tr = document.createElement("tr"), isSelf = session && u.username === session.username;
-        var roleCell = '<select class="member-sel" data-role-for="' + esc(u.username) + '">' + ["viewer","validator","admin"].map(function (r) { return '<option value="' + r + '"' + (u.role === r ? " selected" : "") + ">" + roleLabel(r) + "</option>"; }).join("") + "</select>";
-        tr.innerHTML = "<td><code>" + esc(u.username) + "</code>" + (isSelf ? '<span class="you-tag">(du)</span>' : "") + (u.active ? "" : ' <span class="role-pill role-viewer">inaktiv</span>') + "</td><td>" + esc(u.name) + "</td><td>" + roleCell + '</td><td style="text-align:right">' + (isSelf ? "" : '<button class="btn btn-danger btn-sm" data-del="' + esc(u.username) + '">Läschen</button>') + "</td>";
+        if (editingMember === u.username) {
+          tr.innerHTML =
+            '<td><input class="member-sel" style="width:130px" id="edit-user" value="' + esc(u.username) + '" autocapitalize="none" /></td>' +
+            '<td><input class="member-sel" style="width:100%" id="edit-name" value="' + esc(u.name) + '" /></td>' +
+            "<td><span class=\"role-pill role-" + u.role + '">' + roleLabel(u.role) + "</span></td>" +
+            '<td style="text-align:right;white-space:nowrap"><button class="btn btn-ok btn-sm" data-save="' + esc(u.username) + '">Späicheren</button> <button class="btn btn-outline btn-sm" data-cancel="1">Ofbriechen</button></td>';
+        } else {
+          var roleCell = '<select class="member-sel" data-role-for="' + esc(u.username) + '">' + ["viewer","validator","admin"].map(function (r) { return '<option value="' + r + '"' + (u.role === r ? " selected" : "") + ">" + roleLabel(r) + "</option>"; }).join("") + "</select>";
+          tr.innerHTML =
+            "<td><code>" + esc(u.username) + "</code>" + (isSelf ? '<span class="you-tag">(du)</span>' : "") + (u.active ? "" : ' <span class="role-pill role-viewer">inaktiv</span>') + "</td>" +
+            "<td>" + esc(u.name) + "</td><td>" + roleCell + "</td>" +
+            '<td style="text-align:right;white-space:nowrap"><button class="btn btn-outline btn-sm" data-edit="' + esc(u.username) + '">Änneren</button> ' +
+            (isSelf ? "" : '<button class="btn btn-outline btn-sm" data-reset="' + esc(u.username) + '">PW</button> <button class="btn btn-danger btn-sm" data-del="' + esc(u.username) + '">Läschen</button>') + "</td>";
+        }
         body.appendChild(tr);
       });
-      body.querySelectorAll("[data-role-for]").forEach(function (sel) { sel.addEventListener("change", function () { STORE.setRole(sel.getAttribute("data-role-for"), sel.value).then(function (r) { if (r.error) toast(errMsg(r.error)); else toast("Roll geännert."); renderMembers(); }); }); });
+      body.querySelectorAll("[data-role-for]").forEach(function (sel) { sel.addEventListener("change", function () { STORE.setRole(sel.getAttribute("data-role-for"), sel.value).then(function (r) { if (r.error) { toast(errMsg(r.error)); } else toast("Roll geännert."); renderMembers(); }); }); });
+      body.querySelectorAll("[data-edit]").forEach(function (b) { b.addEventListener("click", function () { editingMember = b.getAttribute("data-edit"); renderMembers(); }); });
+      body.querySelectorAll("[data-cancel]").forEach(function (b) { b.addEventListener("click", function () { editingMember = null; renderMembers(); }); });
+      body.querySelectorAll("[data-save]").forEach(function (b) { b.addEventListener("click", function () {
+        var old = b.getAttribute("data-save"), nu = $("edit-user").value.trim().toLowerCase(), nm = $("edit-name").value.trim();
+        var patch = { name: nm }; if (nu !== old) patch.newUsername = nu;
+        STORE.updateMember(old, patch).then(function (r) {
+          if (r.error) { toast(errMsg(r.error)); return; }
+          editingMember = null;
+          if (r.selfRenamed) { afterSelfRename(); return; }
+          toast("Member gespäichert."); renderMembers();
+        });
+      }); });
+      body.querySelectorAll("[data-reset]").forEach(function (b) { b.addEventListener("click", function () { var u = b.getAttribute("data-reset"); if (!confirm("Passwuert vu „" + u + "“ zrécksetzen? E neit temporäert Passwuert gëtt generéiert.")) return; STORE.resetPassword(u).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } $("add-msg").innerHTML = "🔑 Neit temporäert Passwuert fir <code>" + esc(u) + "</code>: <code>" + esc(r.tempPassword) + "</code> – gëff et dem Member, hie muss et beim nächste Login änneren."; toast("Passwuert zréckgesat."); }); }); });
       body.querySelectorAll("[data-del]").forEach(function (btn) { btn.addEventListener("click", function () { var u = btn.getAttribute("data-del"); if (!confirm("Member „" + u + "“ wierklech läschen?")) return; STORE.delMember(u).then(function (r) { if (r.error) toast(errMsg(r.error)); else toast("Member „" + u + "“ geläscht."); renderMembers(); }); }); });
     });
   }
