@@ -108,7 +108,7 @@
   var STORE = demoStore;
   var session = null;
   function can(perm) { return !!(session && ROLES[session.role] && ROLES[session.role].perms.indexOf(perm) !== -1); }
-  var ERR = { invalid_credentials: "Falsche Benotzernumm oder Passwuert.", wrong_current: "Aktuellt Passwuert ass falsch.", weak_password: "Neit Passwuert ze kuerz (op mannst 8 Zeechen).", exists: "Dee Benotzernumm gëtt et schonn.", last_admin: "Et muss op mannst een Admin bleiwen.", self: "Du kanns dech net selwer läschen.", bad_input: "Ongëlteg Agab.", forbidden: "Keng Berechtegung.", booking_conflict: "Dëst Gefier ass an dësem Zäitraum schonn bestätegt – kee Konflikt méiglech.", not_found: "Reservatioun net fonnt.", bad_status: "Ongëltege Status." };
+  var ERR = { invalid_credentials: "Falsche Benotzernumm oder Passwuert.", wrong_current: "Aktuellt Passwuert ass falsch.", weak_password: "Neit Passwuert ze kuerz (op mannst 8 Zeechen).", exists: "Dee Benotzernumm gëtt et schonn.", last_admin: "Et muss op mannst een Admin bleiwen.", self: "Du kanns dech net selwer läschen.", bad_input: "Ongëlteg Agab.", forbidden: "Keng Berechtegung.", rate_limited: "Ze vill Loginversich. Waart w.e.g. eng Stonn oder rufft den Admin un.", booking_conflict: "Dëst Gefier ass an dësem Zäitraum schonn bestätegt – kee Konflikt méiglech.", not_found: "Reservatioun net fonnt.", bad_status: "Ongëltege Status." };
   function errMsg(e) { return ERR[e] || "Feeler – probéiert nach eng Kéier."; }
 
   /* ---------- Views ---------- */
