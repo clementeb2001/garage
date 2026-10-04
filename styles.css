@@ -3699,6 +3699,19 @@ html.shop-dev .shop-dev-badge a {
   background: var(--surface-dark, #101923);
   padding: 10px 0 84px;
 }
+.rental-busy {
+  margin: 4px 0 6px;
+  padding: 12px 14px;
+  border: 1px solid #f3c2c2;
+  background: #fdf2f2;
+  border-radius: 10px;
+  color: #8a1c1c;
+  font-size: 14px;
+}
+.rental-busy-title { margin: 0 0 6px; font-weight: 700; }
+.rental-busy ul { margin: 0 0 6px; padding-left: 18px; }
+.rental-busy li { margin: 2px 0; }
+.rental-busy-hint { margin: 0; color: #9b4b4b; font-size: 13px; }
 .rental-reserve-inner {
   display: grid;
   grid-template-columns: 1fr 1.15fr;
