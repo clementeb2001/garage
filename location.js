@@ -1,9 +1,7 @@
 /* Autoservice Bettenduerf — Location / Verlee (méisproocheg)
-   Katalog, Auswiel a Reservéierung (FormSubmit). */
+   Katalog, Auswiel a Reservéierung iwwer den eegene Cloudflare-Worker. */
 (function () {
   "use strict";
-
-  var EMAIL = "Autoservicebettenduerf@outlook.com";
 
   /* ---- Inline-SVG-Ikonen (keng externt Bild néideg) ---- */
   var ICONS = {
@@ -117,12 +115,14 @@
       form_h: "Reservéieren",
       from: "Vun", to: "Bis", name: "Numm", email: "E-Mail", phone: "Telefon",
       message: "Noriicht", phone_ph: "Optional",
-      privacy: "Ech hunn d'Dateschutzerklärung gelies a verstinn, datt meng Donnéeën iwwer FormSubmit iwwermëttelt ginn.",
+      privacy: "Ech hunn d'Dateschutzerklärung gelies a sinn averstanen, datt meng Donnéeë fir d'Veraarbechtung vun der Ufro benotzt ginn.",
       submit: "Reservéierung ufroen",
       note: "D'Reservéierung ass eng Ufro a gëtt vun eis bestätegt.", period: "Zäitraum", day: "Dag", days: "Deeg", privacy_link: "Dateschutzerklärung",
       sending: "Gëtt geschéckt …",
       ok: "Merci! Är Location-Ufro ass ukomm. Mir mellen eis séier.",
       senderr: "Ups, dat huet net geklappt. Rufft eis w.e.g. un oder probéiert et méi spéit nach eng Kéier.",
+      unavailable: "Dat ausgewielte Gefier oder Material ass an dësem Zäitraum leider net disponibel.",
+      rate: "Ze vill Ufroen a kuerzer Zäit. Probéiert et w.e.g. méi spéit nach eng Kéier.",
       missing: "Fëllt w.e.g. nach aus:",
       m_items: "op d'mannst 1 Material", m_from: "Ufanksdatum", m_to: "Enndatum",
       m_daterange: "en Enndatum no dem Ufank", m_name: "Numm", m_email: "eng gëlteg E-Mail", m_privacy: "Dateschutz-Zoustëmmung",
@@ -145,12 +145,14 @@
       form_h: "Reservieren",
       from: "Von", to: "Bis", name: "Name", email: "E-Mail", phone: "Telefon",
       message: "Nachricht", phone_ph: "Optional",
-      privacy: "Ich habe die Datenschutzerklärung gelesen und verstehe, dass meine Daten über FormSubmit übermittelt werden.",
+      privacy: "Ich habe die Datenschutzerklärung gelesen und bin mit der Verarbeitung meiner Daten für diese Anfrage einverstanden.",
       submit: "Reservierung anfragen",
       note: "Die Reservierung ist eine Anfrage und wird von uns bestätigt.", period: "Zeitraum", day: "Tag", days: "Tage", privacy_link: "Datenschutzerklärung",
       sending: "Wird gesendet …",
       ok: "Danke! Ihre Verleih-Anfrage ist angekommen. Wir melden uns zeitnah.",
       senderr: "Ups, das hat nicht geklappt. Bitte rufen Sie uns an oder versuchen Sie es später erneut.",
+      unavailable: "Das ausgewählte Fahrzeug oder Material ist in diesem Zeitraum leider nicht verfügbar.",
+      rate: "Zu viele Anfragen in kurzer Zeit. Bitte versuchen Sie es später erneut.",
       missing: "Bitte ergänzen Sie noch:",
       m_items: "mindestens 1 Material", m_from: "Startdatum", m_to: "Enddatum",
       m_daterange: "ein Enddatum nach dem Start", m_name: "Name", m_email: "eine gültige E-Mail", m_privacy: "Datenschutz-Zustimmung",
@@ -173,12 +175,14 @@
       form_h: "Réserver",
       from: "Du", to: "Au", name: "Nom", email: "E-mail", phone: "Téléphone",
       message: "Message", phone_ph: "Facultatif",
-      privacy: "J'ai lu la politique de confidentialité et j'accepte que mes données soient transmises via FormSubmit.",
+      privacy: "J'ai lu la politique de confidentialité et j'accepte le traitement de mes données pour cette demande.",
       submit: "Demander la réservation",
       note: "La réservation est une demande et sera confirmée par nos soins.", period: "Période", day: "jour", days: "jours", privacy_link: "politique de confidentialité",
       sending: "Envoi …",
       ok: "Merci ! Votre demande de location est bien arrivée. Nous vous recontactons rapidement.",
       senderr: "Oups, cela n'a pas fonctionné. Merci de nous appeler ou de réessayer plus tard.",
+      unavailable: "Le véhicule ou le matériel sélectionné n'est malheureusement pas disponible pendant cette période.",
+      rate: "Trop de demandes en peu de temps. Veuillez réessayer plus tard.",
       missing: "Veuillez compléter :",
       m_items: "au moins 1 matériel", m_from: "date de début", m_to: "date de fin",
       m_daterange: "une date de fin après le début", m_name: "nom", m_email: "un e-mail valide", m_privacy: "accord de confidentialité",
@@ -201,12 +205,14 @@
       form_h: "Reserve",
       from: "From", to: "To", name: "Name", email: "Email", phone: "Phone",
       message: "Message", phone_ph: "Optional",
-      privacy: "I have read the privacy policy and understand that my data is transmitted via FormSubmit.",
+      privacy: "I have read the privacy policy and agree to the processing of my data for this request.",
       submit: "Request reservation",
       note: "The reservation is a request and will be confirmed by us.", period: "Period", day: "day", days: "days", privacy_link: "privacy policy",
       sending: "Sending …",
       ok: "Thank you! Your rental request has arrived. We'll get back to you soon.",
       senderr: "Oops, that didn't work. Please call us or try again later.",
+      unavailable: "The selected vehicle or equipment is unfortunately unavailable during this period.",
+      rate: "Too many requests in a short time. Please try again later.",
       missing: "Please also add:",
       m_items: "at least 1 item", m_from: "start date", m_to: "end date",
       m_daterange: "an end date after the start", m_name: "name", m_email: "a valid email", m_privacy: "privacy consent",
@@ -376,7 +382,7 @@
         list.appendChild(li);
       });
     }
-    // Hidden field for FormSubmit
+    // Hidden field used by the server-side bot protection
     var hidden = $("rental-hidden-items");
     if (hidden) {
       hidden.value = state.selected
@@ -569,39 +575,27 @@
     var hp = f.querySelector('[name="_honey"]');
     if (hp && hp.value) { st.className = "form-status ok"; st.textContent = m.ok; f.reset(); return; }
     var loaded = Number((f.querySelector('[name="_loaded_at"]') || {}).value || 0);
-    if (loaded && Date.now() - loaded < 2500) { st.className = "form-status ok"; st.textContent = m.ok; f.reset(); return; }
+    if (loaded && Date.now() - loaded < 2500) { st.className = "form-status err"; st.textContent = m.senderr; return; }
 
     var btn = $("rental-submit");
     if (btn) btn.disabled = true;
     st.className = "form-status";
     st.textContent = m.sending;
 
-    /* Zousätzlech: d'Ufro an d'interne Datebank schreiwen (Reservatiouns-
-       Verwaltung). Best-effort – falls de Worker net do ass, bleift d'E-Mail
-       iwwer FormSubmit déi primär Notifikatioun. */
-    try {
-      var vehNames = state.selected.map(function (id) { var it = CATALOG.filter(function (x) { return x.id === id; })[0]; return it ? (it.name.de || it.name.lb) : id; }).join(", ");
-      fetch("https://garage-admin.autoservicebettenduerf.lu/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          veh: vehNames, from: from.value, to: to.value,
-          name: name.value.trim(), email: email.value.trim(),
-          phone: (($("r-phone") || {}).value || "").trim(),
-          msg: (($("r-message") || {}).value || "").trim(),
-          lang: lang(),
-        }),
-      }).catch(function () {});
-    } catch (e) {}
-
-    var fd = new FormData(f);
-    fd.append("➡ Ufro bearbeiten (interne Säit)", "https://autoservicebettenduerf.lu/intern/");
-    fetch("https://formsubmit.co/ajax/" + EMAIL, {
+    var vehNames = state.selected.map(function (id) { var it = CATALOG.filter(function (x) { return x.id === id; })[0]; return it ? (it.name.de || it.name.lb) : id; }).join(", ");
+    fetch("https://garage-admin.autoservicebettenduerf.lu/bookings", {
       method: "POST",
-      headers: { Accept: "application/json" },
-      body: fd,
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        veh: vehNames, from: from.value, to: to.value,
+        name: name.value.trim(), email: email.value.trim(),
+        phone: (($("r-phone") || {}).value || "").trim(),
+        msg: (($("r-message") || {}).value || "").trim(),
+        lang: lang(), privacy: privacy.checked, terms: terms.checked,
+        website: hp ? hp.value : "", loadedAt: loaded,
+      }),
     })
-      .then(function (r) { if (!r.ok) throw new Error("http"); return r.json().catch(function () { return {}; }); })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (data) { if (!r.ok || !data.ok) { var err = new Error(data.error || "http"); err.code = data.error; throw err; } return data; }); })
       .then(function () {
         st.className = "form-status ok";
         st.textContent = m.ok;
@@ -610,7 +604,7 @@
         renderCatalog();
         renderSelection();
       })
-      .catch(function () { st.className = "form-status err"; st.textContent = m.senderr; })
+      .catch(function (err) { st.className = "form-status err"; st.textContent = err && err.code === "unavailable" ? m.unavailable : (err && err.code === "rate_limited" ? m.rate : m.senderr); })
       .then(function () { if (btn) btn.disabled = false; });
   }
 

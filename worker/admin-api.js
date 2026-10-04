@@ -94,12 +94,34 @@ function json(env, body, status) {
 }
 function clip(s, n) { return String(s == null ? "" : s).slice(0, n); }
 function hasPerm(role, perm) { return (PERMS[role] || []).indexOf(perm) !== -1; }
+function validEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 160; }
+function validDateTime(s) { return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s) && Number.isFinite(Date.parse(s)); }
+function vehicleKeys(s) { return String(s || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean); }
+function hasSameVehicle(a, b) { const bb = new Set(vehicleKeys(b)); return vehicleKeys(a).some((x) => bb.has(x)); }
+async function hashText(s) {
+  const digest = await crypto.subtle.digest("SHA-256", enc(s));
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function publicRateAllowed(request, env) {
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  const bucket = await hashText(ip + ":" + Math.floor(Date.now() / 3600000));
+  const expires = Math.floor(Date.now() / 1000) + 7200;
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS booking_rate_limits (bucket TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0, expires_at INTEGER NOT NULL)").run();
+  await env.DB.prepare("DELETE FROM booking_rate_limits WHERE expires_at < ?1").bind(Math.floor(Date.now() / 1000)).run();
+  await env.DB.prepare("INSERT INTO booking_rate_limits (bucket, count, expires_at) VALUES (?1,1,?2) ON CONFLICT(bucket) DO UPDATE SET count=count+1, expires_at=?2").bind(bucket, expires).run();
+  const row = await env.DB.prepare("SELECT count FROM booking_rate_limits WHERE bucket=?1").bind(bucket).first();
+  return !!row && Number(row.count) <= 8;
+}
+async function findConflict(env, veh, from, to, excludeId) {
+  const rows = (await env.DB.prepare("SELECT id, veh, from_dt, to_dt FROM bookings WHERE status='confirmed' AND from_dt < ?1 AND to_dt > ?2").bind(to, from).all()).results || [];
+  return rows.find((b) => Number(b.id) !== Number(excludeId || 0) && hasSameVehicle(veh, b.veh)) || null;
+}
 
 /* ---------- E-Mail (Resend) ---------- */
 async function sendEmail(env, to, subject, html) {
-  if (!env.RESEND_API_KEY || !to) return;
+  if (!env.RESEND_API_KEY || !to) return { ok: false, error: "mail_not_configured" };
   try {
-    await fetch("https://api.resend.com/emails", {
+    const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -107,7 +129,27 @@ async function sendEmail(env, to, subject, html) {
         to: [to], reply_to: "Autoservicebettenduerf@outlook.com", subject: subject, html: html,
       }),
     });
-  } catch (e) {}
+    if (!response.ok) return { ok: false, error: "resend_http_" + response.status };
+    const data = await response.json().catch(() => ({}));
+    return { ok: true, id: data.id || "" };
+  } catch (e) { return { ok: false, error: clip(e && e.message || e, 160) }; }
+}
+async function sendConfirmation(env, bookingId, booking) {
+  const mail = confirmMail(booking);
+  const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html);
+  await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
+    .bind(bookingId, result.ok ? "Bestätegungsmail geschéckt" : "Bestätegungsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
+}
+async function sendNewBookingNotice(env, bookingId, booking) {
+  const subject = "Nei Location-Ufro R-" + (Number(bookingId) + 1000);
+  const html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430">' +
+    '<h2 style="color:#c81420">Nei Location-Ufro</h2>' +
+    '<p><b>' + esc(booking.cust_name) + '</b> freet <b>' + esc(booking.veh) + '</b> un.</p>' +
+    '<p><b>Vun:</b> ' + esc(booking.from_dt.replace("T", " ")) + '<br><b>Bis:</b> ' + esc(booking.to_dt.replace("T", " ")) + '<br><b>E-Mail:</b> ' + esc(booking.cust_email) + '</p>' +
+    '<p><a href="https://autoservicebettenduerf.lu/intern/" style="display:inline-block;background:#c81420;color:#fff;text-decoration:none;padding:11px 16px;border-radius:8px;font-weight:700">An der Verwaltung opmaachen</a></p></div>';
+  const result = await sendEmail(env, env.MAIL_TO || "Autoservicebettenduerf@outlook.com", subject, html);
+  await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
+    .bind(bookingId, result.ok ? "Intern Notifikatioun geschéckt" : "Intern Notifikatioun feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function confirmMail(b) {
@@ -165,14 +207,29 @@ export default {
     try {
       /* ---- public: neng Reservatiounsufro (vum Location-Formulaire) ---- */
       if (path === "/bookings" && method === "POST" && !request.headers.get("Authorization")) {
+        const allowedOrigin = env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
+        if (request.headers.get("Origin") !== allowedOrigin) return json(env, { error: "forbidden_origin" }, 403);
+        if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
+        if (bodyData.website) return json(env, { ok: true }, 202);
+        if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
         const veh = clip(bodyData.veh, 120).trim();
         const name = clip(bodyData.name, 120).trim();
-        if (!veh || !name) return json(env, { error: "missing_fields" }, 400);
+        const email = clip(bodyData.email, 160).trim().toLowerCase();
+        const from = clip(bodyData.from, 40).trim();
+        const to = clip(bodyData.to, 40).trim();
+        const loadedAt = Number(bodyData.loadedAt || 0);
+        if (!veh || !name || !email || !from || !to || !bodyData.privacy || !bodyData.terms) return json(env, { error: "missing_fields" }, 400);
+        if (!validEmail(email) || !validDateTime(from) || !validDateTime(to)) return json(env, { error: "invalid_fields" }, 400);
+        const fromMs = Date.parse(from), toMs = Date.parse(to), nowMs = Date.now();
+        if (fromMs < nowMs - 300000 || toMs <= fromMs || toMs - fromMs > 31 * 86400000) return json(env, { error: "invalid_period" }, 400);
+        if (!loadedAt || nowMs - loadedAt < 2500 || nowMs - loadedAt > 86400000) return json(env, { error: "invalid_submission" }, 400);
+        if (await findConflict(env, veh, from, to)) return json(env, { error: "unavailable" }, 409);
         const r = await env.DB.prepare(
           "INSERT INTO bookings (veh, from_dt, to_dt, cust_name, cust_email, cust_phone, msg, lang, status) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,'new')"
-        ).bind(veh, clip(bodyData.from, 40), clip(bodyData.to, 40), name, clip(bodyData.email, 160), clip(bodyData.phone, 60), clip(bodyData.msg, 2000), clip(bodyData.lang, 5)).run();
+        ).bind(veh, from, to, name, email, clip(bodyData.phone, 60), clip(bodyData.msg, 2000), ["lb","de","fr","en"].includes(bodyData.lang) ? bodyData.lang : "lb").run();
         const id = r.meta.last_row_id;
         await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,'Ufro erakomm','System','')").bind(id).run();
+        ctx.waitUntil(sendNewBookingNotice(env, id, { veh, from_dt: from, to_dt: to, cust_name: name, cust_email: email }));
         return json(env, { ok: true, id });
       }
 
@@ -225,11 +282,16 @@ export default {
         if (!labels[status]) return json(env, { error: "bad_status" }, 400);
         const ex = await env.DB.prepare("SELECT id FROM bookings WHERE id = ?1").bind(id).first();
         if (!ex) return json(env, { error: "not_found" }, 404);
+        if (status === "confirmed") {
+          const candidate = await env.DB.prepare("SELECT veh, from_dt, to_dt FROM bookings WHERE id = ?1").bind(id).first();
+          const conflict = candidate && await findConflict(env, candidate.veh, candidate.from_dt, candidate.to_dt, id);
+          if (conflict) return json(env, { error: "booking_conflict" }, 409);
+        }
         await env.DB.prepare("UPDATE bookings SET status = ?1 WHERE id = ?2").bind(status, id).run();
         await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,?3,?4)").bind(id, labels[status], me.username, clip(bodyData.note, 500)).run();
         if (status === "confirmed") {
           const b = await env.DB.prepare("SELECT veh, from_dt, to_dt, cust_email, lang FROM bookings WHERE id = ?1").bind(id).first();
-          if (b && b.cust_email) { const mail = confirmMail(b); ctx.waitUntil(sendEmail(env, b.cust_email, mail.subject, mail.html)); }
+          if (b && b.cust_email) ctx.waitUntil(sendConfirmation(env, id, b));
         }
         return json(env, { ok: true });
       }

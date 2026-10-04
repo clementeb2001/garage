@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://cloudflareinsights.com https://garage-admin.autoservicebettenduerf.lu; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://garage-admin.autoservicebettenduerf.lu; form-action 'self'; frame-src 'none'; upgrade-insecure-requests" />
     <meta
       name="description"
       content="Location beim Autoservice Bettenduerf – Ahänger a Fahrzeuger verleeën. Wielt Äert Material aus a reservéiert et direkt online."
@@ -191,8 +191,6 @@
           <form
             class="rental-form"
             id="rental-form"
-            action="https://formsubmit.co/Autoservicebettenduerf@outlook.com"
-            method="POST"
             novalidate
           >
             <input type="hidden" name="_subject" value="Nei Location-Ufro – Autoservice Bettenduerf" />
@@ -252,7 +250,7 @@
 
             <label class="privacy-confirm" for="r-privacy">
               <input id="r-privacy" name="Datenschutz bestätigt" type="checkbox" />
-              <span id="r-privacy-text">Ech hunn d'Dateschutzerklärung gelies a verstinn, datt meng Donnéeën iwwer FormSubmit iwwermëttelt ginn.</span>
+              <span id="r-privacy-text">Ech hunn d'Dateschutzerklärung gelies a sinn averstanen, datt meng Donnéeë fir d'Veraarbechtung vun der Ufro benotzt ginn.</span>
             </label>
 
             <button type="submit" class="btn btn-primary btn-block" id="rental-submit">Reservéierung ufroen</button>
