@@ -118,16 +118,18 @@ async function findConflict(env, veh, from, to, excludeId) {
 }
 
 /* ---------- E-Mail (Resend) ---------- */
-async function sendEmail(env, to, subject, html) {
+async function sendEmail(env, to, subject, html, text) {
   if (!env.RESEND_API_KEY || !to) return { ok: false, error: "mail_not_configured" };
   try {
+    const payload = {
+      from: env.MAIL_FROM || "Autoservice Bettenduerf <noreply@autoservicebettenduerf.lu>",
+      to: [to], reply_to: "Autoservicebettenduerf@outlook.com", subject: subject, html: html,
+    };
+    if (text) payload.text = text;
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: env.MAIL_FROM || "Autoservice Bettenduerf <noreply@autoservicebettenduerf.lu>",
-        to: [to], reply_to: "Autoservicebettenduerf@outlook.com", subject: subject, html: html,
-      }),
+      body: JSON.stringify(payload),
     });
     if (!response.ok) return { ok: false, error: "resend_http_" + response.status };
     const data = await response.json().catch(() => ({}));
@@ -136,13 +138,13 @@ async function sendEmail(env, to, subject, html) {
 }
 async function sendConfirmation(env, bookingId, booking) {
   const mail = confirmMail(booking);
-  const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html);
+  const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html, mail.text);
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Bestätegungsmail geschéckt" : "Bestätegungsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
 async function sendDecline(env, bookingId, booking) {
   const mail = declineMail(booking);
-  const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html);
+  const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html, mail.text);
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Ofsomail geschéckt" : "Ofsomail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
@@ -153,11 +155,21 @@ async function sendNewBookingNotice(env, bookingId, booking) {
     '<p><b>' + esc(booking.cust_name) + '</b> freet <b>' + esc(booking.veh) + '</b> un.</p>' +
     '<p><b>Vun:</b> ' + esc(booking.from_dt.replace("T", " ")) + '<br><b>Bis:</b> ' + esc(booking.to_dt.replace("T", " ")) + '<br><b>E-Mail:</b> ' + esc(booking.cust_email) + '</p>' +
     '<p><a href="https://autoservicebettenduerf.lu/intern/" style="display:inline-block;background:#c81420;color:#fff;text-decoration:none;padding:11px 16px;border-radius:8px;font-weight:700">An der Verwaltung opmaachen</a></p></div>';
-  const result = await sendEmail(env, env.MAIL_TO || "Autoservicebettenduerf@outlook.com", subject, html);
+  const text = "Nei Location-Ufro\n\n" + booking.cust_name + " freet " + booking.veh + " un.\n" +
+    "Vun: " + booking.from_dt.replace("T", " ") + "\nBis: " + booking.to_dt.replace("T", " ") + "\nE-Mail: " + booking.cust_email +
+    "\n\nAn der Verwaltung opmaachen: https://autoservicebettenduerf.lu/intern/";
+  const result = await sendEmail(env, env.MAIL_TO || "Autoservicebettenduerf@outlook.com", subject, html, text);
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Intern Notifikatioun geschéckt" : "Intern Notifikatioun feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function mailText(t, b) {
+  var lines = [t.h, "", t.p, "", t.veh + ": " + b.veh];
+  if (b.from_dt) lines.push(t.from + ": " + b.from_dt.replace("T", " "));
+  if (b.to_dt) lines.push(t.to + ": " + b.to_dt.replace("T", " "));
+  lines.push("", t.foot, "", "Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87");
+  return lines.join("\n");
+}
 function confirmMail(b) {
   var L = (b.lang || "lb").slice(0, 2);
   var T = {
@@ -181,7 +193,7 @@ function confirmMail(b) {
     '<p style="color:#5b6b7c;font-size:13px;margin-top:18px">' + esc(t.foot) + "</p>" +
     '<p style="color:#8a96a2;font-size:12px;margin-top:14px">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87</p>' +
     "</div></div>";
-  return { subject: t.s, html: html };
+  return { subject: t.s, html: html, text: mailText(t, b) };
 }
 function declineMail(b) {
   var L = (b.lang || "lb").slice(0, 2);
@@ -206,7 +218,7 @@ function declineMail(b) {
     '<p style="color:#5b6b7c;font-size:13px;margin-top:18px">' + esc(t.foot) + "</p>" +
     '<p style="color:#8a96a2;font-size:12px;margin-top:14px">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87</p>' +
     "</div></div>";
-  return { subject: t.s, html: html };
+  return { subject: t.s, html: html, text: mailText(t, b) };
 }
 
 async function authUser(request, env) {
