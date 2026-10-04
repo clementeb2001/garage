@@ -45,6 +45,10 @@
   function dAdminCount(u) { return u.filter(function (x) { return x.role === "admin" && x.active; }).length; }
   function randomPw() { var c = "abcdefghjkmnpqrstuvwxyz23456789", s = ""; for (var i = 0; i < 8; i++) s += c.charAt(Math.floor(Math.random() * c.length)); return s; }
   function P(v) { return Promise.resolve(v); }
+  var MEV_KEY = "intern_demo_mevents_v1";
+  function dMev() { return ls(MEV_KEY, []); }
+  function dLogMev(action, target) { var e = dMev(); e.push({ action: action, target: target, by: session ? session.username : "?", at: now() }); lsSet(MEV_KEY, e); }
+  function refOf(id) { return "R-" + (id >= 1000 ? id : id + 1000); }
 
   var demoStore = {
     mode: "demo",
@@ -54,11 +58,14 @@
     listBookings: function () { return P(dBookings().slice().sort(function (a, b) { return b.id - a.id; })); },
     setStatus: function (id, status, note) { var labels = { confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss" }; var bk = dBookings(), t = bk.filter(function (x) { return x.id === id; })[0]; if (!t) return P({ error: "not_found" }); t.status = status; t.events.push({ action: labels[status], by: session.username, at: now(), note: note || "" }); lsSet(DATA_KEY, bk); return P({ ok: true }); },
     listMembers: function () { return P(dUsers().map(function (u) { return { username: u.username, name: u.name, role: u.role, active: u.active }; })); },
-    addMember: function (u, n, role) { var users = dUsers(); if (users.filter(function (x) { return x.username === u; })[0]) return P({ error: "exists" }); var pw = randomPw(); users.push({ username: u, name: n, role: role, pw: pw, active: true }); lsSet(USERS_KEY, users); return P({ ok: true, tempPassword: pw }); },
-    setRole: function (u, role) { var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); if (t.role === "admin" && role !== "admin" && dAdminCount(users) <= 1) return P({ error: "last_admin" }); t.role = role; lsSet(USERS_KEY, users); return P({ ok: true }); },
-    delMember: function (u) { if (session && u === session.username) return P({ error: "self" }); var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); if (t.role === "admin" && dAdminCount(users) <= 1) return P({ error: "last_admin" }); lsSet(USERS_KEY, users.filter(function (x) { return x.username !== u; })); return P({ ok: true }); },
-    updateMember: function (u, patch) { var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); if (patch.name !== undefined) { if (!String(patch.name).trim()) return P({ error: "bad_input" }); t.name = String(patch.name).trim(); } var nu2 = null; if (patch.newUsername !== undefined) { var nu = String(patch.newUsername).trim().toLowerCase(); if (!/^[a-z0-9._-]{3,}$/.test(nu)) return P({ error: "bad_input" }); if (nu !== u) { if (users.filter(function (x) { return x.username === nu; })[0]) return P({ error: "exists" }); t.username = nu; nu2 = nu; if (session && session.username === u) session.username = nu; } } lsSet(USERS_KEY, users); return P({ ok: true, newUsername: nu2, selfRenamed: false }); },
-    resetPassword: function (u) { var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); var pw = randomPw(); t.pw = pw; lsSet(USERS_KEY, users); return P({ ok: true, tempPassword: pw }); },
+    addMember: function (u, n, role) { var users = dUsers(); if (users.filter(function (x) { return x.username === u; })[0]) return P({ error: "exists" }); var pw = randomPw(); users.push({ username: u, name: n, role: role, pw: pw, active: true }); lsSet(USERS_KEY, users); dLogMev("created", u); return P({ ok: true, tempPassword: pw }); },
+    setRole: function (u, role) { var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); if (t.role === "admin" && role !== "admin" && dAdminCount(users) <= 1) return P({ error: "last_admin" }); t.role = role; lsSet(USERS_KEY, users); dLogMev("role:" + role, u); return P({ ok: true }); },
+    delMember: function (u) { if (session && u === session.username) return P({ error: "self" }); var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); if (t.role === "admin" && dAdminCount(users) <= 1) return P({ error: "last_admin" }); lsSet(USERS_KEY, users.filter(function (x) { return x.username !== u; })); dLogMev("deleted", u); return P({ ok: true }); },
+    updateMember: function (u, patch) { var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); if (patch.name !== undefined) { if (!String(patch.name).trim()) return P({ error: "bad_input" }); t.name = String(patch.name).trim(); dLogMev("rename", u); } var nu2 = null; if (patch.newUsername !== undefined) { var nu = String(patch.newUsername).trim().toLowerCase(); if (!/^[a-z0-9._-]{3,}$/.test(nu)) return P({ error: "bad_input" }); if (nu !== u) { if (users.filter(function (x) { return x.username === nu; })[0]) return P({ error: "exists" }); t.username = nu; nu2 = nu; dLogMev("username>" + nu, u); if (session && session.username === u) session.username = nu; } } lsSet(USERS_KEY, users); return P({ ok: true, newUsername: nu2, selfRenamed: false }); },
+    resetPassword: function (u) { var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); var pw = randomPw(); t.pw = pw; lsSet(USERS_KEY, users); dLogMev("reset-pw", u); return P({ ok: true, tempPassword: pw }); },
+    setActive: function (u, active) { var users = dUsers(), t = users.filter(function (x) { return x.username === u; })[0]; if (!t) return P({ error: "not_found" }); if (!active) { if (session && u === session.username) return P({ error: "self" }); if (t.role === "admin" && dAdminCount(users) <= 1) return P({ error: "last_admin" }); } t.active = !!active; lsSet(USERS_KEY, users); dLogMev(active ? "activated" : "deactivated", u); return P({ ok: true }); },
+    delBooking: function (id) { var bk = dBookings(); lsSet(DATA_KEY, bk.filter(function (x) { return x.id !== id; })); return P({ ok: true }); },
+    listMemberEvents: function () { return P(dMev().slice().reverse()); },
     reset: function () { lsSet(USERS_KEY, seedUsers()); lsSet(DATA_KEY, seedBookings()); },
   };
 
@@ -92,6 +99,9 @@
     delMember: function (u) { return api("/members/" + u, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     updateMember: function (u, patch) { return api("/members/" + u, { method: "POST", body: patch }).then(function (r) { return r.status === 200 ? { ok: true, newUsername: r.body.newUsername, selfRenamed: r.body.selfRenamed } : { error: r.body.error }; }); },
     resetPassword: function (u) { return api("/members/" + u + "/reset", { method: "POST", body: {} }).then(function (r) { return r.status === 200 ? { ok: true, tempPassword: r.body.tempPassword } : { error: r.body.error }; }); },
+    setActive: function (u, active) { return api("/members/" + u, { method: "POST", body: { active: !!active } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
+    delBooking: function (id) { return api("/bookings/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
+    listMemberEvents: function () { return api("/member-events").then(function (r) { return r.status === 200 ? r.body.events : []; }); },
     reset: null,
   };
 
@@ -102,7 +112,7 @@
   function errMsg(e) { return ERR[e] || "Feeler – probéiert nach eng Kéier."; }
 
   /* ---------- Views ---------- */
-  var activePage = "bookings", activeFilter = "all", editingMember = null;
+  var activePage = "bookings", activeFilter = "all", editingMember = null, bookingQuery = "";
   var STATUS = { new: "Nei", confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss" };
 
   function showLogin() { $("view-app").hidden = true; $("view-login").hidden = false; $("login-err").textContent = ""; $("login-form").reset(); }
@@ -142,6 +152,7 @@
     STORE.reset(); if (session && !dUsers().filter(function (x) { return x.username === session.username; })[0]) { session = null; showLogin(); return; } gotoPage("bookings");
   });
   document.querySelectorAll("#topnav button").forEach(function (b) { b.addEventListener("click", function () { gotoPage(b.getAttribute("data-page")); }); });
+  var searchEl = $("booking-search"); if (searchEl) searchEl.addEventListener("input", function () { bookingQuery = searchEl.value.trim(); renderBookings(); });
 
   /* ---------- Change password ---------- */
   function openPw(forced) { gotoPage("pw"); $("pw-forced-note").hidden = !forced; $("pw-err").textContent = ""; $("pw-form").reset(); }
@@ -167,31 +178,37 @@
     wrap.innerHTML = "";
     defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (activeFilter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { activeFilter = d[0]; renderBookings(); }); wrap.appendChild(b); });
   }
-  function doAct(id, status) { if (!can("bookings.validate")) return; var noteEl = $("note-" + id), note = noteEl ? noteEl.value.trim() : ""; STORE.setStatus(id, status, note).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Reservatioun R-" + id + ": " + (STATUS[status] || status).toLowerCase() + "."); renderBookings(); }); }
+  function doAct(id, status) { if (!can("bookings.validate")) return; var noteEl = $("note-" + id), note = noteEl ? noteEl.value.trim() : ""; STORE.setStatus(id, status, note).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Reservatioun " + refOf(id) + ": " + (STATUS[status] || status).toLowerCase() + "."); renderBookings(); }); }
+  function doDelBooking(id) { if (!can("members.manage")) return; if (!confirm("Reservatioun " + refOf(id) + " endgülteg läschen?")) return; STORE.delBooking(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Reservatioun " + refOf(id) + " geläscht."); renderBookings(); }); }
   function bookingCard(b) {
     var el = document.createElement("div"); el.className = "booking" + (b.status === "new" ? " is-new" : "");
-    var canVal = can("bookings.validate"), actions = "";
+    var canVal = can("bookings.validate"), isAdmin = can("members.manage"), actions = "";
     if (canVal && b.status === "new") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-act="confirmed" data-id="' + b.id + '">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-act="declined" data-id="' + b.id + '">✕ Ofleenen</button>';
     else if (canVal && b.status === "confirmed") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-outline btn-sm" data-act="done" data-id="' + b.id + '">Als ofgeschloss markéieren</button>';
+    if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-del-booking="' + b.id + '">Läschen</button>';
     var audit = (b.events || []).map(function (ev) { return '<div class="ev">• ' + esc(ev.action) + ' vum <b>' + esc(ev.by) + "</b>, " + fmt(ev.at) + (ev.note ? ' – „' + esc(ev.note) + "“" : "") + "</div>"; }).join("");
     el.innerHTML =
-      '<div class="b-top"><div><div class="b-veh">' + esc(b.veh) + '</div><div class="b-id">Réf. R-' + b.id + "</div></div><span class=\"status status-" + b.status + '">' + esc(STATUS[b.status]) + "</span></div>" +
+      '<div class="b-top"><div><div class="b-veh">' + esc(b.veh) + '</div><div class="b-id">Réf. ' + refOf(b.id) + "</div></div><span class=\"status status-" + b.status + '">' + esc(STATUS[b.status]) + "</span></div>" +
       '<div class="b-dates">' + fmt(b.from) + '<span class="arrow">→</span>' + fmt(b.to) + "</div>" +
       '<div class="b-cust"><strong>' + esc(b.name) + "</strong><span>✉ " + esc(b.email) + "</span>" + (b.phone ? "<span>☎ " + esc(b.phone) + "</span>" : "") + "</div>" +
       (b.msg ? '<p class="b-msg">' + esc(b.msg) + "</p>" : "") +
       (actions ? '<div class="b-actions">' + actions + "</div>" : "") +
       '<div class="b-audit">' + audit + "</div>";
     el.querySelectorAll("[data-act]").forEach(function (btn) { btn.addEventListener("click", function () { doAct(b.id, btn.getAttribute("data-act")); }); });
+    el.querySelectorAll("[data-del-booking]").forEach(function (btn) { btn.addEventListener("click", function () { doDelBooking(parseInt(btn.getAttribute("data-del-booking"), 10)); }); });
     return el;
   }
+  function matchQuery(b) { if (!bookingQuery) return true; var q = bookingQuery.toLowerCase(); return (refOf(b.id) + " " + (b.veh || "") + " " + (b.name || "") + " " + (b.email || "") + " " + (b.phone || "")).toLowerCase().indexOf(q) !== -1; }
+  function updateNewBadge(bk) { var badge = $("nav-new-badge"); if (!badge) return; var n = bk.filter(function (b) { return b.status === "new"; }).length; badge.textContent = n; badge.hidden = n === 0; }
   function renderBookings() {
     $("bookings-sub").textContent = can("bookings.validate") ? "Ufroe bestätegen oder ofleenen. All Aktioun gëtt mam Benotzernumm festgehalen." : "Dir hutt Liesrechter (Kucker).";
     $("btn-reset").hidden = STORE.mode !== "demo";
     STORE.listBookings().then(function (bk) {
+      updateNewBadge(bk);
       renderFilters(bk);
       var list = $("booking-list"); list.innerHTML = "";
-      var shown = bk.filter(function (b) { return activeFilter === "all" || b.status === activeFilter; });
-      if (!shown.length) { var e = document.createElement("p"); e.className = "empty"; e.textContent = "Keng Reservatiounen an dëser Kategorie."; list.appendChild(e); return; }
+      var shown = bk.filter(function (b) { return (activeFilter === "all" || b.status === activeFilter) && matchQuery(b); });
+      if (!shown.length) { var e = document.createElement("p"); e.className = "empty"; e.textContent = bookingQuery ? "Keng Reservatioun fir dës Sich." : "Keng Reservatiounen an dëser Kategorie."; list.appendChild(e); return; }
       shown.forEach(function (b) { list.appendChild(bookingCard(b)); });
     });
   }
@@ -216,7 +233,9 @@
             "<td><code>" + esc(u.username) + "</code>" + (isSelf ? '<span class="you-tag">(du)</span>' : "") + (u.active ? "" : ' <span class="role-pill role-viewer">inaktiv</span>') + "</td>" +
             "<td>" + esc(u.name) + "</td><td>" + roleCell + "</td>" +
             '<td style="text-align:right;white-space:nowrap"><button class="btn btn-outline btn-sm" data-edit="' + esc(u.username) + '">Änneren</button> ' +
-            (isSelf ? "" : '<button class="btn btn-outline btn-sm" data-reset="' + esc(u.username) + '">PW</button> <button class="btn btn-danger btn-sm" data-del="' + esc(u.username) + '">Läschen</button>') + "</td>";
+            (isSelf ? "" : '<button class="btn btn-outline btn-sm" data-reset="' + esc(u.username) + '">PW</button> ' +
+              (u.active ? '<button class="btn btn-warn btn-sm" data-active="0" data-user="' + esc(u.username) + '">Spären</button> ' : '<button class="btn btn-ok btn-sm" data-active="1" data-user="' + esc(u.username) + '">Aktivéieren</button> ') +
+              '<button class="btn btn-danger btn-sm" data-del="' + esc(u.username) + '">Läschen</button>') + "</td>";
         }
         body.appendChild(tr);
       });
@@ -235,6 +254,28 @@
       }); });
       body.querySelectorAll("[data-reset]").forEach(function (b) { b.addEventListener("click", function () { var u = b.getAttribute("data-reset"); if (!confirm("Passwuert vu „" + u + "“ zrécksetzen? E neit temporäert Passwuert gëtt generéiert.")) return; STORE.resetPassword(u).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } $("add-msg").innerHTML = "🔑 Neit temporäert Passwuert fir <code>" + esc(u) + "</code>: <code>" + esc(r.tempPassword) + "</code> – gëff et dem Member, hie muss et beim nächste Login änneren."; toast("Passwuert zréckgesat."); }); }); });
       body.querySelectorAll("[data-del]").forEach(function (btn) { btn.addEventListener("click", function () { var u = btn.getAttribute("data-del"); if (!confirm("Member „" + u + "“ wierklech läschen?")) return; STORE.delMember(u).then(function (r) { if (r.error) toast(errMsg(r.error)); else toast("Member „" + u + "“ geläscht."); renderMembers(); }); }); });
+      body.querySelectorAll("[data-active]").forEach(function (b) { b.addEventListener("click", function () { var u = b.getAttribute("data-user"), act = b.getAttribute("data-active") === "1"; STORE.setActive(u, act).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast(act ? "Member aktivéiert." : "Member gespaart."); renderMembers(); }); }); });
+    });
+    renderMemberEvents();
+  }
+  function mevLabel(ev) {
+    var a = ev.action || "", t = ev.target || "";
+    if (a === "created") return "huet " + t + " bäigesat";
+    if (a === "deleted") return "huet " + t + " geläscht";
+    if (a === "rename") return "huet den Numm vun " + t + " geännert";
+    if (a === "reset-pw") return "huet d'Passwuert vun " + t + " zréckgesat";
+    if (a === "activated") return "huet " + t + " aktivéiert";
+    if (a === "deactivated") return "huet " + t + " gespaart";
+    if (a.indexOf("role:") === 0) return "huet " + t + " op " + roleLabel(a.slice(5)) + " gesat";
+    if (a.indexOf("username>") === 0) return "huet de Benotzernumm vun " + t + " op " + a.slice(9) + " geännert";
+    return a + " · " + t;
+  }
+  function renderMemberEvents() {
+    var ul = $("mev-list"); if (!ul) return;
+    STORE.listMemberEvents().then(function (evs) {
+      ul.innerHTML = "";
+      if (!evs || !evs.length) { var li = document.createElement("li"); li.className = "mev-empty"; li.textContent = "Nach keng Aktivitéit."; ul.appendChild(li); return; }
+      evs.slice(0, 40).forEach(function (ev) { var li = document.createElement("li"); li.innerHTML = "<b>" + esc(ev.by) + "</b> " + esc(mevLabel(ev)) + ' <span class="mev-when">· ' + fmt(ev.at) + "</span>"; ul.appendChild(li); });
     });
   }
   $("add-form").addEventListener("submit", function (e) {

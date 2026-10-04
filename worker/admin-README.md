@@ -44,6 +44,28 @@ Dono ass `/intern/` automatesch **live** (soss leeft et am Testmodus).
 | POST | `/bookings` | public | Neng Ufro (vum Location-Formulaire) |
 | GET/POST/DELETE | `/members[...]` | admin | Member-Verwaltung |
 
+## Automatescht Deployen (recommandéiert — da muss een ni méi manuell pechen)
+Et gëtt eng GitHub-Action (`.github/workflows/deploy-worker.yml`), déi de
+Worker automatesch nei deployéiert soubal am `worker/` eppes geännert gëtt.
+Eemoleg opzesetzen:
+
+1. **Cloudflare API-Token uleeën**: dash.cloudflare.com → Profil (uewe riets)
+   → **My Profile** → **API Tokens** → **Create Token** → Template
+   **„Edit Cloudflare Workers"** → derbäi d'Permissioun **Account › D1 › Edit**
+   → Token erstellen a kopéieren.
+2. **Als GitHub-Secret setzen**: op github.com am Repo
+   `clementeb2001/garage` → **Settings** → **Secrets and variables** →
+   **Actions** → **New repository secret**:
+   - Numm `CLOUDFLARE_API_TOKEN`, Wäert = de Token.
+   - (Optional) Numm `CLOUDFLARE_ACCOUNT_ID`, Wäert = deng Account-ID
+     (steet am Cloudflare-Dashboard riets).
+3. Fäerdeg. Vun elo un deployéiert all Ännerung um Worker sech vun eleng.
+   Fir et direkt eng Kéier auszeléisen: Repo → **Actions** → „Deploy admin
+   worker" → **Run workflow**.
+
+> D'Websäit selwer (`/intern/`, Shop, asw.) geet souwisou automatesch live
+> iwwer GitHub Pages. Mat dëser Action ass elo och de Worker automatesch.
+
 ## Custom-Domain änneren?
 Wann der eng aner URL benotzt wéi `garage-admin.autoservicebettenduerf.lu`,
 musst der se op 2 Plazen upassen:
