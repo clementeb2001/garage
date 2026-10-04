@@ -121,17 +121,19 @@
     $("who-name").textContent = session.name + " · " + roleLabel(session.role);
     $("nav-members").hidden = !can("members.manage");
     if (session.mustChange) { openPw(true); }
-    else { gotoPage("bookings"); }
+    else { gotoPage("dashboard"); }
   }
   function gotoPage(p) {
     if (p === "members" && !can("members.manage")) p = "bookings";
     if (p !== "members") editingMember = null;
     activePage = p;
+    $("page-dashboard").hidden = p !== "dashboard";
     $("page-bookings").hidden = p !== "bookings";
     $("page-members").hidden = p !== "members";
     $("page-pw").hidden = p !== "pw";
     document.querySelectorAll("#topnav button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-page") === p); });
-    if (p === "bookings") renderBookings();
+    if (p === "dashboard") renderDashboard();
+    else if (p === "bookings") renderBookings();
     else if (p === "members") renderMembers();
   }
 
@@ -212,6 +214,96 @@
       shown.forEach(function (b) { list.appendChild(bookingCard(b)); });
     });
   }
+
+  /* ---------- Dashboard ---------- */
+  var calRef = new Date(), dashActive = [];
+  var VEH_COLORS = ["#2f6df6", "#e63946", "#2e7d5b", "#b7791f", "#7c4dff", "#0ea5a5", "#d6457f", "#546e7a"];
+  function vehColorMap(bookings) { var map = {}, i = 0; bookings.forEach(function (b) { var v = b.veh || "?"; if (map[v] == null) { map[v] = VEH_COLORS[i % VEH_COLORS.length]; i++; } }); return map; }
+  function parseDay(s) { if (!s) return null; var d = new Date(s); return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function startOfWeek(d) { var x = new Date(d); var g = (x.getDay() + 6) % 7; x.setDate(x.getDate() - g); x.setHours(0, 0, 0, 0); return x; }
+  function overlaps(a, b) { var a1 = parseDay(a.from) || parseDay(a.to), a2 = parseDay(a.to) || a1, b1 = parseDay(b.from) || parseDay(b.to), b2 = parseDay(b.to) || b1; if (!a1 || !b1) return false; return a1 <= b2 && b1 <= a2; }
+
+  function renderDashboard() {
+    STORE.listBookings().then(function (bk) {
+      updateNewBadge(bk);
+      var active = bk.filter(function (b) { return b.status !== "declined"; });
+      dashActive = active;
+      var now = new Date(), wkStart = startOfWeek(now), wkEnd = new Date(wkStart); wkEnd.setDate(wkEnd.getDate() + 7);
+      var cntNew = bk.filter(function (b) { return b.status === "new"; }).length;
+      var cntConf = bk.filter(function (b) { return b.status === "confirmed"; }).length;
+      var cntWeek = active.filter(function (b) { var f = parseDay(b.from); return f && f >= wkStart && f < wkEnd; }).length;
+      var tiles = [["accent", cntNew, "Nei Ufroen"], ["ok", cntConf, "Bestätegt"], ["", cntWeek, "Dës Woch"], ["", bk.length, "Total"]];
+      $("stat-row").innerHTML = tiles.map(function (t) { return '<div class="stat ' + t[0] + '"><div class="n">' + t[1] + '</div><div class="l">' + t[2] + "</div></div>"; }).join("");
+      $("dash-sub").textContent = STORE.mode === "live" ? "live" : "testmodus";
+      renderConflicts(bk);
+      renderVehUsage(active);
+      renderUpcoming(active);
+      renderCalendar(active);
+    });
+  }
+  function renderConflicts(bk) {
+    var box = $("conflict-box"); box.innerHTML = "";
+    var rel = bk.filter(function (b) { return b.status === "new" || b.status === "confirmed"; });
+    var seen = {}, confs = [];
+    for (var i = 0; i < rel.length; i++) for (var j = i + 1; j < rel.length; j++) {
+      if (rel[i].veh === rel[j].veh && overlaps(rel[i], rel[j])) { var key = [Math.min(rel[i].id, rel[j].id), Math.max(rel[i].id, rel[j].id)].join("-"); if (!seen[key]) { seen[key] = 1; confs.push([rel[i], rel[j]]); } }
+    }
+    if (!confs.length) return;
+    box.innerHTML = '<div class="conflict-box"><b>⚠ ' + confs.length + " méigleche Konflikt" + (confs.length > 1 ? "er" : "") + ":</b> " + confs.map(function (c) { return esc(c[0].veh) + " (" + refOf(c[0].id) + " ↔ " + refOf(c[1].id) + ")"; }).join(" · ") + ". Déiselwecht Gefier(er) iwwerlappen am Datum.</div>";
+  }
+  function renderVehUsage(active) {
+    var el = $("veh-usage"), byVeh = {}; active.forEach(function (b) { var v = b.veh || "?"; byVeh[v] = (byVeh[v] || 0) + 1; });
+    var cmap = vehColorMap(active), arr = Object.keys(byVeh).map(function (v) { return [v, byVeh[v]]; }).sort(function (a, b) { return b[1] - a[1]; });
+    if (!arr.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Nach keng Reservatiounen.</p>'; return; }
+    var max = arr[0][1];
+    el.innerHTML = arr.map(function (x) { return '<div class="veh-bar"><div class="vb-top"><span>' + esc(x[0]) + "</span><b>" + x[1] + '×</b></div><div class="vb-track"><div class="vb-fill" style="width:' + Math.round(x[1] / max * 100) + "%;background:" + cmap[x[0]] + '"></div></div></div>'; }).join("");
+  }
+  function renderUpcoming(active) {
+    var el = $("upcoming"), today = new Date(); today.setHours(0, 0, 0, 0);
+    var cmap = vehColorMap(active);
+    var up = active.filter(function (b) { var f = parseDay(b.from); return f && f >= today; }).sort(function (a, b) { return parseDay(a.from) - parseDay(b.from); }).slice(0, 6);
+    if (!up.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Keng kommend Reservatiounen.</p>'; return; }
+    el.innerHTML = up.map(function (b) { return '<div class="up-item"><span class="up-dot" style="background:' + cmap[b.veh || "?"] + '"></span><div style="flex:1"><div>' + esc(b.veh) + '</div><div class="muted" style="font-size:0.78rem">' + esc(b.name) + " · " + (b.status === "new" ? "nei" : "bestätegt") + '</div></div><span class="up-when">' + fmt(b.from).split(" ")[0] + "</span></div>"; }).join("");
+  }
+  function renderCalendar(active) {
+    var cmap = vehColorMap(active), y = calRef.getFullYear(), mo = calRef.getMonth();
+    $("cal-label").textContent = ["Januar","Februar","Mäerz","Abrëll","Mee","Juni","Juli","August","September","Oktober","November","Dezember"][mo] + " " + y;
+    var start = startOfWeek(new Date(y, mo, 1)), today = new Date(); today.setHours(0, 0, 0, 0);
+    var dows = ["Mé","Dë","Më","Do","Fr","Sa","So"];
+    var html = '<div class="cal-grid">' + dows.map(function (d) { return '<div class="cal-dow">' + d + "</div>"; }).join("");
+    var cur = new Date(start);
+    for (var i = 0; i < 42; i++) {
+      var inMonth = cur.getMonth() === mo, isToday = cur.getTime() === today.getTime();
+      var dayEvents = active.filter(function (b) { var f = parseDay(b.from), t = parseDay(b.to) || f; return f && cur >= f && cur <= t; });
+      var evHtml = dayEvents.slice(0, 3).map(function (b) { return '<div class="cal-ev' + (b.status === "new" ? " tentative" : "") + '" style="background:' + cmap[b.veh || "?"] + '" title="' + esc(b.veh) + " – " + esc(b.name) + " (" + (b.status === "new" ? "nei" : b.status === "confirmed" ? "bestätegt" : "ofgeschloss") + ')">' + esc((b.veh || "").replace(/\s*\(.*$/, "")) + "</div>"; }).join("");
+      if (dayEvents.length > 3) evHtml += '<div class="cal-ev" style="background:#9aa7b4">+' + (dayEvents.length - 3) + "</div>";
+      html += '<div class="cal-cell' + (inMonth ? "" : " other") + (isToday ? " today" : "") + '"><div class="cal-daynum">' + cur.getDate() + "</div>" + evHtml + "</div>";
+      cur.setDate(cur.getDate() + 1);
+    }
+    $("calendar").innerHTML = html + "</div>";
+    var vehs = Object.keys(cmap);
+    $("cal-legend").innerHTML = vehs.map(function (v) { return '<span><i style="background:' + cmap[v] + '"></i>' + esc(v.replace(/\s*\(.*$/, "")) + "</span>"; }).join("");
+  }
+  (function () {
+    var p = $("cal-prev"), n = $("cal-next"), t = $("cal-today");
+    if (p) p.addEventListener("click", function () { calRef = new Date(calRef.getFullYear(), calRef.getMonth() - 1, 1); renderCalendar(dashActive); });
+    if (n) n.addEventListener("click", function () { calRef = new Date(calRef.getFullYear(), calRef.getMonth() + 1, 1); renderCalendar(dashActive); });
+    if (t) t.addEventListener("click", function () { calRef = new Date(); renderCalendar(dashActive); });
+  })();
+
+  /* ---------- Export / Drécken ---------- */
+  function csvCell(s) { s = String(s == null ? "" : s); return '"' + s.replace(/"/g, '""') + '"'; }
+  function exportCSV() {
+    STORE.listBookings().then(function (bk) {
+      var rows = [["Réf", "Gefier", "Vun", "Bis", "Numm", "E-Mail", "Telefon", "Status", "Noriicht"]];
+      bk.forEach(function (b) { rows.push([refOf(b.id), b.veh, b.from, b.to, b.name, b.email, b.phone, STATUS[b.status] || b.status, b.msg]); });
+      var csv = "﻿" + rows.map(function (r) { return r.map(csvCell).join(";"); }).join("\r\n");
+      var blob = new Blob([csv], { type: "text/csv;charset=utf-8" }), url = URL.createObjectURL(blob), a = document.createElement("a");
+      a.href = url; a.download = "reservatiounen.csv"; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    });
+  }
+  (function () { var e = $("btn-export"), pr = $("btn-print"); if (e) e.addEventListener("click", exportCSV); if (pr) pr.addEventListener("click", function () { window.print(); }); })();
 
   /* ---------- Members ---------- */
   function afterSelfRename() { toast("Däi Benotzernumm gouf geännert – logg dech w.e.g. nei an."); setTimeout(function () { session = null; token = null; try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} showLogin(); }, 1400); }

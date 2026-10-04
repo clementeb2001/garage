@@ -108,6 +108,48 @@
       .mev-list .mev-when { color: var(--mut); font-size: 0.76rem; }
       .mev-empty { padding: 14px; color: var(--mut); font-size: 0.85rem; }
       .btn-warn { background: #fff; border-color: #e3c893; color: #8a6d1f; }
+
+      /* Dashboard */
+      .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0 18px; }
+      .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(13,27,42,0.05); }
+      .stat .n { font-size: 1.7rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+      .stat .l { font-size: 0.78rem; color: var(--mut); font-weight: 600; margin-top: 2px; }
+      .stat.accent .n { color: var(--accent); }
+      .stat.ok .n { color: var(--ok); }
+      .dash-grid { display: grid; grid-template-columns: 1.7fr 1fr; gap: 16px; align-items: start; }
+      .dash-side { display: flex; flex-direction: column; gap: 16px; }
+      .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(13,27,42,0.05); }
+      .panel h3 { margin: 0 0 12px; font-size: 1rem; }
+      .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+      .panel-head h3 { margin: 0; }
+      .cal-nav { display: flex; align-items: center; gap: 6px; }
+      .cal-nav button { font: inherit; font-weight: 700; border: 1px solid var(--line); background: #fff; color: var(--fg); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+      .cal-nav #cal-label { font-weight: 700; min-width: 128px; text-align: center; font-size: 0.9rem; }
+      .cal-today { font-size: 0.78rem; }
+      .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+      .cal-dow { font-size: 0.68rem; font-weight: 800; color: var(--mut); text-transform: uppercase; text-align: center; padding: 2px 0; }
+      .cal-cell { min-height: 72px; border: 1px solid var(--line); border-radius: 8px; padding: 4px; background: #fcfcfd; overflow: hidden; }
+      .cal-cell.other { background: #f3f4f6; opacity: 0.6; }
+      .cal-cell.today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+      .cal-daynum { font-size: 0.72rem; font-weight: 700; color: var(--mut); }
+      .cal-ev { font-size: 0.66rem; color: #fff; border-radius: 4px; padding: 1px 5px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .cal-ev.tentative { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.35), rgba(255,255,255,0.35) 3px, transparent 3px, transparent 6px); }
+      .cal-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; font-size: 0.78rem; }
+      .cal-legend span { display: inline-flex; align-items: center; gap: 6px; color: var(--mut); }
+      .cal-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+      .veh-bar { margin-bottom: 10px; }
+      .veh-bar .vb-top { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 3px; }
+      .veh-bar .vb-top b { font-variant-numeric: tabular-nums; }
+      .veh-bar .vb-track { height: 8px; background: #eef1f4; border-radius: 999px; overflow: hidden; }
+      .veh-bar .vb-fill { height: 100%; border-radius: 999px; }
+      .up-item { display: flex; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 0.85rem; }
+      .up-item:last-child { border-bottom: 0; }
+      .up-when { color: var(--mut); font-size: 0.78rem; white-space: nowrap; }
+      .up-dot { width: 9px; height: 9px; border-radius: 3px; flex: none; align-self: center; }
+      .conflict-box { background: #fdeaec; border: 1px solid #f1b9bf; color: #8a2b33; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.86rem; }
+      .conflict-box b { color: #6f1f26; }
+      @media (max-width: 760px) { .dash-grid { grid-template-columns: 1fr; } .stat-row { grid-template-columns: repeat(2, 1fr); } }
+      @media print { .topbar, .testbar, .filters, .b-actions, .b-note-input, #btn-export, #btn-print, #btn-reset { display: none !important; } .booking { break-inside: avoid; } }
       [hidden] { display: none !important; }
       @media (max-width: 560px) { .add-form { grid-template-columns: 1fr; } .topbar .brand span { display: none; } }
     </style>
@@ -138,7 +180,8 @@
       <div class="topbar">
         <div class="brand"><img src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf" /><span>Interne Verwaltung</span></div>
         <nav class="topnav" id="topnav">
-          <button type="button" data-page="bookings" class="active">Reservatiounen <span id="nav-new-badge" class="nav-badge" hidden></span></button>
+          <button type="button" data-page="dashboard" class="active">Dashboard</button>
+          <button type="button" data-page="bookings">Reservatiounen <span id="nav-new-badge" class="nav-badge" hidden></span></button>
           <button type="button" data-page="members" id="nav-members" hidden>Memberen</button>
         </nav>
         <div class="who"><span id="who-name"></span><button class="btn btn-ghost" id="btn-pw" type="button">Passwuert</button><button class="btn btn-ghost" id="btn-logout" type="button">Ausloggen</button></div>
@@ -157,11 +200,43 @@
         </form>
       </div>
 
+      <!-- Dashboard page -->
+      <div class="wrap" id="page-dashboard" hidden>
+        <div class="page-head"><h2 class="page-title">Iwwersiicht</h2><span class="muted" id="dash-sub" style="font-size:0.85rem"></span></div>
+        <div class="stat-row" id="stat-row"></div>
+        <div id="conflict-box"></div>
+        <div class="dash-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Kalenner</h3>
+              <div class="cal-nav"><button type="button" id="cal-prev" aria-label="Virege Mount">‹</button><span id="cal-label"></span><button type="button" id="cal-next" aria-label="Nächste Mount">›</button><button type="button" id="cal-today" class="cal-today">Haut</button></div>
+            </div>
+            <div id="calendar"></div>
+            <div class="cal-legend" id="cal-legend"></div>
+            <p class="muted" style="font-size:0.76rem;margin:10px 0 0">Vollfaarweg = bestätegt · gestréift = nei (nach net bestätegt). Fräi Deeg hu keng Balken.</p>
+          </div>
+          <div class="dash-side">
+            <div class="panel">
+              <h3>Gefierer – wéi oft fort</h3>
+              <div id="veh-usage"></div>
+            </div>
+            <div class="panel">
+              <h3>Nächst Reservatiounen</h3>
+              <div id="upcoming"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Bookings page -->
       <div class="wrap" id="page-bookings">
         <div class="page-head">
           <h2 class="page-title">Reservatiounen</h2>
-          <button class="btn btn-outline btn-sm" id="btn-reset" type="button">Demo-Daten zrécksetzen</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" id="btn-export" type="button">⭳ Export (CSV)</button>
+            <button class="btn btn-outline btn-sm" id="btn-print" type="button">🖨 Drécken</button>
+            <button class="btn btn-outline btn-sm" id="btn-reset" type="button">Demo zrécksetzen</button>
+          </div>
         </div>
         <p class="muted" id="bookings-sub" style="margin:2px 0 0;font-size:0.9rem"></p>
         <input type="search" id="booking-search" class="booking-search" placeholder="Sichen (Numm, E-Mail, Gefier, Réf.) …" autocomplete="off" />
@@ -199,6 +274,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=6"></script>
+    <script src="intern.js?v=7"></script>
   </body>
 </html>
