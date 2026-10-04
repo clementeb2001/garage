@@ -95,6 +95,47 @@ function json(env, body, status) {
 function clip(s, n) { return String(s == null ? "" : s).slice(0, n); }
 function hasPerm(role, perm) { return (PERMS[role] || []).indexOf(perm) !== -1; }
 
+/* ---------- E-Mail (Resend) ---------- */
+async function sendEmail(env, to, subject, html) {
+  if (!env.RESEND_API_KEY || !to) return;
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: env.MAIL_FROM || "Autoservice Bettenduerf <noreply@autoservicebettenduerf.lu>",
+        to: [to], reply_to: "Autoservicebettenduerf@outlook.com", subject: subject, html: html,
+      }),
+    });
+  } catch (e) {}
+}
+function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function confirmMail(b) {
+  var L = (b.lang || "lb").slice(0, 2);
+  var T = {
+    lb: { s: "Är Reservatioun ass bestätegt", h: "Reservatioun bestätegt", p: "Mir hunn Är Reservatioun bestätegt:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Bei Froen äntwert einfach op dës E-Mail oder rufft eis un. Villmools Merci!" },
+    de: { s: "Ihre Reservierung ist bestätigt", h: "Reservierung bestätigt", p: "Wir haben Ihre Reservierung bestätigt:", veh: "Fahrzeug", from: "Von", to: "Bis", foot: "Bei Fragen antworten Sie einfach auf diese E-Mail oder rufen Sie uns an. Vielen Dank!" },
+    fr: { s: "Votre réservation est confirmée", h: "Réservation confirmée", p: "Nous avons confirmé votre réservation :", veh: "Véhicule", from: "Du", to: "Au", foot: "Pour toute question, répondez simplement à cet e-mail ou appelez-nous. Merci !" },
+    en: { s: "Your reservation is confirmed", h: "Reservation confirmed", p: "We have confirmed your reservation:", veh: "Vehicle", from: "From", to: "To", foot: "If you have any questions, just reply to this e-mail or call us. Thank you!" },
+  }[L] || null;
+  var t = T || { s: "Är Reservatioun ass bestätegt", h: "Reservatioun bestätegt", p: "Mir hunn Är Reservatioun bestätegt:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Merci!" };
+  var html =
+    '<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1c2430">' +
+    '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +
+    '<div style="border:1px solid #e6e9ee;border-top:0;border-radius:0 0 10px 10px;padding:20px">' +
+    '<h2 style="margin:0 0 8px;color:#2e7d5b">✓ ' + esc(t.h) + "</h2>" +
+    "<p>" + esc(t.p) + "</p>" +
+    '<table style="font-size:14px;border-collapse:collapse">' +
+    "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.veh) + "</td><td><b>" + esc(b.veh) + "</b></td></tr>" +
+    (b.from_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.from) + "</td><td>" + esc(b.from_dt.replace("T", " ")) + "</td></tr>" : "") +
+    (b.to_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.to) + "</td><td>" + esc(b.to_dt.replace("T", " ")) + "</td></tr>" : "") +
+    "</table>" +
+    '<p style="color:#5b6b7c;font-size:13px;margin-top:18px">' + esc(t.foot) + "</p>" +
+    '<p style="color:#8a96a2;font-size:12px;margin-top:14px">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87</p>' +
+    "</div></div>";
+  return { subject: t.s, html: html };
+}
+
 async function authUser(request, env) {
   const h = request.headers.get("Authorization") || "";
   const m = h.match(/^Bearer\s+(.+)$/i);
@@ -108,7 +149,7 @@ async function authUser(request, env) {
 
 /* ---------- main ---------- */
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, "") || "/";
     const method = request.method.toUpperCase();
@@ -186,6 +227,10 @@ export default {
         if (!ex) return json(env, { error: "not_found" }, 404);
         await env.DB.prepare("UPDATE bookings SET status = ?1 WHERE id = ?2").bind(status, id).run();
         await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,?3,?4)").bind(id, labels[status], me.username, clip(bodyData.note, 500)).run();
+        if (status === "confirmed") {
+          const b = await env.DB.prepare("SELECT veh, from_dt, to_dt, cust_email, lang FROM bookings WHERE id = ?1").bind(id).first();
+          if (b && b.cust_email) { const mail = confirmMail(b); ctx.waitUntil(sendEmail(env, b.cust_email, mail.subject, mail.html)); }
+        }
         return json(env, { ok: true });
       }
 
