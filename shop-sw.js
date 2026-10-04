@@ -1,11 +1,13 @@
 "use strict";
 
-var CACHE = "autoservice-shop-v1";
+var CACHE = "autoservice-shop-v2";
+var IMAGE_CACHE = "autoservice-product-images-v1";
+var MAX_IMAGES = 160;
 var CORE = [
   "/shop.html",
-  "/styles.css?v=61",
+  "/styles.css?v=62",
   "/script.js?v=20",
-  "/shop.js?v=55",
+  "/shop.js?v=56",
   "/shop-data.js?v=11",
 ];
 
@@ -16,7 +18,7 @@ self.addEventListener("install", function (event) {
 
 self.addEventListener("activate", function (event) {
   event.waitUntil(caches.keys().then(function (keys) {
-    return Promise.all(keys.filter(function (key) { return key !== CACHE; }).map(function (key) { return caches.delete(key); }));
+    return Promise.all(keys.filter(function (key) { return key !== CACHE && key !== IMAGE_CACHE; }).map(function (key) { return caches.delete(key); }));
   }));
   self.clients.claim();
 });
@@ -30,10 +32,18 @@ self.addEventListener("fetch", function (event) {
     /\/(?:shop(?:-data-dba)?|remus-parts|script|styles)\.(?:js|css)$/.test(url.pathname);
   if (!isProductImage && !isCatalogAsset) return;
 
-  event.respondWith(caches.open(CACHE).then(function (cache) {
+  var cacheName = isProductImage ? IMAGE_CACHE : CACHE;
+  event.respondWith(caches.open(cacheName).then(function (cache) {
     return cache.match(event.request).then(function (cached) {
       var network = fetch(event.request).then(function (response) {
-        if (response && (response.ok || response.type === "opaque")) cache.put(event.request, response.clone());
+        if (response && (response.ok || response.type === "opaque")) {
+          cache.put(event.request, response.clone()).then(function () {
+            if (!isProductImage) return;
+            cache.keys().then(function (keys) {
+              if (keys.length > MAX_IMAGES) cache.delete(keys[0]);
+            });
+          });
+        }
         return response;
       });
       return cached || network;

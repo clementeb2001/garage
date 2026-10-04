@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=51" />
+    <link rel="stylesheet" href="styles.css?v=62" />
     <script src="location-gate.js?v=1"></script>
   </head>
   <body class="rental-page">
@@ -198,6 +198,7 @@
             <input type="hidden" name="_subject" value="Nei Location-Ufro – Autoservice Bettenduerf" />
             <input type="hidden" name="_template" value="table" />
             <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_loaded_at" value="" />
             <input type="hidden" name="Material" id="rental-hidden-items" value="" />
             <input type="text" name="_honey" tabindex="-1" autocomplete="off" class="sr-only" aria-hidden="true" />
 
@@ -216,21 +217,21 @@
 
             <div class="field">
               <label for="r-name" id="lbl-r-name">Numm</label>
-              <input type="text" id="r-name" name="Numm" autocomplete="name" />
+              <input type="text" id="r-name" name="Numm" autocomplete="name" maxlength="120" />
             </div>
             <div class="field-row">
               <div class="field">
                 <label for="r-email" id="lbl-r-email">E-Mail</label>
-                <input type="email" id="r-email" name="E-Mail" autocomplete="email" />
+                <input type="email" id="r-email" name="E-Mail" autocomplete="email" maxlength="254" />
               </div>
               <div class="field">
                 <label for="r-phone" id="lbl-r-phone">Telefon</label>
-                <input type="tel" id="r-phone" name="Telefon" autocomplete="tel" placeholder="Optional" />
+                <input type="tel" id="r-phone" name="Telefon" autocomplete="tel" maxlength="30" placeholder="Optional" />
               </div>
             </div>
             <div class="field">
               <label for="r-message" id="lbl-r-message">Noriicht</label>
-              <textarea id="r-message" name="Noriicht" rows="3"></textarea>
+              <textarea id="r-message" name="Noriicht" maxlength="2000" rows="3"></textarea>
             </div>
 
 
@@ -305,7 +306,7 @@
     <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
     <script src="script.js?v=20"></script>
-    <script src="location.js?v=6"></script>
+    <script src="location.js?v=7"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->

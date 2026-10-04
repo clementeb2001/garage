@@ -157,7 +157,7 @@
       note_cta: "Deel ufroen",
       cart_title: "Äre Kuerf", cart_empty: "Äre Kuerf ass eidel.", cart_total: "Total",
       cart_checkout: "Bezuelen", cart_remove: "Ewechhuelen",
-      cart_note: "Sécher bezuelen iwwer Mollie – Kaart, Wero, Revolut oder Iwwerweisung. Präisser inkl. 17% TVA. Eventuell Liwwerkäschte ginn Iech virun der verbindtlecher Bestellung ugewisen.",
+      cart_note: "Sécher bezuelen iwwer Mollie – Kaart, Wero, Revolut oder Iwwerweisung. Präisser inkl. 17% TVA. Eventuell Liwwerkäschte ginn Iech virun der verbindlech Bestellung ugewisen.",
       cart_redirect: "Gëtt op d’Bezuelung weidergeleet …",
       cart_err: "D’Bezuelung ass de Moment net erreechbar. Probéiert w.e.g. méi spéit oder rufft eis un.",
     },
@@ -246,7 +246,7 @@
     lb: { eyebrow: "Onlineshop", title: "Eise Shop ass an der Aarbecht",
       text: "Mir bauen eisen Autodeeler-Shop mat REMUS-Sportauspuffanlagen an DBA-Bremsen op. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
       cta: "Deel ufroen", back: "Zréck op d’Startsäit",
-      dev: "Vorschau-Modus – Shop öffentlech nach „an Arbecht“", hide: "verstoppen" },
+      dev: "Virschau-Modus – Shop ëffentlech nach „an der Aarbecht“", hide: "verstoppen" },
     de: { eyebrow: "Onlineshop", title: "Unser Shop ist in Arbeit",
       text: "Wir bauen unseren Autoteile-Shop mit REMUS-Sportauspuffanlagen und DBA-Bremsen auf. Schauen Sie bald wieder vorbei – oder kontaktieren Sie uns direkt.",
       cta: "Teil anfragen", back: "Zurück zur Startseite",
@@ -290,7 +290,7 @@
     cart_empty: "Ären Akafskuerf ass eidel.",
     cart_checkout: "Bezuelungspflichteg bestellen",
     cart_remove: "Ewechhuelen",
-    cart_note: "Sécher iwwer Mollie bezuelen. All Präisser enthalen 17% TVA. Eventuell Liwwerkäschte ginn Iech virun der verbindtlecher Bestellung ugewisen.",
+    cart_note: "Sécher iwwer Mollie bezuelen. All Präisser enthalen 17% TVA. Eventuell Liwwerkäschte ginn Iech virun der verbindlech Bestellung ugewisen.",
     cart_redirect: "Dir gitt op d’Bezuelung weidergeleet …",
     cart_err: "D’Bezuelung ass de Moment net erreechbar. Probéiert w.e.g. méi spéit nach eng Kéier oder rufft eis un.",
     legal_required: "Bestätegt w.e.g. d’Shop- a Verbraucherinformatiounen, ier Dir bestellt.",
@@ -300,7 +300,7 @@
     legal_eyebrow: "Transparent bestellen",
     legal_title: "Wichteg Informatioune virun der Bestellung",
     legal_price_title: "Präisser",
-    legal_price_text: "All ugewise Präisser enthalen 17% TVA. Méiglech Liwwer- oder Ofhuelkäschte ginn Iech virun der verbindtlecher Bestellung ugewisen.",
+    legal_price_text: "All ugewise Präisser enthalen 17% TVA. Méiglech Liwwer- oder Ofhuelkäschte ginn Iech virun der verbindlech Bestellung ugewisen.",
     legal_fit_title: "Passgenauegkeet",
     legal_fit_text: "De Gefierfilter ass eng Sichhëllef. Mir kontrolléieren d’Kompatibilitéit virum Versand nach eng Kéier mat de Gefierdaten.",
     legal_rights_title: "Är Rechter",
@@ -1193,11 +1193,12 @@
     if (inquiryEls) return inquiryEls;
     var back=document.createElement("div"); back.className="fit-inquiry-back"; back.hidden=true;
     var modal=document.createElement("div"); modal.className="fit-inquiry-modal"; modal.hidden=true; modal.setAttribute("role","dialog"); modal.setAttribute("aria-modal","true"); modal.setAttribute("aria-labelledby","fit-inquiry-title");
-    modal.innerHTML='<button type="button" class="pd-close fit-inquiry-close">✕</button><div class="fit-inquiry-head"><h2 id="fit-inquiry-title"></h2><p id="fit-inquiry-intro"></p></div><form id="fit-inquiry-form" action="https://formsubmit.co/Autoservicebettenduerf@outlook.com" method="POST"><input type="hidden" name="_subject" id="fit-subject"><input type="hidden" name="Artikel" id="fit-article-value"><input type="hidden" name="_template" value="table"><input type="hidden" name="_captcha" value="false"><input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" class="form-honey"><div class="fit-product-summary"><strong id="fit-article-label"></strong><div id="fit-products"></div><button type="button" class="fit-add-more" id="fit-add-more"></button></div><div class="field-row"><div class="field"><label for="fit-name" id="fit-name-label"></label><input id="fit-name" name="Name" autocomplete="name" required></div><div class="field"><label for="fit-email" id="fit-email-label"></label><input id="fit-email" name="E-Mail" type="email" autocomplete="email" required></div></div><div class="field"><label for="fit-phone" id="fit-phone-label"></label><input id="fit-phone" name="Telefon" type="tel" autocomplete="tel" required></div><fieldset><legend id="fit-vehicle-title"></legend><div class="field-row"><div class="field"><label for="fit-make" id="fit-make-label"></label><input id="fit-make" name="Fahrzeugmarke" required></div><div class="field"><label for="fit-model" id="fit-model-label"></label><input id="fit-model" name="Fahrzeugmodell" required></div></div><div class="field-row"><div class="field"><label for="fit-year" id="fit-year-label"></label><input id="fit-year" name="Baujahr" inputmode="numeric" required></div><div class="field"><label for="fit-engine" id="fit-engine-label"></label><input id="fit-engine" name="Motorisierung" required></div></div><div class="field"><label for="fit-vin" id="fit-vin-label"></label><input id="fit-vin" name="Fahrgestellnummer (VIN)" maxlength="17" autocomplete="off" spellcheck="false"></div></fieldset><div class="field"><label for="fit-note" id="fit-note-label"></label><textarea id="fit-note" name="Zusätzliche Informationen" rows="3"></textarea></div><label class="privacy-confirm"><input type="checkbox" name="Datenschutz bestätigt" required><span id="fit-privacy-text"></span></label><button class="btn btn-primary btn-block" type="submit" id="fit-submit"></button><p class="form-note"><a href="datenschutz.html">Datenschutz</a></p></form>';
+    modal.innerHTML='<button type="button" class="pd-close fit-inquiry-close">✕</button><div class="fit-inquiry-head"><h2 id="fit-inquiry-title"></h2><p id="fit-inquiry-intro"></p></div><form id="fit-inquiry-form" action="https://formsubmit.co/Autoservicebettenduerf@outlook.com" method="POST"><input type="hidden" name="_subject" id="fit-subject"><input type="hidden" name="Artikel" id="fit-article-value"><input type="hidden" name="_template" value="table"><input type="hidden" name="_captcha" value="false"><input type="hidden" name="_loaded_at" value=""><input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" class="form-honey"><div class="fit-product-summary"><strong id="fit-article-label"></strong><div id="fit-products"></div><button type="button" class="fit-add-more" id="fit-add-more"></button></div><div class="field-row"><div class="field"><label for="fit-name" id="fit-name-label"></label><input id="fit-name" name="Name" autocomplete="name" maxlength="120" required></div><div class="field"><label for="fit-email" id="fit-email-label"></label><input id="fit-email" name="E-Mail" type="email" autocomplete="email" maxlength="254" required></div></div><div class="field"><label for="fit-phone" id="fit-phone-label"></label><input id="fit-phone" name="Telefon" type="tel" autocomplete="tel" maxlength="30" required></div><fieldset><legend id="fit-vehicle-title"></legend><div class="field-row"><div class="field"><label for="fit-make" id="fit-make-label"></label><input id="fit-make" name="Fahrzeugmarke" maxlength="80" required></div><div class="field"><label for="fit-model" id="fit-model-label"></label><input id="fit-model" name="Fahrzeugmodell" maxlength="100" required></div></div><div class="field-row"><div class="field"><label for="fit-year" id="fit-year-label"></label><input id="fit-year" name="Baujahr" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required></div><div class="field"><label for="fit-engine" id="fit-engine-label"></label><input id="fit-engine" name="Motorisierung" maxlength="100" required></div></div><div class="field"><label for="fit-vin" id="fit-vin-label"></label><input id="fit-vin" name="Fahrgestellnummer (VIN)" maxlength="17" autocomplete="off" spellcheck="false"></div></fieldset><div class="field"><label for="fit-note" id="fit-note-label"></label><textarea id="fit-note" name="Zusätzliche Informationen" maxlength="2000" rows="3"></textarea></div><label class="privacy-confirm"><input type="checkbox" name="Datenschutz bestätigt" required><span id="fit-privacy-text"></span></label><button class="btn btn-primary btn-block" type="submit" id="fit-submit"></button><p class="form-note"><a href="datenschutz.html">Datenschutz</a></p></form>';
     document.body.appendChild(back); document.body.appendChild(modal);
     function close(){ modal.hidden=true; back.hidden=true; document.body.classList.remove("dialog-open"); }
     back.addEventListener("click",close); modal.querySelector(".fit-inquiry-close").addEventListener("click",close);
     modal.querySelector("#fit-add-more").addEventListener("click",function(){ close(); closeProduct(); });
+    modal.querySelector('[name="_loaded_at"]').value=String(Date.now());
     inquiryEls={back:back,modal:modal,close:close}; return inquiryEls;
   }
   function renderInquiryProducts(l) {
@@ -1224,6 +1225,8 @@
     var articleValue=inquiryProducts.map(function(product){return productName(product)+" | "+displayRef(product);}).join("\n");
     var subject=l.title+" – "+inquiryProducts.length+" Artikel – "+refs;
     $("fit-inquiry-form").onsubmit=function(){
+      var loaded=Number((this.querySelector('[name="_loaded_at"]')||{}).value||0);
+      if(loaded&&Date.now()-loaded<2500)return false;
       var currentRefs=inquiryProducts.map(function(product){return displayRef(product);}).join(", ");
       $("fit-subject").value=l.title+" – "+inquiryProducts.length+" Artikel – "+currentRefs;
       $("fit-article-value").value=inquiryProducts.map(function(product){return productName(product)+" | "+displayRef(product);}).join("\n");

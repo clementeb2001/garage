@@ -108,7 +108,7 @@
       soon_title: "Eise Verlee ass an der Aarbecht",
       soon_text: "Mir sinn amgaang, eise Verlee vun Unhänger a Gefierer opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
       soon_cta: "Ufro schécken", soon_back: "Zréck op d’Startsäit",
-      dev_badge: "Vorschau-Modus – Location öffentlech nach „an Arbecht“",
+      dev_badge: "Virschau-Modus – Location ëffentlech nach „an der Aarbecht“",
       cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",
       cat_trailer_lbl: "Unhänger", cat_vehicle_lbl: "Gefier",
       price: "Präis op Ufro",
@@ -568,6 +568,8 @@
 
     var hp = f.querySelector('[name="_honey"]');
     if (hp && hp.value) { st.className = "form-status ok"; st.textContent = m.ok; f.reset(); return; }
+    var loaded = Number((f.querySelector('[name="_loaded_at"]') || {}).value || 0);
+    if (loaded && Date.now() - loaded < 2500) { st.className = "form-status ok"; st.textContent = m.ok; f.reset(); return; }
 
     var btn = $("rental-submit");
     if (btn) btn.disabled = true;
@@ -621,6 +623,7 @@
     wireFilter();
     wireGrid();
     wireClear();
+    document.querySelectorAll('form [name="_loaded_at"]').forEach(function (field) { field.value = String(Date.now()); });
     var fromDate = $("r-from"), toDate = $("r-to");
     var now = new Date();
     now.setSeconds(0, 0);

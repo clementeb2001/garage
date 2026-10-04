@@ -39,7 +39,7 @@
 
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/autoservice-bettenduerf-logo.png" />
-    <link rel="stylesheet" href="styles.css?v=55" />
+    <link rel="stylesheet" href="styles.css?v=62" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -756,6 +756,7 @@
             />
             <input type="hidden" name="_template" value="table" />
             <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_loaded_at" value="" />
             <input
               type="text"
               name="_honey"
@@ -771,6 +772,7 @@
                 id="name"
                 name="name"
                 autocomplete="name"
+                maxlength="120"
                 required
                 data-i18n-ph="f_name_ph"
                 placeholder="Ären Numm"
@@ -784,6 +786,7 @@
                   id="email"
                   name="email"
                   autocomplete="email"
+                  maxlength="254"
                   required
                   placeholder="@"
                   data-i18n-ph="f_email_ph"
@@ -796,6 +799,7 @@
                   id="phone"
                   name="phone"
                   autocomplete="tel"
+                  maxlength="30"
                   data-i18n-ph="f_phone_ph"
                   placeholder="Optional"
                 />
@@ -829,6 +833,7 @@
                 id="fahrzeug"
                 name="Gefier"
                 autocomplete="off"
+                maxlength="120"
                 placeholder="Mark, Modell, Baujoer"
                 required
               />
@@ -876,6 +881,7 @@
                 id="message"
                 name="message"
                 rows="4"
+                maxlength="2000"
                 required
                 data-i18n-ph="f_message_ph"
                 placeholder="…"
@@ -1011,7 +1017,7 @@
     >
 
     <!-- Lightbox fir d'Spezial-Flyer -->
-    <div class="lightbox" id="lightbox" hidden>
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Bildvergréisserung" hidden>
       <button class="lightbox-close" id="lightbox-close" aria-label="Zoumaachen">
         ✕
       </button>
@@ -1020,7 +1026,7 @@
 
     <script src="script.js?v=20"></script>
     <script src="details.js?v=9"></script>
-    <script src="extras.js?v=11"></script>
+    <script src="extras.js?v=12"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"

@@ -546,6 +546,13 @@
       f.reset();
       return;
     }
+    var loaded = Number((f.querySelector('[name="_loaded_at"]') || {}).value || 0);
+    if (loaded && Date.now() - loaded < 2500) {
+      st.className = "form-status ok";
+      st.textContent = m.form.ok.replace("{name}", name);
+      f.reset();
+      return;
+    }
     var btn = f.querySelector('button[type="submit"]');
     if (btn) btn.disabled = true;
     st.className = "form-status";
@@ -677,11 +684,16 @@
     var lbImg = document.getElementById("lightbox-img");
     var lbClose = document.getElementById("lightbox-close");
     if (!lb || !lbImg) return;
+    document.querySelectorAll('form [name="_loaded_at"]').forEach(function (field) {
+      field.value = String(Date.now());
+    });
     updateFlyers();
     document.querySelectorAll(".lang-select").forEach(function (select) {
       select.addEventListener("change", function () { setTimeout(updateFlyers, 0); });
     });
+    var opener = null;
     function open(src, alt) {
+      opener = document.activeElement;
       lbImg.src = src;
       lbImg.alt = alt || "";
       lb.hidden = false;
@@ -692,6 +704,7 @@
       lb.hidden = true;
       lbImg.src = "";
       document.body.style.overflow = "";
+      if (opener && opener.focus) opener.focus();
     }
     document.querySelectorAll(".spezial-media").forEach(function (b) {
       b.addEventListener("click", function () {
