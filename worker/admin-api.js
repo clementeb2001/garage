@@ -117,7 +117,7 @@ export default {
     if (!env.SESSION_SECRET) return json(env, { error: "server_not_configured" }, 500);
 
     let bodyData = {};
-    if (method === "POST" && request.headers.get("content-type", "").includes("application/json")) {
+    if (method === "POST" && (request.headers.get("content-type") || "").includes("application/json")) {
       try { bodyData = await request.json(); } catch (e) { bodyData = {}; }
     }
 

@@ -67,13 +67,14 @@
      ====================================================================== */
   var TOKEN_KEY = "intern_token_v1";
   var token = null; try { token = localStorage.getItem(TOKEN_KEY); } catch (e) {}
+  function onAuthLost() { if (!session) return; session = null; showLogin(); toast("Sessioun ofgelaf – logg dech w.e.g. nei an."); }
   function api(path, opts) {
-    opts = opts || {}; var headers = {}; if (token) headers.Authorization = "Bearer " + token;
+    opts = opts || {}; var headers = {}; var hadToken = !!token; if (token) headers.Authorization = "Bearer " + token;
     var init = { method: opts.method || "GET", headers: headers };
     if (opts.body) { headers["Content-Type"] = "application/json"; init.body = JSON.stringify(opts.body); }
     return fetch(API_BASE + path, init).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) {
-        if (r.status === 401) { token = null; try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+        if (r.status === 401) { token = null; try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} if (hadToken) setTimeout(onAuthLost, 0); }
         return { status: r.status, body: j };
       });
     });
