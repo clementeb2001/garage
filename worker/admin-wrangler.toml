@@ -11,6 +11,7 @@ routes = [
 
 [vars]
 ALLOW_ORIGIN = "https://autoservicebettenduerf.lu"
+MAIL_FROM = "Autoservice Bettenduerf <noreply@autoservicebettenduerf.lu>"
 
 # D1-Datebank (scho ugeluecht)
 [[d1_databases]]
