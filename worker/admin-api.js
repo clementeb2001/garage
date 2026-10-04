@@ -208,18 +208,53 @@ export default {
         await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES ('created', ?1, ?2)").bind(username, me.username).run();
         return json(env, { ok: true, tempPassword: tempPw });
       }
+      /* ---- member: Passwuert zrécksetzen (admin) ---- */
+      m = path.match(/^\/members\/([a-z0-9._-]+)\/reset$/);
+      if (m && method === "POST") {
+        if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
+        const target = m[1];
+        const t = await env.DB.prepare("SELECT username FROM users WHERE username = ?1").bind(target).first();
+        if (!t) return json(env, { error: "not_found" }, 404);
+        const tempPw = genTempPw();
+        await env.DB.prepare("UPDATE users SET pw = ?1, must_change = 1 WHERE username = ?2").bind(await hashPw(tempPw), target).run();
+        await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES ('reset-pw', ?1, ?2)").bind(target, me.username).run();
+        return json(env, { ok: true, tempPassword: tempPw });
+      }
+
+      /* ---- member änneren: Roll / Numm / Benotzernumm ---- */
       m = path.match(/^\/members\/([a-z0-9._-]+)$/);
       if (m && method === "POST") {
         if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
         const target = m[1];
-        const role = clip(bodyData.role, 20);
-        if (ROLES.indexOf(role) < 0) return json(env, { error: "bad_role" }, 400);
-        const t = await env.DB.prepare("SELECT role FROM users WHERE username = ?1").bind(target).first();
+        const t = await env.DB.prepare("SELECT role, name FROM users WHERE username = ?1").bind(target).first();
         if (!t) return json(env, { error: "not_found" }, 404);
-        if (t.role === "admin" && role !== "admin" && (await adminCount(env)) <= 1) return json(env, { error: "last_admin" }, 409);
-        await env.DB.prepare("UPDATE users SET role = ?1 WHERE username = ?2").bind(role, target).run();
-        await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES (?1, ?2, ?3)").bind("role:" + role, target, me.username).run();
-        return json(env, { ok: true });
+        if (bodyData.role !== undefined) {
+          const role = clip(bodyData.role, 20);
+          if (ROLES.indexOf(role) < 0) return json(env, { error: "bad_role" }, 400);
+          if (t.role === "admin" && role !== "admin" && (await adminCount(env)) <= 1) return json(env, { error: "last_admin" }, 409);
+          await env.DB.prepare("UPDATE users SET role = ?1 WHERE username = ?2").bind(role, target).run();
+          await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES (?1, ?2, ?3)").bind("role:" + role, target, me.username).run();
+        }
+        if (bodyData.name !== undefined) {
+          const name = clip(bodyData.name, 120).trim();
+          if (!name) return json(env, { error: "bad_input" }, 400);
+          await env.DB.prepare("UPDATE users SET name = ?1 WHERE username = ?2").bind(name, target).run();
+          await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES ('rename', ?1, ?2)").bind(target, me.username).run();
+        }
+        let selfRenamed = false, newUsername = null;
+        if (bodyData.newUsername !== undefined) {
+          const nu = clip(bodyData.newUsername, 60).trim().toLowerCase();
+          if (!/^[a-z0-9._-]{3,}$/.test(nu)) return json(env, { error: "bad_input" }, 400);
+          if (nu !== target) {
+            const dup = await env.DB.prepare("SELECT username FROM users WHERE username = ?1").bind(nu).first();
+            if (dup) return json(env, { error: "exists" }, 409);
+            await env.DB.prepare("UPDATE users SET username = ?1 WHERE username = ?2").bind(nu, target).run();
+            await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES (?1, ?2, ?3)").bind("username>" + nu, target, me.username).run();
+            newUsername = nu;
+            if (target === me.username) selfRenamed = true;
+          }
+        }
+        return json(env, { ok: true, newUsername: newUsername, selfRenamed: selfRenamed });
       }
       if (m && method === "DELETE") {
         if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
