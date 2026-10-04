@@ -594,10 +594,12 @@
       }).catch(function () {});
     } catch (e) {}
 
+    var fd = new FormData(f);
+    fd.append("➡ Ufro bearbeiten (interne Säit)", "https://autoservicebettenduerf.lu/intern/");
     fetch("https://formsubmit.co/ajax/" + EMAIL, {
       method: "POST",
       headers: { Accept: "application/json" },
-      body: new FormData(f),
+      body: fd,
     })
       .then(function (r) { if (!r.ok) throw new Error("http"); return r.json().catch(function () { return {}; }); })
       .then(function () {

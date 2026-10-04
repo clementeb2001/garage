@@ -66,6 +66,28 @@ Eemoleg opzesetzen:
 > D'Websäit selwer (`/intern/`, Shop, asw.) geet souwisou automatesch live
 > iwwer GitHub Pages. Mat dëser Action ass elo och de Worker automatesch.
 
+## Bestätegungs-E-Mail un de Client (Resend)
+Beim **Bestätegen** vun enger Reservatioun schéckt de Worker optional eng
+Bestätegungs-E-Mail un de Client (a senger Sprooch). Dat leeft iwwer
+**Resend** (gratis bis 3.000 Mails/Mount) — eemoleg opzesetzen:
+
+1. Op <https://resend.com> e gratis Kont uleeën.
+2. **Domain verifizéieren**: Resend → *Domains* → `autoservicebettenduerf.lu`
+   dobäisetzen → déi ugewisen DNS-Anträg (SPF/DKIM) bei Cloudflare
+   hannerleeën (DNS-Astellungen vun der Domain). No e puer Minutten „verified".
+3. **API-Key** erstellen (Resend → *API Keys*) a kopéieren.
+4. Als Worker-Secret setzen:
+   - Dashboard → Worker `garage-admin` → *Settings* → *Variables and Secrets*
+     → *Add* → **Secret** → Numm `RESEND_API_KEY`, Wäert = de Key.
+   - (Optional) eng Variabel `MAIL_FROM`, z. B.
+     `Autoservice Bettenduerf <noreply@autoservicebettenduerf.lu>`
+     (muss op der verifizéierter Domain leien).
+
+> Solaang `RESEND_API_KEY` net gesat ass, gëtt **keng** Mail geschéckt — alles
+> anescht funktionéiert normal weider. D'Notifikatioun bei enger **neier Ufro**
+> leeft souwisou schonn iwwer d'E-Mail vun der Location-Formulaire (FormSubmit),
+> elo mat engem Link op d'interne Säit.
+
 ## Custom-Domain änneren?
 Wann der eng aner URL benotzt wéi `garage-admin.autoservicebettenduerf.lu`,
 musst der se op 2 Plazen upassen:
