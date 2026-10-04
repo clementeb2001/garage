@@ -410,6 +410,40 @@ export default {
         return json(env, { ok: true });
       }
 
+      /* ---- booking bearbeiten (validator+) ---- */
+      m = path.match(/^\/bookings\/(\d+)\/edit$/);
+      if (m && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
+        const id = parseInt(m[1], 10);
+        const cur = await env.DB.prepare("SELECT veh, from_dt, to_dt, cust_name, cust_email, cust_phone, msg, status FROM bookings WHERE id = ?1").bind(id).first();
+        if (!cur) return json(env, { error: "not_found" }, 404);
+        const veh = clip(bodyData.veh, 120).trim();
+        const name = clip(bodyData.name, 120).trim();
+        const email = clip(bodyData.email, 160).trim();
+        const from = clip(bodyData.from, 40).trim();
+        const to = clip(bodyData.to, 40).trim();
+        if (!veh || !name || !from || !to) return json(env, { error: "missing_fields" }, 400);
+        if ((email && !validEmail(email)) || !validDateTime(from) || !validDateTime(to)) return json(env, { error: "invalid_fields" }, 400);
+        if (Date.parse(to) <= Date.parse(from)) return json(env, { error: "invalid_period" }, 400);
+        // Wann d'Reservatioun bestätegt ass an d'Gefier/Datum änneren: Konflikt kontrolléieren
+        if (cur.status === "confirmed" && (await findConflict(env, veh, from, to, id))) return json(env, { error: "booking_conflict" }, 409);
+        const phone = clip(bodyData.phone, 60).trim();
+        const msg = clip(bodyData.msg, 2000);
+        const changed = [];
+        if (veh !== cur.veh) changed.push("Gefier");
+        if (from !== cur.from_dt || to !== cur.to_dt) changed.push("Datum");
+        if (name !== cur.cust_name) changed.push("Numm");
+        if (email !== (cur.cust_email || "")) changed.push("E-Mail");
+        if (phone !== (cur.cust_phone || "")) changed.push("Telefon");
+        if (msg !== (cur.msg || "")) changed.push("Noriicht");
+        if (!changed.length) return json(env, { ok: true, unchanged: true });
+        await env.DB.prepare("UPDATE bookings SET veh=?1, from_dt=?2, to_dt=?3, cust_name=?4, cust_email=?5, cust_phone=?6, msg=?7 WHERE id=?8")
+          .bind(veh, from, to, name, email, phone, msg, id).run();
+        await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,'Geännert',?2,?3)")
+          .bind(id, me.username, clip(changed.join(", "), 500)).run();
+        return json(env, { ok: true });
+      }
+
       /* ---- booking läschen (admin) ---- */
       m = path.match(/^\/bookings\/(\d+)$/);
       if (m && method === "DELETE") {

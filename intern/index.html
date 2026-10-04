@@ -77,6 +77,12 @@
       .b-msg { margin: 8px 0 0; font-size: 0.9rem; background: #f6f8fa; border-radius: 8px; padding: 8px 11px; }
       .b-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
       .b-note-input { flex: 1; min-width: 160px; font: inherit; font-size: 0.85rem; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; }
+      .b-edit { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 4px; }
+      .b-edit label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 600; color: var(--mut); }
+      .b-edit input, .b-edit textarea { font: inherit; font-size: 0.9rem; color: var(--fg); padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+      .b-edit input:focus-visible, .b-edit textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+      .b-edit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      @media (max-width: 560px) { .b-edit-row { grid-template-columns: 1fr; } }
       .b-audit { margin-top: 11px; border-top: 1px dashed var(--line); padding-top: 9px; font-size: 0.78rem; color: var(--mut); }
       .b-audit .ev { margin: 2px 0; } .b-audit b { color: var(--fg); }
       .readonly-hint { font-size: 0.8rem; color: var(--mut); margin-top: 10px; font-style: italic; }
@@ -110,12 +116,20 @@
       .btn-warn { background: #fff; border-color: #e3c893; color: #8a6d1f; }
 
       /* Dashboard */
-      .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0 18px; }
-      .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(13,27,42,0.05); }
+      .stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 16px 0 18px; }
+      .stat { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(13,27,42,0.05); }
+      .stat-ic { flex: none; width: 38px; height: 38px; border-radius: 10px; background: #f0f3f7; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
       .stat .n { font-size: 1.7rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
       .stat .l { font-size: 0.78rem; color: var(--mut); font-weight: 600; margin-top: 2px; }
-      .stat.accent .n { color: var(--accent); }
-      .stat.ok .n { color: var(--ok); }
+      .stat.accent .n { color: var(--accent); } .stat.accent .stat-ic { background: #fdecee; }
+      .stat.ok .n { color: var(--ok); } .stat.ok .stat-ic { background: #e8f4ee; }
+      .stat.muted .n { color: var(--mut); }
+      .stat-link { cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .05s; }
+      .stat-link:hover { border-color: #c9d2db; box-shadow: 0 3px 10px rgba(13,27,42,0.09); }
+      .stat-link:active { transform: translateY(1px); }
+      .stat-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .panel-today .today-h { font-size: 0.72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--mut); margin: 10px 0 4px; }
+      .panel-today .today-h:first-child { margin-top: 0; }
       .dash-grid { display: grid; grid-template-columns: 1.7fr 1fr; gap: 16px; align-items: start; }
       .dash-side { display: flex; flex-direction: column; gap: 16px; }
       .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(13,27,42,0.05); }
@@ -148,6 +162,7 @@
       .up-dot { width: 9px; height: 9px; border-radius: 3px; flex: none; align-self: center; }
       .conflict-box { background: #fdeaec; border: 1px solid #f1b9bf; color: #8a2b33; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.86rem; }
       .conflict-box b { color: #6f1f26; }
+      @media (max-width: 1040px) { .stat-row { grid-template-columns: repeat(3, 1fr); } }
       @media (max-width: 760px) { .dash-grid { grid-template-columns: 1fr; } .stat-row { grid-template-columns: repeat(2, 1fr); } }
       @media print { .topbar, .testbar, .filters, .b-actions, .b-note-input, #btn-export, #btn-print, #btn-reset { display: none !important; } .booking { break-inside: avoid; } }
       [hidden] { display: none !important; }
@@ -210,6 +225,10 @@
             <p class="muted" style="font-size:0.76rem;margin:10px 0 0">Vollfaarweg = bestätegt · gestréift = nei (nach net bestätegt). Fräi Deeg hu keng Balken.</p>
           </div>
           <div class="dash-side">
+            <div class="panel panel-today">
+              <h3>📅 Haut</h3>
+              <div id="today-list"></div>
+            </div>
             <div class="panel">
               <h3>Gefierer – wéi oft fort</h3>
               <div id="veh-usage"></div>
@@ -267,6 +286,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=10"></script>
+    <script src="intern.js?v=11"></script>
   </body>
 </html>

@@ -51,17 +51,18 @@
     resetPassword: function (u) { return api("/members/" + u + "/reset", { method: "POST", body: {} }).then(function (r) { return r.status === 200 ? { ok: true, tempPassword: r.body.tempPassword } : { error: r.body.error }; }); },
     setActive: function (u, active) { return api("/members/" + u, { method: "POST", body: { active: !!active } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     delBooking: function (id) { return api("/bookings/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
+    editBooking: function (id, patch) { return api("/bookings/" + id + "/edit", { method: "POST", body: patch }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listMemberEvents: function () { return api("/member-events").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.events; }); },
   };
 
   var STORE = liveStore;
   var session = null;
   function can(perm) { return !!(session && ROLES[session.role] && ROLES[session.role].perms.indexOf(perm) !== -1); }
-  var ERR = { invalid_credentials: "Falsche Benotzernumm oder Passwuert.", wrong_current: "Aktuellt Passwuert ass falsch.", weak_password: "Neit Passwuert ze kuerz (op mannst 8 Zeechen).", exists: "Dee Benotzernumm gëtt et schonn.", last_admin: "Et muss op mannst een Admin bleiwen.", self: "Du kanns dech net selwer läschen.", bad_input: "Ongëlteg Agab.", forbidden: "Keng Berechtegung.", rate_limited: "Ze vill Loginversich. Waart w.e.g. eng Stonn oder rufft den Admin un.", booking_conflict: "Dëst Gefier ass an dësem Zäitraum schonn bestätegt – kee Konflikt méiglech.", not_found: "Reservatioun net fonnt.", bad_status: "Ongëltege Status." };
+  var ERR = { invalid_credentials: "Falsche Benotzernumm oder Passwuert.", wrong_current: "Aktuellt Passwuert ass falsch.", weak_password: "Neit Passwuert ze kuerz (op mannst 8 Zeechen).", exists: "Dee Benotzernumm gëtt et schonn.", last_admin: "Et muss op mannst een Admin bleiwen.", self: "Du kanns dech net selwer läschen.", bad_input: "Ongëlteg Agab.", forbidden: "Keng Berechtegung.", rate_limited: "Ze vill Loginversich. Waart w.e.g. eng Stonn oder rufft den Admin un.", booking_conflict: "Dëst Gefier ass an dësem Zäitraum schonn bestätegt – kee Konflikt méiglech.", not_found: "Reservatioun net fonnt.", bad_status: "Ongëltege Status.", missing_fields: "Pflichtfelder feelen (Gefier, Numm, Vun, Bis).", invalid_fields: "Ongëlteg E-Mail oder Datum.", invalid_period: "D'Enddatum muss nom Ufanksdatum leien." };
   function errMsg(e) { return ERR[e] || "Feeler – probéiert nach eng Kéier."; }
 
   /* ---------- Views ---------- */
-  var activePage = "bookings", activeFilter = "all", editingMember = null, bookingQuery = "";
+  var activePage = "bookings", activeFilter = "all", editingMember = null, editingBooking = null, bookingQuery = "";
   var STATUS = { new: "Nei", confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss" };
 
   function showLogin() { $("view-app").hidden = true; $("view-login").hidden = false; $("login-err").textContent = ""; $("login-form").reset(); }
@@ -75,6 +76,7 @@
   function gotoPage(p) {
     if (p === "members" && !can("members.manage")) p = "bookings";
     if (p !== "members") editingMember = null;
+    if (p !== "bookings") editingBooking = null;
     activePage = p;
     $("page-dashboard").hidden = p !== "dashboard";
     $("page-bookings").hidden = p !== "bookings";
@@ -126,13 +128,36 @@
   }
   function doAct(id, status) { if (!can("bookings.validate")) return; var noteEl = $("note-" + id), note = noteEl ? noteEl.value.trim() : ""; STORE.setStatus(id, status, note).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Reservatioun " + refOf(id) + ": " + (STATUS[status] || status).toLowerCase() + "."); renderBookings(); }); }
   function doDelBooking(id) { if (!can("members.manage")) return; if (!confirm("Reservatioun " + refOf(id) + " endgülteg läschen?")) return; STORE.delBooking(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Reservatioun " + refOf(id) + " geläscht."); renderBookings(); }); }
+  function dtLocal(v) { v = String(v || ""); var m = v.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/); return m ? m[1] : ""; }
   function bookingCard(b) {
     var el = document.createElement("div"); el.className = "booking" + (b.status === "new" ? " is-new" : "");
-    var canVal = can("bookings.validate"), isAdmin = can("members.manage"), actions = "";
+    var canVal = can("bookings.validate"), isAdmin = can("members.manage");
+    var audit = (b.events || []).map(function (ev) { return '<div class="ev">• ' + esc(ev.action) + ' vum <b>' + esc(ev.by) + "</b>, " + fmt(ev.at) + (ev.note ? ' – „' + esc(ev.note) + "“" : "") + "</div>"; }).join("");
+
+    if (editingBooking === b.id && canVal) {
+      el.innerHTML =
+        '<div class="b-top"><div><div class="b-veh">✎ Reservatioun änneren</div><div class="b-id">Réf. ' + refOf(b.id) + "</div></div><span class=\"status status-" + b.status + '">' + esc(STATUS[b.status]) + "</span></div>" +
+        '<div class="b-edit">' +
+        '<label>Gefier<input id="eb-veh" type="text" value="' + esc(b.veh) + '" maxlength="120" /></label>' +
+        '<div class="b-edit-row"><label>Vun<input id="eb-from" type="datetime-local" step="1800" value="' + esc(dtLocal(b.from)) + '" /></label>' +
+        '<label>Bis<input id="eb-to" type="datetime-local" step="1800" value="' + esc(dtLocal(b.to)) + '" /></label></div>' +
+        '<label>Numm<input id="eb-name" type="text" value="' + esc(b.name) + '" maxlength="120" /></label>' +
+        '<div class="b-edit-row"><label>E-Mail<input id="eb-email" type="email" value="' + esc(b.email || "") + '" maxlength="160" /></label>' +
+        '<label>Telefon<input id="eb-phone" type="text" value="' + esc(b.phone || "") + '" maxlength="60" /></label></div>' +
+        '<label>Noriicht<textarea id="eb-msg" rows="2" maxlength="2000">' + esc(b.msg || "") + "</textarea></label>" +
+        '<div class="b-actions"><button class="btn btn-ok btn-sm" data-save-booking="' + b.id + '">Späicheren</button><button class="btn btn-outline btn-sm" data-cancel-booking="1">Ofbriechen</button></div>' +
+        "</div>" +
+        '<div class="b-audit">' + audit + "</div>";
+      el.querySelector("[data-save-booking]").addEventListener("click", function () { doEditBooking(b.id); });
+      el.querySelector("[data-cancel-booking]").addEventListener("click", function () { editingBooking = null; renderBookings(); });
+      return el;
+    }
+
+    var actions = "";
     if (canVal && b.status === "new") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-act="confirmed" data-id="' + b.id + '">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-act="declined" data-id="' + b.id + '">✕ Ofleenen</button>';
     else if (canVal && b.status === "confirmed") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-outline btn-sm" data-act="done" data-id="' + b.id + '">Als ofgeschloss markéieren</button>';
+    if (canVal) actions += '<button class="btn btn-outline btn-sm" data-edit-booking="' + b.id + '">✎ Änneren</button>';
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-del-booking="' + b.id + '">Läschen</button>';
-    var audit = (b.events || []).map(function (ev) { return '<div class="ev">• ' + esc(ev.action) + ' vum <b>' + esc(ev.by) + "</b>, " + fmt(ev.at) + (ev.note ? ' – „' + esc(ev.note) + "“" : "") + "</div>"; }).join("");
     el.innerHTML =
       '<div class="b-top"><div><div class="b-veh">' + esc(b.veh) + '</div><div class="b-id">Réf. ' + refOf(b.id) + "</div></div><span class=\"status status-" + b.status + '">' + esc(STATUS[b.status]) + "</span></div>" +
       '<div class="b-dates">' + fmt(b.from) + '<span class="arrow">→</span>' + fmt(b.to) + "</div>" +
@@ -141,8 +166,16 @@
       (actions ? '<div class="b-actions">' + actions + "</div>" : "") +
       '<div class="b-audit">' + audit + "</div>";
     el.querySelectorAll("[data-act]").forEach(function (btn) { btn.addEventListener("click", function () { doAct(b.id, btn.getAttribute("data-act")); }); });
+    el.querySelectorAll("[data-edit-booking]").forEach(function (btn) { btn.addEventListener("click", function () { editingBooking = b.id; renderBookings(); }); });
     el.querySelectorAll("[data-del-booking]").forEach(function (btn) { btn.addEventListener("click", function () { doDelBooking(parseInt(btn.getAttribute("data-del-booking"), 10)); }); });
     return el;
+  }
+  function doEditBooking(id) {
+    if (!can("bookings.validate")) return;
+    var patch = { veh: $("eb-veh").value.trim(), from: $("eb-from").value, to: $("eb-to").value, name: $("eb-name").value.trim(), email: $("eb-email").value.trim(), phone: $("eb-phone").value.trim(), msg: $("eb-msg").value.trim() };
+    if (!patch.veh || !patch.name || !patch.from || !patch.to) { toast("Gefier, Numm, Vun a Bis mussen ausgefëllt sinn."); return; }
+    if (patch.to <= patch.from) { toast("D'Enddatum muss nom Ufanksdatum leien."); return; }
+    STORE.editBooking(id, patch).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } editingBooking = null; toast("Reservatioun " + refOf(id) + " geännert."); renderBookings(); });
   }
   function matchQuery(b) { if (!bookingQuery) return true; var q = bookingQuery.toLowerCase(); return (refOf(b.id) + " " + (b.veh || "") + " " + (b.name || "") + " " + (b.email || "") + " " + (b.phone || "")).toLowerCase().indexOf(q) !== -1; }
   function updateNewBadge(bk) { var badge = $("nav-new-badge"); if (!badge) return; var n = bk.filter(function (b) { return b.status === "new"; }).length; badge.textContent = n; badge.hidden = n === 0; }
@@ -176,14 +209,24 @@
       updateNewBadge(bk);
       var active = bk.filter(function (b) { return b.status !== "declined"; });
       dashActive = active;
-      var now = new Date(), wkStart = startOfWeek(now), wkEnd = new Date(wkStart); wkEnd.setDate(wkEnd.getDate() + 7);
+      var now = new Date(), today = new Date(); today.setHours(0, 0, 0, 0); var tMs = today.getTime();
+      function dayMs(s) { var d = parseDay(s); return d ? d.getTime() : null; }
       var cntNew = bk.filter(function (b) { return b.status === "new"; }).length;
-      var cntConf = bk.filter(function (b) { return b.status === "confirmed"; }).length;
-      var cntWeek = active.filter(function (b) { var f = parseDay(b.from); return f && f >= wkStart && f < wkEnd; }).length;
-      var tiles = [["accent", cntNew, "Nei Ufroen"], ["ok", cntConf, "Bestätegt"], ["", cntWeek, "Dës Woch"], ["", bk.length, "Total"]];
-      $("stat-row").innerHTML = tiles.map(function (t) { return '<div class="stat ' + t[0] + '"><div class="n">' + t[1] + '</div><div class="l">' + t[2] + "</div></div>"; }).join("");
+      var pickupsToday = active.filter(function (b) { return b.status === "confirmed" && dayMs(b.from) === tMs; }).length;
+      var returnsToday = active.filter(function (b) { return b.status === "confirmed" && dayMs(b.to) === tMs; }).length;
+      var outNow = active.filter(function (b) { if (b.status !== "confirmed") return false; var f = new Date(b.from), t = new Date(b.to); return !isNaN(f) && !isNaN(t) && f <= now && now <= t; }).length;
+      var tiles = [
+        ["accent", cntNew, "Nei Ufroen", "📥", "new"],
+        ["", pickupsToday, "Haut eraus", "🔑", ""],
+        ["", returnsToday, "Haut zréck", "↩", ""],
+        ["ok", outNow, "Elo ënnerwee", "🚚", ""],
+        ["muted", bk.length, "Total", "Σ", "all"],
+      ];
+      $("stat-row").innerHTML = tiles.map(function (t) { return '<div class="stat ' + t[0] + (t[4] ? " stat-link" : "") + '"' + (t[4] ? ' data-goto="' + t[4] + '" role="button" tabindex="0"' : "") + '><div class="stat-ic">' + t[3] + '</div><div><div class="n">' + t[1] + '</div><div class="l">' + t[2] + "</div></div></div>"; }).join("");
+      $("stat-row").querySelectorAll("[data-goto]").forEach(function (s) { function go() { activeFilter = s.getAttribute("data-goto"); gotoPage("bookings"); } s.addEventListener("click", go); s.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); });
       $("dash-sub").textContent = STORE.mode === "live" ? "live" : "testmodus";
       renderConflicts(bk);
+      renderToday(active);
       renderVehUsage(active);
       renderUpcoming(active);
       renderCalendar(active);
@@ -203,6 +246,20 @@
     }
     if (!confs.length) return;
     box.innerHTML = '<div class="conflict-box"><b>⚠ ' + confs.length + " méigleche Konflikt" + (confs.length > 1 ? "er" : "") + ":</b> " + confs.map(function (c) { return esc(c[0].veh) + " (" + refOf(c[0].id) + " ↔ " + refOf(c[1].id) + ")"; }).join(" · ") + ". Déiselwecht Gefier(er) iwwerlappen am Datum.</div>";
+  }
+  function renderToday(active) {
+    var el = $("today-list"); if (!el) return;
+    var today = new Date(); today.setHours(0, 0, 0, 0); var tMs = today.getTime();
+    var cmap = vehColorMap(active);
+    function dayMs(s) { var d = parseDay(s); return d ? d.getTime() : null; }
+    var outs = active.filter(function (b) { return b.status === "confirmed" && dayMs(b.from) === tMs; });
+    var backs = active.filter(function (b) { return b.status === "confirmed" && dayMs(b.to) === tMs; });
+    if (!outs.length && !backs.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Haut keng Ofhuelungen oder Retouren.</p>'; return; }
+    function row(b, kind) { var tm = (fmt(kind === "out" ? b.from : b.to).split(" ")[1]) || ""; return '<div class="up-item"><span class="up-dot" style="background:' + cmap[b.veh || "?"] + '"></span><div style="flex:1"><div>' + esc(b.veh) + '</div><div class="muted" style="font-size:0.78rem">' + esc(b.name) + "</div></div><span class=\"up-when\">" + (kind === "out" ? "🔑 " : "↩ ") + tm + "</span></div>"; }
+    var html = "";
+    if (outs.length) html += '<div class="today-h">Eraus haut (' + outs.length + ")</div>" + outs.map(function (b) { return row(b, "out"); }).join("");
+    if (backs.length) html += '<div class="today-h">Zréck haut (' + backs.length + ")</div>" + backs.map(function (b) { return row(b, "back"); }).join("");
+    el.innerHTML = html;
   }
   function renderVehUsage(active) {
     var el = $("veh-usage"), byVeh = {}; active.forEach(function (b) { var v = b.veh || "?"; byVeh[v] = (byVeh[v] || 0) + 1; });
