@@ -99,6 +99,15 @@
       .add-form .field { margin: 0; }
       .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 11px 18px; border-radius: 12px; font-size: 0.88rem; box-shadow: 0 8px 24px rgba(0,0,0,0.25); max-width: 92vw; }
       .role-legend { font-size: 0.8rem; color: var(--mut); margin: 4px 0 0; }
+      .nav-badge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 2px; font-size: 0.72rem; font-weight: 800; line-height: 18px; text-align: center; background: var(--accent); color: #fff; border-radius: 999px; }
+      .booking-search { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; margin: 14px 0 2px; background: #fff; }
+      .booking-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+      .mev-list { list-style: none; margin: 0; padding: 4px 0; }
+      .mev-list li { padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 0.84rem; }
+      .mev-list li:last-child { border-bottom: 0; }
+      .mev-list .mev-when { color: var(--mut); font-size: 0.76rem; }
+      .mev-empty { padding: 14px; color: var(--mut); font-size: 0.85rem; }
+      .btn-warn { background: #fff; border-color: #e3c893; color: #8a6d1f; }
       [hidden] { display: none !important; }
       @media (max-width: 560px) { .add-form { grid-template-columns: 1fr; } .topbar .brand span { display: none; } }
     </style>
@@ -129,7 +138,7 @@
       <div class="topbar">
         <div class="brand"><img src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf" /><span>Interne Verwaltung</span></div>
         <nav class="topnav" id="topnav">
-          <button type="button" data-page="bookings" class="active">Reservatiounen</button>
+          <button type="button" data-page="bookings" class="active">Reservatiounen <span id="nav-new-badge" class="nav-badge" hidden></span></button>
           <button type="button" data-page="members" id="nav-members" hidden>Memberen</button>
         </nav>
         <div class="who"><span id="who-name"></span><button class="btn btn-ghost" id="btn-pw" type="button">Passwuert</button><button class="btn btn-ghost" id="btn-logout" type="button">Ausloggen</button></div>
@@ -155,6 +164,7 @@
           <button class="btn btn-outline btn-sm" id="btn-reset" type="button">Demo-Daten zrécksetzen</button>
         </div>
         <p class="muted" id="bookings-sub" style="margin:2px 0 0;font-size:0.9rem"></p>
+        <input type="search" id="booking-search" class="booking-search" placeholder="Sichen (Numm, E-Mail, Gefier, Réf.) …" autocomplete="off" />
         <div class="filters" id="filters"></div>
         <div id="booking-list"></div>
         <p class="footer-note">Testmodus – déi echt Versioun lount d'Reservatioune vun engem séchere Server (Login server-säiteg geprüft).</p>
@@ -182,9 +192,13 @@
           <button class="btn btn-primary" type="submit">Bäisetzen</button>
         </form>
         <p class="muted" id="add-msg" style="font-size:0.82rem;margin-top:8px"></p>
+
+        <h3 style="margin:28px 0 2px;font-size:1.05rem">Aktivitéit</h3>
+        <p class="muted" style="font-size:0.82rem;margin:0 0 8px">Wien huet wéini wat bei de Memberen geännert.</p>
+        <div class="card" style="overflow-x:auto"><ul id="mev-list" class="mev-list"></ul></div>
       </div>
     </section>
 
-    <script src="intern.js?v=5"></script>
+    <script src="intern.js?v=6"></script>
   </body>
 </html>

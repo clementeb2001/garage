@@ -189,11 +189,26 @@ export default {
         return json(env, { ok: true });
       }
 
+      /* ---- booking läschen (admin) ---- */
+      m = path.match(/^\/bookings\/(\d+)$/);
+      if (m && method === "DELETE") {
+        if (me.role !== "admin") return json(env, { error: "forbidden" }, 403);
+        const id = parseInt(m[1], 10);
+        await env.DB.prepare("DELETE FROM booking_events WHERE booking_id = ?1").bind(id).run();
+        await env.DB.prepare("DELETE FROM bookings WHERE id = ?1").bind(id).run();
+        return json(env, { ok: true });
+      }
+
       /* ---- members (admin only) ---- */
       if (path === "/members" && method === "GET") {
         if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
         const us = (await env.DB.prepare("SELECT username, name, role, active FROM users ORDER BY username ASC").all()).results || [];
         return json(env, { members: us.map((u) => ({ username: u.username, name: u.name, role: u.role, active: !!u.active })) });
+      }
+      if (path === "/member-events" && method === "GET") {
+        if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
+        const ev = (await env.DB.prepare("SELECT action, target, by_user, at FROM member_events ORDER BY id DESC LIMIT 50").all()).results || [];
+        return json(env, { events: ev.map((e) => ({ action: e.action, target: e.target, by: e.by_user, at: e.at })) });
       }
       if (path === "/members" && method === "POST") {
         if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
@@ -240,6 +255,15 @@ export default {
           if (!name) return json(env, { error: "bad_input" }, 400);
           await env.DB.prepare("UPDATE users SET name = ?1 WHERE username = ?2").bind(name, target).run();
           await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES ('rename', ?1, ?2)").bind(target, me.username).run();
+        }
+        if (bodyData.active !== undefined) {
+          const act = bodyData.active ? 1 : 0;
+          if (!act) {
+            if (target === me.username) return json(env, { error: "self" }, 409);
+            if (t.role === "admin" && (await adminCount(env)) <= 1) return json(env, { error: "last_admin" }, 409);
+          }
+          await env.DB.prepare("UPDATE users SET active = ?1 WHERE username = ?2").bind(act, target).run();
+          await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES (?1, ?2, ?3)").bind(act ? "activated" : "deactivated", target, me.username).run();
         }
         let selfRenamed = false, newUsername = null;
         if (bodyData.newUsername !== undefined) {

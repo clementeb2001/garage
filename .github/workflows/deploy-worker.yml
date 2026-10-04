@@ -1,0 +1,31 @@
+name: Deploy admin worker
+
+# Deployéiert de Reservatiouns-Worker automatesch op Cloudflare,
+# soubal am worker/ eppes geännert gëtt (oder manuell iwwer "Run workflow").
+# Eemoleg néideg: GitHub-Secret CLOUDFLARE_API_TOKEN (+ optional
+# CLOUDFLARE_ACCOUNT_ID). Uleedung: worker/admin-README.md.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "worker/admin-api.js"
+      - "worker/admin-wrangler.toml"
+      - ".github/workflows/deploy-worker.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy -c worker/admin-wrangler.toml
