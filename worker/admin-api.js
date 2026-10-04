@@ -140,6 +140,12 @@ async function sendConfirmation(env, bookingId, booking) {
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Bestätegungsmail geschéckt" : "Bestätegungsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
+async function sendDecline(env, bookingId, booking) {
+  const mail = declineMail(booking);
+  const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html);
+  await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
+    .bind(bookingId, result.ok ? "Ofsomail geschéckt" : "Ofsomail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
+}
 async function sendNewBookingNotice(env, bookingId, booking) {
   const subject = "Nei Location-Ufro R-" + (Number(bookingId) + 1000);
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430">' +
@@ -166,6 +172,31 @@ function confirmMail(b) {
     '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +
     '<div style="border:1px solid #e6e9ee;border-top:0;border-radius:0 0 10px 10px;padding:20px">' +
     '<h2 style="margin:0 0 8px;color:#2e7d5b">✓ ' + esc(t.h) + "</h2>" +
+    "<p>" + esc(t.p) + "</p>" +
+    '<table style="font-size:14px;border-collapse:collapse">' +
+    "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.veh) + "</td><td><b>" + esc(b.veh) + "</b></td></tr>" +
+    (b.from_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.from) + "</td><td>" + esc(b.from_dt.replace("T", " ")) + "</td></tr>" : "") +
+    (b.to_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.to) + "</td><td>" + esc(b.to_dt.replace("T", " ")) + "</td></tr>" : "") +
+    "</table>" +
+    '<p style="color:#5b6b7c;font-size:13px;margin-top:18px">' + esc(t.foot) + "</p>" +
+    '<p style="color:#8a96a2;font-size:12px;margin-top:14px">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87</p>' +
+    "</div></div>";
+  return { subject: t.s, html: html };
+}
+function declineMail(b) {
+  var L = (b.lang || "lb").slice(0, 2);
+  var T = {
+    lb: { s: "Är Verleih-Ufro – leider net méiglech", h: "Et deet eis leed", p: "Villmools Merci fir Är Ufro. Leider ass dat gewënschte Material an dësem Zäitraum net disponibel:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Rufft eis gären un – vläicht fanne mir zesumme en anere Moment oder eng Alternativ. Mir soen Iech Merci fir d'Versteesdemech." },
+    de: { s: "Ihre Verleih-Anfrage – leider nicht möglich", h: "Es tut uns leid", p: "Vielen Dank für Ihre Anfrage. Leider ist das gewünschte Material in diesem Zeitraum nicht verfügbar:", veh: "Fahrzeug", from: "Von", to: "Bis", foot: "Rufen Sie uns gerne an – vielleicht finden wir gemeinsam einen anderen Termin oder eine Alternative. Danke für Ihr Verständnis." },
+    fr: { s: "Votre demande de location – malheureusement impossible", h: "Nous sommes désolés", p: "Merci beaucoup pour votre demande. Malheureusement, le matériel souhaité n'est pas disponible sur cette période :", veh: "Véhicule", from: "Du", to: "Au", foot: "N'hésitez pas à nous appeler – nous trouverons peut-être ensemble une autre date ou une alternative. Merci de votre compréhension." },
+    en: { s: "Your rental request – unfortunately not possible", h: "We're sorry", p: "Thank you very much for your request. Unfortunately the requested item is not available for this period:", veh: "Vehicle", from: "From", to: "To", foot: "Feel free to call us – perhaps we can find another date or an alternative together. Thank you for your understanding." },
+  }[L] || null;
+  var t = T || { s: "Är Verleih-Ufro – leider net méiglech", h: "Et deet eis leed", p: "Leider ass dat gewënschte Material an dësem Zäitraum net disponibel:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Rufft eis gären un. Merci fir d'Versteesdemech." };
+  var html =
+    '<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1c2430">' +
+    '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +
+    '<div style="border:1px solid #e6e9ee;border-top:0;border-radius:0 0 10px 10px;padding:20px">' +
+    '<h2 style="margin:0 0 8px;color:#c81420">' + esc(t.h) + "</h2>" +
     "<p>" + esc(t.p) + "</p>" +
     '<table style="font-size:14px;border-collapse:collapse">' +
     "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.veh) + "</td><td><b>" + esc(b.veh) + "</b></td></tr>" +
@@ -289,9 +320,9 @@ export default {
         }
         await env.DB.prepare("UPDATE bookings SET status = ?1 WHERE id = ?2").bind(status, id).run();
         await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,?3,?4)").bind(id, labels[status], me.username, clip(bodyData.note, 500)).run();
-        if (status === "confirmed") {
+        if (status === "confirmed" || status === "declined") {
           const b = await env.DB.prepare("SELECT veh, from_dt, to_dt, cust_email, lang FROM bookings WHERE id = ?1").bind(id).first();
-          if (b && b.cust_email) ctx.waitUntil(sendConfirmation(env, id, b));
+          if (b && b.cust_email) ctx.waitUntil(status === "confirmed" ? sendConfirmation(env, id, b) : sendDecline(env, id, b));
         }
         return json(env, { ok: true });
       }
