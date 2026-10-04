@@ -116,6 +116,24 @@ async function findConflict(env, veh, from, to, excludeId) {
   const rows = (await env.DB.prepare("SELECT id, veh, from_dt, to_dt FROM bookings WHERE status='confirmed' AND from_dt < ?1 AND to_dt > ?2").bind(to, from).all()).results || [];
   return rows.find((b) => Number(b.id) !== Number(excludeId || 0) && hasSameVehicle(veh, b.veh)) || null;
 }
+/* ---------- Login brute-force throttle (reuse booking_rate_limits table) ---------- */
+async function loginBucket(request) {
+  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+  return "login:" + await hashText(ip + ":" + Math.floor(Date.now() / 3600000));
+}
+async function loginFails(env, bucket) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS booking_rate_limits (bucket TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0, expires_at INTEGER NOT NULL)").run();
+  await env.DB.prepare("DELETE FROM booking_rate_limits WHERE expires_at < ?1").bind(Math.floor(Date.now() / 1000)).run();
+  const row = await env.DB.prepare("SELECT count FROM booking_rate_limits WHERE bucket=?1").bind(bucket).first();
+  return row ? Number(row.count) : 0;
+}
+async function loginBump(env, bucket) {
+  const expires = Math.floor(Date.now() / 1000) + 3600;
+  await env.DB.prepare("INSERT INTO booking_rate_limits (bucket, count, expires_at) VALUES (?1,1,?2) ON CONFLICT(bucket) DO UPDATE SET count=count+1, expires_at=?2").bind(bucket, expires).run();
+}
+async function loginClear(env, bucket) {
+  await env.DB.prepare("DELETE FROM booking_rate_limits WHERE bucket=?1").bind(bucket).run();
+}
 
 /* ---------- E-Mail (Resend) ---------- */
 async function sendEmail(env, to, subject, html, text) {
@@ -137,12 +155,14 @@ async function sendEmail(env, to, subject, html, text) {
   } catch (e) { return { ok: false, error: clip(e && e.message || e, 160) }; }
 }
 async function sendConfirmation(env, bookingId, booking) {
+  booking.ref = "R-" + (Number(bookingId) + 1000);
   const mail = confirmMail(booking);
   const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html, mail.text);
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Bestätegungsmail geschéckt" : "Bestätegungsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
 async function sendDecline(env, bookingId, booking) {
+  booking.ref = "R-" + (Number(bookingId) + 1000);
   const mail = declineMail(booking);
   const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html, mail.text);
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
@@ -164,7 +184,9 @@ async function sendNewBookingNotice(env, bookingId, booking) {
 }
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function mailText(t, b) {
-  var lines = [t.h, "", t.p, "", t.veh + ": " + b.veh];
+  var lines = [t.h, "", t.p, ""];
+  if (b.ref) lines.push((t.ref || "Réf.") + ": " + b.ref);
+  lines.push(t.veh + ": " + b.veh);
   if (b.from_dt) lines.push(t.from + ": " + b.from_dt.replace("T", " "));
   if (b.to_dt) lines.push(t.to + ": " + b.to_dt.replace("T", " "));
   lines.push("", t.foot, "", "Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87");
@@ -179,6 +201,7 @@ function confirmMail(b) {
     en: { s: "Your reservation is confirmed", h: "Reservation confirmed", p: "We have confirmed your reservation:", veh: "Vehicle", from: "From", to: "To", foot: "If you have any questions, just reply to this e-mail or call us. Thank you!" },
   }[L] || null;
   var t = T || { s: "Är Reservatioun ass bestätegt", h: "Reservatioun bestätegt", p: "Mir hunn Är Reservatioun bestätegt:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Merci!" };
+  t.ref = { lb: "Réf.", de: "Ref.", fr: "Réf.", en: "Ref." }[L] || "Réf.";
   var html =
     '<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1c2430">' +
     '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +
@@ -186,6 +209,7 @@ function confirmMail(b) {
     '<h2 style="margin:0 0 8px;color:#2e7d5b">✓ ' + esc(t.h) + "</h2>" +
     "<p>" + esc(t.p) + "</p>" +
     '<table style="font-size:14px;border-collapse:collapse">' +
+    (b.ref ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.ref) + "</td><td><b>" + esc(b.ref) + "</b></td></tr>" : "") +
     "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.veh) + "</td><td><b>" + esc(b.veh) + "</b></td></tr>" +
     (b.from_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.from) + "</td><td>" + esc(b.from_dt.replace("T", " ")) + "</td></tr>" : "") +
     (b.to_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.to) + "</td><td>" + esc(b.to_dt.replace("T", " ")) + "</td></tr>" : "") +
@@ -204,6 +228,7 @@ function declineMail(b) {
     en: { s: "Your rental request – unfortunately not possible", h: "We're sorry", p: "Thank you very much for your request. Unfortunately the requested item is not available for this period:", veh: "Vehicle", from: "From", to: "To", foot: "Feel free to call us – perhaps we can find another date or an alternative together. Thank you for your understanding." },
   }[L] || null;
   var t = T || { s: "Är Verleih-Ufro – leider net méiglech", h: "Et deet eis leed", p: "Leider ass dat gewënschte Material an dësem Zäitraum net disponibel:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Rufft eis gären un. Merci fir d'Versteesdemech." };
+  t.ref = { lb: "Réf.", de: "Ref.", fr: "Réf.", en: "Ref." }[L] || "Réf.";
   var html =
     '<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1c2430">' +
     '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +
@@ -211,6 +236,7 @@ function declineMail(b) {
     '<h2 style="margin:0 0 8px;color:#c81420">' + esc(t.h) + "</h2>" +
     "<p>" + esc(t.p) + "</p>" +
     '<table style="font-size:14px;border-collapse:collapse">' +
+    (b.ref ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.ref) + "</td><td><b>" + esc(b.ref) + "</b></td></tr>" : "") +
     "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.veh) + "</td><td><b>" + esc(b.veh) + "</b></td></tr>" +
     (b.from_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.from) + "</td><td>" + esc(b.from_dt.replace("T", " ")) + "</td></tr>" : "") +
     (b.to_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.to) + "</td><td>" + esc(b.to_dt.replace("T", " ")) + "</td></tr>" : "") +
@@ -276,13 +302,23 @@ export default {
         return json(env, { ok: true, id });
       }
 
-      /* ---- login ---- */
+      /* ---- public: Disponibilitéit (nëmme bestätegt Perioden, keng perséinlech Donnéeën) ---- */
+      if (path === "/availability" && method === "GET") {
+        const since = new Date(Date.now() - 86400000).toISOString().slice(0, 16);
+        const rows = (await env.DB.prepare("SELECT veh, from_dt, to_dt FROM bookings WHERE status='confirmed' AND to_dt >= ?1 ORDER BY from_dt ASC LIMIT 500").bind(since).all()).results || [];
+        return json(env, { busy: rows.map((r) => ({ veh: r.veh, from: r.from_dt, to: r.to_dt })) });
+      }
+
+      /* ---- login (mat Brute-Force-Schutz: max 10 falsch Versich/Stonn/IP) ---- */
       if (path === "/auth/login" && method === "POST") {
         const username = clip(bodyData.username, 60).trim().toLowerCase();
         const password = String(bodyData.password || "");
+        const lbk = await loginBucket(request);
+        if (await loginFails(env, lbk) >= 10) return json(env, { error: "rate_limited" }, 429);
         const row = await env.DB.prepare("SELECT * FROM users WHERE username = ?1").bind(username).first();
         const ok = row && row.active && (await verifyPw(row.pw, password));
-        if (!ok) return json(env, { error: "invalid_credentials" }, 401);
+        if (!ok) { await loginBump(env, lbk); return json(env, { error: "invalid_credentials" }, 401); }
+        await loginClear(env, lbk);
         const token = await makeToken(row, env.SESSION_SECRET);
         return json(env, { token, user: { username: row.username, name: row.name, role: row.role, mustChange: !!row.must_change } });
       }

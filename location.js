@@ -219,7 +219,8 @@
     },
   };
 
-  var state = { cat: "all", selected: [] };
+  var state = { cat: "all", selected: [], busy: [] };
+  var API_BASE = "https://garage-admin.autoservicebettenduerf.lu";
 
   function lang() {
     var l = document.documentElement.getAttribute("lang");
@@ -301,28 +302,40 @@
     review_contact: "Kontakt", review_empty: "Nach näischt ausgewielt", review_missing: "Nach net uginn",
     review_hint: "Kontrolléiert dës Donnéeën, ier Dir d’Ufro schéckt.",
     terms_html: "Ech hunn déi <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">virleefeg Mietinformatiounen</a> gelies.",
-    m_terms: "Bestätegung vun de Mietinformatiounen"
+    m_terms: "Bestätegung vun de Mietinformatiounen",
+    busy_title: "Am gewielten Zäitraum net disponibel:",
+    busy_hint: "Wielt w.e.g. aner Datumer – oder frot trotzdem un, mir kucken no.",
+    busy_period: "schonn reservéiert"
   });
   Object.assign(T.de, {
     review_title: "Anfrage überprüfen", review_items: "Auswahl", review_period: "Zeitraum",
     review_contact: "Kontakt", review_empty: "Noch nichts ausgewählt", review_missing: "Noch nicht angegeben",
     review_hint: "Prüfen Sie diese Angaben, bevor Sie die Anfrage senden.",
     terms_html: "Ich habe die <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">vorläufigen Mietinformationen</a> gelesen.",
-    m_terms: "Bestätigung der Mietinformationen"
+    m_terms: "Bestätigung der Mietinformationen",
+    busy_title: "Im gewählten Zeitraum nicht verfügbar:",
+    busy_hint: "Bitte wählen Sie andere Daten – oder fragen Sie trotzdem an, wir prüfen es.",
+    busy_period: "bereits reserviert"
   });
   Object.assign(T.fr, {
     review_title: "Vérifier la demande", review_items: "Sélection", review_period: "Période",
     review_contact: "Contact", review_empty: "Aucun élément sélectionné", review_missing: "Non renseigné",
     review_hint: "Vérifiez ces informations avant d’envoyer la demande.",
     terms_html: "J’ai lu les <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">informations provisoires de location</a>.",
-    m_terms: "confirmation des informations de location"
+    m_terms: "confirmation des informations de location",
+    busy_title: "Indisponible sur la période choisie :",
+    busy_hint: "Veuillez choisir d’autres dates – ou envoyez quand même la demande, nous vérifierons.",
+    busy_period: "déjà réservé"
   });
   Object.assign(T.en, {
     review_title: "Review request", review_items: "Selection", review_period: "Period",
     review_contact: "Contact", review_empty: "Nothing selected yet", review_missing: "Not provided yet",
     review_hint: "Check these details before sending your request.",
     terms_html: "I have read the <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">preliminary rental information</a>.",
-    m_terms: "confirmation of the rental information"
+    m_terms: "confirmation of the rental information",
+    busy_title: "Unavailable for the selected period:",
+    busy_hint: "Please choose other dates – or send the request anyway, we'll check.",
+    busy_period: "already booked"
   });
 
   function $(id) { return document.getElementById(id); }
@@ -424,6 +437,49 @@
     if (email && email.value.trim()) contact.push(email.value.trim());
     if (phone && phone.value.trim()) contact.push(phone.value.trim());
     setTxt("rental-review-contact", contact.length ? contact.join(" · ") : m.review_missing);
+    renderAvailability();
+  }
+
+  function fetchAvailability() {
+    try {
+      fetch(API_BASE + "/availability", { headers: { Accept: "application/json" } })
+        .then(function (r) { return r.ok ? r.json() : { busy: [] }; })
+        .then(function (d) { state.busy = (d && d.busy) || []; renderAvailability(); })
+        .catch(function () {});
+    } catch (e) {}
+  }
+
+  function busyForSelection() {
+    var from = $("r-from"), to = $("r-to");
+    var cFrom = from && from.value, cTo = to && to.value;
+    if (!cFrom || !cTo || cTo <= cFrom || !state.selected.length) return [];
+    var hits = [];
+    state.selected.forEach(function (id) {
+      var it = CATALOG.filter(function (x) { return x.id === id; })[0];
+      if (!it) return;
+      var key = (it.name.de || it.name.lb).toLowerCase();
+      state.busy.forEach(function (b) {
+        var names = String(b.veh || "").split(",").map(function (s) { return s.trim().toLowerCase(); });
+        // ISO "YYYY-MM-DDTHH:MM" strings compare correctly lexicographically
+        if (names.indexOf(key) !== -1 && b.from < cTo && b.to > cFrom) {
+          hits.push({ name: it.name[lang()] || it.name.lb, from: b.from, to: b.to });
+        }
+      });
+    });
+    return hits;
+  }
+
+  function renderAvailability() {
+    var box = $("rental-busy");
+    if (!box) return;
+    var m = t();
+    var hits = busyForSelection();
+    if (!hits.length) { box.hidden = true; box.innerHTML = ""; return; }
+    var items = hits.map(function (h) {
+      return "<li><b>" + h.name + "</b> – " + m.busy_period + ": " + formatReviewDate(h.from) + " → " + formatReviewDate(h.to) + "</li>";
+    }).join("");
+    box.innerHTML = '<p class="rental-busy-title">⚠ ' + m.busy_title + "</p><ul>" + items + '</ul><p class="rental-busy-hint">' + m.busy_hint + "</p>";
+    box.hidden = false;
   }
 
   function toggle(id) {
@@ -652,9 +708,11 @@
           toDate.min = fromDate.value || minDateTime;
           if (toDate.value && fromDate.value && toDate.value <= fromDate.value) toDate.value = "";
         }
+        renderAvailability();
       });
     }
-    if (toDate) toDate.min = minDateTime;
+    if (toDate) { toDate.min = minDateTime; toDate.addEventListener("change", renderAvailability); }
+    fetchAvailability();
     document.addEventListener("submit", handleSubmit, true);
     document.querySelectorAll(".lang-select").forEach(function (s) {
       s.addEventListener("change", function () { setTimeout(refresh, 0); });
