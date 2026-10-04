@@ -1,0 +1,15 @@
+# Cloudflare Worker fir d'Interne Verwaltung (Reservatiounen + Memberen).
+# Deploy:  wrangler deploy -c worker/admin-wrangler.toml
+# Secret:  wrangler secret put SESSION_SECRET -c worker/admin-wrangler.toml
+name = "garage-admin"
+main = "admin-api.js"
+compatibility_date = "2025-09-01"
+
+[vars]
+ALLOW_ORIGIN = "https://autoservicebettenduerf.lu"
+
+# D1-Datebank (scho ugeluecht)
+[[d1_databases]]
+binding = "DB"
+database_name = "garage-admin"
+database_id = "14fccce6-50bf-4dd7-9d76-e8576c47ce2a"

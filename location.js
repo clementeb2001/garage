@@ -575,6 +575,25 @@
     if (btn) btn.disabled = true;
     st.className = "form-status";
     st.textContent = m.sending;
+
+    /* Zousätzlech: d'Ufro an d'interne Datebank schreiwen (Reservatiouns-
+       Verwaltung). Best-effort – falls de Worker net do ass, bleift d'E-Mail
+       iwwer FormSubmit déi primär Notifikatioun. */
+    try {
+      var vehNames = state.selected.map(function (id) { var it = CATALOG.filter(function (x) { return x.id === id; })[0]; return it ? (it.name.de || it.name.lb) : id; }).join(", ");
+      fetch("https://garage-admin.autoservicebettenduerf.lu/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          veh: vehNames, from: from.value, to: to.value,
+          name: name.value.trim(), email: email.value.trim(),
+          phone: (($("r-phone") || {}).value || "").trim(),
+          msg: (($("r-message") || {}).value || "").trim(),
+          lang: lang(),
+        }),
+      }).catch(function () {});
+    } catch (e) {}
+
     fetch("https://formsubmit.co/ajax/" + EMAIL, {
       method: "POST",
       headers: { Accept: "application/json" },
