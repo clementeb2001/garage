@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="lb">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; form-action 'self'; frame-src 'none'; upgrade-insecure-requests"
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0d1b2a" />
+    <title>Interne Verwaltung – Autoservice Bettenduerf</title>
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        --navy: #0d1b2a;
+        --navy-2: #16273a;
+        --accent: #e63946;
+        --accent-dark: #c92c39;
+        --ok: #2e7d5b;
+        --warn: #b7791f;
+        --mut: #5b6b7c;
+        --line: #e6e9ee;
+        --bg: #f4f5f7;
+        --surface: #ffffff;
+        --fg: #1c2430;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        line-height: 1.5;
+      }
+      a { color: var(--accent-dark); }
+      .testbar {
+        background: repeating-linear-gradient(45deg, #ffe9b0, #ffe9b0 12px, #ffdf85 12px, #ffdf85 24px);
+        color: #6b4e00;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-align: center;
+        padding: 7px 14px;
+        border-bottom: 1px solid #e3c870;
+      }
+      .topbar {
+        background: var(--navy);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 18px;
+      }
+      .topbar .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: 0.01em; }
+      .topbar .brand img { height: 26px; width: auto; }
+      .topbar .who { font-size: 0.85rem; color: #c7d2dd; display: flex; align-items: center; gap: 12px; }
+      .btn {
+        font: inherit; font-weight: 700; border-radius: 10px; border: 1px solid transparent;
+        padding: 9px 16px; cursor: pointer; transition: filter 0.15s;
+      }
+      .btn:hover { filter: brightness(1.05); }
+      .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .btn-primary { background: var(--accent); color: #fff; }
+      .btn-ok { background: var(--ok); color: #fff; }
+      .btn-ghost { background: transparent; border-color: rgba(255,255,255,0.3); color: #fff; padding: 7px 12px; font-size: 0.82rem; }
+      .btn-outline { background: #fff; border-color: var(--line); color: var(--fg); }
+      .btn-sm { padding: 6px 12px; font-size: 0.82rem; border-radius: 8px; }
+      .wrap { max-width: 920px; margin: 0 auto; padding: 22px 16px 60px; }
+
+      /* Login */
+      .login-card {
+        max-width: 380px; margin: 8vh auto 0; background: var(--surface);
+        border: 1px solid var(--line); border-radius: 16px; padding: 28px 26px;
+        box-shadow: 0 10px 30px rgba(13,27,42,0.08);
+      }
+      .login-card h1 { font-size: 1.3rem; margin: 0 0 4px; }
+      .login-card p.sub { color: var(--mut); margin: 0 0 20px; font-size: 0.9rem; }
+      .field { margin-bottom: 14px; }
+      .field label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 5px; color: var(--navy); }
+      .field input {
+        width: 100%; font: inherit; padding: 11px 12px; border: 1px solid var(--line);
+        border-radius: 10px; background: #fff;
+      }
+      .field input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+      .login-err { color: var(--accent-dark); font-size: 0.85rem; margin: 2px 0 12px; min-height: 1em; font-weight: 600; }
+      .demo-hint { margin-top: 18px; font-size: 0.78rem; color: var(--mut); background: #f0f3f7; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+      .demo-hint code { background: #fff; border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 0.86em; }
+
+      /* Dashboard */
+      .page-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 4px; }
+      h2.page-title { font-size: 1.35rem; margin: 0; }
+      .muted { color: var(--mut); }
+      .filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 18px; }
+      .chip {
+        font: inherit; font-size: 0.82rem; font-weight: 700; padding: 7px 14px; border-radius: 999px;
+        border: 1px solid var(--line); background: #fff; color: var(--mut); cursor: pointer;
+      }
+      .chip.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+      .chip .count { opacity: 0.7; font-weight: 600; }
+
+      .booking {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+        padding: 16px 16px 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(13,27,42,0.05);
+      }
+      .booking.is-new { border-left: 4px solid var(--accent); }
+      .b-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+      .b-veh { font-weight: 800; font-size: 1.02rem; }
+      .b-id { font-family: ui-monospace, Menlo, monospace; font-size: 0.74rem; color: var(--mut); }
+      .status {
+        font-size: 0.72rem; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase;
+        padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+      }
+      .status-new { background: #fdeaec; color: var(--accent-dark); }
+      .status-confirmed { background: #e4f3ec; color: var(--ok); }
+      .status-declined { background: #f2e9e9; color: #8a5a5a; }
+      .status-done { background: #eceff3; color: var(--mut); }
+      .b-dates { margin: 8px 0 6px; font-weight: 600; }
+      .b-dates .arrow { color: var(--mut); margin: 0 6px; }
+      .b-cust { font-size: 0.9rem; color: var(--fg); display: flex; flex-wrap: wrap; gap: 4px 16px; }
+      .b-cust span { color: var(--mut); }
+      .b-msg { margin: 8px 0 0; font-size: 0.9rem; background: #f6f8fa; border-radius: 8px; padding: 8px 11px; }
+      .b-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+      .b-note-input { flex: 1; min-width: 160px; font: inherit; font-size: 0.85rem; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; }
+      .b-audit { margin-top: 11px; border-top: 1px dashed var(--line); padding-top: 9px; font-size: 0.78rem; color: var(--mut); }
+      .b-audit .ev { margin: 2px 0; }
+      .b-audit b { color: var(--fg); }
+      .empty { text-align: center; color: var(--mut); padding: 40px 0; }
+      .footer-note { margin-top: 26px; font-size: 0.78rem; color: var(--mut); text-align: center; }
+      [hidden] { display: none !important; }
+      @media (max-width: 480px) {
+        .topbar .brand span { display: none; }
+        .b-top { flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="testbar">
+      ⚠️ TESTMODUS · Demo-Donnéeën am Browser · nach keng echt Datebank – just fir d'Ausprobéieren
+    </div>
+
+    <!-- ===== LOGIN ===== -->
+    <section id="view-login">
+      <form class="login-card" id="login-form" autocomplete="off">
+        <h1>Interne Verwaltung</h1>
+        <p class="sub">Reservatiounen – Autoservice Bettenduerf</p>
+        <div class="field">
+          <label for="u">Benotzernumm</label>
+          <input id="u" name="u" type="text" autocapitalize="none" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="p">Passwuert</label>
+          <input id="p" name="p" type="password" autocomplete="current-password" required />
+        </div>
+        <p class="login-err" id="login-err"></p>
+        <button class="btn btn-primary" type="submit" style="width:100%">Aloggen</button>
+        <div class="demo-hint">
+          <strong>Demo-Zougäng (Testmodus):</strong><br />
+          Admin: <code>admin</code> / <code>test1234</code><br />
+          Mataarbechter: <code>atelier</code> / <code>test1234</code>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===== DASHBOARD ===== -->
+    <section id="view-app" hidden>
+      <div class="topbar">
+        <div class="brand">
+          <img src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf" />
+          <span>Interne Verwaltung</span>
+        </div>
+        <div class="who">
+          <span id="who-name"></span>
+          <button class="btn btn-ghost" id="btn-logout" type="button">Ausloggen</button>
+        </div>
+      </div>
+      <div class="wrap">
+        <div class="page-head">
+          <h2 class="page-title">Reservatiounen</h2>
+          <button class="btn btn-outline btn-sm" id="btn-reset" type="button">Demo-Daten zrécksetzen</button>
+        </div>
+        <p class="muted" style="margin:2px 0 0;font-size:0.9rem">Ufroe bestätegen oder ofleenen. All Aktioun gëtt mam Benotzernumm festgehalen.</p>
+
+        <div class="filters" id="filters"></div>
+        <div id="booking-list"></div>
+
+        <p class="footer-note">
+          Testmodus – déi echt Versioun lount d'Reservatioune vun engem séchere Server (Login server-säiteg geprüft).
+        </p>
+      </div>
+    </section>
+
+    <script src="intern.js?v=1"></script>
+  </body>
+</html>
