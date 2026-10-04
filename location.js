@@ -219,7 +219,7 @@
     },
   };
 
-  var state = { cat: "all", selected: [], busy: [] };
+  var state = { cat: "all", selected: [], busy: [], availabilityError: false };
   var API_BASE = "https://garage-admin.autoservicebettenduerf.lu";
 
   function lang() {
@@ -305,7 +305,7 @@
     m_terms: "Bestätegung vun de Mietinformatiounen",
     busy_title: "Am gewielten Zäitraum net disponibel:",
     busy_hint: "Wielt w.e.g. aner Datumer – oder frot trotzdem un, mir kucken no.",
-    busy_period: "schonn reservéiert"
+    busy_period: "schonn reservéiert", availability_error: "D’Live-Disponibilitéit konnt net geluede ginn. Dir kënnt d’Ufro trotzdem schécken; mir kontrolléieren den Zäitraum virun der Bestätegung."
   });
   Object.assign(T.de, {
     review_title: "Anfrage überprüfen", review_items: "Auswahl", review_period: "Zeitraum",
@@ -315,7 +315,7 @@
     m_terms: "Bestätigung der Mietinformationen",
     busy_title: "Im gewählten Zeitraum nicht verfügbar:",
     busy_hint: "Bitte wählen Sie andere Daten – oder fragen Sie trotzdem an, wir prüfen es.",
-    busy_period: "bereits reserviert"
+    busy_period: "bereits reserviert", availability_error: "Die Live-Verfügbarkeit konnte nicht geladen werden. Sie können die Anfrage trotzdem senden; wir prüfen den Zeitraum vor der Bestätigung."
   });
   Object.assign(T.fr, {
     review_title: "Vérifier la demande", review_items: "Sélection", review_period: "Période",
@@ -325,7 +325,7 @@
     m_terms: "confirmation des informations de location",
     busy_title: "Indisponible sur la période choisie :",
     busy_hint: "Veuillez choisir d’autres dates – ou envoyez quand même la demande, nous vérifierons.",
-    busy_period: "déjà réservé"
+    busy_period: "déjà réservé", availability_error: "La disponibilité en direct n’a pas pu être chargée. Vous pouvez tout de même envoyer la demande; nous vérifierons la période avant confirmation."
   });
   Object.assign(T.en, {
     review_title: "Review request", review_items: "Selection", review_period: "Period",
@@ -335,7 +335,7 @@
     m_terms: "confirmation of the rental information",
     busy_title: "Unavailable for the selected period:",
     busy_hint: "Please choose other dates – or send the request anyway, we'll check.",
-    busy_period: "already booked"
+    busy_period: "already booked", availability_error: "Live availability could not be loaded. You can still send the request; we will check the period before confirming it."
   });
 
   function $(id) { return document.getElementById(id); }
@@ -441,12 +441,13 @@
   }
 
   function fetchAvailability() {
+    state.availabilityError = false;
     try {
       fetch(API_BASE + "/availability", { headers: { Accept: "application/json" } })
-        .then(function (r) { return r.ok ? r.json() : { busy: [] }; })
-        .then(function (d) { state.busy = (d && d.busy) || []; renderAvailability(); })
-        .catch(function () {});
-    } catch (e) {}
+        .then(function (r) { if (!r.ok) throw new Error("availability"); return r.json(); })
+        .then(function (d) { state.busy = (d && d.busy) || []; state.availabilityError = false; renderAvailability(); })
+        .catch(function () { state.busy = []; state.availabilityError = true; renderAvailability(); });
+    } catch (e) { state.busy = []; state.availabilityError = true; renderAvailability(); }
   }
 
   function busyForSelection() {
@@ -473,6 +474,11 @@
     var box = $("rental-busy");
     if (!box) return;
     var m = t();
+    if (state.availabilityError) {
+      box.innerHTML = '<p class="rental-busy-title">⚠ ' + m.availability_error + "</p>";
+      box.hidden = false;
+      return;
+    }
     var hits = busyForSelection();
     if (!hits.length) { box.hidden = true; box.innerHTML = ""; return; }
     var items = hits.map(function (h) {

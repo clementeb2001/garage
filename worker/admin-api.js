@@ -1,10 +1,10 @@
 /* Autoservice Bettenduerf — Interne Verwaltung (Reservatiounen + Memberen).
    Cloudflare Worker + D1. Login server-säiteg, Passwierder PBKDF2-gehasht,
-   Sessioun als signéierten Bearer-Token. Rechter: viewer < validator < admin.
+   Widderruffbar Sessioun an engem Secure/HttpOnly-Cookie. Rechter:
+   viewer < validator < admin.
 
    Bindings (wrangler.toml):
      - DB             : D1-Datebank "garage-admin"
-     - SESSION_SECRET : Secret (wrangler secret put SESSION_SECRET)
      - ALLOW_ORIGIN   : var, z. B. "https://autoservicebettenduerf.lu"
 */
 
@@ -15,6 +15,8 @@ const PERMS = {
 };
 const ROLES = ["viewer", "validator", "admin"];
 const SESSION_TTL = 8 * 60 * 60; // 8h
+const PW_ITERATIONS = 600000;
+const SESSION_COOKIE = "garage_session";
 const enc = (s) => new TextEncoder().encode(s);
 
 /* ---------- base64 / base64url ---------- */
@@ -42,11 +44,12 @@ function eq(a, b) {
 }
 
 /* ---------- password hashing (PBKDF2-SHA256) ---------- */
-async function hashPw(password) {
+async function hashPw(password, iterations) {
+  iterations = iterations || PW_ITERATIONS;
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const key = await crypto.subtle.importKey("raw", enc(password), { name: "PBKDF2" }, false, ["deriveBits"]);
-  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" }, key, 256);
-  return "pbkdf2$100000$" + bufToB64(salt) + "$" + bufToB64(bits);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations, hash: "SHA-256" }, key, 256);
+  return "pbkdf2$" + iterations + "$" + bufToB64(salt) + "$" + bufToB64(bits);
 }
 async function verifyPw(stored, password) {
   const p = String(stored || "").split("$");
@@ -58,39 +61,50 @@ async function verifyPw(stored, password) {
   return eq(bufToB64(bits), p[3]);
 }
 
-/* ---------- session token (HMAC-SHA256) ---------- */
-async function hmac(data, secret) {
-  const key = await crypto.subtle.importKey("raw", enc(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const sig = await crypto.subtle.sign("HMAC", key, enc(data));
-  return bufToB64(sig).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+/* ---------- widderruffbar Cookie-Sessiounen ---------- */
+function randomToken() {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  return bufToB64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
-async function makeToken(user, secret) {
-  const payload = b64url(JSON.stringify({ u: user.username, r: user.role, exp: Math.floor(Date.now() / 1000) + SESSION_TTL }));
-  return payload + "." + (await hmac(payload, secret));
+function cookieValue(request, name) {
+  const cookies = request.headers.get("Cookie") || "";
+  const prefix = name + "=";
+  const part = cookies.split(";").map((x) => x.trim()).find((x) => x.startsWith(prefix));
+  return part ? decodeURIComponent(part.slice(prefix.length)) : "";
 }
-async function readToken(token, secret) {
-  if (!token || token.indexOf(".") < 0) return null;
-  const [payload, sig] = token.split(".");
-  if (!payload || !sig) return null;
-  if (!eq(sig, await hmac(payload, secret))) return null;
-  let obj;
-  try { obj = JSON.parse(unb64url(payload)); } catch (e) { return null; }
-  if (!obj.exp || obj.exp < Math.floor(Date.now() / 1000)) return null;
-  return obj;
+function sessionCookie(token) {
+  return SESSION_COOKIE + "=" + encodeURIComponent(token) + "; Path=/; Max-Age=" + SESSION_TTL + "; HttpOnly; Secure; SameSite=Strict";
+}
+function clearSessionCookie() {
+  return SESSION_COOKIE + "=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict";
+}
+async function ensureSessions(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, username TEXT NOT NULL, expires_at INTEGER NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+  await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_sessions_username ON sessions(username)").run();
+}
+async function createSession(env, username) {
+  await ensureSessions(env);
+  const token = randomToken();
+  const tokenHash = await hashText(token);
+  const expires = Math.floor(Date.now() / 1000) + SESSION_TTL;
+  await env.DB.prepare("DELETE FROM sessions WHERE expires_at < ?1").bind(Math.floor(Date.now() / 1000)).run();
+  await env.DB.prepare("INSERT INTO sessions (token_hash, username, expires_at) VALUES (?1,?2,?3)").bind(tokenHash, username, expires).run();
+  return token;
 }
 
 /* ---------- helpers ---------- */
 function cors(env, extra) {
   return Object.assign({
     "Access-Control-Allow-Origin": env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu",
+    "Access-Control-Allow-Credentials": "true",
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
   }, extra || {});
 }
-function json(env, body, status) {
-  return new Response(JSON.stringify(body), { status: status || 200, headers: cors(env, { "Content-Type": "application/json; charset=utf-8" }) });
+function json(env, body, status, extraHeaders) {
+  return new Response(JSON.stringify(body), { status: status || 200, headers: cors(env, Object.assign({ "Content-Type": "application/json; charset=utf-8" }, extraHeaders || {})) });
 }
 function clip(s, n) { return String(s == null ? "" : s).slice(0, n); }
 function hasPerm(role, perm) { return (PERMS[role] || []).indexOf(perm) !== -1; }
@@ -248,13 +262,18 @@ function declineMail(b) {
 }
 
 async function authUser(request, env) {
-  const h = request.headers.get("Authorization") || "";
-  const m = h.match(/^Bearer\s+(.+)$/i);
-  if (!m) return null;
-  const tok = await readToken(m[1], env.SESSION_SECRET);
-  if (!tok) return null;
-  const row = await env.DB.prepare("SELECT username, name, role, active, must_change FROM users WHERE username = ?1").bind(tok.u).first();
+  const token = cookieValue(request, SESSION_COOKIE);
+  if (!token) return null;
+  await ensureSessions(env);
+  const tokenHash = await hashText(token);
+  const sess = await env.DB.prepare("SELECT username, expires_at FROM sessions WHERE token_hash = ?1").bind(tokenHash).first();
+  if (!sess || Number(sess.expires_at) < Math.floor(Date.now() / 1000)) {
+    if (sess) await env.DB.prepare("DELETE FROM sessions WHERE token_hash = ?1").bind(tokenHash).run();
+    return null;
+  }
+  const row = await env.DB.prepare("SELECT username, name, role, active, must_change FROM users WHERE username = ?1").bind(sess.username).first();
   if (!row || !row.active) return null;
+  row.sessionHash = tokenHash;
   return row;
 }
 
@@ -266,7 +285,6 @@ export default {
     const method = request.method.toUpperCase();
 
     if (method === "OPTIONS") return new Response(null, { status: 204, headers: cors(env) });
-    if (!env.SESSION_SECRET) return json(env, { error: "server_not_configured" }, 500);
 
     let bodyData = {};
     if (method === "POST" && (request.headers.get("content-type") || "").includes("application/json")) {
@@ -275,7 +293,7 @@ export default {
 
     try {
       /* ---- public: neng Reservatiounsufro (vum Location-Formulaire) ---- */
-      if (path === "/bookings" && method === "POST" && !request.headers.get("Authorization")) {
+      if (path === "/bookings" && method === "POST") {
         const allowedOrigin = env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
         if (request.headers.get("Origin") !== allowedOrigin) return json(env, { error: "forbidden_origin" }, 403);
         if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
@@ -311,6 +329,8 @@ export default {
 
       /* ---- login (mat Brute-Force-Schutz: max 10 falsch Versich/Stonn/IP) ---- */
       if (path === "/auth/login" && method === "POST") {
+        const allowedOrigin = env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
+        if (request.headers.get("Origin") !== allowedOrigin) return json(env, { error: "forbidden_origin" }, 403);
         const username = clip(bodyData.username, 60).trim().toLowerCase();
         const password = String(bodyData.password || "");
         const lbk = await loginBucket(request);
@@ -319,17 +339,29 @@ export default {
         const ok = row && row.active && (await verifyPw(row.pw, password));
         if (!ok) { await loginBump(env, lbk); return json(env, { error: "invalid_credentials" }, 401); }
         await loginClear(env, lbk);
-        const token = await makeToken(row, env.SESSION_SECRET);
-        return json(env, { token, user: { username: row.username, name: row.name, role: row.role, mustChange: !!row.must_change } });
+        const storedIterations = parseInt(String(row.pw || "").split("$")[1], 10) || 0;
+        if (storedIterations < PW_ITERATIONS) {
+          await env.DB.prepare("UPDATE users SET pw = ?1 WHERE username = ?2").bind(await hashPw(password), row.username).run();
+        }
+        const token = await createSession(env, row.username);
+        return json(env, { ok: true, user: { username: row.username, name: row.name, role: row.role, mustChange: !!row.must_change } }, 200, { "Set-Cookie": sessionCookie(token) });
       }
 
       /* ---- all routes below need auth ---- */
       const me = await authUser(request, env);
       if (path === "/auth/me") {
-        if (!me) return json(env, { error: "unauthorized" }, 401);
+        if (!me) return json(env, { error: "unauthorized" }, 401, { "Set-Cookie": clearSessionCookie() });
         return json(env, { user: { username: me.username, name: me.name, role: me.role, mustChange: !!me.must_change } });
       }
+      if (path === "/auth/logout" && method === "POST") {
+        if (me && me.sessionHash) await env.DB.prepare("DELETE FROM sessions WHERE token_hash = ?1").bind(me.sessionHash).run();
+        return json(env, { ok: true }, 200, { "Set-Cookie": clearSessionCookie() });
+      }
       if (!me) return json(env, { error: "unauthorized" }, 401);
+
+      if ((method === "POST" || method === "DELETE") && request.headers.get("Origin") !== (env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu")) {
+        return json(env, { error: "forbidden_origin" }, 403);
+      }
 
       /* ---- change own password ---- */
       if (path === "/auth/password" && method === "POST") {
@@ -338,7 +370,10 @@ export default {
         const row = await env.DB.prepare("SELECT pw FROM users WHERE username = ?1").bind(me.username).first();
         if (!row || !(await verifyPw(row.pw, cur))) return json(env, { error: "wrong_current" }, 400);
         await env.DB.prepare("UPDATE users SET pw = ?1, must_change = 0 WHERE username = ?2").bind(await hashPw(next), me.username).run();
-        return json(env, { ok: true });
+        await ensureSessions(env);
+        await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(me.username).run();
+        const token = await createSession(env, me.username);
+        return json(env, { ok: true }, 200, { "Set-Cookie": sessionCookie(token) });
       }
 
       /* ---- bookings list ---- */
@@ -418,6 +453,8 @@ export default {
         if (!t) return json(env, { error: "not_found" }, 404);
         const tempPw = genTempPw();
         await env.DB.prepare("UPDATE users SET pw = ?1, must_change = 1 WHERE username = ?2").bind(await hashPw(tempPw), target).run();
+        await ensureSessions(env);
+        await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(target).run();
         await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES ('reset-pw', ?1, ?2)").bind(target, me.username).run();
         return json(env, { ok: true, tempPassword: tempPw });
       }
@@ -449,6 +486,7 @@ export default {
             if (t.role === "admin" && (await adminCount(env)) <= 1) return json(env, { error: "last_admin" }, 409);
           }
           await env.DB.prepare("UPDATE users SET active = ?1 WHERE username = ?2").bind(act, target).run();
+          if (!act) { await ensureSessions(env); await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(target).run(); }
           await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES (?1, ?2, ?3)").bind(act ? "activated" : "deactivated", target, me.username).run();
         }
         let selfRenamed = false, newUsername = null;
@@ -459,6 +497,8 @@ export default {
             const dup = await env.DB.prepare("SELECT username FROM users WHERE username = ?1").bind(nu).first();
             if (dup) return json(env, { error: "exists" }, 409);
             await env.DB.prepare("UPDATE users SET username = ?1 WHERE username = ?2").bind(nu, target).run();
+            await ensureSessions(env);
+            await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(target).run();
             await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES (?1, ?2, ?3)").bind("username>" + nu, target, me.username).run();
             newUsername = nu;
             if (target === me.username) selfRenamed = true;
@@ -474,6 +514,8 @@ export default {
         if (!t) return json(env, { error: "not_found" }, 404);
         if (t.role === "admin" && (await adminCount(env)) <= 1) return json(env, { error: "last_admin" }, 409);
         await env.DB.prepare("DELETE FROM users WHERE username = ?1").bind(target).run();
+        await ensureSessions(env);
+        await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(target).run();
         await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES ('deleted', ?1, ?2)").bind(target, me.username).run();
         return json(env, { ok: true });
       }

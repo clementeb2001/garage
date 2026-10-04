@@ -10,34 +10,31 @@ leien an enger Cloudflare-D1-Datebank.
 > - Admin-Kont ugeluecht: Benotzernumm **`clement`** (Passwuert kritt der separat — beim 1. Login änneren).
 > - 2 Beispill-Reservatiounen fir den Test.
 
-## Fir et live ze maachen — 3 Kommandoen
+## Fir et live ze maachen
 
 ```bash
 # 1. Worker deployen (am Repo-Root)
 wrangler deploy -c worker/admin-wrangler.toml
 
-# 2. De Sessioun-Schlëssel als Secret setzen (eemoleg, e laangt Zoufallswuert)
-wrangler secret put SESSION_SECRET -c worker/admin-wrangler.toml
-#    -> fügt z. B. de Resultat vun `openssl rand -base64 32` an
-
-# 3. (Cloudflare Dashboard) de Worker op d'Custom-Domain routen:
+# 2. (Cloudflare Dashboard) de Worker op d'Custom-Domain routen:
 #    garage-admin.autoservicebettenduerf.lu
 #    (Workers & Pages -> garage-admin -> Settings -> Domains & Routes)
 ```
 
-Dono ass `/intern/` automatesch **live** (soss leeft et am Testmodus).
+Dono ass `/intern/` automatesch **live**. Et gëtt bewosst keen onsécheren Testmodus.
 
 ## Sécherheet
 - Passwierder ginn **PBKDF2-SHA256 gehasht** gespäichert — ni am Klartext.
-- D'Sessioun ass e **signéierten Bearer-Token** (HMAC, 8 h gëlteg).
+- D'Sessioun ass en zoufällegen, server-säiteg widderruffbare Schlëssel an engem **HttpOnly, Secure, SameSite=Strict Cookie** (8 h gëlteg).
 - All Ufro gëtt **server-säiteg** nogekuckt (Rechter: viewer < validator < admin).
-- `SESSION_SECRET` bleift e Cloudflare-Secret.
+- Passwierder benotze PBKDF2-SHA256 mat 600.000 Iteratiounen; al Hashes ginn nom Login automatesch aktualiséiert.
 
 ## API (kuerz Iwwersiicht)
 | Method | Pfad | Roll | Zweck |
 |---|---|---|---|
-| POST | `/auth/login` | — | Aloggen → Token |
+| POST | `/auth/login` | — | Aloggen → séchere Sessiouns-Cookie |
 | GET  | `/auth/me` | agelount | Aktuelle Benotzer |
+| POST | `/auth/logout` | agelount | Sessioun widderruffen |
 | POST | `/auth/password` | agelount | Eegent Passwuert änneren |
 | GET  | `/bookings` | viewer+ | Reservatioune lëschten |
 | POST | `/bookings/:id/status` | validator+ | Status änneren (+Audit) |
