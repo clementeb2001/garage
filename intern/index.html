@@ -231,12 +231,13 @@
       @media print { .topbar, .testbar, .filters, .b-actions, .b-note-input, #btn-export, #btn-print, #btn-reset { display: none !important; } .booking { break-inside: avoid; } }
       [hidden] { display: none !important; }
 
-      /* ===== Als installéiert App (PWA): Platz fir d'Statusbar (Notch) ===== */
-      @media (display-mode: standalone) {
-        .testbar { display: none; }
-        body { padding-top: env(safe-area-inset-top, 0px); }
-        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: var(--navy); z-index: 1000; }
-      }
+      /* ===== Platz fir d'Statusbar (Notch) wann d'App ganz-Ecran leeft =====
+         Net un display-mode gebonnen: env() ass 0 am normale Browser an nëmme
+         >0 wann de Webview ënner der Statusbar leeft (installéiert App). Esou
+         gëtt den Inhalt do ëmmer ënner d'Statusbar gesat, egal wéi installéiert. */
+      body { padding-top: env(safe-area-inset-top, 0px); }
+      body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: var(--navy); z-index: 1000; pointer-events: none; }
+      @media (display-mode: standalone) { .testbar { display: none; } }
 
       /* ===== Topbar icon buttons + command palette trigger ===== */
       .bar-tools { display: flex; align-items: center; gap: 8px; }
@@ -602,6 +603,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=22"></script>
+    <script src="intern.js?v=23"></script>
   </body>
 </html>
