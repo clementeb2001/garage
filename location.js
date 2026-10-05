@@ -82,15 +82,17 @@
       },
     },
     {
-      id: "camionnette",
+      id: "master",
       cat: "vehicle",
       icon: "van",
-      name: { lb: "Camionnette / Transporter", de: "Transporter / Lieferwagen", fr: "Camionnette / utilitaire", en: "Van / transporter" },
+      img: "assets/rental-renault-master.webp",
+      priceDay: 80,
+      name: { lb: "Renault Master – Transporter", de: "Renault Master – Transporter", fr: "Renault Master – Camionnette", en: "Renault Master – Van" },
       specs: {
-        lb: ["Fir Ëmzuch a Transport", "Grousse Luedraum (L2H2)", "Führerschäin B duergeet"],
-        de: ["Für Umzug & Transport", "Großer Laderaum (L2H2)", "Führerschein B ausreichend"],
-        fr: ["Déménagement & transport", "Grand volume (L2H2)", "Permis B suffisant"],
-        en: ["Moving & transport", "Large load space (L2H2)", "Licence B is enough"],
+        lb: ["Fir Ëmzuch a Transport", "Grousse Luedraum (L2H2)", "Diesel · Führerschäin B duergeet", "Vollgetankt zréckbréngen"],
+        de: ["Für Umzug & Transport", "Großer Laderaum (L2H2)", "Diesel · Führerschein B ausreichend", "Vollgetankt zurückbringen"],
+        fr: ["Déménagement & transport", "Grand volume (L2H2)", "Diesel · permis B suffisant", "À rendre le plein fait"],
+        en: ["Moving & transport", "Large load space (L2H2)", "Diesel · licence B is enough", "Return with a full tank"],
       },
     },
   ];
@@ -110,6 +112,7 @@
       cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",
       cat_trailer_lbl: "Unhänger", cat_vehicle_lbl: "Gefier",
       price: "Präis op Ufro",
+      perDay: "Dag", payOnReturn: "Bezuelt bei der Retour · vollgetankt zréckbréngen",
       select: "Auswielen", selected: "Ausgewielt", remove: "Ewechhuelen",
       sel_h: "Är Auswiel", empty: "Nach näischt ausgewielt. Wielt uewen dat gewënschte Material aus.",
       form_h: "Reservéieren",
@@ -140,6 +143,7 @@
       cat_all: "Alles", cat_trailer: "Anhänger", cat_vehicle: "Fahrzeuge",
       cat_trailer_lbl: "Anhänger", cat_vehicle_lbl: "Fahrzeug",
       price: "Preis auf Anfrage",
+      perDay: "Tag", payOnReturn: "Zahlung bei Rückgabe · vollgetankt zurückbringen",
       select: "Auswählen", selected: "Ausgewählt", remove: "Entfernen",
       sel_h: "Ihre Auswahl", empty: "Noch nichts ausgewählt. Wählen Sie oben Ihr Material.",
       form_h: "Reservieren",
@@ -170,6 +174,7 @@
       cat_all: "Tout", cat_trailer: "Remorques", cat_vehicle: "Véhicules",
       cat_trailer_lbl: "Remorque", cat_vehicle_lbl: "Véhicule",
       price: "Prix sur demande",
+      perDay: "jour", payOnReturn: "Paiement au retour · à rendre le plein fait",
       select: "Choisir", selected: "Sélectionné", remove: "Retirer",
       sel_h: "Votre sélection", empty: "Rien de sélectionné. Choisissez votre matériel ci-dessus.",
       form_h: "Réserver",
@@ -200,6 +205,7 @@
       cat_all: "All", cat_trailer: "Trailers", cat_vehicle: "Vehicles",
       cat_trailer_lbl: "Trailer", cat_vehicle_lbl: "Vehicle",
       price: "Price on request",
+      perDay: "day", payOnReturn: "Pay on return · bring it back with a full tank",
       select: "Select", selected: "Selected", remove: "Remove",
       sel_h: "Your selection", empty: "Nothing selected yet. Pick your equipment above.",
       form_h: "Reserve",
@@ -359,14 +365,20 @@
       var specs = (it.specs[L] || it.specs.lb)
         .map(function (s) { return "<li>" + s + "</li>"; })
         .join("");
+      var media = it.img
+        ? '<img class="rental-photo" src="' + it.img + '" alt="' + (it.name[L] || it.name.lb) + '" loading="lazy" decoding="async" />'
+        : '<span class="rental-ic">' + ICONS[it.icon] + "</span>";
+      var priceHtml = it.priceDay
+        ? '<span class="rental-price is-day">' + it.priceDay + ' €<span class="unit"> / ' + m.perDay + "</span></span>"
+        : '<span class="rental-price">' + m.price + "</span>";
       card.innerHTML =
-        '<div class="rental-media"><span class="rental-ribbon">' + catLabel(it.cat) + "</span>" +
-        '<span class="rental-ic">' + ICONS[it.icon] + "</span></div>" +
+        '<div class="rental-media"><span class="rental-ribbon">' + catLabel(it.cat) + "</span>" + media + "</div>" +
         '<div class="rental-body">' +
         "<h3>" + (it.name[L] || it.name.lb) + "</h3>" +
         '<ul class="rental-specs">' + specs + "</ul>" +
+        (it.priceDay ? '<p class="rental-paynote">' + m.payOnReturn + "</p>" : "") +
         '<div class="rental-cardfoot">' +
-        '<span class="rental-price">' + m.price + "</span>" +
+        priceHtml +
         '<button type="button" class="btn rental-select" data-id="' + it.id + '">' +
         (picked ? "✓ " + m.selected : m.select) +
         "</button></div></div>";

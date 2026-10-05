@@ -3616,6 +3616,14 @@ html.shop-dev .shop-dev-badge a {
   padding: 4px 10px;
   border-radius: 999px;
 }
+.rental-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .rental-ic {
   color: #ffaa68;
   width: 58%;
@@ -3673,6 +3681,21 @@ html.shop-dev .shop-dev-badge a {
   color: #9fb0c2;
   font-size: 0.86rem;
   font-weight: 600;
+}
+.rental-price.is-day {
+  color: #ffd9b8;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+.rental-price.is-day .unit {
+  color: #9fb0c2;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.rental-paynote {
+  color: #9fb0c2;
+  font-size: 0.8rem;
+  margin: -4px 0 0;
 }
 .rental-select {
   background: rgba(198, 93, 46, 0.16);
