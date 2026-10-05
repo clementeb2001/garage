@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="AB Verwaltung" />
     <style>
       :root {
@@ -231,13 +231,18 @@
       @media print { .topbar, .testbar, .filters, .b-actions, .b-note-input, #btn-export, #btn-print, #btn-reset { display: none !important; } .booking { break-inside: avoid; } }
       [hidden] { display: none !important; }
 
-      /* ===== Platz fir d'Statusbar (Notch) wann d'App ganz-Ecran leeft =====
-         Net un display-mode gebonnen: env() ass 0 am normale Browser an nëmme
-         >0 wann de Webview ënner der Statusbar leeft (installéiert App). Esou
-         gëtt den Inhalt do ëmmer ënner d'Statusbar gesat, egal wéi installéiert. */
-      body { padding-top: env(safe-area-inset-top, 0px); }
-      body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: var(--navy); z-index: 1000; pointer-events: none; }
-      @media (display-mode: standalone) { .testbar { display: none; } }
+      /* ===== Platz fir d'Statusbar/Notch an der installéierter App =====
+         Garantéierten Ofstand: env() wann den Apparat e richtege Wäert gëtt,
+         soss op mannst 60px. Gëllt nëmmen an der App (display-mode standalone
+         oder via JS-Klass .pwa-standalone op <html>), NET am normale Browser. */
+      @media (display-mode: standalone) {
+        .testbar { display: none; }
+        body { padding-top: max(env(safe-area-inset-top, 0px), 60px); }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: max(env(safe-area-inset-top, 0px), 60px); background: var(--navy); z-index: 1000; pointer-events: none; }
+      }
+      html.pwa-standalone .testbar { display: none; }
+      html.pwa-standalone body { padding-top: max(env(safe-area-inset-top, 0px), 60px); }
+      html.pwa-standalone body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: max(env(safe-area-inset-top, 0px), 60px); background: var(--navy); z-index: 1000; pointer-events: none; }
 
       /* ===== Topbar icon buttons + command palette trigger ===== */
       .bar-tools { display: flex; align-items: center; gap: 8px; }
@@ -603,6 +608,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=23"></script>
+    <script src="intern.js?v=24"></script>
   </body>
 </html>

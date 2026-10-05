@@ -2,6 +2,13 @@
 (function () {
   "use strict";
 
+  // Installéiert App erkennen (iOS: navigator.standalone) → Klass fir de Statusbar-Ofstand.
+  try {
+    if (window.navigator.standalone === true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches)) {
+      document.documentElement.classList.add("pwa-standalone");
+    }
+  } catch (e) {}
+
   var API_BASE = "https://garage-admin.autoservicebettenduerf.lu";
   var ROLES = {
     viewer:    { label: "Kucker",      perms: ["bookings.view"] },
