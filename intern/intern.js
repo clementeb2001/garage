@@ -686,46 +686,28 @@
   /* ---------- Wartung ---------- */
   var editingMaint = null;
   function fleetStatus(s) { return {ready:["Asazbereet","ready"],rented:["Verlount","rented"],service:["Am Service","service"],blocked:["Gespaart","blocked"]}[s] || ["Asazbereet","ready"]; }
+  function fleetPayload() { return { vehicle:$("w-veh").value.trim(),status:$("w-status").value,service:$("w-service").value.trim(),dueDate:$("w-due").value,note:$("w-note").value.trim(),description:$("w-description").value.trim(),imageUrl:$("w-image").value.trim(),priceDay:$("w-price").value,year:$("w-year").value.trim(),seats:$("w-seats").value.trim(),fuel:$("w-fuel").value.trim(),transmission:$("w-transmission").value.trim(),licenseClass:$("w-license").value.trim(),loadSpace:$("w-load").value.trim(),deposit:$("w-deposit").value,features:$("w-features").value.trim(),active:$("w-active").checked,featured:$("w-featured").checked }; }
+  function fillFleet(m) { $("w-veh").value=m.vehicle||""; $("w-status").value=m.status||"ready"; $("w-service").value=m.service||""; $("w-due").value=m.dueDate||""; $("w-note").value=m.note||""; $("w-description").value=m.description||""; $("w-image").value=m.imageUrl||""; $("w-price").value=m.priceDay==null?"":m.priceDay; $("w-year").value=m.year||""; $("w-seats").value=m.seats||""; $("w-fuel").value=m.fuel||""; $("w-transmission").value=m.transmission||""; $("w-license").value=m.licenseClass||""; $("w-load").value=m.loadSpace||""; $("w-deposit").value=m.deposit==null?"":m.deposit; $("w-features").value=m.features||""; $("w-active").checked=!!m.active; $("w-featured").checked=!!m.featured; }
   function renderWartung() {
     var canEdit = can("bookings.validate");
     $("wartung-form").style.display = canEdit ? "" : "none";
     STORE.listMaintenance().then(function (items) {
-      var body = $("wartung-body"); body.innerHTML = "";
-      if (!items.length) { body.innerHTML = '<tr><td colspan="6" class="muted" style="padding:16px">Nach kee Gefier an der Flotte.</td></tr>'; return; }
-      items.map(function (m) { return { m: m, days: maintDays(m) }; }).sort(function (a, b) { if (a.days == null && b.days == null) return 0; if (a.days == null) return 1; if (b.days == null) return -1; return a.days - b.days; }).forEach(function (x) {
-        var m = x.m, lab = maintLabel(x.days), tr = document.createElement("tr");
-        if (editingMaint === m.id && canEdit) {
-          tr.innerHTML = '<td><input class="member-sel" id="em-veh" value="' + esc(m.vehicle) + '" style="width:120px" /></td>' +
-            '<td><select class="member-sel" id="em-status">'+["ready","rented","service","blocked"].map(function(s){return '<option value="'+s+'"'+(m.status===s?' selected':'')+'>'+fleetStatus(s)[0]+'</option>';}).join('')+'</select></td>'+
-            '<td><input class="member-sel" id="em-service" value="' + esc(m.service) + '" style="width:120px" /></td>' +
-            '<td><input class="member-sel" id="em-due" type="date" value="' + esc(m.dueDate || "") + '" /></td>' +
-            '<td><input class="member-sel" id="em-note" value="' + esc(m.note || "") + '" style="width:120px" /></td>' +
-            '<td style="text-align:right;white-space:nowrap"><button class="btn btn-ok btn-sm" data-msave="' + m.id + '">Späicheren</button> <button class="btn btn-outline btn-sm" data-mcancel="1">Ofbriechen</button></td>';
-        } else {
-          var fs=fleetStatus(m.status);
-          tr.innerHTML = "<td><b>" + esc(m.vehicle) + "</b></td><td><span class=\"fleet-status fleet-"+fs[1]+"\">"+fs[0]+"</span></td><td>" + maintIcon(m.service) + " " + esc(m.service) + "</td>" +
-            '<td>' + (m.dueDate ? dLabel(m.dueDate) + ' <span class="mdue ' + lab.c + '" style="margin-left:4px">' + lab.t + "</span>" : '<span class="muted">—</span>') + "</td>" +
-            "<td class=\"muted\">" + esc(m.note || "") + "</td>" +
-            '<td style="text-align:right;white-space:nowrap">' + (canEdit ? '<button class="btn btn-outline btn-sm" data-medit="' + m.id + '">Änneren</button> <button class="btn btn-danger btn-sm" data-mdel="' + m.id + '">Läschen</button>' : "") + "</td>";
-        }
-        body.appendChild(tr);
-      });
-      body.querySelectorAll("[data-medit]").forEach(function (b) { b.addEventListener("click", function () { editingMaint = parseInt(b.getAttribute("data-medit"), 10); renderWartung(); }); });
-      body.querySelectorAll("[data-mcancel]").forEach(function (b) { b.addEventListener("click", function () { editingMaint = null; renderWartung(); }); });
-      body.querySelectorAll("[data-msave]").forEach(function (b) { b.addEventListener("click", function () { var id = parseInt(b.getAttribute("data-msave"), 10); STORE.editMaintenance(id, { vehicle: $("em-veh").value.trim(), status: $("em-status").value, service: $("em-service").value.trim(), dueDate: $("em-due").value, note: $("em-note").value.trim() }).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } editingMaint = null; toast("Flotte gespäichert."); renderWartung(); }); }); });
-      body.querySelectorAll("[data-mdel]").forEach(function (b) { b.addEventListener("click", function () { var id = parseInt(b.getAttribute("data-mdel"), 10); if (!confirm("Dëse Wartungs-Antrag läschen?")) return; STORE.delMaintenance(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Geläscht."); renderWartung(); }); }); });
-    }).catch(function () { $("wartung-body").innerHTML = '<tr><td colspan="6">⚠ Net gelueden. <button class="btn btn-outline btn-sm" id="retry-wartung">Nei probéieren</button></td></tr>'; var r = $("retry-wartung"); if (r) r.addEventListener("click", renderWartung); });
+      var body=$("wartung-body"); body.innerHTML="";
+      if(!items.length){body.innerHTML='<p class="empty">Nach kee Gefier an der Flotte.</p>';return;}
+      items.forEach(function(m){var fs=fleetStatus(m.status),card=document.createElement("article");card.className="fleet-card";card.innerHTML=(m.imageUrl?'<img src="'+esc(m.imageUrl)+'" alt="">':'<div class="stat-ic">🚐</div>')+'<div><h3>'+esc(m.vehicle)+'</h3><span class="fleet-status fleet-'+fs[1]+'">'+fs[0]+'</span> <span class="'+(m.active?'fleet-public':'fleet-private')+'">'+(m.active?'● Online sichtbar':'○ Intern')+'</span><p>'+esc(m.description||'Keng ëffentlech Beschreiwung')+'</p><p>'+esc(m.service||'Nach Bedarf')+(m.dueDate?' · '+dLabel(m.dueDate):'')+(m.priceDay!==''?' · '+esc(m.priceDay)+' €/Dag':'')+'</p></div><div class="fleet-actions">'+(canEdit?'<button class="btn btn-outline btn-sm" data-medit="'+m.id+'">Änneren</button> <button class="btn btn-danger btn-sm" data-mdel="'+m.id+'">Läschen</button>':'')+'</div>';body.appendChild(card);});
+      body.querySelectorAll("[data-medit]").forEach(function(b){b.addEventListener("click",function(){var id=parseInt(b.getAttribute("data-medit"),10),m=items.filter(function(x){return x.id===id;})[0];editingMaint=id;fillFleet(m);$("wartung-msg").textContent="Gefier gëtt geännert – späichere fir z'iwwerhuelen.";$("w-veh").focus();});});
+      body.querySelectorAll("[data-mdel]").forEach(function(b){b.addEventListener("click",function(){var id=parseInt(b.getAttribute("data-mdel"),10);if(!confirm("Dëst Gefier aus der Flotte läschen?"))return;STORE.delMaintenance(id).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Gefier geläscht.");renderWartung();});});});
+    }).catch(function () { $("wartung-body").innerHTML = '<p class="empty">⚠ Net gelueden. <button class="btn btn-outline btn-sm" id="retry-wartung">Nei probéieren</button></p>'; var r = $("retry-wartung"); if (r) r.addEventListener("click", renderWartung); });
   }
   (function () {
     var f = $("wartung-form"); if (!f) return;
     f.addEventListener("submit", function (e) {
       e.preventDefault(); if (!can("bookings.validate")) return;
-      var veh = $("w-veh").value.trim(), service = $("w-service").value.trim();
-      if (!veh || !service) { $("wartung-msg").textContent = "Auto a Service mussen ausgefëllt sinn."; return; }
+      var data=fleetPayload(); if(!data.vehicle){$("wartung-msg").textContent="Den Numm vum Gefier muss ausgefëllt sinn.";return;}
       $("wartung-msg").textContent = "…";
-      STORE.addMaintenance({ vehicle: veh, status: $("w-status").value, service: service, dueDate: $("w-due").value, note: $("w-note").value.trim() }).then(function (r) {
+      var op=editingMaint?STORE.editMaintenance(editingMaint,data):STORE.addMaintenance(data); op.then(function (r) {
         if (r.error) { $("wartung-msg").textContent = errMsg(r.error); return; }
-        f.reset(); $("wartung-msg").textContent = "✓ Bäigesat."; renderWartung();
+        editingMaint=null; f.reset(); $("wartung-msg").textContent = "✓ Gespäichert."; renderWartung();
       });
     });
   })();

@@ -151,7 +151,12 @@
       .mev-list .mev-when { color: var(--mut); font-size: 0.76rem; }
       .mev-empty { padding: 14px; color: var(--mut); font-size: 0.85rem; }
       .btn-warn { background: var(--input-bg); border-color: #e3c893; color: #8a6d1f; }
-      .fleet-form { grid-template-columns: 1fr 150px 1fr 150px 1fr auto; }
+      .fleet-form { grid-template-columns: repeat(3,minmax(0,1fr)); padding:16px; background:var(--surface); border:1px solid var(--line); border-radius:14px; }
+      .fleet-list { display:grid; gap:12px; margin-top:14px; }
+      .fleet-card { display:grid; grid-template-columns:120px 1fr auto; gap:14px; padding:14px; background:var(--surface); border:1px solid var(--line); border-radius:14px; }
+      .fleet-card img { width:120px; height:86px; object-fit:cover; border-radius:10px; background:var(--surface-2); }
+      .fleet-card h3 { margin:0 0 5px; font-size:1rem; } .fleet-card p { margin:4px 0; color:var(--mut); font-size:.82rem; }
+      .fleet-public { color:var(--ok); font-weight:800; font-size:.74rem; } .fleet-private { color:var(--mut); font-weight:800; font-size:.74rem; }
       .fleet-status { display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:999px; font-size:.74rem; font-weight:800; white-space:nowrap; }
       .fleet-ready { background:var(--ok-soft); color:var(--ok); } .fleet-rented { background:#e8efff; color:#2f6df6; } .fleet-service { background:var(--warn-soft); color:#8a6d1f; } .fleet-blocked { background:var(--new-soft); color:var(--accent-dark); }
       .protocol-box { margin-top:12px; padding:14px; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); }
@@ -164,7 +169,7 @@
       .protocol-check input { width:auto; }
       .protocol-saved { display:inline-flex; margin-left:5px; color:var(--ok); font-size:.72rem; font-weight:800; }
       @media (max-width:900px) { .fleet-form { grid-template-columns:1fr 1fr; } .protocol-grid { grid-template-columns:1fr 1fr; } }
-      @media (max-width:560px) { .fleet-form,.protocol-grid { grid-template-columns:1fr; } }
+      @media (max-width:560px) { .fleet-form,.protocol-grid { grid-template-columns:1fr; } .fleet-card { grid-template-columns:76px 1fr; } .fleet-card img { width:76px; height:62px; } .fleet-card .fleet-actions { grid-column:1/-1; } }
 
       /* Dashboard */
       .stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 16px 0 18px; }
@@ -591,7 +596,7 @@
       <div class="wrap" id="page-wartung" hidden>
         <div class="page-head"><h2 class="page-title">Flotte</h2></div>
         <p class="muted" id="wartung-sub" style="margin:2px 0 0;font-size:0.9rem">Disponibilitéit, Zoustand an déi nächst Wartung vun all Verleihgefier op enger Plaz.</p>
-        <div class="card" style="margin-top:14px;overflow-x:auto"><table class="members"><thead><tr><th>Auto</th><th>Status</th><th>Nächste Service</th><th>Fälleg</th><th>Notiz</th><th></th></tr></thead><tbody id="wartung-body"></tbody></table></div>
+        <div id="wartung-body" class="fleet-list"></div>
         <h3 style="margin:24px 0 2px;font-size:1.05rem">Gefier an d'Flotte bäisetzen</h3>
         <form class="add-form fleet-form" id="wartung-form" autocomplete="off">
           <div class="field"><label for="w-veh">Auto</label><input id="w-veh" type="text" required placeholder="z.B. VW Caddy" /></div>
@@ -599,6 +604,19 @@
           <div class="field"><label for="w-service">Service</label><input id="w-service" type="text" required placeholder="z.B. Vidange" /></div>
           <div class="field"><label for="w-due">Fälleg (Datum)</label><input id="w-due" type="date" /></div>
           <div class="field"><label for="w-note">Notiz</label><input id="w-note" type="text" placeholder="fräiwëlleg" /></div>
+          <div class="field"><label for="w-description">Beschreiwung</label><textarea id="w-description" rows="2" placeholder="Kuerz Beschreiwung fir d'Verleihsäit"></textarea></div>
+          <div class="field"><label for="w-image">Bild (URL oder Asset)</label><input id="w-image" type="text" placeholder="assets/gefier.webp" /></div>
+          <div class="field"><label for="w-price">Präis / Dag (€)</label><input id="w-price" type="number" min="0" step="0.01" /></div>
+          <div class="field"><label for="w-year">Baujoer</label><input id="w-year" type="text" /></div>
+          <div class="field"><label for="w-seats">Sëtzplazen</label><input id="w-seats" type="text" /></div>
+          <div class="field"><label for="w-fuel">Kraftstoff</label><input id="w-fuel" type="text" /></div>
+          <div class="field"><label for="w-transmission">Getriebe</label><input id="w-transmission" type="text" /></div>
+          <div class="field"><label for="w-license">Führerschäin</label><input id="w-license" type="text" placeholder="B" /></div>
+          <div class="field"><label for="w-load">Luedraum / Kapazitéit</label><input id="w-load" type="text" /></div>
+          <div class="field"><label for="w-deposit">Kautioun (€)</label><input id="w-deposit" type="number" min="0" step="0.01" /></div>
+          <div class="field"><label for="w-features">Ausstattung</label><textarea id="w-features" rows="3" placeholder="Eng Eegenschaft pro Zeil"></textarea></div>
+          <label class="protocol-check"><input id="w-active" type="checkbox" /> Op der Verleihsäit weisen</label>
+          <label class="protocol-check"><input id="w-featured" type="checkbox" /> Als Haaptgefier markéieren</label>
           <button class="btn btn-primary" type="submit">Bäisetzen</button>
         </form>
         <p class="muted" id="wartung-msg" style="font-size:0.82rem;margin-top:8px"></p>
@@ -689,6 +707,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=29"></script>
+    <script src="intern.js?v=30"></script>
   </body>
 </html>

@@ -1,11 +1,11 @@
 /* Service Worker fir d'Interne Verwaltung (PWA). Scope: /intern/
    Network-first fir eegen Dateien (ëmmer frësch wann online, offline-fäeg
    duerch Cache). API-Uruff (aner Origin) ginn NET ofgefaangen. */
-var CACHE = "ab-intern-v29";
+var CACHE = "ab-intern-v30";
 var CORE = [
   "/intern/",
   "/intern/index.html",
-  "/intern/intern.js?v=29",
+  "/intern/intern.js?v=30",
   "/intern/manifest.webmanifest",
   "/assets/intern-icon-192.png",
   "/assets/intern-icon-512.png",

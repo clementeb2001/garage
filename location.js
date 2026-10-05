@@ -57,6 +57,21 @@
       },
     },
   ];
+  function fleetItem(v) {
+    var name={lb:v.name,de:v.name,fr:v.name,en:v.name}, desc=v.description||"", tagline={lb:desc,de:desc,fr:desc,en:desc};
+    var facts=[]; function fact(ic,val){if(val)facts.push({ic:ic,lb:val,de:val,fr:val,en:val});}
+    fact("📦",v.loadSpace); fact("⛽",v.fuel); fact("⚙️",v.transmission); fact("🪑",v.seats?String(v.seats)+" Sëtzplazen":""); fact("🪪",v.licenseClass?"Führerschäin "+v.licenseClass:""); fact("📅",v.year?"Baujoer "+v.year:"");
+    var rows=[["Luedraum",v.loadSpace],["Sëtzplazen",v.seats],["Kraftstoff",v.fuel],["Getriebe",v.transmission],["Führerschäin",v.licenseClass],["Kautioun",v.deposit==null?"":v.deposit+" €"]].filter(function(r){return r[1];});
+    var details={lb:rows,de:rows,fr:rows,en:rows}, specs=(v.features||[]).length?v.features:[desc];
+    return {id:v.id,cat:"vehicle",icon:"van",img:v.image||"assets/rental-renault-master.webp",priceDay:Number(v.priceDay||0),featured:!!v.featured,name:name,tagline:tagline,facts:facts,details:details,specs:{lb:specs,de:specs,fr:specs,en:specs}};
+  }
+  function loadFleet() {
+    return fetch("https://garage-admin.autoservicebettenduerf.lu/fleet/public", {headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw new Error("fleet");return r.json();}).then(function(data){
+      var next=(data.vehicles||[]).map(fleetItem); if(!next.length)return;
+      CATALOG=next; state.selected=state.selected.filter(function(id){return CATALOG.some(function(x){return x.id===id;});});
+      if(CATALOG.length===1&&!state.selected.length)state.selected=[CATALOG[0].id]; renderCatalog(); renderSelection();
+    }).catch(function(){});
+  }
 
   /* ---- Iwwersetzungen (Säit-Strings) ---- */
   var T = {
@@ -784,6 +799,7 @@
     }
     if (toDate) { toDate.min = minDateTime; toDate.addEventListener("change", renderAvailability); }
     fetchAvailability();
+    loadFleet();
     document.addEventListener("submit", handleSubmit, true);
     document.querySelectorAll(".lang-select").forEach(function (s) {
       s.addEventListener("change", function () { setTimeout(refresh, 0); });
