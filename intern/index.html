@@ -152,6 +152,13 @@
       .mev-empty { padding: 14px; color: var(--mut); font-size: 0.85rem; }
       .btn-warn { background: var(--input-bg); border-color: #e3c893; color: #8a6d1f; }
       .fleet-form { grid-template-columns: repeat(3,minmax(0,1fr)); padding:16px; background:var(--surface); border:1px solid var(--line); border-radius:14px; }
+      .fleet-form .field { min-width:0; }
+      .fleet-form .field label { display:block; margin:0 0 6px; color:var(--fg); font-size:.78rem; font-weight:800; line-height:1.25; }
+      .fleet-form input,.fleet-form select,.fleet-form textarea { width:100%; min-width:0; box-sizing:border-box; color:var(--fg); background:var(--input-bg); border:1px solid var(--line); border-radius:10px; padding:10px 11px; font:inherit; font-size:.9rem; line-height:1.35; }
+      .fleet-form textarea { min-height:70px; resize:vertical; }
+      .fleet-form input::placeholder,.fleet-form textarea::placeholder { color:var(--mut); opacity:.9; }
+      .fleet-form input:focus,.fleet-form select:focus,.fleet-form textarea:focus { outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent); outline-offset:1px; border-color:var(--accent); }
+      #page-wartung > h3 { color:var(--fg); }
       .fleet-list { display:grid; gap:12px; margin-top:14px; }
       .fleet-card { display:grid; grid-template-columns:120px 1fr auto; gap:14px; padding:14px; background:var(--surface); border:1px solid var(--line); border-radius:14px; }
       .fleet-card img { width:120px; height:86px; object-fit:cover; border-radius:10px; background:var(--surface-2); }
@@ -616,7 +623,6 @@
           <div class="field"><label for="w-deposit">Kautioun (€)</label><input id="w-deposit" type="number" min="0" step="0.01" /></div>
           <div class="field"><label for="w-features">Ausstattung</label><textarea id="w-features" rows="3" placeholder="Eng Eegenschaft pro Zeil"></textarea></div>
           <label class="protocol-check"><input id="w-active" type="checkbox" /> Op der Verleihsäit weisen</label>
-          <label class="protocol-check"><input id="w-featured" type="checkbox" /> Als Haaptgefier markéieren</label>
           <button class="btn btn-primary" type="submit">Bäisetzen</button>
         </form>
         <p class="muted" id="wartung-msg" style="font-size:0.82rem;margin-top:8px"></p>
@@ -707,6 +713,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=30"></script>
+    <script src="intern.js?v=31"></script>
   </body>
 </html>
