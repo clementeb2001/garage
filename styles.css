@@ -3796,8 +3796,15 @@ html.shop-dev .shop-dev-badge a {
 }
 .rental-form input:focus,
 .rental-form textarea:focus {
+  background: rgba(8, 15, 24, 0.72);
+  color: #eef3f8;
   border-color: var(--rental-accent, #c65d2e);
+  box-shadow: none;
   outline: none;
+}
+.rental-form input::placeholder,
+.rental-form textarea::placeholder {
+  color: rgba(238, 243, 248, 0.5);
 }
 .rental-note {
   color: #8ea0b2;
