@@ -1,0 +1,18 @@
+{
+  "name": "Autoservice Bettenduerf · Verwaltung",
+  "short_name": "AB Verwaltung",
+  "description": "Interne Verwaltung – Reservatiounen, Rendez-vous, Wartung an Analyse.",
+  "start_url": "/intern/",
+  "scope": "/intern/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0d1b2a",
+  "theme_color": "#0d1b2a",
+  "lang": "lb",
+  "dir": "ltr",
+  "icons": [
+    { "src": "/assets/intern-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/intern-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/intern-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

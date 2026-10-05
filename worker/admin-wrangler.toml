@@ -9,6 +9,10 @@ routes = [
   { pattern = "garage-admin.autoservicebettenduerf.lu", custom_domain = true }
 ]
 
+# Deeglech Cron: Erënnerungs-Mailen fir d'Termäiner vun muer (07:00 UTC).
+[triggers]
+crons = ["0 7 * * *"]
+
 [vars]
 ALLOW_ORIGIN = "https://autoservicebettenduerf.lu"
 MAIL_FROM = "Autoservice Bettenduerf <noreply@autoservicebettenduerf.lu>"

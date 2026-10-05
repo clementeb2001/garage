@@ -60,6 +60,12 @@
     setApptStatus: function (id, status, note) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "" } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     delAppt: function (id) { return api("/appointments/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listMemberEvents: function () { return api("/member-events").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.events; }); },
+    listMaintenance: function () { return api("/maintenance").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.items; }); },
+    addMaintenance: function (p) { return api("/maintenance", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true, id: r.body.id } : { error: r.body.error }; }); },
+    editMaintenance: function (id, p) { return api("/maintenance/" + id, { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
+    delMaintenance: function (id) { return api("/maintenance/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
+    getSettings: function () { return api("/settings").then(function (r) { return r.status === 200 ? (r.body.settings || {}) : {}; }); },
+    setSetting: function (k, v) { var b = {}; b[k] = v; return api("/settings", { method: "POST", body: b }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
   };
 
   var STORE = liveStore;
@@ -86,16 +92,20 @@
     if (p !== "bookings") editingBooking = null;
     activePage = p;
     $("page-dashboard").hidden = p !== "dashboard";
+    $("page-analyse").hidden = p !== "analyse";
     $("page-bookings").hidden = p !== "bookings";
     $("page-appointments").hidden = p !== "appointments";
     $("page-inquiries").hidden = p !== "inquiries";
+    $("page-wartung").hidden = p !== "wartung";
     $("page-members").hidden = p !== "members";
     $("page-pw").hidden = p !== "pw";
     document.querySelectorAll("#topnav button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-page") === p); });
     if (p === "dashboard") renderDashboard();
+    else if (p === "analyse") renderAnalyse();
     else if (p === "bookings") renderBookings();
     else if (p === "appointments") renderAppointments();
     else if (p === "inquiries") renderInquiries();
+    else if (p === "wartung") renderWartung();
     else if (p === "members") renderMembers();
   }
 
@@ -272,64 +282,109 @@
 
   /* ---------- Dashboard ---------- */
   var calRef = new Date(), dashActive = [], dashAppts = [];
+  var dashBk = [], dashAp = [], dashMaint = [], dashSettings = {};
   var VEH_COLORS = ["#2f6df6", "#e63946", "#2e7d5b", "#b7791f", "#7c4dff", "#0ea5a5", "#d6457f", "#546e7a"];
   var APPT_COLOR = "#334155"; // Rendez-vousen (Service) — donkel, onofhängeg vun de Gefier-Faarwen
   function apptDay(a) { return parseDay(a.prefDate) || parseDay(a.altDate); }
   function dLabel(s) { var d = parseDay(s); if (!d) return esc(s || ""); function p(n) { return (n < 10 ? "0" : "") + n; } return p(d.getDate()) + "." + p(d.getMonth() + 1) + "." + d.getFullYear(); }
+  function timeStr(s) { if (!s) return ""; var d = new Date(s); if (isNaN(d)) return ""; return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
   function vehColorMap(bookings) { var map = {}, i = 0; bookings.forEach(function (b) { var v = b.veh || "?"; if (map[v] == null) { map[v] = VEH_COLORS[i % VEH_COLORS.length]; i++; } }); return map; }
   function parseDay(s) { if (!s) return null; var d = new Date(s); return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
   function startOfWeek(d) { var x = new Date(d); var g = (x.getDay() + 6) % 7; x.setDate(x.getDate() - g); x.setHours(0, 0, 0, 0); return x; }
   function overlaps(a, b) { var a1 = parseDay(a.from) || parseDay(a.to), a2 = parseDay(a.to) || a1, b1 = parseDay(b.from) || parseDay(b.to), b2 = parseDay(b.to) || b1; if (!a1 || !b1) return false; return a1 <= b2 && b1 <= a2; }
+  function vehName(v) { return (v || "").replace(/\s*\(.*$/, ""); }
+  function sparkline(vals, color) {
+    if (!vals || !vals.length) return "";
+    var max = Math.max.apply(null, vals) || 1, n = vals.length, W = 64, H = 26;
+    var pts = vals.map(function (v, i) { return (n === 1 ? 0 : i / (n - 1) * W).toFixed(1) + "," + (H - 2 - v / max * (H - 4)).toFixed(1); }).join(" ");
+    return '<svg class="spark" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2"/></svg>';
+  }
 
   function tileGo(t) {
     if (!t) return;
     if (t.page === "bookings") { activeFilter = t.filter; gotoPage("bookings"); }
     else if (t.page === "appointments") { reqState.appointment.filter = t.filter; gotoPage("appointments"); }
+    else if (t.page) { gotoPage(t.page); }
   }
+
   function renderDashboard() {
     Promise.all([
       STORE.listBookings().then(function (v) { return v; }, function () { return null; }),
       STORE.listAppointments().then(function (v) { return v; }, function () { return null; }),
+      STORE.listMaintenance().then(function (v) { return v; }, function () { return []; }),
+      STORE.getSettings().then(function (v) { return v; }, function () { return {}; }),
     ]).then(function (res) {
       var bk = res[0], ap = res[1];
       if (bk === null && ap === null) { throw new Error("load_failed"); }
       bk = bk || []; ap = ap || [];
+      dashBk = bk; dashAp = ap; dashMaint = res[2] || []; dashSettings = res[3] || {};
       updateNewBadge(bk);
       updateReqBadge("appointment", ap); updateReqBadge("inquiry", ap);
       var rentals = bk.filter(function (b) { return b.status !== "declined"; });
       var appts = ap.filter(function (a) { return (a.kind || "appointment") === "appointment" && a.status !== "declined"; });
       dashActive = rentals; dashAppts = appts;
+      buildSearchIndex(bk, ap);
+
       var now = new Date(), today = new Date(); today.setHours(0, 0, 0, 0); var tMs = today.getTime();
       function dayMs(s) { var d = parseDay(s); return d ? d.getTime() : null; }
+      if (session) $("dash-greeting").textContent = "Moien, " + (session.name || "").split(" ")[0] + " 👋";
+      $("dash-sub").textContent = STORE.mode === "live" ? "live · " + dLabel(now) : "testmodus";
+
       var cntNewR = bk.filter(function (b) { return b.status === "new"; }).length;
       var cntNewA = ap.filter(function (a) { return (a.kind || "appointment") === "appointment" && a.status === "new"; }).length;
+      var cntNewI = ap.filter(function (a) { return (a.kind || "appointment") === "inquiry" && a.status === "new"; }).length;
       var apptsToday = appts.filter(function (a) { var d = apptDay(a); return a.status === "confirmed" && d && d.getTime() === tMs; }).length;
       var pickupsToday = rentals.filter(function (b) { return b.status === "confirmed" && dayMs(b.from) === tMs; }).length;
       var returnsToday = rentals.filter(function (b) { return b.status === "confirmed" && dayMs(b.to) === tMs; }).length;
       var outNow = rentals.filter(function (b) { if (b.status !== "confirmed") return false; var f = new Date(b.from), t = new Date(b.to); return !isNaN(f) && !isNaN(t) && f <= now && now <= t; }).length;
+
+      // sparkline data: new requests per day over last 7 days (bookings)
+      var spark = [];
+      for (var s = 6; s >= 0; s--) { var d0 = new Date(today); d0.setDate(d0.getDate() - s); var dm = d0.getTime(); spark.push(bk.filter(function (b) { return dayMs(b.created || b.from) === dm; }).length); }
+
       var tiles = [
-        ["accent", cntNewR, "Nei Reservatiounen", "📥", { page: "bookings", filter: "new" }],
-        ["accent", cntNewA, "Nei Rendez-vous", "🔧", { page: "appointments", filter: "new" }],
-        ["", apptsToday, "Rendez-vous haut", "📅", { page: "appointments", filter: "confirmed" }],
-        ["", pickupsToday, "Haut eraus", "🔑", null],
-        ["", returnsToday, "Haut zréck", "↩", null],
-        ["ok", outNow, "Elo ënnerwee", "🚚", null],
+        { cls: "accent", n: cntNewR, l: "Nei Reservatiounen", ic: "📥", go: { page: "bookings", filter: "new" }, spark: spark, sc: "var(--accent)" },
+        { cls: "accent", n: cntNewA, l: "Nei Rendez-vous", ic: "🔧", go: { page: "appointments", filter: "new" } },
+        { cls: "", n: apptsToday, l: "Rendez-vous haut", ic: "📅", go: { page: "appointments", filter: "confirmed" } },
+        { cls: "", n: pickupsToday + returnsToday, l: "Eraus / zréck haut", ic: "🔑", sub: pickupsToday + " eraus · " + returnsToday + " zréck" },
+        { cls: "ok", n: outNow, l: "Elo ënnerwee", ic: "🚚" },
       ];
-      $("stat-row").innerHTML = tiles.map(function (t, i) { return '<div class="stat ' + t[0] + (t[4] ? " stat-link" : "") + '"' + (t[4] ? ' data-i="' + i + '" role="button" tabindex="0"' : "") + '><div class="stat-ic">' + t[3] + '</div><div><div class="n">' + t[1] + '</div><div class="l">' + t[2] + "</div></div></div>"; }).join("");
-      $("stat-row").querySelectorAll("[data-i]").forEach(function (s) { var t = tiles[parseInt(s.getAttribute("data-i"), 10)][4]; function go() { tileGo(t); } s.addEventListener("click", go); s.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); });
-      $("dash-sub").textContent = STORE.mode === "live" ? "live" : "testmodus";
+      $("stat-row").innerHTML = tiles.map(function (t, i) {
+        var sub = t.sub ? '<div class="sub neutral">' + esc(t.sub) + "</div>" : "";
+        var sp = t.spark ? sparkline(t.spark, t.sc) : "";
+        return '<div class="stat ' + t.cls + (t.go ? " stat-link" : "") + '"' + (t.go ? ' data-i="' + i + '" role="button" tabindex="0"' : "") + '>' + sp + '<div class="stat-ic">' + t.ic + '</div><div><div class="n">' + t.n + '</div><div class="l">' + t.l + "</div>" + sub + "</div></div>";
+      }).join("");
+      $("stat-row").querySelectorAll("[data-i]").forEach(function (el) { var t = tiles[parseInt(el.getAttribute("data-i"), 10)].go; function go() { tileGo(t); } el.addEventListener("click", go); el.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }); });
+
+      renderAttn(cntNewR, cntNewA, cntNewI, bk);
       renderConflicts(bk);
-      renderToday(rentals, appts);
-      renderVehUsage(rentals);
-      renderUpcoming(rentals, appts);
+      renderReminderStrip(rentals, appts);
+      renderTimeline(rentals, appts);
+      renderActionNeeded(bk, ap);
+      renderFleet(rentals);
+      renderMaintDash(dashMaint);
+      renderActivity(rentals, appts);
       renderCalendar(rentals, appts);
     }).catch(function () {
       $("dash-sub").textContent = "Serverfeeler";
       $("stat-row").innerHTML = '<div class="empty">⚠ D’Donnéeë konnten net geluede ginn. <button class="btn btn-outline btn-sm" id="retry-dashboard">Nei probéieren</button></div>';
       $("retry-dashboard").addEventListener("click", renderDashboard);
-      $("conflict-box").innerHTML = ""; $("veh-usage").innerHTML = ""; $("upcoming").innerHTML = ""; $("calendar").innerHTML = ""; $("cal-legend").innerHTML = "";
+      ["attn-box", "conflict-box", "rem-box", "today-timeline", "action-needed", "fleet-status", "maint-dash", "activity-bars", "activity-x", "calendar", "cal-legend"].forEach(function (id) { if ($(id)) $(id).innerHTML = ""; });
     });
   }
+
+  function renderAttn(nR, nA, nI, bk) {
+    var box = $("attn-box"); if (!box) return;
+    var parts = [], total = nR + nA + nI;
+    if (nR) parts.push(nR + " nei Reservatioun" + (nR > 1 ? "en" : ""));
+    if (nA) parts.push(nA + " nei Rendez-vous");
+    if (nI) parts.push(nI + " nei Produktufro" + (nI > 1 ? "en" : ""));
+    if (!total) { box.innerHTML = ""; return; }
+    var go = nR ? { page: "bookings", filter: "new" } : nA ? { page: "appointments", filter: "new" } : { page: "inquiries", filter: "new" };
+    box.innerHTML = '<div class="attn"><span class="ic">⚡</span><div><b>' + total + " Saach" + (total > 1 ? "en" : "") + '</b> waarden op dech: ' + parts.join(", ") + ".</div><button class=\"go\" id=\"attn-go\">Elo kucken →</button></div>";
+    $("attn-go").addEventListener("click", function () { tileGo(go); });
+  }
+
   function renderConflicts(bk) {
     var box = $("conflict-box"); box.innerHTML = "";
     var rel = bk.filter(function (b) { return b.status === "new" || b.status === "confirmed"; });
@@ -340,52 +395,143 @@
     if (!confs.length) return;
     box.innerHTML = '<div class="conflict-box"><b>⚠ ' + confs.length + " méigleche Konflikt" + (confs.length > 1 ? "er" : "") + ":</b> " + confs.map(function (c) { return esc(c[0].veh) + " (" + refOf(c[0].id) + " ↔ " + refOf(c[1].id) + ")"; }).join(" · ") + ". Déiselwecht Gefier(er) iwwerlappen am Datum.</div>";
   }
-  function renderToday(active, appts) {
-    appts = appts || [];
-    var el = $("today-list"); if (!el) return;
-    var today = new Date(); today.setHours(0, 0, 0, 0); var tMs = today.getTime();
-    var cmap = vehColorMap(active);
+
+  function renderReminderStrip(rentals, appts) {
+    var box = $("rem-box"); if (!box) return;
+    var today = new Date(); today.setHours(0, 0, 0, 0); var tmr = new Date(today); tmr.setDate(tmr.getDate() + 1); var tmrMs = tmr.getTime();
     function dayMs(s) { var d = parseDay(s); return d ? d.getTime() : null; }
-    var outs = active.filter(function (b) { return b.status === "confirmed" && dayMs(b.from) === tMs; });
-    var backs = active.filter(function (b) { return b.status === "confirmed" && dayMs(b.to) === tMs; });
-    var appsToday = appts.filter(function (a) { if (a.status !== "confirmed") return false; var d = apptDay(a); return d && d.getTime() === tMs; });
-    if (!outs.length && !backs.length && !appsToday.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Haut keng Ofhuelungen, Retouren oder Rendez-vous.</p>'; return; }
-    function row(b, kind) { var tm = (fmt(kind === "out" ? b.from : b.to).split(" ")[1]) || ""; return '<div class="up-item"><span class="up-dot" style="background:' + cmap[b.veh || "?"] + '"></span><div style="flex:1"><div>' + esc(b.veh) + '</div><div class="muted" style="font-size:0.78rem">' + esc(b.name) + "</div></div><span class=\"up-when\">" + (kind === "out" ? "🔑 " : "↩ ") + tm + "</span></div>"; }
-    function apRow(a) { return '<div class="up-item"><span class="up-dot" style="background:' + APPT_COLOR + '"></span><div style="flex:1"><div>' + esc(a.service || "Rendez-vous") + (a.vehicle ? " · " + esc(a.vehicle) : "") + '</div><div class="muted" style="font-size:0.78rem">' + esc(a.name) + "</div></div><span class=\"up-when\">🔧 " + esc(a.daytime || "") + "</span></div>"; }
-    var html = "";
-    if (outs.length) html += '<div class="today-h">Eraus haut (' + outs.length + ")</div>" + outs.map(function (b) { return row(b, "out"); }).join("");
-    if (backs.length) html += '<div class="today-h">Zréck haut (' + backs.length + ")</div>" + backs.map(function (b) { return row(b, "back"); }).join("");
-    if (appsToday.length) html += '<div class="today-h">Rendez-vous haut (' + appsToday.length + ")</div>" + appsToday.map(apRow).join("");
-    el.innerHTML = html;
+    var n = rentals.filter(function (b) { return b.status === "confirmed" && dayMs(b.from) === tmrMs && b.email; }).length
+          + appts.filter(function (a) { var d = apptDay(a); return a.status === "confirmed" && d && d.getTime() === tmrMs && a.email; }).length;
+    var on = dashSettings.reminders_enabled == null ? true : !!Number(dashSettings.reminders_enabled);
+    var isAdmin = can("members.manage");
+    var txt = on
+      ? "<b>Automatesch Erënnerungen</b> · " + (n ? n + " ginn muer verschéckt (Mail un d'Clienten den Dag virum Termin)." : "muer keng ze verschécken.")
+      : "<b>Automatesch Erënnerungen</b> · ausgeschalt.";
+    var tog = isAdmin ? '<button class="btn btn-outline btn-sm" id="rem-toggle" style="margin-left:auto">' + (on ? "Ausschalten" : "Aschalten") + "</button>" : "";
+    box.innerHTML = '<div class="rem"><span class="ic">✉️</span><div>' + txt + "</div>" + tog + "</div>";
+    var tb = $("rem-toggle"); if (tb) tb.addEventListener("click", function () { STORE.setSetting("reminders_enabled", on ? 0 : 1).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } dashSettings.reminders_enabled = on ? 0 : 1; renderReminderStrip(rentals, appts); toast(on ? "Erënnerungen ausgeschalt." : "Erënnerungen ageschalt."); }); });
   }
-  function renderVehUsage(active) {
-    var el = $("veh-usage"), byVeh = {}; active.forEach(function (b) { var v = b.veh || "?"; byVeh[v] = (byVeh[v] || 0) + 1; });
-    var cmap = vehColorMap(active), arr = Object.keys(byVeh).map(function (v) { return [v, byVeh[v]]; }).sort(function (a, b) { return b[1] - a[1]; });
-    if (!arr.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Nach keng Reservatiounen.</p>'; return; }
-    var max = arr[0][1];
-    el.innerHTML = arr.map(function (x) { return '<div class="veh-bar"><div class="vb-top"><span>' + esc(x[0]) + "</span><b>" + x[1] + '×</b></div><div class="vb-track"><div class="vb-fill" style="width:' + Math.round(x[1] / max * 100) + "%;background:" + cmap[x[0]] + '"></div></div></div>'; }).join("");
-  }
-  function renderUpcoming(active, appts) {
-    appts = appts || [];
-    var el = $("upcoming"), today = new Date(); today.setHours(0, 0, 0, 0);
-    var cmap = vehColorMap(active);
+
+  function renderTimeline(rentals, appts) {
+    var el = $("today-timeline"); if (!el) return;
+    var today = new Date(); today.setHours(0, 0, 0, 0); var tMs = today.getTime();
+    var cmap = vehColorMap(rentals);
+    function dayMs(s) { var d = parseDay(s); return d ? d.getTime() : null; }
     var items = [];
-    active.forEach(function (b) { var f = parseDay(b.from); if (f && f >= today) items.push({ t: "r", d: f, b: b }); });
-    appts.forEach(function (a) { var d = apptDay(a); if (d && d >= today) items.push({ t: "a", d: d, a: a }); });
-    items.sort(function (x, y) { return x.d - y.d; });
-    var up = items.slice(0, 7);
-    if (!up.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Keng kommend Reservatiounen oder Rendez-vous.</p>'; return; }
-    el.innerHTML = up.map(function (it) {
-      if (it.t === "r") { var b = it.b; return '<div class="up-item"><span class="up-dot" style="background:' + cmap[b.veh || "?"] + '"></span><div style="flex:1"><div>' + esc(b.veh) + '</div><div class="muted" style="font-size:0.78rem">' + esc(b.name) + " · " + (b.status === "new" ? "nei" : "bestätegt") + '</div></div><span class="up-when">' + fmt(b.from).split(" ")[0] + "</span></div>"; }
-      var a = it.a; return '<div class="up-item"><span class="up-dot" style="background:' + APPT_COLOR + '"></span><div style="flex:1"><div>🔧 ' + esc(a.service || "Rendez-vous") + (a.vehicle ? " · " + esc(a.vehicle) : "") + '</div><div class="muted" style="font-size:0.78rem">' + esc(a.name) + " · " + (a.status === "new" ? "nei" : "bestätegt") + '</div></div><span class="up-when">' + dLabel(a.prefDate || a.altDate) + "</span></div>";
-    }).join("");
+    rentals.forEach(function (b) {
+      if (b.status !== "confirmed") return;
+      if (dayMs(b.from) === tMs) items.push({ sort: new Date(b.from).getTime(), kind: "out", tag: "Ofhuelung", time: timeStr(b.from), title: b.name, meta: '<span class="veh">' + esc(b.veh) + "</span> · zréck " + dLabel(b.to) + " · " + refOf(b.id), color: cmap[b.veh || "?"] });
+      if (dayMs(b.to) === tMs) items.push({ sort: new Date(b.to).getTime(), kind: "back", tag: "Retour", time: timeStr(b.to), title: b.name, meta: '<span class="veh">' + esc(b.veh) + "</span> · " + refOf(b.id), color: cmap[b.veh || "?"] });
+    });
+    appts.forEach(function (a) {
+      if (a.status !== "confirmed") return; var d = apptDay(a); if (!d || d.getTime() !== tMs) return;
+      items.push({ sort: 50000000000000, kind: "appt", tag: "Rendez-vous", time: a.daytime || "", title: a.service || "Rendez-vous", meta: (a.vehicle ? '<span class="veh">' + esc(a.vehicle) + "</span> · " : "") + esc(a.name) + " · " + reqRef("appointment", a.id), color: APPT_COLOR });
+    });
+    items.sort(function (x, y) { return x.sort - y.sort; });
+    if (!items.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Haut keng Ofhuelungen, Retouren oder Rendez-vous. 🎉</p>'; return; }
+    el.innerHTML = '<div class="tl">' + items.map(function (it) {
+      return '<div class="tl-ev ' + it.kind + '"><div class="tl-time">' + esc(it.time) + '</div><div class="tl-node"><div class="tl-row1"><span class="tl-tag">' + it.tag + '</span></div><div class="tl-title">' + esc(it.title) + '</div><div class="tl-meta">' + it.meta + "</div></div></div>";
+    }).join("") + "</div>";
   }
+
+  function renderActionNeeded(bk, ap) {
+    var el = $("action-needed"); if (!el) return;
+    var canVal = can("bookings.validate");
+    var items = [];
+    bk.filter(function (b) { return b.status === "new"; }).forEach(function (b) { items.push({ type: "booking", id: b.id, ref: refOf(b.id), badge: "Reservatioun", bc: "ab-rent", ttl: b.veh, sub: esc(b.name) + " · " + dLabel(b.from) + " → " + dLabel(b.to), created: b.created }); });
+    ap.filter(function (a) { return (a.kind || "appointment") === "appointment" && a.status === "new"; }).forEach(function (a) { items.push({ type: "appointment", id: a.id, ref: reqRef("appointment", a.id), badge: "Rendez-vous", bc: "ab-appt", ttl: a.service || "Rendez-vous", sub: (a.vehicle ? esc(a.vehicle) + " · " : "") + esc(a.name) + (a.prefDate ? " · Wonsch: " + esc(a.prefDate) + (a.daytime ? " " + esc(a.daytime) : "") : ""), created: a.created }); });
+    ap.filter(function (a) { return (a.kind || "appointment") === "inquiry" && a.status === "new"; }).forEach(function (a) { items.push({ type: "inquiry", id: a.id, ref: reqRef("inquiry", a.id), badge: "Produktufro", bc: "ab-inq", ttl: a.service || "Produktufro", sub: (a.vehicle ? esc(a.vehicle) + " · " : "") + esc(a.name) }); });
+    if (!items.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Alles ofgeschafft – näischt wat op dech waart. ✓</p>'; return; }
+    el.innerHTML = '<div class="act-list">' + items.map(function (it, i) {
+      var btns = "";
+      if (canVal) {
+        if (it.type === "inquiry") btns = '<button class="abtn-ok" data-ai="' + i + '" data-act="go">Äntweren</button>';
+        else btns = '<button class="abtn-ok" data-ai="' + i + '" data-act="confirmed">✓ Bestätegen</button><button class="abtn-no" data-ai="' + i + '" data-act="declined">Ofleenen</button>';
+      }
+      return '<div class="act-item is-new"><div class="r1"><span class="ref">' + it.ref + '</span><span class="abadge ' + it.bc + '">' + it.badge + '</span></div><div class="ttl">' + esc(it.ttl) + '</div><div class="asub">' + it.sub + "</div>" + (btns ? '<div class="abtns">' + btns + "</div>" : "") + "</div>";
+    }).join("") + "</div>";
+    el.querySelectorAll("[data-ai]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var it = items[parseInt(btn.getAttribute("data-ai"), 10)], act = btn.getAttribute("data-act");
+        if (act === "go") { if (it.type === "inquiry") { reqState.inquiry.filter = "new"; gotoPage("inquiries"); } return; }
+        btn.disabled = true;
+        var fn = it.type === "booking" ? STORE.setStatus(it.id, act, "") : STORE.setApptStatus(it.id, act, "");
+        fn.then(function (r) { if (r.error) { toast(errMsg(r.error)); btn.disabled = false; return; } toast(it.badge + " " + it.ref + ": " + (STATUS[act] || act).toLowerCase() + "."); renderDashboard(); });
+      });
+    });
+  }
+
+  function renderFleet(rentals) {
+    var el = $("fleet-status"); if (!el) return;
+    var now = new Date(), today = new Date(); today.setHours(0, 0, 0, 0); var tMs = today.getTime();
+    function dayMs(s) { var d = parseDay(s); return d ? d.getTime() : null; }
+    var set = {};
+    rentals.forEach(function (b) { if (b.veh) set[b.veh] = 1; });
+    dashMaint.forEach(function (m) { if (m.vehicle) set[m.vehicle] = 1; });
+    var vehicles = Object.keys(set).sort();
+    if (!vehicles.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Nach keng Gefierer.</p>'; return; }
+    var cmap = vehColorMap(rentals);
+    var rows = vehicles.map(function (v) {
+      var conf = rentals.filter(function (b) { return b.veh === v && b.status === "confirmed"; });
+      var outNow = null, backToday = null, outToday = null;
+      conf.forEach(function (b) {
+        var f = new Date(b.from), t = new Date(b.to);
+        if (!isNaN(f) && !isNaN(t) && f <= now && now <= t) outNow = b;
+        if (dayMs(b.to) === tMs) backToday = b;
+        if (dayMs(b.from) === tMs) outToday = b;
+      });
+      var cls, txt;
+      if (backToday && outNow) { cls = "s-soon"; txt = "Retour haut " + timeStr(backToday.to); }
+      else if (outNow) { cls = "s-out"; txt = "Ënnerwee bis " + dLabel(outNow.to); }
+      else if (outToday) { cls = "s-soon"; txt = "Eraus haut " + timeStr(outToday.from); }
+      else { cls = "s-free"; txt = "Fräi"; }
+      var dot = cls === "s-free" ? "var(--ok)" : cls === "s-soon" ? "var(--warn)" : "var(--accent)";
+      return '<div class="fl"><span class="fdot" style="background:' + dot + '"></span><span class="fname">' + esc(v) + '</span><span class="fstat ' + cls + '">' + txt + "</span></div>";
+    }).join("");
+    el.innerHTML = '<div class="fleet">' + rows + "</div>";
+  }
+
+  function maintLabel(days) {
+    if (days == null) return { t: "— keen Datum", c: "due-ok" };
+    if (days < 0) return { t: "iwwerfälleg", c: "due-now" };
+    if (days === 0) return { t: "haut fälleg", c: "due-now" };
+    if (days <= 14) return { t: "a " + days + " Deeg", c: "due-soon" };
+    if (days <= 60) return { t: "a " + Math.round(days / 7) + " Wochen", c: "due-ok" };
+    return { t: "a " + Math.round(days / 30) + " Méint", c: "due-ok" };
+  }
+  function maintIcon(service) { var s = (service || "").toLowerCase(); if (s.indexOf("vidang") !== -1 || s.indexOf("öl") !== -1 || s.indexOf("ol") !== -1) return "🛢️"; if (s.indexOf("pneu") !== -1 || s.indexOf("reif") !== -1) return "🛞"; if (s.indexOf("kontroll") !== -1 || s.indexOf("contrôle") !== -1 || s.indexOf("tüv") !== -1) return "📋"; if (s.indexOf("brems") !== -1) return "🛑"; if (s.indexOf("klima") !== -1) return "❄️"; return "🔧"; }
+  function maintDays(m) { var d = parseDay(m.dueDate); if (!d) return null; var today = new Date(); today.setHours(0, 0, 0, 0); return Math.round((d.getTime() - today.getTime()) / 86400000); }
+  function renderMaintDash(maint) {
+    var el = $("maint-dash"); if (!el) return;
+    var btn = $("maint-manage"); if (btn) { btn.hidden = !can("bookings.validate"); btn.onclick = function () { gotoPage("wartung"); }; }
+    if (!maint || !maint.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Nach keng Wartungs-Antrag. ' + (can("bookings.validate") ? 'Leg se ënner „Wartung“ un.' : "") + "</p>"; return; }
+    var arr = maint.map(function (m) { return { m: m, days: maintDays(m) }; }).sort(function (a, b) {
+      if (a.days == null && b.days == null) return 0; if (a.days == null) return 1; if (b.days == null) return -1; return a.days - b.days;
+    }).slice(0, 5);
+    el.innerHTML = arr.map(function (x) { var lab = maintLabel(x.days); return '<div class="maint"><span class="mic">' + maintIcon(x.m.service) + '</span><div><div class="mname">' + esc(x.m.vehicle) + '</div><div class="mtype">' + esc(x.m.service) + (x.m.note ? " · " + esc(x.m.note) : "") + '</div></div><span class="mdue ' + lab.c + '">' + lab.t + "</span></div>"; }).join("");
+  }
+
+  function renderActivity(rentals, appts) {
+    var bars = $("activity-bars"), xs = $("activity-x"); if (!bars) return;
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var counts = [], labels = [], max = 1;
+    for (var i = -7; i <= 6; i++) {
+      var d = new Date(today); d.setDate(d.getDate() + i); var dm = d.getTime();
+      var c = rentals.filter(function (b) { var f = parseDay(b.from), t = parseDay(b.to) || f; return f && dm >= f.getTime() && dm <= t.getTime(); }).length
+            + appts.filter(function (a) { var ad = apptDay(a); return ad && ad.getTime() === dm; }).length;
+      counts.push({ c: c, t: i === 0 }); if (c > max) max = c;
+      labels.push(i === 0 ? "haut" : (i % 2 === 0 ? (i > 0 ? "+" + i : "" + i) : ""));
+    }
+    bars.innerHTML = counts.map(function (x) { return '<div class="abar' + (x.t ? " today" : "") + '" style="height:' + Math.max(6, Math.round(x.c / max * 100)) + '%" title="' + x.c + ' Termäiner"></div>'; }).join("");
+    xs.innerHTML = labels.map(function (l) { return "<div>" + l + "</div>"; }).join("");
+  }
+
   function renderCalendar(active, appts) {
     appts = appts || [];
     var cmap = vehColorMap(active), y = calRef.getFullYear(), mo = calRef.getMonth();
-    $("cal-label").textContent = ["Januar","Februar","Mäerz","Abrëll","Mee","Juni","Juli","August","September","Oktober","November","Dezember"][mo] + " " + y;
+    $("cal-label").textContent = ["Januar", "Februar", "Mäerz", "Abrëll", "Mee", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"][mo] + " " + y;
     var start = startOfWeek(new Date(y, mo, 1)), today = new Date(); today.setHours(0, 0, 0, 0);
-    var dows = ["Mé","Dë","Më","Do","Fr","Sa","So"];
+    var dows = ["Mé", "Dë", "Më", "Do", "Fr", "Sa", "So"];
     var html = '<div class="cal-grid">' + dows.map(function (d) { return '<div class="cal-dow">' + d + "</div>"; }).join("");
     var cur = new Date(start);
     for (var i = 0; i < 42; i++) {
@@ -393,24 +539,214 @@
       var dayEvents = active.filter(function (b) { var f = parseDay(b.from), t = parseDay(b.to) || f; return f && cur >= f && cur <= t; });
       var dayAppts = appts.filter(function (a) { var d = apptDay(a); return d && d.getTime() === cur.getTime(); });
       var total = dayEvents.length + dayAppts.length;
-      var evHtml = dayEvents.slice(0, 3).map(function (b) { return '<div class="cal-ev' + (b.status === "new" ? " tentative" : "") + '" style="background:' + cmap[b.veh || "?"] + '" title="' + esc(b.veh) + " – " + esc(b.name) + " (" + (b.status === "new" ? "nei" : b.status === "confirmed" ? "bestätegt" : "ofgeschloss") + ')">' + esc((b.veh || "").replace(/\s*\(.*$/, "")) + "</div>"; }).join("");
+      var evHtml = dayEvents.slice(0, 3).map(function (b) { return '<div class="cal-ev' + (b.status === "new" ? " tentative" : "") + '" style="background:' + cmap[b.veh || "?"] + '" title="' + esc(b.veh) + " – " + esc(b.name) + " (" + (b.status === "new" ? "nei" : b.status === "confirmed" ? "bestätegt" : "ofgeschloss") + ')">' + esc(vehName(b.veh)) + "</div>"; }).join("");
       var remain = 3 - dayEvents.length;
-      if (remain > 0) evHtml += dayAppts.slice(0, remain).map(function (a) { return '<div class="cal-ev appt' + (a.status === "new" ? " tentative" : "") + '" title="Rendez-vous: ' + esc(a.service || "") + (a.vehicle ? " – " + esc(a.vehicle) : "") + " – " + esc(a.name) + " (" + (a.status === "new" ? "nei" : "bestätegt") + ')">🔧 ' + esc((a.service || "RDV").replace(/\s*\(.*$/, "")) + "</div>"; }).join("");
+      if (remain > 0) evHtml += dayAppts.slice(0, remain).map(function (a) { return '<div class="cal-ev appt' + (a.status === "new" ? " tentative" : "") + '" title="Rendez-vous: ' + esc(a.service || "") + (a.vehicle ? " – " + esc(a.vehicle) : "") + " – " + esc(a.name) + " (" + (a.status === "new" ? "nei" : "bestätegt") + ')">🔧 ' + esc(vehName(a.service || "RDV")) + "</div>"; }).join("");
       if (total > 3) evHtml += '<div class="cal-ev" style="background:#9aa7b4">+' + (total - 3) + "</div>";
-      html += '<div class="cal-cell' + (inMonth ? "" : " other") + (isToday ? " today" : "") + '"><div class="cal-daynum">' + cur.getDate() + "</div>" + evHtml + "</div>";
+      var dkey = cur.getFullYear() + "-" + pad(cur.getMonth() + 1) + "-" + pad(cur.getDate());
+      html += '<div class="cal-cell' + (inMonth ? "" : " other") + (isToday ? " today" : "") + (total ? " clickable" : "") + '"' + (total ? ' data-day="' + dkey + '" role="button" tabindex="0"' : "") + '><div class="cal-daynum">' + cur.getDate() + "</div>" + evHtml + "</div>";
       cur.setDate(cur.getDate() + 1);
     }
     $("calendar").innerHTML = html + "</div>";
     var vehs = Object.keys(cmap);
-    var leg = vehs.map(function (v) { return '<span><i style="background:' + cmap[v] + '"></i>' + esc(v.replace(/\s*\(.*$/, "")) + "</span>"; }).join("");
+    var leg = vehs.map(function (v) { return '<span><i style="background:' + cmap[v] + '"></i>' + esc(vehName(v)) + "</span>"; }).join("");
     if (appts.length) leg += '<span><i style="background:' + APPT_COLOR + '"></i>🔧 Rendez-vous</span>';
     $("cal-legend").innerHTML = leg;
+    $("calendar").querySelectorAll(".cal-cell[data-day]").forEach(function (c) {
+      function open() { openDay(c.getAttribute("data-day")); }
+      c.addEventListener("click", open);
+      c.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    });
   }
+
+  function openDay(dkey) {
+    var day = parseDay(dkey); if (!day) return; var dMs = day.getTime();
+    var cmap = vehColorMap(dashActive);
+    var evs = [];
+    dashActive.forEach(function (b) { var f = parseDay(b.from), t = parseDay(b.to) || f; if (f && dMs >= f.getTime() && dMs <= t.getTime()) {
+      var role = dMs === f.getTime() ? "Ofhuelung" : dMs === (t ? t.getTime() : f.getTime()) ? "Retour" : "ënnerwee";
+      evs.push({ sort: 1, color: cmap[b.veh || "?"], t: esc(b.veh), s: esc(b.name) + " · " + role + " · " + STATUS[b.status] + " · " + refOf(b.id) });
+    } });
+    dashAppts.forEach(function (a) { var d = apptDay(a); if (d && d.getTime() === dMs) evs.push({ sort: 2, color: APPT_COLOR, t: "🔧 " + esc(a.service || "Rendez-vous"), s: (a.vehicle ? esc(a.vehicle) + " · " : "") + esc(a.name) + " · " + STATUS[a.status] + " · " + reqRef("appointment", a.id) }); });
+    evs.sort(function (x, y) { return x.sort - y.sort; });
+    $("day-title").textContent = dLabel(dkey);
+    var body = $("day-body");
+    body.innerHTML = evs.length ? evs.map(function (e) { return '<div class="devent"><span class="dd" style="background:' + e.color + '"></span><div style="min-width:0"><div class="dt">' + e.t + '</div><div class="ds">' + e.s + "</div></div></div>"; }).join("") : '<p class="muted" style="font-size:0.88rem">Keng Termäiner op dësem Dag.</p>';
+    $("daypop").hidden = false;
+  }
+  (function () {
+    var x = $("day-x"), pop = $("daypop");
+    if (x) x.addEventListener("click", function () { pop.hidden = true; });
+    if (pop) pop.addEventListener("click", function (e) { if (e.target === pop) pop.hidden = true; });
+  })();
+
   (function () {
     var p = $("cal-prev"), n = $("cal-next"), t = $("cal-today");
     if (p) p.addEventListener("click", function () { calRef = new Date(calRef.getFullYear(), calRef.getMonth() - 1, 1); renderCalendar(dashActive, dashAppts); });
     if (n) n.addEventListener("click", function () { calRef = new Date(calRef.getFullYear(), calRef.getMonth() + 1, 1); renderCalendar(dashActive, dashAppts); });
     if (t) t.addEventListener("click", function () { calRef = new Date(); renderCalendar(dashActive, dashAppts); });
+  })();
+
+  /* ---------- Analyse ---------- */
+  function renderAnalyse() {
+    $("analyse-sub").textContent = "…";
+    Promise.all([
+      STORE.listBookings().then(function (v) { return v; }, function () { return null; }),
+      STORE.listAppointments().then(function (v) { return v; }, function () { return []; }),
+    ]).then(function (res) {
+      var bk = res[0]; if (bk === null) throw new Error("load");
+      var ap = res[1] || [];
+      var appts = ap.filter(function (a) { return (a.kind || "appointment") === "appointment"; });
+      $("analyse-sub").textContent = "aus dengen Donnéeën berechent";
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+      var since = new Date(today); since.setDate(since.getDate() - 90);
+      var rentals = bk.filter(function (b) { return b.status !== "declined"; });
+
+      // KPIs
+      var rec = bk.filter(function (b) { var d = parseDay(b.created || b.from); return d && d >= since; });
+      var recAp = appts.filter(function (a) { var d = parseDay(a.created) || apptDay(a); return d && d >= since; });
+      var durs = rentals.map(function (b) { var f = parseDay(b.from), t = parseDay(b.to); return f && t ? Math.max(1, Math.round((t - f) / 86400000)) : null; }).filter(function (x) { return x != null; });
+      var avgDur = durs.length ? (durs.reduce(function (a, b) { return a + b; }, 0) / durs.length) : 0;
+      var decl = bk.filter(function (b) { return b.status === "declined"; }).length;
+      var noShow = bk.length ? Math.round(decl / bk.length * 100) : 0;
+      var kpis = [
+        { cls: "", n: rec.length, l: "Reservatiounen (90d)", ic: "📈" },
+        { cls: "accent", n: recAp.length, l: "Rendez-vous (90d)", ic: "🔧" },
+        { cls: "", n: (avgDur ? avgDur.toFixed(1).replace(".", ",") : "0"), l: "Ø Deeg / Verleih", ic: "⏱️" },
+        { cls: "", n: noShow + "%", l: "Ofgeleent-Quote", ic: "🚫" },
+        { cls: "ok", n: rentals.length, l: "Reservatiounen total", ic: "📊" },
+      ];
+      $("analyse-kpis").innerHTML = kpis.map(function (t) { return '<div class="stat ' + t.cls + '"><div class="stat-ic">' + t.ic + '</div><div><div class="n">' + t.n + '</div><div class="l">' + t.l + "</div></div></div>"; }).join("");
+
+      // utilization per vehicle (count of rental-days in last 90d)
+      var byVeh = {};
+      rentals.forEach(function (b) { var v = b.veh || "?"; var f = parseDay(b.from), t = parseDay(b.to) || f; if (!f) return; var days = Math.max(1, Math.round((t - f) / 86400000) + 1); byVeh[v] = (byVeh[v] || 0) + days; });
+      var cmap = vehColorMap(rentals);
+      var util = Object.keys(byVeh).map(function (v) { return [v, byVeh[v]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 8);
+      var umax = util.length ? util[0][1] : 1;
+      $("an-util").innerHTML = util.length ? util.map(function (u) { return '<div class="hbar"><span class="lbl">' + esc(vehName(u[0])) + '</span><div class="track"><div class="fill" style="width:' + Math.round(u[1] / umax * 100) + "%;background:" + cmap[u[0]] + '"></div></div><span class="val">' + u[1] + "d</span></div>"; }).join("") : '<p class="muted" style="font-size:0.85rem">Nach keng Donnéeën.</p>';
+
+      // busiest weekdays (by booking start)
+      var wk = [0, 0, 0, 0, 0, 0, 0];
+      rentals.forEach(function (b) { var f = parseDay(b.from); if (f) wk[(f.getDay() + 6) % 7]++; });
+      var wmax = Math.max.apply(null, wk) || 1;
+      $("an-wk").innerHTML = wk.map(function (v) { return '<div class="wkbar' + (v === wmax && v > 0 ? " max" : "") + '" style="height:' + Math.max(4, Math.round(v / wmax * 100)) + '%" title="' + v + ' Reservatiounen"></div>'; }).join("");
+
+      // appointment types donut
+      var types = {};
+      appts.forEach(function (a) { var s = (a.service || "Aner").split(/[\s(]/)[0]; types[s] = (types[s] || 0) + 1; });
+      var seg = Object.keys(types).map(function (k) { return [k, types[k]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 6);
+      var tot = seg.reduce(function (a, b) { return a + b[1]; }, 0);
+      var pal = ["#2f6df6", "#e63946", "#2e7d5b", "#b7791f", "#7c4dff", "#546e7a"];
+      if (tot) {
+        var off = 25, svg = "";
+        seg.forEach(function (s, i) { var pct = s[1] / tot * 100; svg += '<circle r="15.9155" cx="21" cy="21" fill="transparent" stroke="' + pal[i] + '" stroke-width="7" stroke-dasharray="' + pct.toFixed(2) + " " + (100 - pct).toFixed(2) + '" stroke-dashoffset="' + off.toFixed(2) + '"></circle>'; off = (off - pct + 100) % 100; });
+        $("an-donut").innerHTML = svg;
+        $("an-donut-leg").innerHTML = seg.map(function (s, i) { return '<span><i style="background:' + pal[i] + '"></i>' + esc(s[0]) + " · " + Math.round(s[1] / tot * 100) + "%</span>"; }).join("");
+      } else { $("an-donut").innerHTML = ""; $("an-donut-leg").innerHTML = '<span class="muted">Nach keng Rendez-vous.</span>'; }
+
+      // trend: bookings per week last 12 weeks
+      var weeks = [];
+      for (var w = 11; w >= 0; w--) { var ws = startOfWeek(new Date(today)); ws.setDate(ws.getDate() - w * 7); weeks.push({ s: ws.getTime(), c: 0 }); }
+      bk.forEach(function (b) { var d = parseDay(b.created || b.from); if (!d) return; var ws = startOfWeek(d).getTime(); for (var k = 0; k < weeks.length; k++) if (weeks[k].s === ws) { weeks[k].c++; break; } });
+      var tmax = Math.max.apply(null, weeks.map(function (x) { return x.c; })) || 1, W = 320, H = 150, n = weeks.length;
+      var pts = weeks.map(function (x, i) { return [(i / (n - 1) * W), H - 12 - x.c / tmax * (H - 28)]; });
+      var line = pts.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ");
+      var area = "0," + H + " " + line + " " + W + "," + H;
+      var grid = "";
+      for (var g = 1; g <= 3; g++) { var yy = H - 12 - (g * tmax / 3 / tmax * (H - 28)); grid += '<line x1="0" y1="' + yy.toFixed(1) + '" x2="' + W + '" y2="' + yy.toFixed(1) + '" stroke="var(--line)" stroke-width="1"/>'; }
+      $("an-trend").innerHTML = grid + '<polygon points="' + area + '" fill="var(--info)" opacity="0.12"/><polyline points="' + line + '" fill="none" stroke="var(--info)" stroke-width="2.5"/><circle cx="' + pts[n - 1][0].toFixed(1) + '" cy="' + pts[n - 1][1].toFixed(1) + '" r="4" fill="var(--info)"/>';
+    }).catch(function () { $("analyse-sub").textContent = "Serverfeeler"; $("analyse-kpis").innerHTML = '<div class="empty">⚠ Donnéeën net verfügbar.</div>'; });
+  }
+
+  /* ---------- Wartung ---------- */
+  var editingMaint = null;
+  function renderWartung() {
+    var canEdit = can("bookings.validate");
+    $("wartung-form").style.display = canEdit ? "" : "none";
+    STORE.listMaintenance().then(function (items) {
+      var body = $("wartung-body"); body.innerHTML = "";
+      if (!items.length) { body.innerHTML = '<tr><td colspan="5" class="muted" style="padding:16px">Nach keng Wartungs-Antrag.</td></tr>'; return; }
+      items.map(function (m) { return { m: m, days: maintDays(m) }; }).sort(function (a, b) { if (a.days == null && b.days == null) return 0; if (a.days == null) return 1; if (b.days == null) return -1; return a.days - b.days; }).forEach(function (x) {
+        var m = x.m, lab = maintLabel(x.days), tr = document.createElement("tr");
+        if (editingMaint === m.id && canEdit) {
+          tr.innerHTML = '<td><input class="member-sel" id="em-veh" value="' + esc(m.vehicle) + '" style="width:120px" /></td>' +
+            '<td><input class="member-sel" id="em-service" value="' + esc(m.service) + '" style="width:120px" /></td>' +
+            '<td><input class="member-sel" id="em-due" type="date" value="' + esc(m.dueDate || "") + '" /></td>' +
+            '<td><input class="member-sel" id="em-note" value="' + esc(m.note || "") + '" style="width:120px" /></td>' +
+            '<td style="text-align:right;white-space:nowrap"><button class="btn btn-ok btn-sm" data-msave="' + m.id + '">Späicheren</button> <button class="btn btn-outline btn-sm" data-mcancel="1">Ofbriechen</button></td>';
+        } else {
+          tr.innerHTML = "<td><b>" + esc(m.vehicle) + "</b></td><td>" + maintIcon(m.service) + " " + esc(m.service) + "</td>" +
+            '<td>' + (m.dueDate ? dLabel(m.dueDate) + ' <span class="mdue ' + lab.c + '" style="margin-left:4px">' + lab.t + "</span>" : '<span class="muted">—</span>') + "</td>" +
+            "<td class=\"muted\">" + esc(m.note || "") + "</td>" +
+            '<td style="text-align:right;white-space:nowrap">' + (canEdit ? '<button class="btn btn-outline btn-sm" data-medit="' + m.id + '">Änneren</button> <button class="btn btn-danger btn-sm" data-mdel="' + m.id + '">Läschen</button>' : "") + "</td>";
+        }
+        body.appendChild(tr);
+      });
+      body.querySelectorAll("[data-medit]").forEach(function (b) { b.addEventListener("click", function () { editingMaint = parseInt(b.getAttribute("data-medit"), 10); renderWartung(); }); });
+      body.querySelectorAll("[data-mcancel]").forEach(function (b) { b.addEventListener("click", function () { editingMaint = null; renderWartung(); }); });
+      body.querySelectorAll("[data-msave]").forEach(function (b) { b.addEventListener("click", function () { var id = parseInt(b.getAttribute("data-msave"), 10); STORE.editMaintenance(id, { vehicle: $("em-veh").value.trim(), service: $("em-service").value.trim(), dueDate: $("em-due").value, note: $("em-note").value.trim() }).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } editingMaint = null; toast("Wartung gespäichert."); renderWartung(); }); }); });
+      body.querySelectorAll("[data-mdel]").forEach(function (b) { b.addEventListener("click", function () { var id = parseInt(b.getAttribute("data-mdel"), 10); if (!confirm("Dëse Wartungs-Antrag läschen?")) return; STORE.delMaintenance(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Geläscht."); renderWartung(); }); }); });
+    }).catch(function () { $("wartung-body").innerHTML = '<tr><td colspan="5">⚠ Net gelueden. <button class="btn btn-outline btn-sm" id="retry-wartung">Nei probéieren</button></td></tr>'; var r = $("retry-wartung"); if (r) r.addEventListener("click", renderWartung); });
+  }
+  (function () {
+    var f = $("wartung-form"); if (!f) return;
+    f.addEventListener("submit", function (e) {
+      e.preventDefault(); if (!can("bookings.validate")) return;
+      var veh = $("w-veh").value.trim(), service = $("w-service").value.trim();
+      if (!veh || !service) { $("wartung-msg").textContent = "Auto a Service mussen ausgefëllt sinn."; return; }
+      $("wartung-msg").textContent = "…";
+      STORE.addMaintenance({ vehicle: veh, service: service, dueDate: $("w-due").value, note: $("w-note").value.trim() }).then(function (r) {
+        if (r.error) { $("wartung-msg").textContent = errMsg(r.error); return; }
+        f.reset(); $("wartung-msg").textContent = "✓ Bäigesat."; renderWartung();
+      });
+    });
+  })();
+
+  /* ---------- Command palette (⌘K) ---------- */
+  var searchIndex = [];
+  function buildSearchIndex(bk, ap) {
+    var idx = [];
+    (bk || []).forEach(function (b) { idx.push({ ic: "🚗", grp: "Reservatiounen", ttl: b.veh, sub: b.name + " · " + dLabel(b.from) + "→" + dLabel(b.to) + (b.status === "new" ? " · NEI" : ""), ref: refOf(b.id), hay: (refOf(b.id) + " " + b.veh + " " + b.name + " " + (b.email || "") + " " + (b.phone || "")).toLowerCase(), go: { page: "bookings", filter: "all" } }); });
+    (ap || []).forEach(function (a) { var kind = (a.kind || "appointment"); idx.push({ ic: kind === "inquiry" ? "🛞" : "🔧", grp: kind === "inquiry" ? "Produktufroen" : "Rendez-vous", ttl: (a.service || "—") + (a.vehicle ? " · " + a.vehicle : ""), sub: a.name + (a.prefDate ? " · " + a.prefDate : "") + (a.status === "new" ? " · NEI" : ""), ref: reqRef(kind, a.id), hay: (reqRef(kind, a.id) + " " + (a.service || "") + " " + (a.vehicle || "") + " " + a.name + " " + (a.email || "") + " " + (a.phone || "")).toLowerCase(), go: { page: kind === "inquiry" ? "inquiries" : "appointments", filter: "all" } }); });
+    // distinct customers
+    var seen = {};
+    (bk || []).concat((ap || [])).forEach(function (r) { var key = (r.email || r.name || "").toLowerCase(); if (!key || seen[key]) return; seen[key] = 1; idx.push({ ic: "👤", grp: "Clienten", ttl: r.name, sub: (r.email || "") + (r.phone ? " · " + r.phone : ""), ref: "", hay: ((r.name || "") + " " + (r.email || "") + " " + (r.phone || "")).toLowerCase(), go: null }); });
+    searchIndex = idx;
+  }
+  function renderK(q) {
+    var box = $("k-results"); q = (q || "").toLowerCase().trim();
+    var list = searchIndex.filter(function (it) { return !q || it.hay.indexOf(q) !== -1; }).slice(0, 40);
+    if (!list.length) { box.innerHTML = '<div class="pnores">' + (q ? "Näischt fonnt fir „" + esc(q) + "“" : "Tipp fir ze sichen …") + "</div>"; return; }
+    var groups = {}, order = [];
+    list.forEach(function (it) { if (!groups[it.grp]) { groups[it.grp] = []; order.push(it.grp); } groups[it.grp].push(it); });
+    var html = "";
+    order.forEach(function (g) { html += '<div class="pgrp">' + g + "</div>"; groups[g].forEach(function (it) { var gi = searchIndex.indexOf(it); html += '<div class="pres" data-gi="' + gi + '"><span class="pic">' + it.ic + '</span><div style="min-width:0"><div class="pttl">' + esc(it.ttl) + '</div><div class="psub">' + esc(it.sub) + "</div></div>" + (it.ref ? '<span class="pref">' + it.ref + "</span>" : "") + "</div>"; }); });
+    box.innerHTML = html;
+    box.querySelectorAll("[data-gi]").forEach(function (r) { r.addEventListener("click", function () { var it = searchIndex[parseInt(r.getAttribute("data-gi"), 10)]; closeK(); if (it && it.go) { if (it.go.page === "bookings") { bookingQuery = it.ref || it.ttl; var se = $("booking-search"); if (se) se.value = bookingQuery; } else if (it.go.page === "appointments") { reqState.appointment.query = it.ref || ""; var ae = $("appt-search"); if (ae) ae.value = reqState.appointment.query; } else if (it.go.page === "inquiries") { reqState.inquiry.query = it.ref || ""; var ie = $("inq-search"); if (ie) ie.value = reqState.inquiry.query; } gotoPage(it.go.page); } }); });
+  }
+  function openK() { if (!session) return; $("k-overlay").hidden = false; var inp = $("k-input"); inp.value = ""; renderK(""); setTimeout(function () { inp.focus(); }, 30); }
+  function closeK() { $("k-overlay").hidden = true; }
+  (function () {
+    var ov = $("k-overlay"), inp = $("k-input"), btn = $("btn-search");
+    if (btn) btn.addEventListener("click", openK);
+    if (inp) inp.addEventListener("input", function () { renderK(inp.value); });
+    if (ov) ov.addEventListener("click", function (e) { if (e.target === ov) closeK(); });
+    document.addEventListener("keydown", function (e) {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) { if (!session) return; e.preventDefault(); $("k-overlay").hidden ? openK() : closeK(); }
+      if (e.key === "Escape") { if (!$("k-overlay").hidden) closeK(); if (!$("daypop").hidden) $("daypop").hidden = true; }
+    });
+  })();
+
+  /* ---------- Theme toggle ---------- */
+  (function () {
+    var KEY = "gk_intern_theme", root = document.documentElement, btn = $("btn-theme");
+    var saved = null; try { saved = localStorage.getItem(KEY); } catch (e) {}
+    if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
+    function cur() { var a = root.getAttribute("data-theme"); if (a) return a; return (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light"; }
+    function sync() { if (btn) btn.textContent = cur() === "dark" ? "☀️" : "🌙"; }
+    sync();
+    if (btn) btn.addEventListener("click", function () { var n = cur() === "dark" ? "light" : "dark"; root.setAttribute("data-theme", n); try { localStorage.setItem(KEY, n); } catch (e) {} sync(); });
   })();
 
   /* ---------- Export / Drécken ---------- */
@@ -511,6 +847,21 @@
     var bar = $("modebar");
     bar.className = "testbar modebar-live"; bar.textContent = "● Live · verbonne mam Server (Cloudflare)";
   }
+  /* ---------- PWA: Service Worker + Install ---------- */
+  (function () {
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js", { scope: "/intern/" }).catch(function () {}); });
+    }
+    var deferredPrompt = null, btn = $("btn-install");
+    window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); deferredPrompt = e; if (btn) btn.hidden = false; });
+    if (btn) btn.addEventListener("click", function () {
+      if (!deferredPrompt) { toast("Fir z'installéieren: am Browser-Menü „Zum Startbildschierm bäifügen“ wielen."); return; }
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function () { deferredPrompt = null; btn.hidden = true; });
+    });
+    window.addEventListener("appinstalled", function () { if (btn) btn.hidden = true; toast("App installéiert ✓"); });
+  })();
+
   function boot() {
     setModebar();
     STORE.me().then(function (user) { if (user) { session = user; showApp(); } else { showLogin(); } }).catch(function () {
