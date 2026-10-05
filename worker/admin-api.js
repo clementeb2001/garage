@@ -15,7 +15,7 @@ const PERMS = {
 };
 const ROLES = ["viewer", "validator", "admin"];
 const SESSION_TTL = 8 * 60 * 60; // 8h
-const PW_ITERATIONS = 600000;
+const PW_ITERATIONS = 100000;
 const SESSION_COOKIE = "garage_session";
 const enc = (s) => new TextEncoder().encode(s);
 
