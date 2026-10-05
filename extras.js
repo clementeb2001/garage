@@ -1,4 +1,4 @@
-/* Autoservice Bettenduerf – Terminanfrage (FormSubmit) + Saison-Tipps + FAQ */
+/* Autoservice Bettenduerf – Rendez-vous-Ufro (Cloudflare Worker) + Saison-Tipps + FAQ */
 (function () {
   var MSG = {
     lb: {
@@ -19,7 +19,8 @@
         time_pm: "Nomëttes",
         vin: "Chassisnummer (VIN)",
         vin_ph: "z. B. WVWZZZ…",
-        privacy: "Ech hunn d'Dateschutzerklärung gelies a verstinn, datt meng Donnéeën iwwer FormSubmit iwwermëttelt ginn.",
+        privacy: "Ech hunn d'Dateschutzerklärung gelies a sinn averstanen, datt meng Donnéeë fir d'Bearbeitung vun der Ufro benotzt ginn.",
+        rate: "Ze vill Ufroen a kuerzer Zäit. Probéiert et w.e.g. méi spéit nach eng Kéier.",
         missing: "Fëllt w.e.g. nach aus:",
         vehicle_lbl: "Gefier",
         vehicle_ph: "Mark, Modell, Baujoer",
@@ -110,7 +111,8 @@
         time_pm: "Nachmittag",
         vin: "Fahrgestellnummer (VIN)",
         vin_ph: "z. B. WVWZZZ…",
-        privacy: "Ich habe die Datenschutzerklärung gelesen und verstanden, dass meine Angaben über FormSubmit übermittelt werden.",
+        privacy: "Ich habe die Datenschutzerklärung gelesen und bin mit der Verarbeitung meiner Daten für diese Anfrage einverstanden.",
+        rate: "Zu viele Anfragen in kurzer Zeit. Bitte versuchen Sie es später erneut.",
         missing: "Bitte noch ausfüllen:",
         vehicle_lbl: "Fahrzeug",
         vehicle_ph: "Marke, Modell, Baujahr",
@@ -200,7 +202,8 @@
         time_pm: "Après-midi",
         vin: "Numéro de châssis (VIN)",
         vin_ph: "p. ex. VF1…",
-        privacy: "J'ai lu la politique de confidentialité et compris que mes données sont transmises via FormSubmit.",
+        privacy: "J'ai lu la politique de confidentialité et j'accepte le traitement de mes données pour cette demande.",
+        rate: "Trop de demandes en peu de temps. Veuillez réessayer plus tard.",
         missing: "Merci de compléter encore :",
         vehicle_lbl: "Véhicule",
         vehicle_ph: "Marque, modèle, année",
@@ -291,7 +294,8 @@
         time_pm: "Afternoon",
         vin: "Chassis number (VIN)",
         vin_ph: "e.g. WVWZZZ…",
-        privacy: "I have read the privacy policy and understand that my details are transmitted via FormSubmit.",
+        privacy: "I have read the privacy policy and agree to the processing of my data for this request.",
+        rate: "Too many requests in a short time. Please try again later.",
         missing: "Please still fill in:",
         vehicle_lbl: "Vehicle",
         vehicle_ph: "Make, model, year",
@@ -365,7 +369,7 @@
       },
     },
   };
-  var EMAIL = "Autoservicebettenduerf@outlook.com";
+  var API_BASE = "https://garage-admin.autoservicebettenduerf.lu";
   function lang() {
     var l = document.documentElement.getAttribute("lang");
     if (l && MSG[l]) return l;
@@ -557,15 +561,24 @@
     if (btn) btn.disabled = true;
     st.className = "form-status";
     st.textContent = m.form.sending;
-    fetch("https://formsubmit.co/ajax/" + EMAIL, {
+    var payload = {
+      name: name, email: email, phone: v("phone"),
+      service: service, vehicle: vehicle,
+      prefDate: preferredDate, altDate: v("alternative-date"),
+      daytime: (f.querySelector("#wtime") || {}).value || "",
+      vin: vinUnknown ? "" : vinClean,
+      msg: message, lang: lang(),
+      website: hp ? hp.value : "", loadedAt: loaded,
+    };
+    fetch(API_BASE + "/appointments", {
       method: "POST",
-      headers: { Accept: "application/json" },
-      body: new FormData(f),
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload),
     })
       .then(function (r) {
-        if (!r.ok) throw new Error("http");
-        return r.json().catch(function () {
-          return {};
+        return r.json().catch(function () { return {}; }).then(function (data) {
+          if (!r.ok || !data.ok) { var err = new Error(data.error || "http"); err.code = data.error; throw err; }
+          return data;
         });
       })
       .then(function () {
@@ -573,9 +586,9 @@
         st.textContent = m.form.ok.replace("{name}", name);
         f.reset();
       })
-      .catch(function () {
+      .catch(function (err) {
         st.className = "form-status err";
-        st.textContent = m.form.senderr;
+        st.textContent = (err && err.code === "rate_limited" && m.form.rate) ? m.form.rate : m.form.senderr;
       })
       .then(function () {
         if (btn) btn.disabled = false;

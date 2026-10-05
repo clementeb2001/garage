@@ -196,6 +196,23 @@ async function sendNewBookingNotice(env, bookingId, booking) {
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Intern Notifikatioun geschéckt" : "Intern Notifikatioun feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
+async function ensureAppts(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS appointments (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT, phone TEXT, service TEXT, vehicle TEXT, pref_date TEXT, alt_date TEXT, daytime TEXT, vin TEXT, msg TEXT, lang TEXT, status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS appointment_events (id INTEGER PRIMARY KEY AUTOINCREMENT, appointment_id INTEGER NOT NULL, action TEXT NOT NULL, by_user TEXT, note TEXT, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+}
+async function sendNewApptNotice(env, apptId, a) {
+  const ref = "T-" + (Number(apptId) + 1000);
+  const subject = "Neie Rendez-vous " + ref + (a.service ? " – " + a.service : "");
+  const rows = [["Numm", a.name], ["Service", a.service], ["Gefier", a.vehicle], ["Wonschdatum", a.pref_date], ["E-Mail", a.email]].filter(function (r) { return r[1]; });
+  const html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430">' +
+    '<h2 style="color:#c81420">Neie Rendez-vous</h2>' +
+    "<p>" + rows.map(function (r) { return "<b>" + esc(r[0]) + ":</b> " + esc(r[1]); }).join("<br>") + "</p>" +
+    '<p><a href="https://autoservicebettenduerf.lu/intern/" style="display:inline-block;background:#c81420;color:#fff;text-decoration:none;padding:11px 16px;border-radius:8px;font-weight:700">An der Verwaltung opmaachen</a></p></div>';
+  const text = "Neie Rendez-vous\n\n" + rows.map(function (r) { return r[0] + ": " + r[1]; }).join("\n") + "\n\nAn der Verwaltung opmaachen: https://autoservicebettenduerf.lu/intern/";
+  const result = await sendEmail(env, env.MAIL_TO || "Autoservicebettenduerf@outlook.com", subject, html, text);
+  await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
+    .bind(apptId, result.ok ? "Intern Notifikatioun geschéckt" : "Intern Notifikatioun feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
+}
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function mailText(t, b) {
   var lines = [t.h, "", t.p, ""];
@@ -327,6 +344,29 @@ export default {
         return json(env, { busy: rows.map((r) => ({ veh: r.veh, from: r.from_dt, to: r.to_dt })) });
       }
 
+      /* ---- public: neie Rendez-vous (vun der Kontakt-Formulaire) ---- */
+      if (path === "/appointments" && method === "POST") {
+        const allowedOrigin = env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
+        if (request.headers.get("Origin") !== allowedOrigin) return json(env, { error: "forbidden_origin" }, 403);
+        if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
+        if (bodyData.website) return json(env, { ok: true }, 202);
+        if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
+        const name = clip(bodyData.name, 120).trim();
+        const email = clip(bodyData.email, 160).trim().toLowerCase();
+        const loadedAt = Number(bodyData.loadedAt || 0), nowMs = Date.now();
+        if (!name || !email) return json(env, { error: "missing_fields" }, 400);
+        if (!validEmail(email)) return json(env, { error: "invalid_fields" }, 400);
+        if (!loadedAt || nowMs - loadedAt < 2500 || nowMs - loadedAt > 86400000) return json(env, { error: "invalid_submission" }, 400);
+        await ensureAppts(env);
+        const r = await env.DB.prepare(
+          "INSERT INTO appointments (name, email, phone, service, vehicle, pref_date, alt_date, daytime, vin, msg, lang, status) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,'new')"
+        ).bind(name, email, clip(bodyData.phone, 60), clip(bodyData.service, 120), clip(bodyData.vehicle, 120), clip(bodyData.prefDate, 20), clip(bodyData.altDate, 20), clip(bodyData.daytime, 40), clip(bodyData.vin, 40), clip(bodyData.msg, 2000), ["lb", "de", "fr", "en"].includes(bodyData.lang) ? bodyData.lang : "lb").run();
+        const id = r.meta.last_row_id;
+        await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,'Ufro erakomm','System','')").bind(id).run();
+        ctx.waitUntil(sendNewApptNotice(env, id, { name: name, email: email, service: clip(bodyData.service, 120), vehicle: clip(bodyData.vehicle, 120), pref_date: clip(bodyData.prefDate, 20) }));
+        return json(env, { ok: true, id });
+      }
+
       /* ---- login (mat Brute-Force-Schutz: max 10 falsch Versich/Stonn/IP) ---- */
       if (path === "/auth/login" && method === "POST") {
         const allowedOrigin = env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
@@ -451,6 +491,44 @@ export default {
         const id = parseInt(m[1], 10);
         await env.DB.prepare("DELETE FROM booking_events WHERE booking_id = ?1").bind(id).run();
         await env.DB.prepare("DELETE FROM bookings WHERE id = ?1").bind(id).run();
+        return json(env, { ok: true });
+      }
+
+      /* ---- Rendez-vous lëschten (viewer+) ---- */
+      if (path === "/appointments" && method === "GET") {
+        if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
+        await ensureAppts(env);
+        const as = (await env.DB.prepare("SELECT * FROM appointments ORDER BY id DESC LIMIT 1000").all()).results || [];
+        const evs = (await env.DB.prepare("SELECT appointment_id, action, by_user, note, at FROM appointment_events ORDER BY id ASC").all()).results || [];
+        const byId = {};
+        evs.forEach((e) => { (byId[e.appointment_id] = byId[e.appointment_id] || []).push({ action: e.action, by: e.by_user, at: e.at, note: e.note || "" }); });
+        return json(env, { appointments: as.map((a) => ({ id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, vin: a.vin, msg: a.msg, status: a.status, events: byId[a.id] || [] })) });
+      }
+
+      /* ---- Rendez-vous Status änneren (validator+) ---- */
+      m = path.match(/^\/appointments\/(\d+)\/status$/);
+      if (m && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
+        await ensureAppts(env);
+        const id = parseInt(m[1], 10);
+        const status = clip(bodyData.status, 20);
+        const labels = { confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss", new: "Zrécksetzen" };
+        if (!labels[status]) return json(env, { error: "bad_status" }, 400);
+        const ex = await env.DB.prepare("SELECT id FROM appointments WHERE id = ?1").bind(id).first();
+        if (!ex) return json(env, { error: "not_found" }, 404);
+        await env.DB.prepare("UPDATE appointments SET status = ?1 WHERE id = ?2").bind(status, id).run();
+        await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,?3,?4)").bind(id, labels[status], me.username, clip(bodyData.note, 500)).run();
+        return json(env, { ok: true });
+      }
+
+      /* ---- Rendez-vous läschen (admin) ---- */
+      m = path.match(/^\/appointments\/(\d+)$/);
+      if (m && method === "DELETE") {
+        if (me.role !== "admin") return json(env, { error: "forbidden" }, 403);
+        await ensureAppts(env);
+        const id = parseInt(m[1], 10);
+        await env.DB.prepare("DELETE FROM appointment_events WHERE appointment_id = ?1").bind(id).run();
+        await env.DB.prepare("DELETE FROM appointments WHERE id = ?1").bind(id).run();
         return json(env, { ok: true });
       }
 
