@@ -254,12 +254,15 @@ async function sendBookingReceipt(env, bookingId, booking) {
 async function ensureAppts(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS appointments (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT, phone TEXT, service TEXT, vehicle TEXT, pref_date TEXT, alt_date TEXT, daytime TEXT, vin TEXT, msg TEXT, lang TEXT, kind TEXT NOT NULL DEFAULT 'appointment', status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS appointment_events (id INTEGER PRIMARY KEY AUTOINCREMENT, appointment_id INTEGER NOT NULL, action TEXT NOT NULL, by_user TEXT, note TEXT, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+  try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_appts_status ON appointments(status)").run(); } catch (e) {}
+  try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_appt_events_aid ON appointment_events(appointment_id)").run(); } catch (e) {}
   // Defensiv: Spalt "kind" bei enger aler Tabell derbäisetzen (ignoréiert wann se scho besteet).
   try { await env.DB.prepare("ALTER TABLE appointments ADD COLUMN kind TEXT NOT NULL DEFAULT 'appointment'").run(); } catch (e) {}
 }
 async function ensureMaint(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS maintenance (id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle TEXT NOT NULL, service TEXT NOT NULL, due_date TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT)").run();
   try { await env.DB.prepare("ALTER TABLE maintenance ADD COLUMN fleet_status TEXT NOT NULL DEFAULT 'ready'").run(); } catch (e) {}
+  try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_maint_public ON maintenance(public_active)").run(); } catch (e) {}
   const cols = [
     ["description","TEXT"],["image_url","TEXT"],["price_day","REAL"],["year","TEXT"],["seats","TEXT"],
     ["fuel","TEXT"],["transmission","TEXT"],["license_class","TEXT"],["load_space","TEXT"],
@@ -272,6 +275,24 @@ async function ensureMaint(env) {
 }
 async function ensureRentalInspections(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS rental_inspections (id INTEGER PRIMARY KEY AUTOINCREMENT, booking_id INTEGER NOT NULL, stage TEXT NOT NULL, inspected_at TEXT NOT NULL, odometer INTEGER, fuel_level TEXT, condition_note TEXT, damage_note TEXT, photo_refs TEXT, accessories TEXT, license_checked INTEGER NOT NULL DEFAULT 0, deposit_amount REAL, extra_km INTEGER, extra_costs REAL, customer_signature TEXT, staff_signature TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT, UNIQUE(booking_id, stage))").run();
+  try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_inspections_booking ON rental_inspections(booking_id)").run(); } catch (e) {}
+}
+/* ---------- Deeglecht Backup vun der D1-Datebank op R2 ---------- */
+async function runBackup(env) {
+  if (!env.MEDIA) return { ok: false, error: "no_media" };
+  const tables = ["bookings", "booking_events", "appointments", "appointment_events", "maintenance", "rental_inspections", "request_consents", "member_events"];
+  const dump = { exportedAt: new Date().toISOString(), db: "garage-admin", tables: {} };
+  for (const tbl of tables) {
+    try { dump.tables[tbl] = (await env.DB.prepare("SELECT * FROM " + tbl).all()).results || []; }
+    catch (e) { dump.tables[tbl] = []; }
+  }
+  // Memberen ouni Passwuert-Hash (manner sensibel Backup)
+  try { dump.tables.users = (await env.DB.prepare("SELECT username,name,role,active,must_change FROM users").all()).results || []; } catch (e) {}
+  const now = new Date();
+  const key = "backups/" + now.getUTCFullYear() + "/" + now.toISOString().slice(0, 10) + ".json";
+  const body = JSON.stringify(dump);
+  await env.MEDIA.put(key, body, { httpMetadata: { contentType: "application/json", cacheControl: "private, no-store" }, customMetadata: { kind: "backup" } });
+  return { ok: true, key, bytes: body.length };
 }
 async function sendNewApptNotice(env, apptId, a) {
   const inq = a.kind === "inquiry";
@@ -428,8 +449,8 @@ export default {
       /* ---- public: aktiv Gefierer aus der interner Flotte ---- */
       if (path === "/fleet/public" && method === "GET") {
         await ensureMaint(env);
-        const rows = (await env.DB.prepare("SELECT id,vehicle,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,deposit,features,asset_type,gross_weight,payload,braked FROM maintenance WHERE public_active=1 AND fleet_status!='blocked' ORDER BY id ASC").all()).results || [];
-        return json(env, { vehicles: rows.map((x) => ({ id:"fleet-"+x.id,type:["van","car","trailer"].includes(x.asset_type)?x.asset_type:"van",name:x.vehicle,description:x.description||"",image:x.image_url||"",priceDay:Number(x.price_day||0),year:x.year||"",seats:x.seats||"",fuel:x.fuel||"",transmission:x.transmission||"",licenseClass:x.license_class||"",loadSpace:x.load_space||"",grossWeight:x.gross_weight||"",payload:x.payload||"",braked:!!x.braked,deposit:x.deposit==null?null:Number(x.deposit),features:String(x.features||"").split("\n").map((v)=>v.trim()).filter(Boolean) })) });
+        const rows = (await env.DB.prepare("SELECT id,vehicle,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,deposit,features,asset_type,gross_weight,payload,braked,featured FROM maintenance WHERE public_active=1 AND fleet_status!='blocked' ORDER BY featured DESC, id ASC").all()).results || [];
+        return json(env, { vehicles: rows.map((x) => ({ id:"fleet-"+x.id,type:["van","car","trailer"].includes(x.asset_type)?x.asset_type:"van",name:x.vehicle,description:x.description||"",image:x.image_url||"",priceDay:Number(x.price_day||0),year:x.year||"",seats:x.seats||"",fuel:x.fuel||"",transmission:x.transmission||"",licenseClass:x.license_class||"",loadSpace:x.load_space||"",grossWeight:x.gross_weight||"",payload:x.payload||"",braked:!!x.braked,deposit:x.deposit==null?null:Number(x.deposit),featured:!!x.featured,features:String(x.features||"").split("\n").map((v)=>v.trim()).filter(Boolean) })) }, 200, { "Cache-Control": "public, max-age=120" });
       }
 
       /* ---- Fotoen aus dem private R2-Bucket ausliwweren ----
@@ -728,6 +749,31 @@ export default {
         return json(env, { ok:true });
       }
 
+      /* ---- Backup (admin) ---- */
+      if (path === "/backup/run" && method === "POST") {
+        if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
+        const r = await runBackup(env);
+        return json(env, r.ok ? { ok: true, key: r.key, bytes: r.bytes } : { error: "no_media" }, r.ok ? 200 : 503);
+      }
+      if (path === "/backups" && method === "GET") {
+        if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
+        if (!env.MEDIA) return json(env, { error: "server_not_configured" }, 503);
+        const listed = await env.MEDIA.list({ prefix: "backups/", limit: 200 });
+        const items = (listed.objects || []).map((o) => ({ key: o.key, size: o.size, uploaded: o.uploaded })).sort((a, b) => (a.key < b.key ? 1 : -1));
+        return json(env, { backups: items });
+      }
+      m = path.match(/^\/backup\/file$/);
+      if (m && method === "GET") {
+        if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
+        if (!env.MEDIA) return json(env, { error: "server_not_configured" }, 503);
+        const key = clip(url.searchParams.get("key") || "", 200);
+        if (!/^backups\/[0-9]{4}\/[0-9]{4}-[0-9]{2}-[0-9]{2}\.json$/.test(key)) return json(env, { error: "not_found" }, 404);
+        const object = await env.MEDIA.get(key);
+        if (!object) return json(env, { error: "not_found" }, 404);
+        const headers = new Headers(cors(env, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "private, no-store", "Content-Disposition": 'attachment; filename="' + key.split("/").pop() + '"' }));
+        return new Response(object.body, { headers });
+      }
+
       /* ---- members (admin only) ---- */
       if (path === "/members" && method === "GET") {
         if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
@@ -830,8 +876,15 @@ export default {
 
       return json(env, { error: "not_found" }, 404);
     } catch (e) {
-      return json(env, { error: "server_error", detail: String(e && e.message || e) }, 500);
+      // Keng intern Feelerdetailer no baussen (nëmme loggen).
+      console.error("server_error", e && e.stack || e);
+      return json(env, { error: "server_error" }, 500);
     }
+  },
+
+  // Deeglecht Cron (wrangler [triggers]) — Backup vun der Datebank op R2.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(runBackup(env).catch(function () {}));
   },
 };
 

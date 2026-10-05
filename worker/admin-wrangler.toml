@@ -23,3 +23,7 @@ database_id = "14fccce6-50bf-4dd7-9d76-e8576c47ce2a"
 [[r2_buckets]]
 binding = "MEDIA"
 bucket_name = "garage-media"
+
+# Deeglecht Backup vun der D1-Datebank op R2 (03:17 UTC).
+[triggers]
+crons = ["17 3 * * *"]
