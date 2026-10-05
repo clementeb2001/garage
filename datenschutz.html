@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://formsubmit.co https://cloudflareinsights.com; form-action 'self' https://formsubmit.co; frame-src 'none'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://cloudflareinsights.com; form-action 'self'; frame-src 'none'; upgrade-insecure-requests" />
     <meta name="robots" content="noindex,follow" />
     <meta
       name="description"
@@ -92,41 +92,12 @@
             >.
           </p>
 
-          <h2>Terminanfragen über FormSubmit</h2>
-          <p>
-            Wenn Sie das Anfrageformular absenden, werden die von Ihnen
-            eingegebenen Daten verschlüsselt an den Dienst FormSubmit übertragen
-            und von dort per E-Mail an uns weitergeleitet. Verarbeitet werden je
-            nach Eingabe Name, E-Mail-Adresse, Telefonnummer, gewünschte
-            Leistung, Wunsch- und Alternativdatum, Tageszeit, Fahrgestellnummer (VIN) sowie
-            der Inhalt Ihrer Nachricht. Pflichtfelder sind als solche
-            gekennzeichnet; ohne diese Angaben können wir die Anfrage nicht über
-            das Formular bearbeiten.
-          </p>
-          <p>
-            Die Verarbeitung erfolgt zur Beantwortung Ihrer Anfrage und zur
-            Durchführung vorvertraglicher Maßnahmen gemäß Art. 6 Abs. 1 lit. b
-            DSGVO. Empfänger der Daten sind Autoservice Bettenduerf, FormSubmit
-            als technischer Übermittlungsdienst und die beteiligten
-            E-Mail-Anbieter. FormSubmit verarbeitet Formulardaten nach eigenen
-            Angaben nur zur Bereitstellung seines Dienstes. Weitere
-            Informationen enthält die
-            <a
-              href="https://formsubmit.co/privacy.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Datenschutzerklärung von FormSubmit</a
-            >.
-          </p>
-          <p>
-            Da FormSubmit und GitHub internationale Dienste sind, kann eine
-            Verarbeitung in Staaten außerhalb des Europäischen Wirtschaftsraums
-            stattfinden. Informationen zu Empfängern, Verarbeitungsorten und den
-            jeweils eingesetzten Garantien finden Sie in den verlinkten
-            Datenschutzerklärungen der Anbieter. Bitte übermitteln Sie über das
-            Freitextfeld keine Gesundheitsdaten oder andere nicht erforderliche
-            sensible Angaben.
-          </p>
+          <h2>Terminanfragen über Cloudflare D1 und Resend</h2>
+          <p>Wenn Sie das Rendez-vous-Formular absenden, verarbeiten wir je nach Eingabe Name, E-Mail-Adresse, Telefonnummer, gewünschte Leistung, Fahrzeug, Wunsch- und Alternativdatum, Tageszeit, Fahrgestellnummer (VIN) sowie den Inhalt Ihrer Nachricht. Pflichtfelder sind als solche gekennzeichnet. Die Angaben werden über einen Cloudflare Worker in unserer Cloudflare-D1-Datenbank gespeichert; zur Benachrichtigung nutzen wir den E-Mail-Dienst Resend. Rechtsgrundlage ist die Beantwortung Ihrer Anfrage und die Durchführung vorvertraglicher Maßnahmen gemäß Art. 6 Abs. 1 lit. b DSGVO.</p>
+          <p>Empfänger sind Autoservice Bettenduerf sowie Cloudflare und Resend als technische Dienstleister. Dabei kann eine Verarbeitung außerhalb des EWR stattfinden; es gelten die Garantien und Datenschutzbestimmungen der Anbieter. Bitte übermitteln Sie über das Freitextfeld keine Gesundheitsdaten oder andere nicht erforderlichen sensiblen Angaben.</p>
+
+          <h2>Produktanfragen im Shop über FormSubmit</h2>
+          <p>Für die Produkt- bzw. Passgenauigkeitsanfrage im Shop („Passt das zu meinem Fahrzeug?“) werden die eingegebenen Daten (u. a. Name, E-Mail-Adresse, Telefonnummer, Fahrzeugdaten und Nachricht) verschlüsselt an den Dienst FormSubmit übertragen und von dort per E-Mail an uns weitergeleitet. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. Empfänger sind Autoservice Bettenduerf, FormSubmit als technischer Übermittlungsdienst und die beteiligten E-Mail-Anbieter. Da FormSubmit ein internationaler Dienst ist, kann eine Verarbeitung außerhalb des EWR stattfinden. Weitere Informationen enthält die <a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noopener noreferrer">Datenschutzerklärung von FormSubmit</a>.</p>
 
           <h2>Mietanfragen über Cloudflare D1 und Resend</h2>
           <p>Bei einer Mietanfrage verarbeiten wir die ausgewählten Fahrzeuge oder Anhänger, den gewünschten Zeitraum, Name, E-Mail-Adresse, Telefonnummer und Ihre Nachricht. Die Angaben werden über einen Cloudflare Worker in unserer Cloudflare-D1-Datenbank gespeichert. Zur Bearbeitung und für Statusnachrichten nutzen wir Resend als E-Mail-Dienst. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO.</p>
@@ -299,44 +270,12 @@
               >.
             </p>
 
-            <h2>Demandes de rendez-vous via FormSubmit</h2>
-            <p>
-              Lorsque vous envoyez le formulaire de demande, les données que vous
-              saisissez sont transmises de manière chiffrée au service FormSubmit,
-              qui nous les transfère ensuite par e-mail. Sont traités, selon votre
-              saisie, le nom, l’adresse e-mail, le numéro de téléphone, la
-              prestation souhaitée, la date souhaitée et une date alternative, le
-              moment de la journée, le numéro de châssis (VIN) ainsi que le
-              contenu de votre message. Les champs obligatoires sont indiqués
-              comme tels ; sans ces informations, nous ne pouvons pas traiter la
-              demande via le formulaire.
-            </p>
-            <p>
-              Le traitement a lieu pour répondre à votre demande et pour exécuter
-              des mesures précontractuelles conformément à l’art. 6, par. 1,
-              point b) du RGPD. Les destinataires des données sont Autoservice
-              Bettenduerf, FormSubmit en tant que service technique de
-              transmission et les fournisseurs de messagerie concernés. Selon ses
-              propres indications, FormSubmit ne traite les données du formulaire
-              que pour fournir son service. De plus amples informations figurent
-              dans la
-              <a
-                href="https://formsubmit.co/privacy.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                >politique de confidentialité de FormSubmit</a
-              >.
-            </p>
-            <p>
-              FormSubmit et GitHub étant des services internationaux, un
-              traitement peut avoir lieu dans des pays situés en dehors de
-              l’Espace économique européen. Vous trouverez des informations sur
-              les destinataires, les lieux de traitement et les garanties
-              appliquées dans les politiques de confidentialité liées des
-              fournisseurs. Merci de ne pas transmettre, via le champ de texte
-              libre, de données de santé ou d’autres informations sensibles non
-              nécessaires.
-            </p>
+            <h2>Demandes de rendez-vous via Cloudflare D1 et Resend</h2>
+            <p>Lorsque vous envoyez le formulaire de rendez-vous, nous traitons, selon votre saisie, le nom, l’adresse e-mail, le numéro de téléphone, la prestation souhaitée, le véhicule, la date souhaitée et une date alternative, le moment de la journée, le numéro de châssis (VIN) ainsi que le contenu de votre message. Les champs obligatoires sont indiqués comme tels. Les données sont enregistrées dans notre base Cloudflare D1 via un Cloudflare Worker ; pour la notification, nous utilisons le service d’e-mail Resend. La base juridique est la réponse à votre demande et l’exécution de mesures précontractuelles conformément à l’art. 6, par. 1, point b) du RGPD.</p>
+            <p>Les destinataires sont Autoservice Bettenduerf ainsi que Cloudflare et Resend en tant que prestataires techniques. Un traitement hors de l’EEE peut avoir lieu ; les garanties et politiques de confidentialité des prestataires s’appliquent. Merci de ne pas transmettre, via le champ de texte libre, de données de santé ou d’autres informations sensibles non nécessaires.</p>
+
+            <h2>Demandes de produits dans la boutique via FormSubmit</h2>
+            <p>Pour la demande de produit ou de compatibilité dans la boutique (« Est-ce compatible avec mon véhicule ? »), les données saisies (nom, adresse e-mail, téléphone, données du véhicule et message, entre autres) sont transmises de manière chiffrée au service FormSubmit, qui nous les transfère ensuite par e-mail. La base juridique est l’art. 6, par. 1, point b) du RGPD. Les destinataires sont Autoservice Bettenduerf, FormSubmit en tant que service technique de transmission et les fournisseurs de messagerie concernés. FormSubmit étant un service international, un traitement peut avoir lieu hors de l’EEE. De plus amples informations figurent dans la <a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noopener noreferrer">politique de confidentialité de FormSubmit</a>.</p>
 
             <h2>Demandes de location via Cloudflare D1 et Resend</h2>
             <p>Lors d’une demande de location, nous traitons les véhicules ou remorques sélectionnés, la période souhaitée, votre nom, votre adresse e-mail, votre numéro de téléphone et votre message. Les données sont enregistrées dans notre base Cloudflare D1 via un Cloudflare Worker. Resend est utilisé pour le traitement et les messages de statut. La base juridique est l’article 6, paragraphe 1, point b) du RGPD.</p>
@@ -512,38 +451,12 @@
               >.
             </p>
 
-            <h2>Appointment requests via FormSubmit</h2>
-            <p>
-              When you submit the request form, the data you enter is transmitted
-              in encrypted form to the FormSubmit service and forwarded from there
-              to us by e-mail. Depending on your input, we process your name,
-              e-mail address, phone number, the service requested, preferred and
-              alternative dates, time of day, vehicle identification number (VIN)
-              and the content of your message. Mandatory fields are marked as such;
-              without this information we cannot process the request via the form.
-            </p>
-            <p>
-              The processing is carried out to respond to your request and to take
-              pre-contractual steps pursuant to Art. 6(1)(b) GDPR. Recipients of
-              the data are Autoservice Bettenduerf, FormSubmit as the technical
-              transmission service and the e-mail providers involved. According to
-              its own statements, FormSubmit processes form data only to provide
-              its service. Further information is available in
-              <a
-                href="https://formsubmit.co/privacy.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                >FormSubmit’s privacy policy</a
-              >.
-            </p>
-            <p>
-              As FormSubmit and GitHub are international services, processing may
-              take place in countries outside the European Economic Area.
-              Information on recipients, places of processing and the safeguards
-              applied can be found in the providers’ linked privacy policies.
-              Please do not submit health data or other unnecessary sensitive
-              information via the free-text field.
-            </p>
+            <h2>Appointment requests via Cloudflare D1 and Resend</h2>
+            <p>When you submit the appointment form, depending on your input we process your name, e-mail address, phone number, the service requested, the vehicle, preferred and alternative dates, time of day, vehicle identification number (VIN) and the content of your message. Mandatory fields are marked as such. The data is stored in our Cloudflare D1 database through a Cloudflare Worker; for the notification we use the e-mail service Resend. The legal basis is responding to your request and taking pre-contractual steps pursuant to Art. 6(1)(b) GDPR.</p>
+            <p>Recipients are Autoservice Bettenduerf and Cloudflare and Resend as technical service providers. Processing outside the EEA may occur; the providers’ safeguards and privacy policies apply. Please do not submit health data or other unnecessary sensitive information via the free-text field.</p>
+
+            <h2>Product enquiries in the shop via FormSubmit</h2>
+            <p>For the product or fitment enquiry in the shop (“Does this fit my vehicle?”), the data you enter (including name, e-mail address, phone number, vehicle details and message) is transmitted in encrypted form to the FormSubmit service and forwarded to us by e-mail. The legal basis is Art. 6(1)(b) GDPR. Recipients are Autoservice Bettenduerf, FormSubmit as the technical transmission service and the e-mail providers involved. As FormSubmit is an international service, processing may take place outside the EEA. Further information is available in <a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noopener noreferrer">FormSubmit’s privacy policy</a>.</p>
 
             <h2>Rental requests via Cloudflare D1 and Resend</h2>
             <p>When you submit a rental request, we process the selected vehicles or trailers, requested period, name, e-mail address, telephone number and your message. The data is stored in our Cloudflare D1 database through a Cloudflare Worker. We use Resend to process the request and send status messages. The legal basis is Article 6(1)(b) GDPR.</p>

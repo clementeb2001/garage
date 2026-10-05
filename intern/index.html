@@ -191,6 +191,7 @@
         <nav class="topnav" id="topnav">
           <button type="button" data-page="dashboard" class="active">Dashboard</button>
           <button type="button" data-page="bookings">Reservatiounen <span id="nav-new-badge" class="nav-badge" hidden></span></button>
+          <button type="button" data-page="appointments">Rendez-vous <span id="nav-appt-badge" class="nav-badge" hidden></span></button>
           <button type="button" data-page="members" id="nav-members" hidden>Memberen</button>
         </nav>
         <div class="who"><span id="who-name"></span><button class="btn btn-ghost" id="btn-pw" type="button">Passwuert</button><button class="btn btn-ghost" id="btn-logout" type="button">Ausloggen</button></div>
@@ -257,6 +258,18 @@
         <p class="footer-note">Live-Verwaltung · D'Reservatioune ginn um séchere Cloudflare-Server gespäichert an d'Zougäng server-säiteg kontrolléiert.</p>
       </div>
 
+      <!-- Appointments page -->
+      <div class="wrap" id="page-appointments" hidden>
+        <div class="page-head">
+          <h2 class="page-title">Rendez-vous</h2>
+        </div>
+        <p class="muted" id="appt-sub" style="margin:2px 0 0;font-size:0.9rem"></p>
+        <input type="search" id="appt-search" class="booking-search" placeholder="Sichen (Numm, E-Mail, Service, Réf.) …" autocomplete="off" />
+        <div class="filters" id="appt-filters"></div>
+        <div id="appt-list"></div>
+        <p class="footer-note">Rendez-vous-Ufroen vun der Kontakt-Formulaire · um séchere Cloudflare-Server gespäichert.</p>
+      </div>
+
       <!-- Members page -->
       <div class="wrap" id="page-members" hidden>
         <div class="page-head"><h2 class="page-title">Memberen</h2></div>
@@ -286,6 +299,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=11"></script>
+    <script src="intern.js?v=12"></script>
   </body>
 </html>
