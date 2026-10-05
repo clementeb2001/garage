@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=66" />
+    <link rel="stylesheet" href="styles.css?v=67" />
     <script src="location-gate.js?v=1"></script>
   </head>
   <body class="rental-page">
@@ -148,6 +148,18 @@
         </div>
       </section>
 
+      <section class="rental-trust" aria-labelledby="rental-trust-title">
+        <div class="container">
+          <p class="eyebrow" id="rental-trust-eyebrow">Lokal · transparent · perséinlech</p>
+          <h2 id="rental-trust-title">Äre Transporter, direkt bei Ärer Garage</h2>
+          <div class="rental-trust-grid">
+            <article><span aria-hidden="true">🔧</span><h3 id="rental-trust-workshop-title">An der eegener Garage betreit</h3><p id="rental-trust-workshop-text">D’Gefier gëtt vun eis kontrolléiert a reegelméisseg ënnerhalen.</p></article>
+            <article><span aria-hidden="true">📍</span><h3 id="rental-trust-local-title">Lokal Ofhuelung</h3><p id="rental-trust-local-text">Perséinlech Iwwergab beim Autoservice Bettenduerf zu Bettendorf.</p></article>
+            <article><span aria-hidden="true">💬</span><h3 id="rental-trust-contact-title">Eng richteg Kontaktpersoun</h3><p id="rental-trust-contact-text">Mir kontrolléieren all Ufro a klären oppe Froen direkt mat Iech.</p></article>
+          </div>
+        </div>
+      </section>
+
 
       <!-- Ablauf und Bedingungen -->
       <section class="rental-info" aria-labelledby="rental-info-title">
@@ -181,10 +193,17 @@
       <section class="rental-reserve" id="reserve">
         <div class="container rental-reserve-inner">
           <div class="rental-summary">
+            <p class="rental-step" id="rental-step-1">Schrëtt 1 vun 3 · Gefier an Zäitraum</p>
             <h2 id="rental-sel-h">Är Auswiel</h2>
             <p class="rental-empty" id="rental-empty">Nach näischt ausgewielt. Wielt uewen Äert Material aus.</p>
             <p class="rental-availability-note" id="rental-availability-note">D’Disponibilitéit gëtt no Ärer Ufro manuell kontrolléiert.</p>
             <ul class="rental-sel-list" id="rental-sel-list"></ul>
+            <div class="rental-price-summary" id="rental-price-summary" aria-live="polite">
+              <div><span id="rental-price-days-label">Berechent Mietdauer</span><strong id="rental-price-days">—</strong></div>
+              <div><span id="rental-price-rate-label">Dagespräis</span><strong id="rental-price-rate">—</strong></div>
+              <div class="rental-price-total"><span id="rental-price-total-label">Viraussiichtleche Mietpräis</span><strong id="rental-price-total">—</strong></div>
+              <p id="rental-price-disclaimer">D’Endkonditioune ginn Iech virun der verbindlicher Bestätegung matgedeelt.</p>
+            </div>
           </div>
 
           <form
@@ -199,6 +218,7 @@
             <input type="hidden" name="Material" id="rental-hidden-items" value="" />
             <input type="text" name="_honey" tabindex="-1" autocomplete="off" class="sr-only" aria-hidden="true" />
 
+            <p class="rental-step" id="rental-step-2">Schrëtt 2 vun 3 · Är Donnéeën</p>
             <h2 id="rental-form-h">Reservéieren</h2>
 
             <div class="field-row">
@@ -235,6 +255,7 @@
 
 
             <section class="rental-review" aria-labelledby="rental-review-title">
+              <p class="rental-step" id="rental-step-3">Schrëtt 3 vun 3 · Kontrolléieren</p>
               <h3 id="rental-review-title">Ufro iwwerpréiwen</h3>
               <dl class="rental-review-list">
                 <div><dt id="rental-review-items-label">Auswiel</dt><dd id="rental-review-items">Nach näischt ausgewielt</dd></div>
@@ -258,6 +279,14 @@
             <p class="form-status" id="rental-status" role="status" aria-live="polite"></p>
             <p class="rental-note" id="rental-note">D'Reservéierung ass eng Ufro a gëtt vun eis bestätegt.</p>
           </form>
+        </div>
+      </section>
+
+      <section class="rental-faq" aria-labelledby="rental-faq-title">
+        <div class="container">
+          <p class="eyebrow" id="rental-faq-eyebrow">Gutt ze wëssen</p>
+          <h2 id="rental-faq-title">Heefeg Froen zum Verlee</h2>
+          <div class="rental-faq-list" id="rental-faq-list"></div>
         </div>
       </section>
     </main>
@@ -305,7 +334,7 @@
     <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
     <script src="script.js?v=20"></script>
-    <script src="location.js?v=13"></script>
+    <script src="location.js?v=14"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->

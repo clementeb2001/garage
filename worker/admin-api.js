@@ -226,6 +226,25 @@ async function sendNewBookingNotice(env, bookingId, booking) {
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Intern Notifikatioun geschéckt" : "Intern Notifikatioun feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
+async function sendBookingReceipt(env, bookingId, booking) {
+  const L = ["lb", "de", "fr", "en"].includes(booking.lang) ? booking.lang : "lb";
+  const ref = "AB-L-" + String(bookingId).padStart(5, "0");
+  const copy = {
+    lb: { subject: "Mir hunn Är Verleih-Ufro kritt – " + ref, title: "Är Ufro ass ukomm", intro: "Mir kontrolléieren elo d’Disponibilitéit an d’Konditiounen. Dëst ass nach keng verbindlech Buchung.", vehicle: "Gefier", from: "Vun", to: "Bis", next: "Mir mellen eis mat enger perséinlecher Bestätegung oder enger Alternativ." },
+    de: { subject: "Wir haben Ihre Verleih-Anfrage erhalten – " + ref, title: "Ihre Anfrage ist eingegangen", intro: "Wir prüfen nun Verfügbarkeit und Bedingungen. Dies ist noch keine verbindliche Buchung.", vehicle: "Fahrzeug", from: "Von", to: "Bis", next: "Wir melden uns mit einer persönlichen Bestätigung oder einer Alternative." },
+    fr: { subject: "Nous avons reçu votre demande de location – " + ref, title: "Votre demande est bien arrivée", intro: "Nous vérifions maintenant la disponibilité et les conditions. Il ne s’agit pas encore d’une réservation ferme.", vehicle: "Véhicule", from: "Du", to: "Au", next: "Nous vous recontactons avec une confirmation personnelle ou une alternative." },
+    en: { subject: "We received your rental request – " + ref, title: "Your request has arrived", intro: "We are now checking availability and conditions. This is not yet a binding booking.", vehicle: "Vehicle", from: "From", to: "Until", next: "We will contact you with a personal confirmation or an alternative." }
+  }[L];
+  const html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430">' +
+    '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +
+    '<div style="border:1px solid #e6e9ee;border-top:0;border-radius:0 0 10px 10px;padding:20px"><h2 style="margin:0 0 8px;color:#2e7d5b">✓ ' + esc(copy.title) + '</h2><p>' + esc(copy.intro) + '</p>' +
+    '<p><b>Ref.:</b> ' + esc(ref) + '<br><b>' + esc(copy.vehicle) + ':</b> ' + esc(booking.veh) + '<br><b>' + esc(copy.from) + ':</b> ' + esc(booking.from_dt.replace("T", " ")) + '<br><b>' + esc(copy.to) + ':</b> ' + esc(booking.to_dt.replace("T", " ")) + '</p><p>' + esc(copy.next) + '</p>' +
+    '<p style="color:#8a96a2;font-size:12px">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87</p></div></div>';
+  const text = copy.title + "\n\n" + copy.intro + "\n\nRef.: " + ref + "\n" + copy.vehicle + ": " + booking.veh + "\n" + copy.from + ": " + booking.from_dt.replace("T", " ") + "\n" + copy.to + ": " + booking.to_dt.replace("T", " ") + "\n\n" + copy.next;
+  const result = await sendEmail(env, booking.cust_email, copy.subject, html, text);
+  await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
+    .bind(bookingId, result.ok ? "Empfangsmail geschéckt" : "Empfangsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
+}
 async function ensureAppts(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS appointments (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT, phone TEXT, service TEXT, vehicle TEXT, pref_date TEXT, alt_date TEXT, daytime TEXT, vin TEXT, msg TEXT, lang TEXT, kind TEXT NOT NULL DEFAULT 'appointment', status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS appointment_events (id INTEGER PRIMARY KEY AUTOINCREMENT, appointment_id INTEGER NOT NULL, action TEXT NOT NULL, by_user TEXT, note TEXT, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
@@ -375,8 +394,9 @@ export default {
         const id = r.meta.last_row_id;
         await saveConsent(env, "booking", id, bodyData.privacy, bodyData.terms);
         await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,'Ufro erakomm','System','')").bind(id).run();
-        ctx.waitUntil(sendNewBookingNotice(env, id, { veh, from_dt: from, to_dt: to, cust_name: name, cust_email: email }));
-        return json(env, { ok: true, id });
+        const mailData = { veh, from_dt: from, to_dt: to, cust_name: name, cust_email: email, lang: ["lb","de","fr","en"].includes(bodyData.lang) ? bodyData.lang : "lb" };
+        ctx.waitUntil(Promise.all([sendNewBookingNotice(env, id, mailData), sendBookingReceipt(env, id, mailData)]));
+        return json(env, { ok: true, id, ref: "AB-L-" + String(id).padStart(5, "0") });
       }
 
       /* ---- public: Disponibilitéit (nëmme bestätegt Perioden, keng perséinlech Donnéeën) ---- */

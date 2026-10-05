@@ -157,6 +157,12 @@
   function doAct(id, status) { if (!can("bookings.validate")) return; var noteEl = $("note-" + id), note = noteEl ? noteEl.value.trim() : ""; STORE.setStatus(id, status, note).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Reservatioun " + refOf(id) + ": " + (STATUS[status] || status).toLowerCase() + "."); renderBookings(); }); }
   function doDelBooking(id) { if (!can("members.manage")) return; if (!confirm("Reservatioun " + refOf(id) + " endgülteg läschen?")) return; STORE.delBooking(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Reservatioun " + refOf(id) + " geläscht."); renderBookings(); }); }
   function dtLocal(v) { v = String(v || ""); var m = v.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/); return m ? m[1] : ""; }
+  function rentalEstimate(b) {
+    var from = new Date(b.from), to = new Date(b.to);
+    if (isNaN(from) || isNaN(to) || to <= from || String(b.veh || "").toLowerCase().indexOf("renault master") === -1) return "";
+    var days = Math.max(1, Math.ceil((to - from) / 86400000));
+    return days + " × 24 h · viraussiichtlech " + (days * 80) + " €";
+  }
   function bookingCard(b) {
     var el = document.createElement("div"); el.className = "booking" + (b.status === "new" ? " is-new" : "");
     var canVal = can("bookings.validate"), isAdmin = can("members.manage");
@@ -189,6 +195,7 @@
     el.innerHTML =
       '<div class="b-top"><div><div class="b-veh">' + esc(b.veh) + '</div><div class="b-id">Réf. ' + refOf(b.id) + "</div></div><span class=\"status status-" + b.status + '">' + esc(STATUS[b.status]) + "</span></div>" +
       '<div class="b-dates">' + fmt(b.from) + '<span class="arrow">→</span>' + fmt(b.to) + "</div>" +
+      (rentalEstimate(b) ? '<div class="b-estimate">💶 ' + esc(rentalEstimate(b)) + '</div>' : '') +
       '<div class="b-cust"><strong>' + esc(b.name) + "</strong><span>✉ " + esc(b.email) + "</span>" + (b.phone ? "<span>☎ " + esc(b.phone) + "</span>" : "") + "</div>" +
       (b.msg ? '<p class="b-msg">' + esc(b.msg) + "</p>" : "") +
       (actions ? '<div class="b-actions">' + actions + "</div>" : "") +
