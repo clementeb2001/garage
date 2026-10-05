@@ -506,11 +506,17 @@
       @media (max-width: 760px) {
         html.pwa-standalone .topbar { padding-top: calc(9px + env(safe-area-inset-top)); }
       }
-      /* ===== Protokoll-PDF (Drécken → "Als PDF späicheren") ===== */
+      /* ===== Protokoll-Dokument: Virschau um Ecran + Drécken/PDF ===== */
       #protocol-print-root { display: none; }
+      #protocol-print-root.open { display: block; position: fixed; inset: 0; background: rgba(8,15,24,0.62); z-index: 300; overflow: auto; padding: 18px 12px calc(18px + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling: touch; }
+      .pp-bar { max-width: 210mm; margin: 0 auto 12px; display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+      .pp-bar .pp-hint { margin-right: auto; color: #cdd8e3; font-size: 0.82rem; }
+      #protocol-print-root.open .pp-doc { background: #fff; max-width: 210mm; margin: 0 auto; padding: 16mm 15mm; box-shadow: 0 24px 60px rgba(0,0,0,0.45); border-radius: 4px; }
       @media print {
         body.protocol-printing > *:not(#protocol-print-root) { display: none !important; }
-        body.protocol-printing #protocol-print-root { display: block !important; }
+        body.protocol-printing #protocol-print-root.open { display: block !important; position: static; background: #fff; padding: 0; overflow: visible; }
+        #protocol-print-root.open .pp-doc { box-shadow: none; max-width: none; margin: 0; padding: 0; border-radius: 0; }
+        .pp-noprint { display: none !important; }
         @page { size: A4; margin: 12mm; }
       }
       .pp-doc { color: #111827; font-family: system-ui, -apple-system, sans-serif; font-size: 11pt; line-height: 1.45; }
@@ -781,6 +787,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=36"></script>
+    <script src="intern.js?v=37"></script>
   </body>
 </html>

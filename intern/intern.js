@@ -247,11 +247,14 @@
         '<footer class="pp-foot">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87 · autoservicebettenduerf.lu</footer>' +
         "</div>";
       var root = $("protocol-print-root"); if (!root) return;
-      root.innerHTML = html;
+      root.innerHTML = '<div class="pp-bar pp-noprint"><span class="pp-hint">Virschau — „Drécken / PDF" fir als PDF ze späicheren.</span><button type="button" class="btn btn-primary btn-sm" id="pp-print">🖨️ Drécken / PDF</button><button type="button" class="btn btn-ghost btn-sm" id="pp-close">Zoumaachen</button></div>' + html;
+      root.classList.add("open");
       document.body.classList.add("protocol-printing");
-      function cleanup() { document.body.classList.remove("protocol-printing"); window.removeEventListener("afterprint", cleanup); }
-      window.addEventListener("afterprint", cleanup);
-      setTimeout(function () { window.print(); }, 400);
+      document.body.style.overflow = "hidden";
+      function close() { root.classList.remove("open"); document.body.classList.remove("protocol-printing"); document.body.style.overflow = ""; root.innerHTML = ""; }
+      $("pp-close").addEventListener("click", close);
+      root.addEventListener("click", function (e) { if (e.target === root) close(); });
+      $("pp-print").addEventListener("click", function () { try { window.print(); } catch (e) { toast("Drécken net méiglech op dësem Apparat – benotzt d'Deele-Funktioun fir als PDF ze späicheren."); } });
     });
   }
   function saveProtocol(b,stage) { var p="pr-"+b.id+"-"+stage+"-",pickup=stage==="pickup",canvas=$(p+"signature"),existing=decodeURIComponent(canvas.dataset.existing||""),signature=Promise.resolve(existing);if(canvas._signed)signature=signatureBlob(canvas).then(function(blob){return STORE.uploadProtocolImage(blob);}).then(function(r){if(!r||r.error)throw new Error("signature_upload");return r.url;});signature.then(function(signatureUrl){if(!signatureUrl){toast("D'Ënnerschrëft vum Client feelt.");return;}return STORE.saveInspection({bookingId:b.id,stage:stage,inspectedAt:$(p+"at").value,odometer:$(p+"km").value,fuelLevel:$(p+"fuel").value,depositAmount:"",extraKm:pickup?"":$(p+"extraKm").value,extraCosts:pickup?"":$(p+"extraCosts").value,conditionNote:$(p+"condition").value,damageNote:$(p+"damage").value,photoRefs:$(p+"photos").value,accessories:$(p+"accessories").value,customerSignature:signatureUrl,staffSignature:$(p+"staff").value,licenseChecked:pickup?$(p+"license").checked:false,note:$(p+"note").value});}).then(function(r){if(!r)return;if(r.error){toast(errMsg(r.error));return;}toast("Protokoll gespäichert.");renderBookings();}).catch(function(){toast("Ënnerschrëft konnt net gespäichert ginn.");}); }
