@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="AB Verwaltung" />
     <style>
       :root {
@@ -457,6 +457,12 @@
           scroll-snap-align: start;
         }
       }
+      @media (display-mode: standalone) and (max-width: 760px) {
+        .topbar { padding-top: calc(9px + env(safe-area-inset-top)); }
+      }
+      @media (max-width: 760px) {
+        html.pwa-standalone .topbar { padding-top: calc(9px + env(safe-area-inset-top)); }
+      }
     </style>
   </head>
   <body>
@@ -667,6 +673,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=26"></script>
+    <script src="intern.js?v=27"></script>
   </body>
 </html>
