@@ -22,72 +22,27 @@
   /* ---- Katalog: Präis bewosst „op Ufro" — reell Präisser kann de Garage aginn ---- */
   var CATALOG = [
     {
-      id: "plateau",
-      cat: "trailer",
-      icon: "flatbed",
-      name: { lb: "Plateau-Unhänger 750 kg", de: "Plateau-Anhänger 750 kg", fr: "Remorque plateau 750 kg", en: "Flatbed trailer 750 kg" },
-      specs: {
-        lb: ["Nutzlaascht bis 750 kg", "Ongebremst", "Führerschäin B duergeet"],
-        de: ["Nutzlast bis 750 kg", "Ungebremst", "Führerschein B ausreichend"],
-        fr: ["Charge utile jusqu'à 750 kg", "Sans freins", "Permis B suffisant"],
-        en: ["Payload up to 750 kg", "Unbraked", "Licence B is enough"],
-      },
-    },
-    {
-      id: "kipper",
-      cat: "trailer",
-      icon: "tipper",
-      name: { lb: "Kippunhänger 1300 kg", de: "Kippanhänger 1300 kg", fr: "Remorque benne 1300 kg", en: "Tipper trailer 1300 kg" },
-      specs: {
-        lb: ["Nutzlaascht bis 1300 kg", "Hydraulescht Kippen", "Gebremst · Führerschäin BE"],
-        de: ["Nutzlast bis 1300 kg", "Hydraulisch kippbar", "Gebremst · Führerschein BE"],
-        fr: ["Charge utile jusqu'à 1300 kg", "Benne hydraulique", "Freinée · permis BE"],
-        en: ["Payload up to 1300 kg", "Hydraulic tipping", "Braked · licence BE"],
-      },
-    },
-    {
-      id: "autotrans",
-      cat: "trailer",
-      icon: "cartrans",
-      name: { lb: "Autotransporter", de: "Autotransporter", fr: "Remorque porte-voiture", en: "Car-transport trailer" },
-      specs: {
-        lb: ["Fir 1 Auto", "Gebremst", "Uschléissrampe abegraff"],
-        de: ["Für 1 Fahrzeug", "Gebremst", "Auffahrschienen inklusive"],
-        fr: ["Pour 1 voiture", "Freinée", "Rampes incluses"],
-        en: ["For 1 car", "Braked", "Loading ramps included"],
-      },
-    },
-    {
-      id: "koffer",
-      cat: "trailer",
-      icon: "box",
-      name: { lb: "Kofferunhänger (zou)", de: "Kofferanhänger (geschlossen)", fr: "Remorque fermée", en: "Enclosed box trailer" },
-      specs: {
-        lb: ["Dréchen a geséchert", "Ofschléissbar", "Fir empfindlecht Transportgutt"],
-        de: ["Trocken & geschützt", "Abschließbar", "Für empfindliche Ladung"],
-        fr: ["Sec et protégé", "Verrouillable", "Pour charges sensibles"],
-        en: ["Dry & protected", "Lockable", "For sensitive loads"],
-      },
-    },
-    {
-      id: "ersatzwagen",
-      cat: "vehicle",
-      icon: "car",
-      name: { lb: "Ersatzween", de: "Ersatzwagen", fr: "Véhicule de remplacement", en: "Courtesy car" },
-      specs: {
-        lb: ["Wärend der Reparatur", "Klenge Stadtween", "Op Ufro disponibel"],
-        de: ["Während der Reparatur", "Kompakter Stadtwagen", "Auf Anfrage verfügbar"],
-        fr: ["Pendant la réparation", "Citadine compacte", "Disponible sur demande"],
-        en: ["During your repair", "Compact city car", "Available on request"],
-      },
-    },
-    {
       id: "master",
       cat: "vehicle",
       icon: "van",
       img: "assets/rental-renault-master.webp",
       priceDay: 80,
-      name: { lb: "Renault Master – Transporter", de: "Renault Master – Transporter", fr: "Renault Master – Camionnette", en: "Renault Master – Van" },
+      featured: true,
+      name: { lb: "Renault Master", de: "Renault Master", fr: "Renault Master", en: "Renault Master" },
+      tagline: {
+        lb: "Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.",
+        de: "Großer Transporter für Umzug, Transport und sperrige Ladung.",
+        fr: "Grand utilitaire pour déménagement, transport et charges volumineuses.",
+        en: "Large van for moving, transport and bulky loads.",
+      },
+      facts: [
+        { ic: "📦", lb: "Grousse Luedraum (L2H2)", de: "Großer Laderaum (L2H2)", fr: "Grand volume (L2H2)", en: "Large load space (L2H2)" },
+        { ic: "⛽", lb: "Diesel", de: "Diesel", fr: "Diesel", en: "Diesel" },
+        { ic: "🪑", lb: "3 Sëtzplazen", de: "3 Sitzplätze", fr: "3 places", en: "3 seats" },
+        { ic: "⚖️", lb: "bis 3,5 t", de: "bis 3,5 t", fr: "jusqu'à 3,5 t", en: "up to 3.5 t" },
+        { ic: "🪪", lb: "Führerschäin B", de: "Führerschein B", fr: "Permis B", en: "Licence B" },
+        { ic: "📅", lb: "Baujoer 2021", de: "Baujahr 2021", fr: "Année 2021", en: "Year 2021" },
+      ],
       specs: {
         lb: ["Fir Ëmzuch a Transport", "Grousse Luedraum (L2H2)", "Diesel · Führerschäin B duergeet", "Vollgetankt zréckbréngen"],
         de: ["Für Umzug & Transport", "Großer Laderaum (L2H2)", "Diesel · Führerschein B ausreichend", "Vollgetankt zurückbringen"],
@@ -101,8 +56,8 @@
   var T = {
     lb: {
       eyebrow: "Location · Verlee",
-      title: "Material a Gefierer verlounen",
-      sub: "Wielt Ären Unhänger oder Äert Gefier aus, gitt Äre Reservéierungszäitraum un – mir bestätegen Iech Är Ufro.",
+      title: "Transporter & Gefierer lounen",
+      sub: "Wielt Äert Gefier, gitt Äre Reservéierungszäitraum un – mir bestätegen Iech Är Ufro perséinlech.",
       nav: "Location · geschwënn",
       soon_eyebrow: "Location · Verlee",
       soon_title: "Eise Verlee ass an der Aarbecht",
@@ -112,7 +67,7 @@
       cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",
       cat_trailer_lbl: "Unhänger", cat_vehicle_lbl: "Gefier",
       price: "Präis op Ufro",
-      perDay: "Dag", payOnReturn: "Bezuelt bei der Retour · vollgetankt zréckbréngen",
+      perDay: "Dag", payOnReturn: "Bezuelt bei der Retour · vollgetankt zréckbréngen", featured_label: "Eise Transporter",
       select: "Auswielen", selected: "Ausgewielt", remove: "Ewechhuelen",
       sel_h: "Är Auswiel", empty: "Nach näischt ausgewielt. Wielt uewen dat gewënschte Material aus.",
       form_h: "Reservéieren",
@@ -132,8 +87,8 @@
     },
     de: {
       eyebrow: "Location · Verleih",
-      title: "Material & Fahrzeuge mieten",
-      sub: "Wählen Sie Ihren Anhänger oder Ihr Fahrzeug, geben Sie den Mietzeitraum an – wir bestätigen Ihre Anfrage.",
+      title: "Transporter & Fahrzeuge mieten",
+      sub: "Wählen Sie Ihr Fahrzeug, geben Sie den Mietzeitraum an – wir bestätigen Ihre Anfrage persönlich.",
       nav: "Verleih · bald",
       soon_eyebrow: "Verleih",
       soon_title: "Unser Verleih ist in Arbeit",
@@ -143,7 +98,7 @@
       cat_all: "Alles", cat_trailer: "Anhänger", cat_vehicle: "Fahrzeuge",
       cat_trailer_lbl: "Anhänger", cat_vehicle_lbl: "Fahrzeug",
       price: "Preis auf Anfrage",
-      perDay: "Tag", payOnReturn: "Zahlung bei Rückgabe · vollgetankt zurückbringen",
+      perDay: "Tag", payOnReturn: "Zahlung bei Rückgabe · vollgetankt zurückbringen", featured_label: "Unser Transporter",
       select: "Auswählen", selected: "Ausgewählt", remove: "Entfernen",
       sel_h: "Ihre Auswahl", empty: "Noch nichts ausgewählt. Wählen Sie oben Ihr Material.",
       form_h: "Reservieren",
@@ -163,8 +118,8 @@
     },
     fr: {
       eyebrow: "Location",
-      title: "Louer du matériel & des véhicules",
-      sub: "Choisissez votre remorque ou votre véhicule, indiquez la période de location – nous confirmons votre demande.",
+      title: "Louer un utilitaire & des véhicules",
+      sub: "Choisissez votre véhicule, indiquez la période de location – nous confirmons votre demande personnellement.",
       nav: "Location · bientôt",
       soon_eyebrow: "Location",
       soon_title: "Notre location est en préparation",
@@ -174,7 +129,7 @@
       cat_all: "Tout", cat_trailer: "Remorques", cat_vehicle: "Véhicules",
       cat_trailer_lbl: "Remorque", cat_vehicle_lbl: "Véhicule",
       price: "Prix sur demande",
-      perDay: "jour", payOnReturn: "Paiement au retour · à rendre le plein fait",
+      perDay: "jour", payOnReturn: "Paiement au retour · à rendre le plein fait", featured_label: "Notre utilitaire",
       select: "Choisir", selected: "Sélectionné", remove: "Retirer",
       sel_h: "Votre sélection", empty: "Rien de sélectionné. Choisissez votre matériel ci-dessus.",
       form_h: "Réserver",
@@ -194,8 +149,8 @@
     },
     en: {
       eyebrow: "Rental",
-      title: "Rent equipment & vehicles",
-      sub: "Pick your trailer or vehicle, enter your rental period – we confirm your request.",
+      title: "Rent a van & vehicles",
+      sub: "Pick your vehicle, enter your rental period – we confirm your request personally.",
       nav: "Rental · soon",
       soon_eyebrow: "Rental",
       soon_title: "Our rental service is in the works",
@@ -205,7 +160,7 @@
       cat_all: "All", cat_trailer: "Trailers", cat_vehicle: "Vehicles",
       cat_trailer_lbl: "Trailer", cat_vehicle_lbl: "Vehicle",
       price: "Price on request",
-      perDay: "day", payOnReturn: "Pay on return · bring it back with a full tank",
+      perDay: "day", payOnReturn: "Pay on return · bring it back with a full tank", featured_label: "Our van",
       select: "Select", selected: "Selected", remove: "Remove",
       sel_h: "Your selection", empty: "Nothing selected yet. Pick your equipment above.",
       form_h: "Reserve",
@@ -360,6 +315,7 @@
     CATALOG.forEach(function (it) {
       if (state.cat !== "all" && it.cat !== state.cat) return;
       var picked = state.selected.indexOf(it.id) !== -1;
+      if (it.featured) { grid.appendChild(featureCard(it, L, m, picked)); return; }
       var card = document.createElement("article");
       card.className = "rental-card" + (picked ? " is-selected" : "");
       var specs = (it.specs[L] || it.specs.lb)
@@ -384,6 +340,30 @@
         "</button></div></div>";
       grid.appendChild(card);
     });
+  }
+
+  function featureCard(it, L, m, picked) {
+    var card = document.createElement("article");
+    card.className = "rental-feature" + (picked ? " is-selected" : "");
+    var facts = (it.facts || []).map(function (f) {
+      return '<li><span class="vf-ic" aria-hidden="true">' + f.ic + "</span>" + (f[L] || f.lb) + "</li>";
+    }).join("");
+    var cta = picked ? "✓ " + m.selected : m.select;
+    card.innerHTML =
+      '<div class="vf-media"><span class="rental-ribbon">' + catLabel(it.cat) + "</span>" +
+      '<img class="rental-photo" src="' + it.img + '" alt="' + (it.name[L] || it.name.lb) + '" loading="lazy" decoding="async" /></div>' +
+      '<div class="vf-info">' +
+      '<p class="vf-eyebrow">' + m.featured_label + "</p>" +
+      "<h3>" + (it.name[L] || it.name.lb) + "</h3>" +
+      (it.tagline ? '<p class="vf-lead">' + (it.tagline[L] || it.tagline.lb) + "</p>" : "") +
+      '<ul class="vf-facts">' + facts + "</ul>" +
+      '<div class="vf-foot">' +
+      '<div class="vf-price"><span class="vf-amount">' + it.priceDay + ' €</span><span class="vf-unit"> / ' + m.perDay + "</span></div>" +
+      '<button type="button" class="btn btn-primary rental-select" data-id="' + it.id + '">' + cta + "</button>" +
+      "</div>" +
+      '<p class="vf-note">💶 ' + m.payOnReturn + "</p>" +
+      "</div>";
+    return card;
   }
 
   function renderSelection() {
@@ -674,7 +654,7 @@
         st.className = "form-status ok";
         st.textContent = m.ok;
         f.reset();
-        state.selected = [];
+        state.selected = (CATALOG.length === 1) ? [CATALOG[0].id] : [];
         renderCatalog();
         renderSelection();
       })
@@ -706,6 +686,8 @@
   }
 
   function init() {
+    // Bei engem eenzege Gefier gëtt et automatesch virausgewielt (keng Auswiel néideg).
+    if (CATALOG.length === 1 && !state.selected.length) state.selected = [CATALOG[0].id];
     applyStatics();
     renderCatalog();
     renderSelection();
