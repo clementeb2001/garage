@@ -103,7 +103,12 @@ function allowedOrigins(env) {
 }
 function resolveOrigin(request, env) {
   const origin = request.headers.get("Origin") || "";
-  return allowedOrigins(env).indexOf(origin) !== -1 ? origin : (env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu");
+  // Erlaabt: apex/www vun der konfiguréierter Domain, soss all gëltegen https-Origin
+  // (Token/Passwuert-Schutz maachen dat sécher). Sou klappt CORS onofhängeg vun der
+  // ALLOW_ORIGIN-Konfiguratioun, egal op apex, www oder eng aner Variant benotzt gëtt.
+  if (allowedOrigins(env).indexOf(origin) !== -1) return origin;
+  if (/^https:\/\/[A-Za-z0-9.-]+(:\d+)?$/.test(origin)) return origin;
+  return env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
 }
 function cors(env, extra) {
   return Object.assign({
@@ -334,7 +339,7 @@ export default {
     try {
       /* ---- public: neng Reservatiounsufro (vum Location-Formulaire) ---- */
       if (path === "/bookings" && method === "POST") {
-        if (allowedOrigins(env).indexOf(request.headers.get("Origin") || "") === -1) return json(env, { error: "forbidden_origin" }, 403);
+        if (!/^https:\/\/(?:[a-z0-9-]+\.)*autoservicebettenduerf\.lu$/i.test(request.headers.get("Origin") || "")) return json(env, { error: "forbidden_origin" }, 403);
         if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
         if (bodyData.website) return json(env, { ok: true }, 202);
         if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
@@ -368,7 +373,7 @@ export default {
 
       /* ---- public: neie Rendez-vous (vun der Kontakt-Formulaire) ---- */
       if (path === "/appointments" && method === "POST") {
-        if (allowedOrigins(env).indexOf(request.headers.get("Origin") || "") === -1) return json(env, { error: "forbidden_origin" }, 403);
+        if (!/^https:\/\/(?:[a-z0-9-]+\.)*autoservicebettenduerf\.lu$/i.test(request.headers.get("Origin") || "")) return json(env, { error: "forbidden_origin" }, 403);
         if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
         if (bodyData.website) return json(env, { ok: true }, 202);
         if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
