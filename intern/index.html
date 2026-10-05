@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="AB Verwaltung" />
     <style>
       :root {
@@ -210,8 +210,11 @@
         .bar-tools { gap: 6px; }
         .kbtn { padding: 0; width: 36px; height: 36px; justify-content: center; gap: 0; }
         .kbtn .k-label, .kbtn kbd { display: none; }
-        .topnav { grid-column: 1 / -1; order: 3; width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; padding: 2px 0 4px; }
-        .topnav button { flex: 0 0 auto; min-height: 42px; padding: 8px 12px; white-space: nowrap; }
+        .topnav { grid-column: 1 / -1; order: 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; overflow: visible; padding: 2px 0 4px; gap: 6px; }
+        .topnav button { min-width: 0; min-height: 42px; padding: 8px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.78rem; }
+        .who .btn { width: 36px; height: 36px; padding: 0; display: grid; place-items: center; overflow: hidden; font-size: 0; }
+        #btn-pw::before { content: "🔑"; font-size: 1rem; }
+        #btn-logout::before { content: "↪"; font-size: 1.15rem; font-weight: 800; }
         .dash-grid { grid-template-columns: 1fr; }
         .stat-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .stat { min-width: 0; padding: 13px 14px; }
@@ -231,18 +234,14 @@
       @media print { .topbar, .testbar, .filters, .b-actions, .b-note-input, #btn-export, #btn-print, #btn-reset { display: none !important; } .booking { break-inside: avoid; } }
       [hidden] { display: none !important; }
 
-      /* ===== Platz fir d'Statusbar/Notch an der installéierter App =====
-         Garantéierten Ofstand: env() wann den Apparat e richtege Wäert gëtt,
-         soss op mannst 60px. Gëllt nëmmen an der App (display-mode standalone
-         oder via JS-Klass .pwa-standalone op <html>), NET am normale Browser. */
+      /* ===== Installéiert App =====
+         iOS reservéiert mam Statusbar-Modus "black" selwer de richtege Raum.
+         Kee feste Padding a keng iwwerlagernd Fläch: domat bleift d'Kappzeil
+         op Apparater mat an ouni Dynamic Island ëmmer komplett sichtbar. */
       @media (display-mode: standalone) {
         .testbar { display: none; }
-        body { padding-top: max(env(safe-area-inset-top, 0px), 60px); }
-        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: max(env(safe-area-inset-top, 0px), 60px); background: var(--navy); z-index: 1000; pointer-events: none; }
       }
       html.pwa-standalone .testbar { display: none; }
-      html.pwa-standalone body { padding-top: max(env(safe-area-inset-top, 0px), 60px); }
-      html.pwa-standalone body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: max(env(safe-area-inset-top, 0px), 60px); background: var(--navy); z-index: 1000; pointer-events: none; }
 
       /* ===== Topbar icon buttons + command palette trigger ===== */
       .bar-tools { display: flex; align-items: center; gap: 8px; }
@@ -434,7 +433,7 @@
             <button class="iconbtn" id="btn-install" type="button" title="App installéieren" aria-label="App installéieren" hidden>📱</button>
             <button class="iconbtn" id="btn-theme" type="button" title="Hell / Däischter" aria-label="Theme wiesselen">🌙</button>
           </div>
-          <span id="who-name"></span><button class="btn btn-ghost" id="btn-pw" type="button">Passwuert</button><button class="btn btn-ghost" id="btn-logout" type="button">Ausloggen</button>
+          <span id="who-name"></span><button class="btn btn-ghost" id="btn-pw" type="button" title="Passwuert änneren" aria-label="Passwuert änneren">Passwuert</button><button class="btn btn-ghost" id="btn-logout" type="button" title="Ausloggen" aria-label="Ausloggen">Ausloggen</button>
         </div>
       </div>
 
@@ -608,6 +607,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=24"></script>
+    <script src="intern.js?v=25"></script>
   </body>
 </html>
