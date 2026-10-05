@@ -608,18 +608,19 @@
       <!-- Flotte page -->
       <div class="wrap" id="page-wartung" hidden>
         <div class="page-head"><h2 class="page-title">Flotte</h2></div>
-        <p class="muted" id="wartung-sub" style="margin:2px 0 0;font-size:0.9rem">Disponibilitéit, Zoustand an déi nächst Wartung vun all Verleihgefier op enger Plaz.</p>
+        <p class="muted" id="wartung-sub" style="margin:2px 0 0;font-size:0.9rem">Disponibilitéit, Zoustand an déi nächst Wartung vun all Gefier an Unhänger op enger Plaz.</p>
         <div id="wartung-body" class="fleet-list"></div>
-        <h3 style="margin:24px 0 2px;font-size:1.05rem">Gefier an d'Flotte bäisetzen</h3>
+        <h3 style="margin:24px 0 2px;font-size:1.05rem">Verleihobjet an d'Flotte bäisetzen</h3>
         <form class="add-form fleet-form" id="wartung-form" autocomplete="off">
-          <div class="field"><label for="w-veh">Auto</label><input id="w-veh" type="text" required placeholder="z.B. VW Caddy" /></div>
+          <div class="field"><label for="w-type">Typ</label><select id="w-type"><option value="van">Transporter</option><option value="car">Auto</option><option value="trailer">Unhänger</option></select></div>
+          <div class="field"><label for="w-veh">Numm / Modell</label><input id="w-veh" type="text" required placeholder="z.B. VW Caddy oder Humbaur HA" /></div>
           <div class="field"><label for="w-status">Status</label><select id="w-status"><option value="ready">Asazbereet</option><option value="rented">Verlount</option><option value="service">Am Service</option><option value="blocked">Gespaart</option></select></div>
           <div class="field"><label for="w-service">Service</label><input id="w-service" type="text" required placeholder="z.B. Vidange" /></div>
           <div class="field"><label for="w-due">Fälleg (Datum)</label><input id="w-due" type="date" /></div>
           <div class="field"><label for="w-note">Notiz</label><input id="w-note" type="text" placeholder="fräiwëlleg" /></div>
           <div class="field"><label for="w-description">Beschreiwung</label><textarea id="w-description" rows="2" placeholder="Kuerz Beschreiwung fir d'Verleihsäit"></textarea></div>
           <div class="field fleet-photo-field">
-            <label>Gefierfoto</label>
+            <label>Foto vum Verleihobjet</label>
             <div class="fleet-photo-row">
               <div id="w-image-placeholder" class="fleet-photo-preview fleet-photo-placeholder">Nach kee Bild</div>
               <img id="w-image-preview" class="fleet-photo-preview" alt="Virschau vum Gefierfoto" hidden />
@@ -642,10 +643,13 @@
           <div class="field"><label for="w-fuel">Kraftstoff</label><input id="w-fuel" type="text" /></div>
           <div class="field"><label for="w-transmission">Getriebe</label><input id="w-transmission" type="text" /></div>
           <div class="field"><label for="w-license">Führerschäin</label><input id="w-license" type="text" placeholder="B" /></div>
-          <div class="field"><label for="w-load">Luedraum / Kapazitéit</label><input id="w-load" type="text" /></div>
+          <div class="field"><label for="w-load">Luedraum / Dimensiounen</label><input id="w-load" type="text" /></div>
+          <div class="field"><label for="w-gross">Zoulässegt Gesamtgewiicht</label><input id="w-gross" type="text" placeholder="z.B. 750 kg" /></div>
+          <div class="field"><label for="w-payload">Notzlaascht</label><input id="w-payload" type="text" placeholder="z.B. 550 kg" /></div>
           <div class="field"><label for="w-deposit">Kautioun (€)</label><input id="w-deposit" type="number" min="0" step="0.01" /></div>
           <div class="field"><label for="w-features">Ausstattung</label><textarea id="w-features" rows="3" placeholder="Eng Eegenschaft pro Zeil"></textarea></div>
           <label class="protocol-check"><input id="w-active" type="checkbox" /> Op der Verleihsäit weisen</label>
+          <label class="protocol-check" id="w-braked-wrap"><input id="w-braked" type="checkbox" /> Gebremsten Unhänger</label>
           <button class="btn btn-primary" type="submit">Bäisetzen</button>
         </form>
         <p class="muted" id="wartung-msg" style="font-size:0.82rem;margin-top:8px"></p>
@@ -736,6 +740,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=32"></script>
+    <script src="intern.js?v=33"></script>
   </body>
 </html>

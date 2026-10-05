@@ -59,11 +59,13 @@
   ];
   function fleetItem(v) {
     var name={lb:v.name,de:v.name,fr:v.name,en:v.name}, desc=v.description||"", tagline={lb:desc,de:desc,fr:desc,en:desc};
-    var facts=[]; function fact(ic,val){if(val)facts.push({ic:ic,lb:val,de:val,fr:val,en:val});}
-    fact("📦",v.loadSpace); fact("⛽",v.fuel); fact("⚙️",v.transmission); fact("🪑",v.seats?String(v.seats)+" Sëtzplazen":""); fact("🪪",v.licenseClass?"Führerschäin "+v.licenseClass:""); fact("📅",v.year?"Baujoer "+v.year:"");
-    var rows=[["Luedraum",v.loadSpace],["Sëtzplazen",v.seats],["Kraftstoff",v.fuel],["Getriebe",v.transmission],["Führerschäin",v.licenseClass],["Kautioun",v.deposit==null?"":v.deposit+" €"]].filter(function(r){return r[1];});
+    var trailer=v.type==="trailer",facts=[]; function fact(ic,val){if(val)facts.push({ic:ic,lb:val,de:val,fr:val,en:val});}
+    fact("📦",v.loadSpace); fact("⚖️",v.grossWeight); fact("🏋️",v.payload); if(trailer)fact("🛞",v.braked?"Gebremst":"Ongebremst");
+    if(!trailer){fact("⛽",v.fuel);fact("⚙️",v.transmission);fact("🪑",v.seats?String(v.seats)+" Sëtzplazen":"");}
+    fact("🪪",v.licenseClass?"Führerschäin "+v.licenseClass:""); fact("📅",v.year?"Baujoer "+v.year:"");
+    var rows=[[trailer?"Dimensiounen":"Luedraum",v.loadSpace],["Gesamtgewiicht",v.grossWeight],["Notzlaascht",v.payload],["Brems",trailer?(v.braked?"Gebremst":"Ongebremst"):""],["Sëtzplazen",trailer?"":v.seats],["Kraftstoff",trailer?"":v.fuel],["Getriebe",trailer?"":v.transmission],["Führerschäin",v.licenseClass],["Kautioun",v.deposit==null?"":v.deposit+" €"]].filter(function(r){return r[1];});
     var details={lb:rows,de:rows,fr:rows,en:rows}, specs=(v.features||[]).length?v.features:[desc];
-    return {id:v.id,cat:"vehicle",icon:"van",img:v.image||"assets/rental-renault-master.webp",priceDay:Number(v.priceDay||0),featured:false,name:name,tagline:tagline,facts:facts,details:details,specs:{lb:specs,de:specs,fr:specs,en:specs}};
+    return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:Number(v.priceDay||0),featured:false,name:name,tagline:tagline,facts:facts,details:details,specs:{lb:specs,de:specs,fr:specs,en:specs}};
   }
   function loadFleet() {
     return fetch("https://garage-admin.autoservicebettenduerf.lu/fleet/public", {headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw new Error("fleet");return r.json();}).then(function(data){
@@ -77,7 +79,7 @@
   var T = {
     lb: {
       eyebrow: "Location · Verlee",
-      title: "Transporter & Gefierer lounen",
+      title: "Gefierer & Unhänger lounen",
       sub: "Wielt Äert Gefier, gitt Äre Reservéierungszäitraum un – mir bestätegen Iech Är Ufro perséinlech.",
       nav: "Location · geschwënn",
       soon_eyebrow: "Location · Verlee",
@@ -88,7 +90,7 @@
       cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",
       cat_trailer_lbl: "Unhänger", cat_vehicle_lbl: "Gefier",
       price: "Präis op Ufro",
-      perDay: "Dag", payOnReturn: "Bezuelt bei der Retour · vollgetankt zréckbréngen", featured_label: "Eise Transporter",
+      perDay: "Dag", payOnReturn: "Bezuelt bei der Retour · vollgetankt zréckbréngen", payOnReturnTrailer:"Bezuelt bei der Retour · propper zréckbréngen", featured_label: "Eise Transporter",
       select: "Auswielen", selected: "Ausgewielt", remove: "Ewechhuelen",
       sel_h: "Är Auswiel", empty: "Nach näischt ausgewielt. Wielt uewen dat gewënschte Material aus.",
       form_h: "Reservéieren",
@@ -108,7 +110,7 @@
     },
     de: {
       eyebrow: "Location · Verleih",
-      title: "Transporter & Fahrzeuge mieten",
+      title: "Fahrzeuge & Anhänger mieten",
       sub: "Wählen Sie Ihr Fahrzeug, geben Sie den Mietzeitraum an – wir bestätigen Ihre Anfrage persönlich.",
       nav: "Verleih · bald",
       soon_eyebrow: "Verleih",
@@ -119,7 +121,7 @@
       cat_all: "Alles", cat_trailer: "Anhänger", cat_vehicle: "Fahrzeuge",
       cat_trailer_lbl: "Anhänger", cat_vehicle_lbl: "Fahrzeug",
       price: "Preis auf Anfrage",
-      perDay: "Tag", payOnReturn: "Zahlung bei Rückgabe · vollgetankt zurückbringen", featured_label: "Unser Transporter",
+      perDay: "Tag", payOnReturn: "Zahlung bei Rückgabe · vollgetankt zurückbringen", payOnReturnTrailer:"Zahlung bei Rückgabe · sauber zurückbringen", featured_label: "Unser Transporter",
       select: "Auswählen", selected: "Ausgewählt", remove: "Entfernen",
       sel_h: "Ihre Auswahl", empty: "Noch nichts ausgewählt. Wählen Sie oben Ihr Material.",
       form_h: "Reservieren",
@@ -139,7 +141,7 @@
     },
     fr: {
       eyebrow: "Location",
-      title: "Louer un utilitaire & des véhicules",
+      title: "Louer des véhicules & remorques",
       sub: "Choisissez votre véhicule, indiquez la période de location – nous confirmons votre demande personnellement.",
       nav: "Location · bientôt",
       soon_eyebrow: "Location",
@@ -150,7 +152,7 @@
       cat_all: "Tout", cat_trailer: "Remorques", cat_vehicle: "Véhicules",
       cat_trailer_lbl: "Remorque", cat_vehicle_lbl: "Véhicule",
       price: "Prix sur demande",
-      perDay: "jour", payOnReturn: "Paiement au retour · à rendre le plein fait", featured_label: "Notre utilitaire",
+      perDay: "jour", payOnReturn: "Paiement au retour · à rendre le plein fait", payOnReturnTrailer:"Paiement au retour · à rendre propre", featured_label: "Notre utilitaire",
       select: "Choisir", selected: "Sélectionné", remove: "Retirer",
       sel_h: "Votre sélection", empty: "Rien de sélectionné. Choisissez votre matériel ci-dessus.",
       form_h: "Réserver",
@@ -170,7 +172,7 @@
     },
     en: {
       eyebrow: "Rental",
-      title: "Rent a van & vehicles",
+      title: "Rent vehicles & trailers",
       sub: "Pick your vehicle, enter your rental period – we confirm your request personally.",
       nav: "Rental · soon",
       soon_eyebrow: "Rental",
@@ -181,7 +183,7 @@
       cat_all: "All", cat_trailer: "Trailers", cat_vehicle: "Vehicles",
       cat_trailer_lbl: "Trailer", cat_vehicle_lbl: "Vehicle",
       price: "Price on request",
-      perDay: "day", payOnReturn: "Pay on return · bring it back with a full tank", featured_label: "Our van",
+      perDay: "day", payOnReturn: "Pay on return · bring it back with a full tank", payOnReturnTrailer:"Pay on return · return it clean", featured_label: "Our van",
       select: "Select", selected: "Selected", remove: "Remove",
       sel_h: "Your selection", empty: "Nothing selected yet. Pick your equipment above.",
       form_h: "Reserve",
@@ -380,7 +382,7 @@
         '<div class="rental-body">' +
         "<h3>" + (it.name[L] || it.name.lb) + "</h3>" +
         '<ul class="rental-specs">' + specs + "</ul>" +
-        (it.priceDay ? '<p class="rental-paynote">' + m.payOnReturn + "</p>" : "") +
+        (it.priceDay ? '<p class="rental-paynote">' + (it.cat==="trailer"?m.payOnReturnTrailer:m.payOnReturn) + "</p>" : "") +
         '<div class="rental-cardfoot">' +
         priceHtml +
         '<button type="button" class="btn rental-select" data-id="' + it.id + '">' +
