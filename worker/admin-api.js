@@ -432,16 +432,28 @@ export default {
         return json(env, { vehicles: rows.map((x) => ({ id:"fleet-"+x.id,type:["van","car","trailer"].includes(x.asset_type)?x.asset_type:"van",name:x.vehicle,description:x.description||"",image:x.image_url||"",priceDay:Number(x.price_day||0),year:x.year||"",seats:x.seats||"",fuel:x.fuel||"",transmission:x.transmission||"",licenseClass:x.license_class||"",loadSpace:x.load_space||"",grossWeight:x.gross_weight||"",payload:x.payload||"",braked:!!x.braked,deposit:x.deposit==null?null:Number(x.deposit),features:String(x.features||"").split("\n").map((v)=>v.trim()).filter(Boolean) })) });
       }
 
-      /* ---- public: Fotoen aus dem private R2-Bucket ausliwweren ---- */
+      /* ---- Fotoen aus dem private R2-Bucket ausliwweren ----
+         fleet/ = ëffentlech (Katalog-Biller). protocol/ = nëmme fir ageloggte
+         Personal (Schuedensfotoen a Client-Ënnerschrëften: perséinlech Donnéeën,
+         ni ëffentlech cachen). */
       if (path.startsWith("/media/") && method === "GET") {
         if (!env.MEDIA) return json(env, { error:"server_not_configured" }, 503);
         const key = decodeURIComponent(path.slice(7));
         if (!/^(?:fleet|protocol)\/[a-z0-9/_-]+\.(?:webp|jpg|png)$/i.test(key)) return json(env, { error:"not_found" }, 404);
+        const isProtocol = key.slice(0, 9) === "protocol/";
+        if (isProtocol) {
+          const who = await authUser(request, env);
+          if (!who || !hasPerm(who.role, "bookings.view")) return json(env, { error: "unauthorized" }, 401);
+        }
         const object = await env.MEDIA.get(key);
         if (!object) return json(env, { error:"not_found" }, 404);
-        const headers = new Headers(cors(env, { "Cache-Control":"public, max-age=31536000, immutable", "X-Content-Type-Options":"nosniff" }));
+        const cacheControl = isProtocol ? "private, no-store" : "public, max-age=31536000, immutable";
+        const headers = new Headers(cors(env, { "X-Content-Type-Options":"nosniff" }));
         object.writeHttpMetadata(headers);
         headers.set("ETag", object.httpEtag);
+        // No writeHttpMetadata: d'gespäichert Cache-Control (immutable) iwwerschreiwen,
+        // fir datt Protokoll-Biller ni ëffentlech gecacht ginn.
+        headers.set("Cache-Control", cacheControl);
         return new Response(object.body, { headers });
       }
 
