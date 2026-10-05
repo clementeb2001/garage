@@ -436,7 +436,7 @@ export default {
       if (path.startsWith("/media/") && method === "GET") {
         if (!env.MEDIA) return json(env, { error:"server_not_configured" }, 503);
         const key = decodeURIComponent(path.slice(7));
-        if (!/^fleet\/[a-z0-9/_-]+\.(?:webp|jpg|png)$/i.test(key)) return json(env, { error:"not_found" }, 404);
+        if (!/^(?:fleet|protocol)\/[a-z0-9/_-]+\.(?:webp|jpg|png)$/i.test(key)) return json(env, { error:"not_found" }, 404);
         const object = await env.MEDIA.get(key);
         if (!object) return json(env, { error:"not_found" }, 404);
         const headers = new Headers(cors(env, { "Cache-Control":"public, max-age=31536000, immutable", "X-Content-Type-Options":"nosniff" }));
@@ -507,7 +507,7 @@ export default {
       if (!me) return json(env, { error: "unauthorized" }, 401);
 
       /* ---- Foto eroplueden (validator+) ---- */
-      if (path === "/media/fleet" && method === "POST") {
+      if ((path === "/media/fleet" || path === "/media/protocol") && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error:"forbidden" }, 403);
         if (!isAllowedOrigin(request, env)) return json(env, { error:"forbidden_origin" }, 403);
         if (!env.MEDIA) return json(env, { error:"server_not_configured" }, 503);
@@ -517,7 +517,7 @@ export default {
         if (!data.length || data.length > 3 * 1024 * 1024) return json(env, { error:"file_too_large" }, 413);
         const image = imageType(data);
         if (!image) return json(env, { error:"invalid_image" }, 415);
-        const now = new Date(), key = "fleet/" + now.getUTCFullYear() + "/" + String(now.getUTCMonth()+1).padStart(2,"0") + "/" + crypto.randomUUID() + "." + image.ext;
+        const now = new Date(), scope=path === "/media/protocol" ? "protocol" : "fleet", key = scope + "/" + now.getUTCFullYear() + "/" + String(now.getUTCMonth()+1).padStart(2,"0") + "/" + crypto.randomUUID() + "." + image.ext;
         await env.MEDIA.put(key, data, { httpMetadata:{ contentType:image.type, cacheControl:"public, max-age=31536000, immutable" }, customMetadata:{ uploadedBy:me.username } });
         return json(env, { ok:true, url:url.origin + "/media/" + key });
       }
@@ -709,7 +709,8 @@ export default {
         const odometer = bodyData.odometer === "" ? null : parseInt(bodyData.odometer, 10);
         if (!bookingId || ["pickup","return"].indexOf(stage) < 0 || !validDateTime(inspectedAt)) return json(env, { error: "invalid_fields" }, 400);
         if (!(await env.DB.prepare("SELECT id FROM bookings WHERE id=?1").bind(bookingId).first())) return json(env, { error: "not_found" }, 404);
-        const vals = [bookingId, stage, inspectedAt, Number.isFinite(odometer) ? odometer : null, clip(bodyData.fuelLevel,30), clip(bodyData.conditionNote,1000), clip(bodyData.damageNote,1500), clip(bodyData.photoRefs,2000), clip(bodyData.accessories,1000), bodyData.licenseChecked ? 1 : 0, bodyData.depositAmount === "" ? null : Number(bodyData.depositAmount), bodyData.extraKm === "" ? null : parseInt(bodyData.extraKm,10), bodyData.extraCosts === "" ? null : Number(bodyData.extraCosts), clip(bodyData.customerSignature,120), clip(bodyData.staffSignature,120), clip(bodyData.note,1500), me.username];
+        const pickup = stage === "pickup";
+        const vals = [bookingId, stage, inspectedAt, Number.isFinite(odometer) ? odometer : null, clip(bodyData.fuelLevel,30), clip(bodyData.conditionNote,1000), clip(bodyData.damageNote,1500), clip(bodyData.photoRefs,6000), clip(bodyData.accessories,1000), pickup && bodyData.licenseChecked ? 1 : 0, null, pickup ? null : (bodyData.extraKm === "" ? null : parseInt(bodyData.extraKm,10)), pickup ? null : (bodyData.extraCosts === "" ? null : Number(bodyData.extraCosts)), clip(bodyData.customerSignature,500), clip(bodyData.staffSignature,120), clip(bodyData.note,1500), me.username];
         await env.DB.prepare("INSERT INTO rental_inspections (booking_id,stage,inspected_at,odometer,fuel_level,condition_note,damage_note,photo_refs,accessories,license_checked,deposit_amount,extra_km,extra_costs,customer_signature,staff_signature,note,updated_by) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17) ON CONFLICT(booking_id,stage) DO UPDATE SET inspected_at=?3,odometer=?4,fuel_level=?5,condition_note=?6,damage_note=?7,photo_refs=?8,accessories=?9,license_checked=?10,deposit_amount=?11,extra_km=?12,extra_costs=?13,customer_signature=?14,staff_signature=?15,note=?16,updated_at=CURRENT_TIMESTAMP,updated_by=?17").bind(...vals).run();
         await env.DB.prepare("INSERT INTO booking_events (booking_id,action,by_user,note) VALUES (?1,?2,?3,?4)").bind(bookingId, stage === "pickup" ? "Iwwergabprotokoll gespäichert" : "Retourprotokoll gespäichert", me.username, clip(bodyData.damageNote || bodyData.note,500)).run();
         return json(env, { ok:true });

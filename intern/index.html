@@ -181,6 +181,16 @@
       .protocol-check { flex-direction:row!important; align-items:center; color:var(--fg)!important; }
       .protocol-check input { width:auto; }
       .protocol-saved { display:inline-flex; margin-left:5px; color:var(--ok); font-size:.72rem; font-weight:800; }
+      .protocol-photo-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:3px; }
+      .protocol-photo-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(82px,1fr)); gap:8px; margin-top:8px; }
+      .protocol-photo { position:relative; min-width:0; }
+      .protocol-photo img { width:100%; height:76px; display:block; object-fit:cover; border:1px solid var(--line); border-radius:8px; }
+      .protocol-photo button { position:absolute; top:3px; right:3px; width:25px; height:25px; padding:0; border:0; border-radius:50%; background:rgba(13,27,42,.82); color:#fff; font-weight:900; }
+      .signature-wrap { grid-column:1/-1; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
+      .signature-wrap > strong { display:block; margin-bottom:6px; font-size:.82rem; color:var(--fg); }
+      .signature-pad { width:100%; height:170px; display:block; border:1px dashed var(--mut); border-radius:8px; background:#fff; touch-action:none; cursor:crosshair; }
+      .signature-tools { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-top:7px; color:var(--mut); font-size:.74rem; }
+      .signature-existing { max-width:240px; max-height:90px; margin:8px 0 0; border:1px solid var(--line); border-radius:8px; background:#fff; }
       @media (max-width:900px) { .fleet-form { grid-template-columns:1fr 1fr; } .protocol-grid { grid-template-columns:1fr 1fr; } }
       @media (max-width:560px) { .fleet-form,.protocol-grid { grid-template-columns:1fr; } .fleet-photo-field { grid-column:auto; } .fleet-photo-row { grid-template-columns:84px 1fr; } .fleet-photo-preview { width:84px; height:70px; } .fleet-card { grid-template-columns:76px 1fr; } .fleet-card img { width:76px; height:62px; } .fleet-card .fleet-actions { grid-column:1/-1; } }
 
@@ -740,6 +750,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=33"></script>
+    <script src="intern.js?v=34"></script>
   </body>
 </html>

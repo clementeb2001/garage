@@ -46,10 +46,10 @@
       });
     });
   }
-  function uploadImage(blob) {
+  function uploadImage(blob, scope) {
     var headers = { "Content-Type": blob.type || "image/webp" };
     if (token) headers.Authorization = "Bearer " + token;
-    return fetch(API_BASE + "/media/fleet", { method:"POST", headers:headers, credentials:"include", body:blob }).then(function (r) {
+    return fetch(API_BASE + "/media/" + (scope === "protocol" ? "protocol" : "fleet"), { method:"POST", headers:headers, credentials:"include", body:blob }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) {
         if (r.status === 401) setTimeout(onAuthLost, 0);
         return r.status === 200 ? { ok:true, url:j.url } : { error:j.error || "upload_failed" };
@@ -83,7 +83,8 @@
     delMaintenance: function (id) { return api("/maintenance/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listInspections: function () { return api("/rental-inspections").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.items; }); },
     saveInspection: function (p) { return api("/rental-inspections", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
-    uploadFleetImage: uploadImage,
+    uploadFleetImage: function(blob){return uploadImage(blob,"fleet");},
+    uploadProtocolImage: function(blob){return uploadImage(blob,"protocol");},
   };
 
   var STORE = liveStore;
@@ -178,26 +179,31 @@
   }
   function inspectionFor(id, stage) { return inspections.filter(function (x) { return Number(x.bookingId) === Number(id) && x.stage === stage; })[0] || null; }
   function nowLocal() { var d=new Date(), z=function(n){return n<10?"0"+n:n;}; return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())+"T"+z(d.getHours())+":"+z(d.getMinutes()); }
+  function protocolPhotoList(value) { return String(value||"").split("\n").map(function(v){return v.trim();}).filter(function(v){return /^https:\/\/garage-admin\.autoservicebettenduerf\.lu\/media\/protocol\//.test(v);}); }
+  function protocolPhotosHtml(p,value) { var urls=protocolPhotoList(value); return '<div class="protocol-photo-list" id="'+p+'photo-list">'+urls.map(function(url,i){return '<div class="protocol-photo"><img src="'+url+'" alt="Protokollfoto '+(i+1)+'"><button type="button" data-remove-photo="'+i+'" aria-label="Foto ewechhuelen">×</button></div>';}).join('')+'</div>'; }
   function protocolHtml(b, stage) {
-    var x=inspectionFor(b.id,stage)||{}, p="pr-"+b.id+"-"+stage+"-", title=stage==="pickup"?"Iwwergabprotokoll":"Retourprotokoll";
+    var x=inspectionFor(b.id,stage)||{}, p="pr-"+b.id+"-"+stage+"-", pickup=stage==="pickup", title=pickup?"Iwwergabprotokoll":"Retourprotokoll",storedSignature=/^https:\/\/garage-admin\.autoservicebettenduerf\.lu\/media\/protocol\//.test(x.customerSignature||"")?x.customerSignature:"";
     return '<div class="protocol-box"><h4>'+title+(x.id?' <span class="protocol-saved">✓ gespäichert</span>':'')+'</h4><div class="protocol-grid">'+
       '<label>Zäitpunkt<input id="'+p+'at" type="datetime-local" value="'+esc(dtLocal(x.inspectedAt)||nowLocal())+'"></label>'+
       '<label>Kilometerstand<input id="'+p+'km" type="number" min="0" value="'+esc(x.odometer==null?'':x.odometer)+'"></label>'+
       '<label>Tankstand<select id="'+p+'fuel">'+["Voll","3/4","1/2","1/4","Eidel"].map(function(v){return '<option'+(x.fuelLevel===v?' selected':'')+'>'+v+'</option>';}).join('')+'</select></label>'+
-      '<label>Kautioun (€)<input id="'+p+'deposit" type="number" min="0" step="0.01" value="'+esc(x.depositAmount==null?'':x.depositAmount)+'"></label>'+
-      '<label>Zousaz-km<input id="'+p+'extraKm" type="number" min="0" value="'+esc(x.extraKm==null?'':x.extraKm)+'"></label>'+
-      '<label>Zousazkäschten (€)<input id="'+p+'extraCosts" type="number" min="0" step="0.01" value="'+esc(x.extraCosts==null?'':x.extraCosts)+'"></label>'+
+      (pickup?'':'<label>Zousaz-km<input id="'+p+'extraKm" type="number" min="0" value="'+esc(x.extraKm==null?'':x.extraKm)+'"></label><label>Zousazkäschten (€)<input id="'+p+'extraCosts" type="number" min="0" step="0.01" value="'+esc(x.extraCosts==null?'':x.extraCosts)+'"></label>')+
       '<label class="wide">Allgemengen Zoustand<textarea id="'+p+'condition" rows="2">'+esc(x.conditionNote||'')+'</textarea></label>'+
       '<label class="wide">Schied / nei Feststellungen<textarea id="'+p+'damage" rows="2">'+esc(x.damageNote||'')+'</textarea></label>'+
-      '<label class="wide">Foto-Referenzen oder Links<textarea id="'+p+'photos" rows="2" placeholder="z.B. IMG_1024–IMG_1032 oder Cloud-Link">'+esc(x.photoRefs||'')+'</textarea></label>'+
+      '<div class="wide"><strong style="font-size:.78rem">Fotoen</strong><div class="protocol-photo-actions"><button class="btn btn-outline btn-sm" type="button" id="'+p+'camera-btn">📷 Foto maachen</button><button class="btn btn-outline btn-sm" type="button" id="'+p+'gallery-btn">Bild auswielen</button></div><input id="'+p+'camera" type="file" accept="image/*" capture="environment" hidden><input id="'+p+'gallery" type="file" accept="image/*" multiple hidden><textarea id="'+p+'photos" hidden>'+esc(x.photoRefs||'')+'</textarea><p class="fleet-photo-note" id="'+p+'photo-status">Fotoe ginn automatesch verkleinert an sécher gespäichert.</p>'+protocolPhotosHtml(p,x.photoRefs)+'</div>'+
       '<label class="wide">Zubehör / Schlësselen / Dokumenter<textarea id="'+p+'accessories" rows="2">'+esc(x.accessories||'')+'</textarea></label>'+
-      '<label>Numm vum Client<input id="'+p+'customer" value="'+esc(x.customerSignature||b.name||'')+'"></label>'+
       '<label>Numm vum Mataarbechter<input id="'+p+'staff" value="'+esc(x.staffSignature||session.name||'')+'"></label>'+
-      '<label class="protocol-check"><input id="'+p+'license" type="checkbox"'+(x.licenseChecked?' checked':'')+'> Führerschäin an Identitéit kontrolléiert</label>'+
-      '<label class="wide">Intern Notiz<textarea id="'+p+'note" rows="2">'+esc(x.note||'')+'</textarea></label></div>'+
+      (pickup?'<label class="protocol-check"><input id="'+p+'license" type="checkbox"'+(x.licenseChecked?' checked':'')+'> Führerschäin an Identitéit kontrolléiert</label>':'')+
+      '<label class="wide">Intern Notiz<textarea id="'+p+'note" rows="2">'+esc(x.note||'')+'</textarea></label>'+
+      '<div class="signature-wrap"><strong>Ënnerschrëft vum Client · '+esc(b.name)+'</strong><canvas class="signature-pad" id="'+p+'signature" data-existing="'+encodeURIComponent(storedSignature)+'" aria-label="Ënnerschrëftsfeld"></canvas>'+(storedSignature?'<img class="signature-existing" id="'+p+'signature-existing" src="'+storedSignature+'" alt="Gespäichert Ënnerschrëft">':'')+'<div class="signature-tools"><span>De Client kann hei mam Fanger ënnerschreiwen.</span><button class="btn btn-outline btn-sm" type="button" id="'+p+'signature-clear">Läschen</button></div></div></div>'+
       '<div class="b-actions"><button class="btn btn-ok btn-sm" data-save-protocol="'+b.id+'" data-stage="'+stage+'">Protokoll späicheren</button><button class="btn btn-outline btn-sm" data-close-protocol="1">Zoumaachen</button></div></div>';
   }
-  function saveProtocol(b,stage) { var p="pr-"+b.id+"-"+stage+"-"; STORE.saveInspection({bookingId:b.id,stage:stage,inspectedAt:$(p+"at").value,odometer:$(p+"km").value,fuelLevel:$(p+"fuel").value,depositAmount:$(p+"deposit").value,extraKm:$(p+"extraKm").value,extraCosts:$(p+"extraCosts").value,conditionNote:$(p+"condition").value,damageNote:$(p+"damage").value,photoRefs:$(p+"photos").value,accessories:$(p+"accessories").value,customerSignature:$(p+"customer").value,staffSignature:$(p+"staff").value,licenseChecked:$(p+"license").checked,note:$(p+"note").value}).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Protokoll gespäichert.");renderBookings();}); }
+  function drawSignaturePad(canvas) { var rect=canvas.getBoundingClientRect(),dpr=Math.max(1,window.devicePixelRatio||1),ctx;canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);ctx.strokeStyle="#111827";ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";var drawing=false;function pos(e){var r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}canvas.addEventListener("pointerdown",function(e){drawing=true;canvas.setPointerCapture(e.pointerId);var q=pos(e);ctx.beginPath();ctx.moveTo(q.x,q.y);canvas._signed=true;var old=$(canvas.id+"-existing");if(old)old.hidden=true;e.preventDefault();});canvas.addEventListener("pointermove",function(e){if(!drawing)return;var q=pos(e);ctx.lineTo(q.x,q.y);ctx.stroke();e.preventDefault();});function stop(){drawing=false;}canvas.addEventListener("pointerup",stop);canvas.addEventListener("pointercancel",stop);}
+  function refreshProtocolPhotos(p) { var box=$(p+"photo-list"),urls=protocolPhotoList($(p+"photos").value);box.innerHTML=urls.map(function(url,i){return '<div class="protocol-photo"><img src="'+url+'" alt="Protokollfoto '+(i+1)+'"><button type="button" data-remove-photo="'+i+'" aria-label="Foto ewechhuelen">×</button></div>';}).join('');box.querySelectorAll("[data-remove-photo]").forEach(function(btn){btn.addEventListener("click",function(){urls.splice(parseInt(btn.getAttribute("data-remove-photo"),10),1);$(p+"photos").value=urls.join("\n");refreshProtocolPhotos(p);});}); }
+  function addProtocolPhotos(p,files) { var status=$(p+"photo-status"),list=Array.prototype.slice.call(files||[]);if(!list.length)return;status.textContent="Fotoe ginn eropgelueden …";Promise.all(list.map(function(file){return resizeFleetPhoto(file).then(function(blob){return STORE.uploadProtocolImage(blob);});})).then(function(results){var urls=protocolPhotoList($(p+"photos").value);results.forEach(function(r){if(r&&r.url)urls.push(r.url);});$(p+"photos").value=urls.join("\n");refreshProtocolPhotos(p);status.textContent="✓ "+results.length+" Foto(en) eropgelueden.";}).catch(function(){status.textContent="E Foto konnt net eropgeluede ginn. Probéiert nach eng Kéier.";}); }
+  function initProtocolUi(b,stage) { var p="pr-"+b.id+"-"+stage+"-",canvas=$(p+"signature");if(!canvas)return;drawSignaturePad(canvas);refreshProtocolPhotos(p);$(p+"camera-btn").addEventListener("click",function(){$(p+"camera").click();});$(p+"gallery-btn").addEventListener("click",function(){$(p+"gallery").click();});[$(p+"camera"),$(p+"gallery")].forEach(function(inp){inp.addEventListener("change",function(){addProtocolPhotos(p,inp.files);inp.value="";});});$(p+"signature-clear").addEventListener("click",function(){var ctx=canvas.getContext("2d");ctx.clearRect(0,0,canvas.width,canvas.height);canvas._signed=false;canvas.dataset.existing="";var old=$(p+"signature-existing");if(old)old.hidden=true;}); }
+  function signatureBlob(canvas) { return new Promise(function(resolve){canvas.toBlob(function(blob){resolve(blob);},"image/webp",.9);}); }
+  function saveProtocol(b,stage) { var p="pr-"+b.id+"-"+stage+"-",pickup=stage==="pickup",canvas=$(p+"signature"),existing=decodeURIComponent(canvas.dataset.existing||""),signature=Promise.resolve(existing);if(canvas._signed)signature=signatureBlob(canvas).then(function(blob){return STORE.uploadProtocolImage(blob);}).then(function(r){if(!r||r.error)throw new Error("signature_upload");return r.url;});signature.then(function(signatureUrl){if(!signatureUrl){toast("D'Ënnerschrëft vum Client feelt.");return;}return STORE.saveInspection({bookingId:b.id,stage:stage,inspectedAt:$(p+"at").value,odometer:$(p+"km").value,fuelLevel:$(p+"fuel").value,depositAmount:"",extraKm:pickup?"":$(p+"extraKm").value,extraCosts:pickup?"":$(p+"extraCosts").value,conditionNote:$(p+"condition").value,damageNote:$(p+"damage").value,photoRefs:$(p+"photos").value,accessories:$(p+"accessories").value,customerSignature:signatureUrl,staffSignature:$(p+"staff").value,licenseChecked:pickup?$(p+"license").checked:false,note:$(p+"note").value});}).then(function(r){if(!r)return;if(r.error){toast(errMsg(r.error));return;}toast("Protokoll gespäichert.");renderBookings();}).catch(function(){toast("Ënnerschrëft konnt net gespäichert ginn.");}); }
   function bookingCard(b) {
     var el = document.createElement("div"); el.className = "booking" + (b.status === "new" ? " is-new" : "");
     var canVal = can("bookings.validate"), isAdmin = can("members.manage");
@@ -243,6 +249,7 @@
     el.querySelectorAll("[data-protocol]").forEach(function(btn){btn.addEventListener("click",function(){protocolOpen={id:b.id,stage:btn.getAttribute("data-protocol")};renderBookings();});});
     el.querySelectorAll("[data-close-protocol]").forEach(function(btn){btn.addEventListener("click",function(){protocolOpen=null;renderBookings();});});
     el.querySelectorAll("[data-save-protocol]").forEach(function(btn){btn.addEventListener("click",function(){saveProtocol(b,btn.getAttribute("data-stage"));});});
+    if(protocolOpen && protocolOpen.id===b.id) setTimeout(function(){initProtocolUi(b,protocolOpen.stage);},0);
     return el;
   }
   function doEditBooking(id) {
