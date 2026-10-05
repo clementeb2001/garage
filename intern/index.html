@@ -231,6 +231,13 @@
       @media print { .topbar, .testbar, .filters, .b-actions, .b-note-input, #btn-export, #btn-print, #btn-reset { display: none !important; } .booking { break-inside: avoid; } }
       [hidden] { display: none !important; }
 
+      /* ===== Als installéiert App (PWA): Platz fir d'Statusbar (Notch) ===== */
+      @media (display-mode: standalone) {
+        .testbar { display: none; }
+        body { padding-top: env(safe-area-inset-top, 0px); }
+        body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: var(--navy); z-index: 1000; }
+      }
+
       /* ===== Topbar icon buttons + command palette trigger ===== */
       .bar-tools { display: flex; align-items: center; gap: 8px; }
       .kbtn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); color: #c7d2dd; border-radius: 9px; padding: 7px 11px; font: inherit; font-size: 0.82rem; cursor: pointer; }
@@ -595,6 +602,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=18"></script>
+    <script src="intern.js?v=19"></script>
   </body>
 </html>
