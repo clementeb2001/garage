@@ -27,7 +27,6 @@
       icon: "van",
       img: "assets/rental-renault-master.webp",
       priceDay: 80,
-      featured: false,
       name: { lb: "Renault Master", de: "Renault Master", fr: "Renault Master", en: "Renault Master" },
       tagline: {
         lb: "Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.",
@@ -44,7 +43,7 @@
         { ic: "📅", lb: "Baujoer 2021", de: "Baujahr 2021", fr: "Année 2021", en: "Year 2021" },
       ],
       details: {
-        lb: [["Notzung", "Ëmzuch, Miwwelen a Wueren"], ["Luedraum", "L2H2 · genee Moossen ginn nach ergänzt"], ["Sëtzplazen", "3"], ["Führerschäin", "Kategorie B"], ["Kraftstoff", "Diesel · vollgetankt zréck"]],
+        lb: [["Notzung", "Ëmzuch, Miwwelen a Wueren"], ["Luedraum", "L2H2 · genee Moosse ginn nach ergänzt"], ["Sëtzplazen", "3"], ["Führerschäin", "Kategorie B"], ["Brennstoff", "Diesel · vollgetankt zréck"]],
         de: [["Einsatz", "Umzug, Möbel und Waren"], ["Laderaum", "L2H2 · genaue Maße folgen"], ["Sitzplätze", "3"], ["Führerschein", "Klasse B"], ["Kraftstoff", "Diesel · vollgetankt zurück"]],
         fr: [["Usage", "Déménagement, meubles et marchandises"], ["Volume", "L2H2 · dimensions exactes à venir"], ["Places", "3"], ["Permis", "Catégorie B"], ["Carburant", "Diesel · retour avec le plein"]],
         en: [["Use", "Moving, furniture and goods"], ["Load space", "L2H2 · exact dimensions to follow"], ["Seats", "3"], ["Licence", "Category B"], ["Fuel", "Diesel · return with a full tank"]],
@@ -63,15 +62,13 @@
     fact("📦",v.loadSpace); fact("⚖️",v.grossWeight); fact("🏋️",v.payload); if(trailer)fact("🛞",v.braked?"Gebremst":"Ongebremst");
     if(!trailer){fact("⛽",v.fuel);fact("⚙️",v.transmission);fact("🪑",v.seats?String(v.seats)+" Sëtzplazen":"");}
     fact("🪪",v.licenseClass?"Führerschäin "+v.licenseClass:""); fact("📅",v.year?"Baujoer "+v.year:"");
-    var rows=[[trailer?"Dimensiounen":"Luedraum",v.loadSpace],["Gesamtgewiicht",v.grossWeight],["Notzlaascht",v.payload],["Brems",trailer?(v.braked?"Gebremst":"Ongebremst"):""],["Sëtzplazen",trailer?"":v.seats],["Kraftstoff",trailer?"":v.fuel],["Getriebe",trailer?"":v.transmission],["Führerschäin",v.licenseClass],["Kautioun",v.deposit==null?"":v.deposit+" €"]].filter(function(r){return r[1];});
+    var rows=[[trailer?"Dimensiounen":"Luedraum",v.loadSpace],["Gesamtgewiicht",v.grossWeight],["Notzlaascht",v.payload],["Brems",trailer?(v.braked?"Gebremst":"Ongebremst"):""],["Sëtzplazen",trailer?"":v.seats],["Brennstoff / Undriff",trailer?"":v.fuel],["Boîte",trailer?"":v.transmission],["Führerschäin",v.licenseClass]].filter(function(r){return r[1];});
     var details={lb:rows,de:rows,fr:rows,en:rows}, specs=(v.features||[]).length?v.features:[desc];
-    return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:Number(v.priceDay||0),featured:!!v.featured,name:name,tagline:tagline,facts:facts,details:details,specs:{lb:specs,de:specs,fr:specs,en:specs}};
+    return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:Number(v.priceDay||0),name:name,tagline:tagline,facts:facts,details:details,specs:{lb:specs,de:specs,fr:specs,en:specs}};
   }
   function loadFleet() {
     return fetch("https://garage-admin.autoservicebettenduerf.lu/fleet/public", {headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw new Error("fleet");return r.json();}).then(function(data){
       var next=(data.vehicles||[]).map(fleetItem); if(!next.length)return;
-      // Ëmmer e Showcase: wann keent als "featured" markéiert ass, dat éischt Gefier huelen.
-      if(!next.some(function(x){return x.featured;})){ var hero=next.filter(function(x){return x.cat!=="trailer";})[0]||next[0]; if(hero)hero.featured=true; }
       CATALOG=next; state.selected=state.selected.filter(function(id){return CATALOG.some(function(x){return x.id===id;});});
       if(CATALOG.length===1&&!state.selected.length)state.selected=[CATALOG[0].id]; renderCatalog(); renderSelection();
     }).catch(function(){});
@@ -92,7 +89,7 @@
       cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",
       cat_trailer_lbl: "Unhänger", cat_vehicle_lbl: "Gefier",
       price: "Präis op Ufro",
-      perDay: "Dag", payOnReturn: "Bezuelt bei der Retour · vollgetankt zréckbréngen", payOnReturnTrailer:"Bezuelt bei der Retour · propper zréckbréngen", featured_label: "Eise Transporter",
+      perDay: "Dag", payOnReturn: "Bezuelt bei der Retour · vollgetankt zréckbréngen", payOnReturnTrailer:"Bezuelt bei der Retour · propper zréckbréngen",
       select: "Auswielen", selected: "Ausgewielt", remove: "Ewechhuelen",
       sel_h: "Är Auswiel", empty: "Nach näischt ausgewielt. Wielt uewen dat gewënschte Material aus.",
       form_h: "Reservéieren",
@@ -123,7 +120,7 @@
       cat_all: "Alles", cat_trailer: "Anhänger", cat_vehicle: "Fahrzeuge",
       cat_trailer_lbl: "Anhänger", cat_vehicle_lbl: "Fahrzeug",
       price: "Preis auf Anfrage",
-      perDay: "Tag", payOnReturn: "Zahlung bei Rückgabe · vollgetankt zurückbringen", payOnReturnTrailer:"Zahlung bei Rückgabe · sauber zurückbringen", featured_label: "Unser Transporter",
+      perDay: "Tag", payOnReturn: "Zahlung bei Rückgabe · vollgetankt zurückbringen", payOnReturnTrailer:"Zahlung bei Rückgabe · sauber zurückbringen",
       select: "Auswählen", selected: "Ausgewählt", remove: "Entfernen",
       sel_h: "Ihre Auswahl", empty: "Noch nichts ausgewählt. Wählen Sie oben Ihr Material.",
       form_h: "Reservieren",
@@ -154,7 +151,7 @@
       cat_all: "Tout", cat_trailer: "Remorques", cat_vehicle: "Véhicules",
       cat_trailer_lbl: "Remorque", cat_vehicle_lbl: "Véhicule",
       price: "Prix sur demande",
-      perDay: "jour", payOnReturn: "Paiement au retour · à rendre le plein fait", payOnReturnTrailer:"Paiement au retour · à rendre propre", featured_label: "Notre utilitaire",
+      perDay: "jour", payOnReturn: "Paiement au retour · à rendre le plein fait", payOnReturnTrailer:"Paiement au retour · à rendre propre",
       select: "Choisir", selected: "Sélectionné", remove: "Retirer",
       sel_h: "Votre sélection", empty: "Rien de sélectionné. Choisissez votre matériel ci-dessus.",
       form_h: "Réserver",
@@ -185,7 +182,7 @@
       cat_all: "All", cat_trailer: "Trailers", cat_vehicle: "Vehicles",
       cat_trailer_lbl: "Trailer", cat_vehicle_lbl: "Vehicle",
       price: "Price on request",
-      perDay: "day", payOnReturn: "Pay on return · bring it back with a full tank", payOnReturnTrailer:"Pay on return · return it clean", featured_label: "Our van",
+      perDay: "day", payOnReturn: "Pay on return · bring it back with a full tank", payOnReturnTrailer:"Pay on return · return it clean",
       select: "Select", selected: "Selected", remove: "Remove",
       sel_h: "Your selection", empty: "Nothing selected yet. Pick your equipment above.",
       form_h: "Reserve",
@@ -211,7 +208,7 @@
   var EXTRA = {
     lb: {
       step1: "Schrëtt 1 vun 3 · Gefier an Zäitraum", step2: "Schrëtt 2 vun 3 · Är Donnéeën", step3: "Schrëtt 3 vun 3 · Kontrolléieren",
-      daysLabel: "Berechent Mietdauer", rateLabel: "Dagespräis", totalLabel: "Viraussiichtleche Mietpräis", priceHint: "Berechnung pro ugefaangene 24 Stonnen. Kautioun, Kilometer, Assurance an aner Konditioune ginn Iech virun der verbindlicher Bestätegung schrëftlech matgedeelt.",
+      daysLabel: "Berechent Mietdauer", rateLabel: "Dagespräis", totalLabel: "Viraussiichtleche Mietpräis", priceHint: "Berechnung pro ugefaangene 24 Stonnen. Kilometer, Assurance an aner Konditioune ginn Iech virun der definitiver Bestätegung schrëftlech matgedeelt.",
       trustEye: "Lokal · transparent · perséinlech", trustTitle: "Äre Transporter, direkt bei Ärer Garage", trust: [["An der eegener Garage betreit", "D’Gefier gëtt vun eis kontrolléiert a reegelméisseg ënnerhalen."], ["Lokal Ofhuelung", "Perséinlech Iwwergab beim Autoservice Bettenduerf zu Bettendorf."], ["Eng richteg Kontaktpersoun", "Mir kontrolléieren all Ufro a klären oppe Froen direkt mat Iech."]],
       faqEye: "Gutt ze wëssen", faqTitle: "Heefeg Froen zum Verlee", faq: [["Ass meng Online-Ufro direkt verbindlech?", "Nee. Mir kontrolléieren d’Disponibilitéit an d’Konditiounen a schécken Iech duerno eng perséinlech Bestätegung."], ["Wéi ee Führerschäin brauch ech?", "Fir de Renault Master geet d’Kategorie B duer. De gültege Führerschäin an en Identitéitsdokument ginn bei der Iwwergab kontrolléiert."], ["Wéi gëtt de Mietpräis berechent?", "D’Schätzung baséiert op 80 € pro ugefaangene 24 Stonnen. Déi definitiv Konditioune stinn an eiser Bestätegung."], ["Wou sinn Ofhuelung a Retour?", "Beim Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, zu der bestätegter Auerzäit."], ["Wéi muss d’Gefier zréckkommen?", "Zu der vereinbarter Zäit a vollgetankt. Wann Dir Iech verspéit, kontaktéiert eis w.e.g. direkt."], ["Darf ech an d’Ausland fueren?", "Gitt geplangten Auslandsfaarte bei der Ufro un. Mir bestätegen Iech virum Verlee, ob a wéi eng Länner erlaabt sinn."]]
     },
@@ -223,13 +220,13 @@
     },
     fr: {
       step1: "Étape 1 sur 3 · Véhicule et période", step2: "Étape 2 sur 3 · Vos coordonnées", step3: "Étape 3 sur 3 · Vérification",
-      daysLabel: "Durée de location calculée", rateLabel: "Tarif journalier", totalLabel: "Prix de location estimé", priceHint: "Calcul par tranche de 24 heures entamée. La caution, le kilométrage, l’assurance et les autres conditions vous sont communiqués par écrit avant la confirmation ferme.",
+      daysLabel: "Durée de location calculée", rateLabel: "Tarif journalier", totalLabel: "Prix de location estimé", priceHint: "Calcul par tranche de 24 heures entamée. Le kilométrage, l’assurance et les autres conditions vous sont communiqués par écrit avant la confirmation ferme.",
       trustEye: "Local · transparent · personnel", trustTitle: "Votre utilitaire, directement auprès de votre garage", trust: [["Entretenu dans notre atelier", "Le véhicule est contrôlé et entretenu régulièrement par nos soins."], ["Enlèvement local", "Remise personnelle chez Autoservice Bettenduerf à Bettendorf."], ["Un interlocuteur réel", "Nous vérifions chaque demande et clarifions directement avec vous les questions ouvertes."]],
       faqEye: "Bon à savoir", faqTitle: "Questions fréquentes sur la location", faq: [["Ma demande en ligne est-elle immédiatement ferme ?", "Non. Nous vérifions la disponibilité et les conditions, puis vous envoyons une confirmation personnelle."], ["Quel permis me faut-il ?", "Le permis B suffit pour le Renault Master. Le permis valable et une pièce d’identité sont contrôlés lors de la remise."], ["Comment le prix est-il calculé ?", "L’estimation est basée sur 80 € par tranche de 24 heures entamée. Les conditions définitives figurent dans notre confirmation."], ["Où ont lieu l’enlèvement et le retour ?", "Chez Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, à l’heure confirmée."], ["Comment restituer le véhicule ?", "À l’heure convenue et avec le plein. En cas de retard, contactez-nous immédiatement."], ["Puis-je circuler à l’étranger ?", "Indiquez les trajets à l’étranger dans votre demande. Nous vous confirmons avant la location les pays autorisés."]]
     },
     en: {
       step1: "Step 1 of 3 · Vehicle and period", step2: "Step 2 of 3 · Your details", step3: "Step 3 of 3 · Review",
-      daysLabel: "Calculated rental duration", rateLabel: "Daily rate", totalLabel: "Estimated rental price", priceHint: "Calculated per started 24-hour period. Deposit, mileage, insurance and other conditions are provided in writing before binding confirmation.",
+      daysLabel: "Calculated rental duration", rateLabel: "Daily rate", totalLabel: "Estimated rental price", priceHint: "Calculated per started 24-hour period. Mileage, insurance and other conditions are provided in writing before binding confirmation.",
       trustEye: "Local · transparent · personal", trustTitle: "Your van, directly from your local garage", trust: [["Maintained in our own workshop", "The vehicle is inspected and regularly maintained by us."], ["Local collection", "Personal handover at Autoservice Bettenduerf in Bettendorf."], ["A real contact person", "We review every request and clarify open questions directly with you."]],
       faqEye: "Good to know", faqTitle: "Frequently asked rental questions", faq: [["Is my online request immediately binding?", "No. We check availability and conditions, then send you a personal confirmation."], ["Which driving licence do I need?", "Category B is sufficient for the Renault Master. A valid licence and ID are checked at handover."], ["How is the rental price calculated?", "The estimate is based on €80 per started 24-hour period. Final conditions are included in our confirmation."], ["Where are collection and return?", "At Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, at the confirmed time."], ["How must the vehicle be returned?", "At the agreed time and with a full tank. If delayed, please contact us immediately."], ["May I drive abroad?", "Mention planned cross-border trips in your request. We confirm the permitted countries before rental."]]
     }
@@ -257,7 +254,7 @@
     license_title: "Führerschäin",
     license_text: "Déi néideg Kategorie hänkt vum Gefier, dem Unhänger an der zulässeger Gesamtmass of a gëtt virum Verlee kontrolléiert.",
     terms_title: "Konditiounen",
-    terms_text: "Kautioun, Assurance, Kilometer, Ofhuelung, Retour a Storno gi virun der Bestätegung transparent matgedeelt.",
+    terms_text: "Assurance, Kilometer, Ofhuelung, Retour a Storno gi virun der Bestätegung transparent matgedeelt.",
     availability_note: "D’Disponibilitéit gëtt no Ärer Ufro manuell kontrolléiert.",
     m_past: "en Datum an eng Auerzäit vun elo un"
   });
@@ -289,7 +286,7 @@
     license_title: "Permis de conduire",
     license_text: "La catégorie requise dépend du véhicule, de la remorque et de la masse maximale autorisée; elle est vérifiée avant la location.",
     terms_title: "Conditions",
-    terms_text: "La caution, l’assurance, le kilométrage, l’enlèvement, le retour et l’annulation sont communiqués clairement avant confirmation.",
+    terms_text: "L’assurance, le kilométrage, l’enlèvement, le retour et l’annulation sont communiqués clairement avant confirmation.",
     availability_note: "La disponibilité est vérifiée manuellement après votre demande.",
     m_past: "une date et une heure à partir de maintenant"
   });
@@ -305,7 +302,7 @@
     license_title: "Driving licence",
     license_text: "The required category depends on the vehicle, trailer and permitted gross weight and is checked before rental.",
     terms_title: "Conditions",
-    terms_text: "Deposit, insurance, mileage, collection, return and cancellation terms are communicated clearly before confirmation.",
+    terms_text: "Insurance, mileage, collection, return and cancellation terms are communicated clearly before confirmation.",
     availability_note: "Availability is checked manually after your request.",
     m_past: "a date and time from now onwards"
   });
@@ -367,7 +364,6 @@
     CATALOG.forEach(function (it) {
       if (state.cat !== "all" && it.cat !== state.cat) return;
       var picked = state.selected.indexOf(it.id) !== -1;
-      if (it.featured) { grid.appendChild(featureCard(it, L, m, picked)); return; }
       var card = document.createElement("article");
       card.className = "rental-card" + (picked ? " is-selected" : "");
       var specs = (it.specs[L] || it.specs.lb)
@@ -392,34 +388,6 @@
         "</button></div></div>";
       grid.appendChild(card);
     });
-  }
-
-  function featureCard(it, L, m, picked) {
-    var card = document.createElement("article");
-    card.className = "rental-feature" + (picked ? " is-selected" : "");
-    var facts = (it.facts || []).map(function (f) {
-      return '<li><span class="vf-ic" aria-hidden="true">' + f.ic + "</span>" + (f[L] || f.lb) + "</li>";
-    }).join("");
-    var cta = picked ? "✓ " + m.selected : m.select;
-    var details = ((it.details && (it.details[L] || it.details.lb)) || []).map(function (row) {
-      return '<div><dt>' + row[0] + '</dt><dd>' + row[1] + '</dd></div>';
-    }).join("");
-    card.innerHTML =
-      '<div class="vf-media"><span class="rental-ribbon">' + catLabel(it.cat) + "</span>" +
-      '<img class="rental-photo" src="' + it.img + '" alt="' + (it.name[L] || it.name.lb) + '" loading="lazy" decoding="async" /></div>' +
-      '<div class="vf-info">' +
-      '<p class="vf-eyebrow">' + m.featured_label + "</p>" +
-      "<h3>" + (it.name[L] || it.name.lb) + "</h3>" +
-      (it.tagline ? '<p class="vf-lead">' + (it.tagline[L] || it.tagline.lb) + "</p>" : "") +
-      '<ul class="vf-facts">' + facts + "</ul>" +
-      '<details class="vf-details"><summary>' + ({ lb: "Gefierdetailer", de: "Fahrzeugdetails", fr: "Détails du véhicule", en: "Vehicle details" }[L] || "Fahrzeugdetails") + '</summary><dl>' + details + '</dl></details>' +
-      '<div class="vf-foot">' +
-      '<div class="vf-price"><span class="vf-amount">' + it.priceDay + ' €</span><span class="vf-unit"> / ' + m.perDay + "</span></div>" +
-      '<button type="button" class="btn btn-primary rental-select" data-id="' + it.id + '">' + cta + "</button>" +
-      "</div>" +
-      '<p class="vf-note">💶 ' + m.payOnReturn + "</p>" +
-      "</div>";
-    return card;
   }
 
   function renderSelection() {
