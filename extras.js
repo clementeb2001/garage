@@ -19,7 +19,7 @@
         time_pm: "Nomëttes",
         vin: "Chassisnummer (VIN)",
         vin_ph: "z. B. WVWZZZ…",
-        privacy: "Ech hunn d'Dateschutzerklärung gelies a sinn averstanen, datt meng Donnéeë fir d'Bearbeitung vun der Ufro benotzt ginn.",
+        privacy: "Ech hunn d'Dateschutzerklärung gelies a sinn averstanen, datt meng Donnéeë fir d'Veraarbechtung vun der Ufro benotzt ginn.",
         rate: "Ze vill Ufroen a kuerzer Zäit. Probéiert et w.e.g. méi spéit nach eng Kéier.",
         missing: "Fëllt w.e.g. nach aus:",
         vehicle_lbl: "Gefier",
@@ -552,9 +552,8 @@
     }
     var loaded = Number((f.querySelector('[name="_loaded_at"]') || {}).value || 0);
     if (loaded && Date.now() - loaded < 2500) {
-      st.className = "form-status ok";
-      st.textContent = m.form.ok.replace("{name}", name);
-      f.reset();
+      st.className = "form-status err";
+      st.textContent = m.form.senderr;
       return;
     }
     var btn = f.querySelector('button[type="submit"]');
@@ -568,6 +567,7 @@
       daytime: (f.querySelector("#wtime") || {}).value || "",
       vin: vinUnknown ? "" : vinClean,
       msg: message, lang: lang(),
+      privacy: !!(privacy && privacy.checked),
       website: hp ? hp.value : "", loadedAt: loaded,
     };
     fetch(API_BASE + "/appointments", {
