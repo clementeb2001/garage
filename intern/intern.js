@@ -46,6 +46,16 @@
       });
     });
   }
+  function uploadImage(blob) {
+    var headers = { "Content-Type": blob.type || "image/webp" };
+    if (token) headers.Authorization = "Bearer " + token;
+    return fetch(API_BASE + "/media/fleet", { method:"POST", headers:headers, credentials:"include", body:blob }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (r.status === 401) setTimeout(onAuthLost, 0);
+        return r.status === 200 ? { ok:true, url:j.url } : { error:j.error || "upload_failed" };
+      });
+    });
+  }
   var liveStore = {
     mode: "live",
     login: function (u, p) { return api("/auth/login", { method: "POST", body: { username: u, password: p } }).then(function (r) { if (r.status === 200) { if (r.body.token) setToken(r.body.token); return { ok: true, user: r.body.user }; } return { error: r.body.error || "invalid_credentials" }; }); },
@@ -73,6 +83,7 @@
     delMaintenance: function (id) { return api("/maintenance/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listInspections: function () { return api("/rental-inspections").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.items; }); },
     saveInspection: function (p) { return api("/rental-inspections", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
+    uploadFleetImage: uploadImage,
   };
 
   var STORE = liveStore;
@@ -685,9 +696,44 @@
 
   /* ---------- Wartung ---------- */
   var editingMaint = null;
+  function showFleetPhoto(url) {
+    var img=$("w-image-preview"), empty=$("w-image-placeholder"), remove=$("w-image-remove");
+    if(url){img.src=url;img.hidden=false;empty.hidden=true;remove.hidden=false;}
+    else{img.removeAttribute("src");img.hidden=true;empty.hidden=false;remove.hidden=true;}
+  }
+  function resizeFleetPhoto(file) {
+    return new Promise(function(resolve,reject){
+      if(!file || !/^image\//.test(file.type||"")){reject(new Error("invalid_image"));return;}
+      if(file.size>20*1024*1024){reject(new Error("too_large"));return;}
+      var reader=new FileReader();
+      reader.onerror=function(){reject(new Error("read_failed"));};
+      reader.onload=function(){
+        var img=new Image();
+        img.onerror=function(){reject(new Error("invalid_image"));};
+        img.onload=function(){
+          var max=1600,scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.max(1,Math.round(img.naturalWidth*scale)),h=Math.max(1,Math.round(img.naturalHeight*scale));
+          var canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
+          var ctx=canvas.getContext("2d");ctx.drawImage(img,0,0,w,h);
+          canvas.toBlob(function(blob){if(blob)resolve(blob);else reject(new Error("compress_failed"));},"image/webp",.82);
+        };
+        img.src=reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  function handleFleetPhoto(file) {
+    var status=$("w-image-status");status.textContent="Bild gëtt virbereet …";
+    resizeFleetPhoto(file).then(function(blob){
+      status.textContent="Bild gëtt eropgelueden …";
+      return STORE.uploadFleetImage(blob);
+    }).then(function(r){
+      if(r.error)throw new Error(r.error);
+      $("w-image").value=r.url;showFleetPhoto(r.url);status.textContent="✓ Bild eropgelueden a prett fir ze späicheren.";
+    }).catch(function(e){status.textContent=e.message==="too_large"?"D'Bild ass ze grouss (max. 20 MB).":"Bild konnt net eropgeluede ginn. Probéiert w.e.g. nach eng Kéier.";});
+  }
   function fleetStatus(s) { return {ready:["Asazbereet","ready"],rented:["Verlount","rented"],service:["Am Service","service"],blocked:["Gespaart","blocked"]}[s] || ["Asazbereet","ready"]; }
   function fleetPayload() { return { vehicle:$("w-veh").value.trim(),status:$("w-status").value,service:$("w-service").value.trim(),dueDate:$("w-due").value,note:$("w-note").value.trim(),description:$("w-description").value.trim(),imageUrl:$("w-image").value.trim(),priceDay:$("w-price").value,year:$("w-year").value.trim(),seats:$("w-seats").value.trim(),fuel:$("w-fuel").value.trim(),transmission:$("w-transmission").value.trim(),licenseClass:$("w-license").value.trim(),loadSpace:$("w-load").value.trim(),deposit:$("w-deposit").value,features:$("w-features").value.trim(),active:$("w-active").checked,featured:false }; }
-  function fillFleet(m) { $("w-veh").value=m.vehicle||""; $("w-status").value=m.status||"ready"; $("w-service").value=m.service||""; $("w-due").value=m.dueDate||""; $("w-note").value=m.note||""; $("w-description").value=m.description||""; $("w-image").value=m.imageUrl||""; $("w-price").value=m.priceDay==null?"":m.priceDay; $("w-year").value=m.year||""; $("w-seats").value=m.seats||""; $("w-fuel").value=m.fuel||""; $("w-transmission").value=m.transmission||""; $("w-license").value=m.licenseClass||""; $("w-load").value=m.loadSpace||""; $("w-deposit").value=m.deposit==null?"":m.deposit; $("w-features").value=m.features||""; $("w-active").checked=!!m.active; }
+  function fillFleet(m) { $("w-veh").value=m.vehicle||""; $("w-status").value=m.status||"ready"; $("w-service").value=m.service||""; $("w-due").value=m.dueDate||""; $("w-note").value=m.note||""; $("w-description").value=m.description||""; $("w-image").value=m.imageUrl||""; showFleetPhoto(m.imageUrl||""); $("w-price").value=m.priceDay==null?"":m.priceDay; $("w-year").value=m.year||""; $("w-seats").value=m.seats||""; $("w-fuel").value=m.fuel||""; $("w-transmission").value=m.transmission||""; $("w-license").value=m.licenseClass||""; $("w-load").value=m.loadSpace||""; $("w-deposit").value=m.deposit==null?"":m.deposit; $("w-features").value=m.features||""; $("w-active").checked=!!m.active; }
   function renderWartung() {
     var canEdit = can("bookings.validate");
     $("wartung-form").style.display = canEdit ? "" : "none";
@@ -701,13 +747,17 @@
   }
   (function () {
     var f = $("wartung-form"); if (!f) return;
+    $("w-camera-btn").addEventListener("click",function(){$("w-camera").click();});
+    $("w-gallery-btn").addEventListener("click",function(){$("w-gallery").click();});
+    [$("w-camera"),$("w-gallery")].forEach(function(inp){inp.addEventListener("change",function(){if(inp.files&&inp.files[0])handleFleetPhoto(inp.files[0]);inp.value="";});});
+    $("w-image-remove").addEventListener("click",function(){$("w-image").value="";showFleetPhoto("");$("w-image-status").textContent="Bild ewechgeholl – späichere fir z'iwwerhuelen.";});
     f.addEventListener("submit", function (e) {
       e.preventDefault(); if (!can("bookings.validate")) return;
       var data=fleetPayload(); if(!data.vehicle){$("wartung-msg").textContent="Den Numm vum Gefier muss ausgefëllt sinn.";return;}
       $("wartung-msg").textContent = "…";
       var op=editingMaint?STORE.editMaintenance(editingMaint,data):STORE.addMaintenance(data); op.then(function (r) {
         if (r.error) { $("wartung-msg").textContent = errMsg(r.error); return; }
-        editingMaint=null; f.reset(); $("wartung-msg").textContent = "✓ Gespäichert."; renderWartung();
+        editingMaint=null; f.reset(); showFleetPhoto(""); $("w-image-status").textContent="D'Bild gëtt virum Eroplueden automatesch verkleinert."; $("wartung-msg").textContent = "✓ Gespäichert."; renderWartung();
       });
     });
   })();

@@ -108,3 +108,19 @@ Wann der eng aner URL benotzt wéi `garage-admin.autoservicebettenduerf.lu`,
 musst der se op 2 Plazen upassen:
 - `intern/intern.js` → Konstant `API_BASE`
 - `intern/index.html` an `location.html` → CSP `connect-src`
+
+## Gefierfotoen (R2)
+
+D'PWA kann Fotoen direkt mat der Handykamera maachen oder aus der Galerie
+auswielen. De Browser verklengert se op maximal 1600 Pixel a späichert se als
+WebP. De Worker kontrolléiert Format a Gréisst a späichert d'Bild am private
+R2-Bucket; ëffentlech gelies gëtt et nëmmen iwwer `/media/...`.
+
+Eemoleg néideg:
+
+1. Cloudflare → **R2 Object Storage** → **Create bucket**.
+2. Bucket-Numm genee: **`garage-media`**.
+3. De bestehende GitHub-Token brauch zousätzlech **Account › Workers R2 Storage › Edit**.
+
+D'Binding `MEDIA` ass schonn an `worker/admin-wrangler.toml` definéiert an
+gëtt beim nächsten Worker-Deploy automatesch verbonnen.

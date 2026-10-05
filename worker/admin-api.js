@@ -118,6 +118,12 @@ function cors(env, extra) {
     "Vary": "Origin",
   }, extra || {});
 }
+function imageType(bytes) {
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return { type:"image/jpeg", ext:"jpg" };
+  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return { type:"image/png", ext:"png" };
+  if (bytes.length >= 12 && String.fromCharCode(...bytes.slice(0,4)) === "RIFF" && String.fromCharCode(...bytes.slice(8,12)) === "WEBP") return { type:"image/webp", ext:"webp" };
+  return null;
+}
 function json(env, body, status, extraHeaders) {
   return new Response(JSON.stringify(body), { status: status || 200, headers: cors(env, Object.assign({ "Content-Type": "application/json; charset=utf-8" }, extraHeaders || {})) });
 }
@@ -425,6 +431,19 @@ export default {
         return json(env, { vehicles: rows.map((x) => ({ id:"fleet-"+x.id,name:x.vehicle,description:x.description||"",image:x.image_url||"",priceDay:Number(x.price_day||0),year:x.year||"",seats:x.seats||"",fuel:x.fuel||"",transmission:x.transmission||"",licenseClass:x.license_class||"",loadSpace:x.load_space||"",deposit:x.deposit==null?null:Number(x.deposit),features:String(x.features||"").split("\n").map((v)=>v.trim()).filter(Boolean) })) });
       }
 
+      /* ---- public: Fotoen aus dem private R2-Bucket ausliwweren ---- */
+      if (path.startsWith("/media/") && method === "GET") {
+        if (!env.MEDIA) return json(env, { error:"server_not_configured" }, 503);
+        const key = decodeURIComponent(path.slice(7));
+        if (!/^fleet\/[a-z0-9/_-]+\.(?:webp|jpg|png)$/i.test(key)) return json(env, { error:"not_found" }, 404);
+        const object = await env.MEDIA.get(key);
+        if (!object) return json(env, { error:"not_found" }, 404);
+        const headers = new Headers(cors(env, { "Cache-Control":"public, max-age=31536000, immutable", "X-Content-Type-Options":"nosniff" }));
+        object.writeHttpMetadata(headers);
+        headers.set("ETag", object.httpEtag);
+        return new Response(object.body, { headers });
+      }
+
       /* ---- public: neie Rendez-vous (vun der Kontakt-Formulaire) ---- */
       if (path === "/appointments" && method === "POST") {
         if (!isAllowedOrigin(request, env)) return json(env, { error: "forbidden_origin" }, 403);
@@ -485,6 +504,22 @@ export default {
         return json(env, { ok: true }, 200, { "Set-Cookie": clearSessionCookie() });
       }
       if (!me) return json(env, { error: "unauthorized" }, 401);
+
+      /* ---- Foto eroplueden (validator+) ---- */
+      if (path === "/media/fleet" && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env, { error:"forbidden" }, 403);
+        if (!isAllowedOrigin(request, env)) return json(env, { error:"forbidden_origin" }, 403);
+        if (!env.MEDIA) return json(env, { error:"server_not_configured" }, 503);
+        const declared = Number(request.headers.get("content-length") || 0);
+        if (declared > 3 * 1024 * 1024) return json(env, { error:"file_too_large" }, 413);
+        const data = new Uint8Array(await request.arrayBuffer());
+        if (!data.length || data.length > 3 * 1024 * 1024) return json(env, { error:"file_too_large" }, 413);
+        const image = imageType(data);
+        if (!image) return json(env, { error:"invalid_image" }, 415);
+        const now = new Date(), key = "fleet/" + now.getUTCFullYear() + "/" + String(now.getUTCMonth()+1).padStart(2,"0") + "/" + crypto.randomUUID() + "." + image.ext;
+        await env.MEDIA.put(key, data, { httpMetadata:{ contentType:image.type, cacheControl:"public, max-age=31536000, immutable" }, customMetadata:{ uploadedBy:me.username } });
+        return json(env, { ok:true, url:url.origin + "/media/" + key });
+      }
 
       /* ---- change own password ---- */
       if (path === "/auth/password" && method === "POST") {

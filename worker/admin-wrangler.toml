@@ -18,3 +18,8 @@ MAIL_FROM = "Autoservice Bettenduerf <noreply@autoservicebettenduerf.lu>"
 binding = "DB"
 database_name = "garage-admin"
 database_id = "14fccce6-50bf-4dd7-9d76-e8576c47ce2a"
+
+# Gefier- an Dokumentatiounsfotoen
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "garage-media"

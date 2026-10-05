@@ -6,7 +6,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://garage-admin.autoservicebettenduerf.lu; form-action 'self'; frame-src 'none'; upgrade-insecure-requests"
+      content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://garage-admin.autoservicebettenduerf.lu; connect-src 'self' https://garage-admin.autoservicebettenduerf.lu; form-action 'self'; frame-src 'none'; upgrade-insecure-requests"
     />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#0d1b2a" />
@@ -159,6 +159,12 @@
       .fleet-form input::placeholder,.fleet-form textarea::placeholder { color:var(--mut); opacity:.9; }
       .fleet-form input:focus,.fleet-form select:focus,.fleet-form textarea:focus { outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent); outline-offset:1px; border-color:var(--accent); }
       #page-wartung > h3 { color:var(--fg); }
+      .fleet-photo-field { grid-column:span 2; }
+      .fleet-photo-row { display:grid; grid-template-columns:112px 1fr; gap:12px; align-items:center; }
+      .fleet-photo-preview { width:112px; height:82px; object-fit:cover; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); }
+      .fleet-photo-placeholder { display:flex; align-items:center; justify-content:center; color:var(--mut); font-size:.75rem; text-align:center; padding:8px; }
+      .fleet-photo-actions { display:flex; flex-wrap:wrap; gap:8px; }
+      .fleet-photo-note { margin:7px 0 0; color:var(--mut); font-size:.74rem; }
       .fleet-list { display:grid; gap:12px; margin-top:14px; }
       .fleet-card { display:grid; grid-template-columns:120px 1fr auto; gap:14px; padding:14px; background:var(--surface); border:1px solid var(--line); border-radius:14px; }
       .fleet-card img { width:120px; height:86px; object-fit:cover; border-radius:10px; background:var(--surface-2); }
@@ -176,7 +182,7 @@
       .protocol-check input { width:auto; }
       .protocol-saved { display:inline-flex; margin-left:5px; color:var(--ok); font-size:.72rem; font-weight:800; }
       @media (max-width:900px) { .fleet-form { grid-template-columns:1fr 1fr; } .protocol-grid { grid-template-columns:1fr 1fr; } }
-      @media (max-width:560px) { .fleet-form,.protocol-grid { grid-template-columns:1fr; } .fleet-card { grid-template-columns:76px 1fr; } .fleet-card img { width:76px; height:62px; } .fleet-card .fleet-actions { grid-column:1/-1; } }
+      @media (max-width:560px) { .fleet-form,.protocol-grid { grid-template-columns:1fr; } .fleet-photo-field { grid-column:auto; } .fleet-photo-row { grid-template-columns:84px 1fr; } .fleet-photo-preview { width:84px; height:70px; } .fleet-card { grid-template-columns:76px 1fr; } .fleet-card img { width:76px; height:62px; } .fleet-card .fleet-actions { grid-column:1/-1; } }
 
       /* Dashboard */
       .stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 16px 0 18px; }
@@ -612,7 +618,24 @@
           <div class="field"><label for="w-due">Fälleg (Datum)</label><input id="w-due" type="date" /></div>
           <div class="field"><label for="w-note">Notiz</label><input id="w-note" type="text" placeholder="fräiwëlleg" /></div>
           <div class="field"><label for="w-description">Beschreiwung</label><textarea id="w-description" rows="2" placeholder="Kuerz Beschreiwung fir d'Verleihsäit"></textarea></div>
-          <div class="field"><label for="w-image">Bild (URL oder Asset)</label><input id="w-image" type="text" placeholder="assets/gefier.webp" /></div>
+          <div class="field fleet-photo-field">
+            <label>Gefierfoto</label>
+            <div class="fleet-photo-row">
+              <div id="w-image-placeholder" class="fleet-photo-preview fleet-photo-placeholder">Nach kee Bild</div>
+              <img id="w-image-preview" class="fleet-photo-preview" alt="Virschau vum Gefierfoto" hidden />
+              <div>
+                <div class="fleet-photo-actions">
+                  <button class="btn btn-outline btn-sm" id="w-camera-btn" type="button">📷 Foto maachen</button>
+                  <button class="btn btn-outline btn-sm" id="w-gallery-btn" type="button">Bild auswielen</button>
+                  <button class="btn btn-danger btn-sm" id="w-image-remove" type="button" hidden>Bild ewechhuelen</button>
+                </div>
+                <p class="fleet-photo-note" id="w-image-status">D'Bild gëtt virum Eroplueden automatesch verkleinert.</p>
+              </div>
+            </div>
+            <input id="w-camera" type="file" accept="image/*" capture="environment" hidden />
+            <input id="w-gallery" type="file" accept="image/*" hidden />
+            <input id="w-image" type="hidden" />
+          </div>
           <div class="field"><label for="w-price">Präis / Dag (€)</label><input id="w-price" type="number" min="0" step="0.01" /></div>
           <div class="field"><label for="w-year">Baujoer</label><input id="w-year" type="text" /></div>
           <div class="field"><label for="w-seats">Sëtzplazen</label><input id="w-seats" type="text" /></div>
@@ -713,6 +736,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=31"></script>
+    <script src="intern.js?v=32"></script>
   </body>
 </html>
