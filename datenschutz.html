@@ -96,8 +96,8 @@
           <p>Wenn Sie das Rendez-vous-Formular absenden, verarbeiten wir je nach Eingabe Name, E-Mail-Adresse, Telefonnummer, gewünschte Leistung, Fahrzeug, Wunsch- und Alternativdatum, Tageszeit, Fahrgestellnummer (VIN) sowie den Inhalt Ihrer Nachricht. Pflichtfelder sind als solche gekennzeichnet. Die Angaben werden über einen Cloudflare Worker in unserer Cloudflare-D1-Datenbank gespeichert; zur Benachrichtigung nutzen wir den E-Mail-Dienst Resend. Rechtsgrundlage ist die Beantwortung Ihrer Anfrage und die Durchführung vorvertraglicher Maßnahmen gemäß Art. 6 Abs. 1 lit. b DSGVO.</p>
           <p>Empfänger sind Autoservice Bettenduerf sowie Cloudflare und Resend als technische Dienstleister. Dabei kann eine Verarbeitung außerhalb des EWR stattfinden; es gelten die Garantien und Datenschutzbestimmungen der Anbieter. Bitte übermitteln Sie über das Freitextfeld keine Gesundheitsdaten oder andere nicht erforderlichen sensiblen Angaben.</p>
 
-          <h2>Produktanfragen im Shop über FormSubmit</h2>
-          <p>Für die Produkt- bzw. Passgenauigkeitsanfrage im Shop („Passt das zu meinem Fahrzeug?“) werden die eingegebenen Daten (u. a. Name, E-Mail-Adresse, Telefonnummer, Fahrzeugdaten und Nachricht) verschlüsselt an den Dienst FormSubmit übertragen und von dort per E-Mail an uns weitergeleitet. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. Empfänger sind Autoservice Bettenduerf, FormSubmit als technischer Übermittlungsdienst und die beteiligten E-Mail-Anbieter. Da FormSubmit ein internationaler Dienst ist, kann eine Verarbeitung außerhalb des EWR stattfinden. Weitere Informationen enthält die <a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noopener noreferrer">Datenschutzerklärung von FormSubmit</a>.</p>
+          <h2>Produktanfragen im Shop über Cloudflare D1 und Resend</h2>
+          <p>Für die Produkt- bzw. Passgenauigkeitsanfrage im Shop („Passt das zu meinem Fahrzeug?“) verarbeiten wir die eingegebenen Daten (u. a. Name, E-Mail-Adresse, Telefonnummer, Fahrzeugdaten und Nachricht). Die Angaben werden über einen Cloudflare Worker in unserer Cloudflare-D1-Datenbank gespeichert; zur Benachrichtigung nutzen wir den E-Mail-Dienst Resend. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. Empfänger sind Autoservice Bettenduerf sowie Cloudflare und Resend als technische Dienstleister. Dabei kann eine Verarbeitung außerhalb des EWR stattfinden; es gelten die Garantien und Datenschutzbestimmungen der Anbieter.</p>
 
           <h2>Mietanfragen über Cloudflare D1 und Resend</h2>
           <p>Bei einer Mietanfrage verarbeiten wir die ausgewählten Fahrzeuge oder Anhänger, den gewünschten Zeitraum, Name, E-Mail-Adresse, Telefonnummer und Ihre Nachricht. Die Angaben werden über einen Cloudflare Worker in unserer Cloudflare-D1-Datenbank gespeichert. Zur Bearbeitung und für Statusnachrichten nutzen wir Resend als E-Mail-Dienst. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO.</p>
@@ -112,7 +112,7 @@
             erfordern. Entsteht ein Auftrag, werden die erforderlichen Daten für
             dessen Abwicklung und anschließend entsprechend den gesetzlichen
             Aufbewahrungsfristen gespeichert. Auf die eigene Speicherdauer von
-            GitHub, FormSubmit und den E-Mail-Anbietern haben wir keinen
+            GitHub, Cloudflare und Resend haben wir keinen
             unmittelbaren Einfluss.
           </p>
 
@@ -274,8 +274,8 @@
             <p>Lorsque vous envoyez le formulaire de rendez-vous, nous traitons, selon votre saisie, le nom, l’adresse e-mail, le numéro de téléphone, la prestation souhaitée, le véhicule, la date souhaitée et une date alternative, le moment de la journée, le numéro de châssis (VIN) ainsi que le contenu de votre message. Les champs obligatoires sont indiqués comme tels. Les données sont enregistrées dans notre base Cloudflare D1 via un Cloudflare Worker ; pour la notification, nous utilisons le service d’e-mail Resend. La base juridique est la réponse à votre demande et l’exécution de mesures précontractuelles conformément à l’art. 6, par. 1, point b) du RGPD.</p>
             <p>Les destinataires sont Autoservice Bettenduerf ainsi que Cloudflare et Resend en tant que prestataires techniques. Un traitement hors de l’EEE peut avoir lieu ; les garanties et politiques de confidentialité des prestataires s’appliquent. Merci de ne pas transmettre, via le champ de texte libre, de données de santé ou d’autres informations sensibles non nécessaires.</p>
 
-            <h2>Demandes de produits dans la boutique via FormSubmit</h2>
-            <p>Pour la demande de produit ou de compatibilité dans la boutique (« Est-ce compatible avec mon véhicule ? »), les données saisies (nom, adresse e-mail, téléphone, données du véhicule et message, entre autres) sont transmises de manière chiffrée au service FormSubmit, qui nous les transfère ensuite par e-mail. La base juridique est l’art. 6, par. 1, point b) du RGPD. Les destinataires sont Autoservice Bettenduerf, FormSubmit en tant que service technique de transmission et les fournisseurs de messagerie concernés. FormSubmit étant un service international, un traitement peut avoir lieu hors de l’EEE. De plus amples informations figurent dans la <a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noopener noreferrer">politique de confidentialité de FormSubmit</a>.</p>
+            <h2>Demandes de produits dans la boutique via Cloudflare D1 et Resend</h2>
+            <p>Pour la demande de produit ou de compatibilité dans la boutique (« Est-ce compatible avec mon véhicule ? »), nous traitons les données saisies (nom, adresse e-mail, téléphone, données du véhicule et message, entre autres). Les données sont enregistrées dans notre base Cloudflare D1 via un Cloudflare Worker ; pour la notification, nous utilisons le service d’e-mail Resend. La base juridique est l’art. 6, par. 1, point b) du RGPD. Les destinataires sont Autoservice Bettenduerf ainsi que Cloudflare et Resend en tant que prestataires techniques. Un traitement hors de l’EEE peut avoir lieu ; les garanties et politiques de confidentialité des prestataires s’appliquent.</p>
 
             <h2>Demandes de location via Cloudflare D1 et Resend</h2>
             <p>Lors d’une demande de location, nous traitons les véhicules ou remorques sélectionnés, la période souhaitée, votre nom, votre adresse e-mail, votre numéro de téléphone et votre message. Les données sont enregistrées dans notre base Cloudflare D1 via un Cloudflare Worker. Resend est utilisé pour le traitement et les messages de statut. La base juridique est l’article 6, paragraphe 1, point b) du RGPD.</p>
@@ -290,8 +290,7 @@
               Si une commande est conclue, les données nécessaires sont conservées
               pour son exécution puis conformément aux délais légaux de
               conservation. Nous n’avons aucune influence directe sur la durée de
-              conservation propre à GitHub, FormSubmit et aux fournisseurs de
-              messagerie.
+              conservation propre à GitHub, Cloudflare et Resend.
             </p>
 
             <h2>Panier et traitement des paiements dans la boutique</h2>
@@ -455,8 +454,8 @@
             <p>When you submit the appointment form, depending on your input we process your name, e-mail address, phone number, the service requested, the vehicle, preferred and alternative dates, time of day, vehicle identification number (VIN) and the content of your message. Mandatory fields are marked as such. The data is stored in our Cloudflare D1 database through a Cloudflare Worker; for the notification we use the e-mail service Resend. The legal basis is responding to your request and taking pre-contractual steps pursuant to Art. 6(1)(b) GDPR.</p>
             <p>Recipients are Autoservice Bettenduerf and Cloudflare and Resend as technical service providers. Processing outside the EEA may occur; the providers’ safeguards and privacy policies apply. Please do not submit health data or other unnecessary sensitive information via the free-text field.</p>
 
-            <h2>Product enquiries in the shop via FormSubmit</h2>
-            <p>For the product or fitment enquiry in the shop (“Does this fit my vehicle?”), the data you enter (including name, e-mail address, phone number, vehicle details and message) is transmitted in encrypted form to the FormSubmit service and forwarded to us by e-mail. The legal basis is Art. 6(1)(b) GDPR. Recipients are Autoservice Bettenduerf, FormSubmit as the technical transmission service and the e-mail providers involved. As FormSubmit is an international service, processing may take place outside the EEA. Further information is available in <a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noopener noreferrer">FormSubmit’s privacy policy</a>.</p>
+            <h2>Product enquiries in the shop via Cloudflare D1 and Resend</h2>
+            <p>For the product or fitment enquiry in the shop (“Does this fit my vehicle?”), we process the data you enter (including name, e-mail address, phone number, vehicle details and message). The data is stored in our Cloudflare D1 database through a Cloudflare Worker; for the notification we use the e-mail service Resend. The legal basis is Art. 6(1)(b) GDPR. Recipients are Autoservice Bettenduerf and Cloudflare and Resend as technical service providers. Processing outside the EEA may occur; the providers’ safeguards and privacy policies apply.</p>
 
             <h2>Rental requests via Cloudflare D1 and Resend</h2>
             <p>When you submit a rental request, we process the selected vehicles or trailers, requested period, name, e-mail address, telephone number and your message. The data is stored in our Cloudflare D1 database through a Cloudflare Worker. We use Resend to process the request and send status messages. The legal basis is Article 6(1)(b) GDPR.</p>
@@ -470,7 +469,7 @@
               require longer storage. If an order is placed, the necessary data is
               stored for its processing and afterwards in accordance with statutory
               retention periods. We have no direct influence on the storage periods
-              of GitHub, FormSubmit and the e-mail providers.
+              of GitHub, Cloudflare and Resend.
             </p>
 
             <h2>Cart and payment processing in the shop</h2>
