@@ -508,39 +508,61 @@
       }
       /* ===== Protokoll-Dokument: Virschau um Ecran + Drécken/PDF ===== */
       #protocol-print-root { display: none; }
-      #protocol-print-root.open { display: block; position: fixed; inset: 0; background: rgba(8,15,24,0.62); z-index: 300; overflow: auto; padding: 18px 12px calc(18px + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling: touch; }
-      .pp-bar { max-width: 210mm; margin: 0 auto 12px; display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+      #protocol-print-root.open { display: block; position: fixed; inset: 0; background: rgba(8,15,24,0.68); z-index: 300; overflow: auto; padding: 16px 12px calc(16px + env(safe-area-inset-bottom, 0px)); -webkit-overflow-scrolling: touch; }
+      .pp-bar { max-width: 210mm; margin: 0 auto 12px; display: flex; gap: 8px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
       .pp-bar .pp-hint { margin-right: auto; color: #cdd8e3; font-size: 0.82rem; }
-      #protocol-print-root.open .pp-doc { background: #fff; max-width: 210mm; margin: 0 auto; padding: 16mm 15mm; box-shadow: 0 24px 60px rgba(0,0,0,0.45); border-radius: 4px; }
+      #protocol-print-root.open .pp-doc { background: #fff; max-width: 210mm; margin: 0 auto; box-shadow: 0 24px 60px rgba(0,0,0,0.45); border-radius: 8px; overflow: hidden; }
+
+      .pp-doc { color: #1c2430; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 11pt; line-height: 1.45; }
+      .pp-head { background: #0d1b2a; color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .pp-logo { height: 54px; width: auto; max-width: 48%; object-fit: contain; }
+      .pp-co { text-align: right; font-size: 8.5pt; line-height: 1.55; color: #e7edf3; }
+      .pp-co strong { color: #fff; font-size: 10pt; }
+      .pp-accent { height: 4px; background: #e63946; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .pp-main { padding: 16px 20px 20px; }
+      .pp-titlebar { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 12px; }
+      .pp-titlebar h1 { font-size: 17pt; margin: 0; color: #0d1b2a; letter-spacing: -0.01em; }
+      .pp-ref { text-align: right; font-size: 9pt; color: #5b6b7c; white-space: nowrap; }
+      .pp-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .pp-sec { margin: 12px 0; break-inside: avoid; }
+      .pp-sec h3 { font-size: 9pt; text-transform: uppercase; letter-spacing: .05em; color: #c92c39; margin: 0 0 5px; border-bottom: 1px solid #e6e9ee; padding-bottom: 3px; }
+      .pp-tbl { width: 100%; border-collapse: collapse; font-size: 10pt; }
+      .pp-tbl th { text-align: left; color: #5b6b7c; font-weight: 600; width: 42%; padding: 3px 8px 3px 0; vertical-align: top; }
+      .pp-tbl td { padding: 3px 0; vertical-align: top; font-weight: 500; }
+      .pp-sec p { font-size: 10pt; margin: 5px 0; }
+      .pp-photos { display: flex; flex-wrap: wrap; gap: 6px; }
+      .pp-photos img { width: 52mm; height: 38mm; object-fit: cover; border: 1px solid #d7dce2; border-radius: 4px; }
+      .pp-terms { background: #f6f8fa; border: 1px solid #e6e9ee; border-radius: 8px; padding: 10px 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .pp-terms h3 { border: 0; margin-bottom: 3px; }
+      .pp-terms p { font-size: 9.5pt; color: #333; margin: 0; }
+      .pp-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 26px; break-inside: avoid; }
+      .pp-sigbox { display: block; height: 22mm; border: 1px dashed #b4bcc6; border-radius: 6px; }
+      .pp-sigbox img { max-height: 21mm; max-width: 100%; object-fit: contain; display: block; margin: 0 auto; }
+      .pp-sigline { font-size: 9pt; color: #5b6b7c; margin-top: 5px; border-top: 1px solid #1c2430; padding-top: 4px; }
+      .pp-foot { margin-top: 18px; font-size: 8pt; color: #8a96a2; text-align: center; border-top: 1px solid #e6e9ee; padding-top: 7px; }
+
+      /* Mobil-Virschau: alles liesbar, een Kolonn */
+      @media screen and (max-width: 600px) {
+        .pp-head { padding: 14px 16px; }
+        .pp-main { padding: 14px 16px 16px; }
+        .pp-doc { font-size: 13px; }
+        .pp-titlebar h1 { font-size: 20px; }
+        .pp-cols, .pp-sign { grid-template-columns: 1fr; gap: 10px; }
+        .pp-tbl, .pp-tbl td, .pp-tbl th, .pp-sec p, .pp-terms p, .pp-co { font-size: 12.5px; }
+        .pp-co strong { font-size: 13px; }
+        .pp-titlebar h1 { font-size: 19px; }
+        .pp-photos img { width: calc(50% - 4px); height: auto; aspect-ratio: 4 / 3; }
+        .pp-bar .pp-hint { display: none; }
+        .pp-bar { justify-content: stretch; }
+        .pp-bar .btn { flex: 1; }
+      }
       @media print {
         body.protocol-printing > *:not(#protocol-print-root) { display: none !important; }
         body.protocol-printing #protocol-print-root.open { display: block !important; position: static; background: #fff; padding: 0; overflow: visible; }
-        #protocol-print-root.open .pp-doc { box-shadow: none; max-width: none; margin: 0; padding: 0; border-radius: 0; }
+        #protocol-print-root.open .pp-doc { box-shadow: none; max-width: none; margin: 0; border-radius: 0; }
         .pp-noprint { display: none !important; }
         @page { size: A4; margin: 12mm; }
       }
-      .pp-doc { color: #111827; font-family: system-ui, -apple-system, sans-serif; font-size: 11pt; line-height: 1.45; }
-      .pp-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; border-bottom: 2px solid #0d1b2a; padding-bottom: 10px; }
-      .pp-logo { height: 46px; width: auto; }
-      .pp-co { text-align: right; font-size: 8.5pt; line-height: 1.5; color: #333; }
-      .pp-titlebar { display: flex; justify-content: space-between; align-items: flex-end; margin: 14px 0 10px; }
-      .pp-titlebar h1 { font-size: 18pt; margin: 0; color: #0d1b2a; }
-      .pp-ref { text-align: right; font-size: 9pt; color: #555; }
-      .pp-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-      .pp-sec { margin: 10px 0; break-inside: avoid; }
-      .pp-sec h3 { font-size: 9.5pt; text-transform: uppercase; letter-spacing: .04em; color: #c92c39; margin: 0 0 4px; border-bottom: 1px solid #e6e9ee; padding-bottom: 2px; }
-      .pp-tbl { width: 100%; border-collapse: collapse; font-size: 10pt; }
-      .pp-tbl th { text-align: left; color: #555; font-weight: 600; width: 44%; padding: 2px 8px 2px 0; vertical-align: top; }
-      .pp-tbl td { padding: 2px 0; vertical-align: top; }
-      .pp-sec p { font-size: 10pt; margin: 4px 0; }
-      .pp-photos { display: flex; flex-wrap: wrap; gap: 6px; }
-      .pp-photos img { width: 54mm; height: 40mm; object-fit: cover; border: 1px solid #ccc; border-radius: 4px; }
-      .pp-terms p { font-size: 9.5pt; color: #333; }
-      .pp-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 26px; break-inside: avoid; }
-      .pp-sigbox { display: block; height: 22mm; border: 1px solid #bbb; border-radius: 4px; }
-      .pp-sigbox img { max-height: 21mm; max-width: 100%; object-fit: contain; display: block; margin: 0 auto; }
-      .pp-sigline { font-size: 9pt; color: #555; margin-top: 4px; border-top: 1px solid #333; padding-top: 3px; }
-      .pp-foot { margin-top: 16px; font-size: 8pt; color: #888; text-align: center; border-top: 1px solid #e6e9ee; padding-top: 6px; }
     </style>
   </head>
   <body>
@@ -787,6 +809,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=37"></script>
+    <script src="intern.js?v=38"></script>
   </body>
 </html>

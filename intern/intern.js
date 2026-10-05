@@ -228,7 +228,7 @@
       var photoHtml = photos.length ? '<div class="pp-sec"><h3>Fotoen</h3><div class="pp-photos">' + photos.map(function (u) { return '<img src="' + u + '" alt="">'; }).join("") + "</div></div>" : "";
       var html =
         '<div class="pp-doc">' +
-        '<header class="pp-head"><img class="pp-logo" src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf"><div class="pp-co"><strong>Autoservice Bettenduerf</strong><br>63, rue de Diekirch-Echternach · L-9355 Bettendorf<br>+352 80 86 87 · Autoservicebettenduerf@outlook.com</div></header>' +
+        '<div class="pp-head"><img class="pp-logo" src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf"><div class="pp-co"><strong>Autoservice Bettenduerf</strong><br>63, rue de Diekirch-Echternach · L-9355 Bettendorf<br>+352 80 86 87 · Autoservicebettenduerf@outlook.com</div></div><div class="pp-accent"></div><div class="pp-main">' +
         '<div class="pp-titlebar"><h1>' + title + '</h1><div class="pp-ref">Réf. ' + esc(ref) + '<br>' + esc(fmt(new Date().toISOString())) + "</div></div>" +
         '<div class="pp-cols">' +
         '<div class="pp-sec"><h3>Mieter</h3><table class="pp-tbl">' + ppRow("Numm", b.name) + ppRow("E-Mail", b.email) + ppRow("Telefon", b.phone) + "</table></div>" +
@@ -245,7 +245,7 @@
         '<div class="pp-sign"><div><span class="pp-sigbox">' + (sigUrl ? '<img src="' + sigUrl + '" alt="">' : "") + '</span><div class="pp-sigline">Ënnerschrëft Client · ' + esc(b.name) + "</div></div>" +
         '<div><span class="pp-sigbox"></span><div class="pp-sigline">Ënnerschrëft Autoservice Bettenduerf' + (staff ? " · " + esc(staff) : "") + "</div></div></div>" +
         '<footer class="pp-foot">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87 · autoservicebettenduerf.lu</footer>' +
-        "</div>";
+        "</div></div>";
       var root = $("protocol-print-root"); if (!root) return;
       root.innerHTML = '<div class="pp-bar pp-noprint"><span class="pp-hint">Virschau — „Drécken / PDF" fir als PDF ze späicheren.</span><button type="button" class="btn btn-primary btn-sm" id="pp-print">🖨️ Drécken / PDF</button><button type="button" class="btn btn-ghost btn-sm" id="pp-close">Zoumaachen</button></div>' + html;
       root.classList.add("open");
