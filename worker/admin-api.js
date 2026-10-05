@@ -93,9 +93,21 @@ async function createSession(env, username) {
 }
 
 /* ---------- helpers ---------- */
+// Pro Ufro gesate Origin fir d'CORS-Äntwert (ënnerstëtzt apex + www).
+let CURRENT_ORIGIN = null;
+function allowedOrigins(env) {
+  const base = env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
+  const list = [base];
+  if (base.indexOf("://www.") === -1) list.push(base.replace("://", "://www."));
+  return list;
+}
+function resolveOrigin(request, env) {
+  const origin = request.headers.get("Origin") || "";
+  return allowedOrigins(env).indexOf(origin) !== -1 ? origin : (env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu");
+}
 function cors(env, extra) {
   return Object.assign({
-    "Access-Control-Allow-Origin": env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu",
+    "Access-Control-Allow-Origin": CURRENT_ORIGIN || env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu",
     "Access-Control-Allow-Credentials": "true",
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
@@ -310,6 +322,7 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, "") || "/";
     const method = request.method.toUpperCase();
+    CURRENT_ORIGIN = resolveOrigin(request, env);
 
     if (method === "OPTIONS") return new Response(null, { status: 204, headers: cors(env) });
 
@@ -321,8 +334,7 @@ export default {
     try {
       /* ---- public: neng Reservatiounsufro (vum Location-Formulaire) ---- */
       if (path === "/bookings" && method === "POST") {
-        const allowedOrigin = env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
-        if (request.headers.get("Origin") !== allowedOrigin) return json(env, { error: "forbidden_origin" }, 403);
+        if (allowedOrigins(env).indexOf(request.headers.get("Origin") || "") === -1) return json(env, { error: "forbidden_origin" }, 403);
         if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
         if (bodyData.website) return json(env, { ok: true }, 202);
         if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
@@ -356,8 +368,7 @@ export default {
 
       /* ---- public: neie Rendez-vous (vun der Kontakt-Formulaire) ---- */
       if (path === "/appointments" && method === "POST") {
-        const allowedOrigin = env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
-        if (request.headers.get("Origin") !== allowedOrigin) return json(env, { error: "forbidden_origin" }, 403);
+        if (allowedOrigins(env).indexOf(request.headers.get("Origin") || "") === -1) return json(env, { error: "forbidden_origin" }, 403);
         if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
         if (bodyData.website) return json(env, { ok: true }, 202);
         if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
