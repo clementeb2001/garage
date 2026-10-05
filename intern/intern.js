@@ -196,13 +196,64 @@
       (pickup?'<label class="protocol-check"><input id="'+p+'license" type="checkbox"'+(x.licenseChecked?' checked':'')+'> Führerschäin an Identitéit kontrolléiert</label>':'')+
       '<label class="wide">Intern Notiz<textarea id="'+p+'note" rows="2">'+esc(x.note||'')+'</textarea></label>'+
       '<div class="signature-wrap"><strong>Ënnerschrëft vum Client · '+esc(b.name)+'</strong><canvas class="signature-pad" id="'+p+'signature" data-existing="'+encodeURIComponent(storedSignature)+'" aria-label="Ënnerschrëftsfeld"></canvas>'+(storedSignature?'<img class="signature-existing" id="'+p+'signature-existing" src="'+storedSignature+'" alt="Gespäichert Ënnerschrëft">':'')+'<div class="signature-tools"><span>De Client kann hei mam Fanger ënnerschreiwen.</span><button class="btn btn-outline btn-sm" type="button" id="'+p+'signature-clear">Läschen</button></div></div></div>'+
-      '<div class="b-actions"><button class="btn btn-ok btn-sm" data-save-protocol="'+b.id+'" data-stage="'+stage+'">Protokoll späicheren</button><button class="btn btn-outline btn-sm" data-close-protocol="1">Zoumaachen</button></div></div>';
+      '<div class="b-actions"><button class="btn btn-ok btn-sm" data-save-protocol="'+b.id+'" data-stage="'+stage+'">Protokoll späicheren</button><button class="btn btn-outline btn-sm" data-pdf-protocol="'+b.id+'" data-stage="'+stage+'">📄 PDF / Drécken</button><button class="btn btn-outline btn-sm" data-close-protocol="1">Zoumaachen</button></div></div>';
   }
   function drawSignaturePad(canvas) { var rect=canvas.getBoundingClientRect(),dpr=Math.max(1,window.devicePixelRatio||1),ctx;canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);ctx.strokeStyle="#111827";ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";var drawing=false;function pos(e){var r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}canvas.addEventListener("pointerdown",function(e){drawing=true;canvas.setPointerCapture(e.pointerId);var q=pos(e);ctx.beginPath();ctx.moveTo(q.x,q.y);canvas._signed=true;var old=$(canvas.id+"-existing");if(old)old.hidden=true;e.preventDefault();});canvas.addEventListener("pointermove",function(e){if(!drawing)return;var q=pos(e);ctx.lineTo(q.x,q.y);ctx.stroke();e.preventDefault();});function stop(){drawing=false;}canvas.addEventListener("pointerup",stop);canvas.addEventListener("pointercancel",stop);}
   function refreshProtocolPhotos(p) { var box=$(p+"photo-list"),urls=protocolPhotoList($(p+"photos").value);box.innerHTML=urls.map(function(url,i){return '<div class="protocol-photo"><img src="'+url+'" alt="Protokollfoto '+(i+1)+'"><button type="button" data-remove-photo="'+i+'" aria-label="Foto ewechhuelen">×</button></div>';}).join('');box.querySelectorAll("[data-remove-photo]").forEach(function(btn){btn.addEventListener("click",function(){urls.splice(parseInt(btn.getAttribute("data-remove-photo"),10),1);$(p+"photos").value=urls.join("\n");refreshProtocolPhotos(p);});}); }
   function addProtocolPhotos(p,files) { var status=$(p+"photo-status"),list=Array.prototype.slice.call(files||[]);if(!list.length)return;status.textContent="Fotoe ginn eropgelueden …";Promise.all(list.map(function(file){return resizeFleetPhoto(file).then(function(blob){return STORE.uploadProtocolImage(blob);});})).then(function(results){var urls=protocolPhotoList($(p+"photos").value);results.forEach(function(r){if(r&&r.url)urls.push(r.url);});$(p+"photos").value=urls.join("\n");refreshProtocolPhotos(p);status.textContent="✓ "+results.length+" Foto(en) eropgelueden.";}).catch(function(){status.textContent="E Foto konnt net eropgeluede ginn. Probéiert nach eng Kéier.";}); }
   function initProtocolUi(b,stage) { var p="pr-"+b.id+"-"+stage+"-",canvas=$(p+"signature");if(!canvas)return;drawSignaturePad(canvas);refreshProtocolPhotos(p);$(p+"camera-btn").addEventListener("click",function(){$(p+"camera").click();});$(p+"gallery-btn").addEventListener("click",function(){$(p+"gallery").click();});[$(p+"camera"),$(p+"gallery")].forEach(function(inp){inp.addEventListener("change",function(){addProtocolPhotos(p,inp.files);inp.value="";});});$(p+"signature-clear").addEventListener("click",function(){var ctx=canvas.getContext("2d");ctx.clearRect(0,0,canvas.width,canvas.height);canvas._signed=false;canvas.dataset.existing="";var old=$(p+"signature-existing");if(old)old.hidden=true;}); }
   function signatureBlob(canvas) { return new Promise(function(resolve){canvas.toBlob(function(blob){resolve(blob);},"image/webp",.9);}); }
+
+  /* ---------- Professionellt Protokoll-PDF (iwwer Drécken → "Als PDF späicheren") ---------- */
+  var fleetCache = null;
+  function ensureFleetCache() { if (fleetCache) return Promise.resolve(fleetCache); return STORE.listMaintenance().then(function (i) { fleetCache = i || []; return fleetCache; }, function () { fleetCache = []; return fleetCache; }); }
+  function matchFleet(veh) { var k = String(veh || "").toLowerCase().trim(); if (!k) return null; return (fleetCache || []).filter(function (m) { var mv = String(m.vehicle || "").toLowerCase().trim(); return mv && (mv === k || k.indexOf(mv) !== -1 || mv.indexOf(k) !== -1); })[0] || null; }
+  function ppRow(label, val) { return val ? '<tr><th>' + esc(label) + '</th><td>' + esc(val) + '</td></tr>' : ""; }
+  function printProtocol(b, stage) {
+    var p = "pr-" + b.id + "-" + stage + "-", pickup = stage === "pickup";
+    ensureFleetCache().then(function () {
+      var f = matchFleet(b.veh) || {};
+      var val = function (id) { var e = $(p + id); return e ? e.value : ""; };
+      var km = val("km"), fuel = val("fuel"), at = val("at"), condition = val("condition"), damage = val("damage"), accessories = val("accessories"), staff = val("staff"), note = val("note");
+      var extraKm = pickup ? "" : val("extraKm"), extraCosts = pickup ? "" : val("extraCosts");
+      var licenseChecked = pickup && $(p + "license") ? $(p + "license").checked : false;
+      var photos = protocolPhotoList($(p + "photos") ? $(p + "photos").value : "");
+      var sigEl = $(p + "signature"), sigUrl = "";
+      try { var ex = decodeURIComponent((sigEl && sigEl.dataset.existing) || ""); if (/^https:/.test(ex)) sigUrl = ex; } catch (e) {}
+      if (sigEl && sigEl._signed) { try { sigUrl = sigEl.toDataURL("image/png"); } catch (e) {} }
+      var ref = refOf(b.id), title = pickup ? "Iwwergab­protokoll" : "Retour­protokoll";
+      var carRows = ppRow("Gefier", b.veh) + ppRow("Baujoer", f.year) + ppRow("Kraftstoff", f.fuel) + ppRow("Luedraum", f.loadSpace) + ppRow("Führerschäin", f.licenseClass) + (f.deposit !== "" && f.deposit != null ? ppRow("Kautioun", f.deposit + " €") : "");
+      var stateRows = ppRow("Datum / Zäit", at ? fmt(at) : "") + ppRow("Kilometerstand", km ? km + " km" : "") + ppRow("Tankstand", fuel) +
+        (pickup ? ppRow("Führerschäin & Identitéit kontrolléiert", licenseChecked ? "Jo" : "Nee") : (ppRow("Zousaz-Kilometer", extraKm ? extraKm + " km" : "") + ppRow("Zousazkäschten", extraCosts ? extraCosts + " €" : "")));
+      var photoHtml = photos.length ? '<div class="pp-sec"><h3>Fotoen</h3><div class="pp-photos">' + photos.map(function (u) { return '<img src="' + u + '" alt="">'; }).join("") + "</div></div>" : "";
+      var html =
+        '<div class="pp-doc">' +
+        '<header class="pp-head"><img class="pp-logo" src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf"><div class="pp-co"><strong>Autoservice Bettenduerf</strong><br>63, rue de Diekirch-Echternach · L-9355 Bettendorf<br>+352 80 86 87 · Autoservicebettenduerf@outlook.com</div></header>' +
+        '<div class="pp-titlebar"><h1>' + title + '</h1><div class="pp-ref">Réf. ' + esc(ref) + '<br>' + esc(fmt(new Date().toISOString())) + "</div></div>" +
+        '<div class="pp-cols">' +
+        '<div class="pp-sec"><h3>Mieter</h3><table class="pp-tbl">' + ppRow("Numm", b.name) + ppRow("E-Mail", b.email) + ppRow("Telefon", b.phone) + "</table></div>" +
+        '<div class="pp-sec"><h3>Gefier</h3><table class="pp-tbl">' + carRows + "</table></div>" +
+        "</div>" +
+        '<div class="pp-sec"><h3>Mietperiod</h3><table class="pp-tbl">' + ppRow("Vun", fmt(b.from)) + ppRow("Bis", fmt(b.to)) + "</table></div>" +
+        '<div class="pp-sec"><h3>Zoustand bei der ' + (pickup ? "Iwwergab" : "Retour") + '</h3><table class="pp-tbl">' + stateRows + "</table>" +
+        (condition ? '<p><strong>Allgemengen Zoustand:</strong> ' + esc(condition) + "</p>" : "") +
+        (damage ? '<p><strong>Schied / Feststellungen:</strong> ' + esc(damage) + "</p>" : "") +
+        (accessories ? '<p><strong>Zubehör / Schlësselen / Dokumenter:</strong> ' + esc(accessories) + "</p>" : "") +
+        "</div>" +
+        photoHtml +
+        '<div class="pp-sec pp-terms"><h3>Konditiounen</h3><p>De Won gëtt <strong>vollgetankt</strong> zréckginn — soss ginn d\'Volltankkäschte + 50 € verrechent. D\'<strong>Bezuelung erfollegt bei der Retour</strong> vum Won.</p></div>' +
+        '<div class="pp-sign"><div><span class="pp-sigbox">' + (sigUrl ? '<img src="' + sigUrl + '" alt="">' : "") + '</span><div class="pp-sigline">Ënnerschrëft Client · ' + esc(b.name) + "</div></div>" +
+        '<div><span class="pp-sigbox"></span><div class="pp-sigline">Ënnerschrëft Autoservice Bettenduerf' + (staff ? " · " + esc(staff) : "") + "</div></div></div>" +
+        '<footer class="pp-foot">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87 · autoservicebettenduerf.lu</footer>' +
+        "</div>";
+      var root = $("protocol-print-root"); if (!root) return;
+      root.innerHTML = html;
+      document.body.classList.add("protocol-printing");
+      function cleanup() { document.body.classList.remove("protocol-printing"); window.removeEventListener("afterprint", cleanup); }
+      window.addEventListener("afterprint", cleanup);
+      setTimeout(function () { window.print(); }, 400);
+    });
+  }
   function saveProtocol(b,stage) { var p="pr-"+b.id+"-"+stage+"-",pickup=stage==="pickup",canvas=$(p+"signature"),existing=decodeURIComponent(canvas.dataset.existing||""),signature=Promise.resolve(existing);if(canvas._signed)signature=signatureBlob(canvas).then(function(blob){return STORE.uploadProtocolImage(blob);}).then(function(r){if(!r||r.error)throw new Error("signature_upload");return r.url;});signature.then(function(signatureUrl){if(!signatureUrl){toast("D'Ënnerschrëft vum Client feelt.");return;}return STORE.saveInspection({bookingId:b.id,stage:stage,inspectedAt:$(p+"at").value,odometer:$(p+"km").value,fuelLevel:$(p+"fuel").value,depositAmount:"",extraKm:pickup?"":$(p+"extraKm").value,extraCosts:pickup?"":$(p+"extraCosts").value,conditionNote:$(p+"condition").value,damageNote:$(p+"damage").value,photoRefs:$(p+"photos").value,accessories:$(p+"accessories").value,customerSignature:signatureUrl,staffSignature:$(p+"staff").value,licenseChecked:pickup?$(p+"license").checked:false,note:$(p+"note").value});}).then(function(r){if(!r)return;if(r.error){toast(errMsg(r.error));return;}toast("Protokoll gespäichert.");renderBookings();}).catch(function(){toast("Ënnerschrëft konnt net gespäichert ginn.");}); }
   function bookingCard(b) {
     var el = document.createElement("div"); el.className = "booking" + (b.status === "new" ? " is-new" : "");
@@ -249,6 +300,7 @@
     el.querySelectorAll("[data-protocol]").forEach(function(btn){btn.addEventListener("click",function(){protocolOpen={id:b.id,stage:btn.getAttribute("data-protocol")};renderBookings();});});
     el.querySelectorAll("[data-close-protocol]").forEach(function(btn){btn.addEventListener("click",function(){protocolOpen=null;renderBookings();});});
     el.querySelectorAll("[data-save-protocol]").forEach(function(btn){btn.addEventListener("click",function(){saveProtocol(b,btn.getAttribute("data-stage"));});});
+    el.querySelectorAll("[data-pdf-protocol]").forEach(function(btn){btn.addEventListener("click",function(){printProtocol(b,btn.getAttribute("data-stage"));});});
     if(protocolOpen && protocolOpen.id===b.id) setTimeout(function(){initProtocolUi(b,protocolOpen.stage);},0);
     return el;
   }
