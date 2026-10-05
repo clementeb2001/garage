@@ -253,6 +253,10 @@ async function ensureAppts(env) {
 }
 async function ensureMaint(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS maintenance (id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle TEXT NOT NULL, service TEXT NOT NULL, due_date TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT)").run();
+  try { await env.DB.prepare("ALTER TABLE maintenance ADD COLUMN fleet_status TEXT NOT NULL DEFAULT 'ready'").run(); } catch (e) {}
+}
+async function ensureRentalInspections(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS rental_inspections (id INTEGER PRIMARY KEY AUTOINCREMENT, booking_id INTEGER NOT NULL, stage TEXT NOT NULL, inspected_at TEXT NOT NULL, odometer INTEGER, fuel_level TEXT, condition_note TEXT, damage_note TEXT, photo_refs TEXT, accessories TEXT, license_checked INTEGER NOT NULL DEFAULT 0, deposit_amount REAL, extra_km INTEGER, extra_costs REAL, customer_signature TEXT, staff_signature TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT, UNIQUE(booking_id, stage))").run();
 }
 async function sendNewApptNotice(env, apptId, a) {
   const inq = a.kind === "inquiry";
@@ -601,7 +605,7 @@ export default {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
         await ensureMaint(env);
         const ms = (await env.DB.prepare("SELECT * FROM maintenance ORDER BY (due_date IS NULL), due_date ASC, id DESC").all()).results || [];
-        return json(env, { items: ms.map((m) => ({ id: m.id, vehicle: m.vehicle, service: m.service, dueDate: m.due_date || "", note: m.note || "", updated_at: m.updated_at, updated_by: m.updated_by || "" })) });
+        return json(env, { items: ms.map((m) => ({ id: m.id, vehicle: m.vehicle, service: m.service, dueDate: m.due_date || "", note: m.note || "", status: m.fleet_status || "ready", updated_at: m.updated_at, updated_by: m.updated_by || "" })) });
       }
       if (path === "/maintenance" && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
@@ -611,8 +615,9 @@ export default {
         const dueDate = clip(bodyData.dueDate, 20).trim();
         if (!vehicle || !service) return json(env, { error: "missing_fields" }, 400);
         if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return json(env, { error: "invalid_fields" }, 400);
-        const r = await env.DB.prepare("INSERT INTO maintenance (vehicle, service, due_date, note, updated_by) VALUES (?1,?2,?3,?4,?5)")
-          .bind(vehicle, service, dueDate || null, clip(bodyData.note, 300), me.username).run();
+        const fleetStatus = ["ready","rented","service","blocked"].includes(bodyData.status) ? bodyData.status : "ready";
+        const r = await env.DB.prepare("INSERT INTO maintenance (vehicle, service, due_date, note, updated_by, fleet_status) VALUES (?1,?2,?3,?4,?5,?6)")
+          .bind(vehicle, service, dueDate || null, clip(bodyData.note, 300), me.username, fleetStatus).run();
         return json(env, { ok: true, id: r.meta.last_row_id });
       }
       m = path.match(/^\/maintenance\/(\d+)$/);
@@ -627,8 +632,9 @@ export default {
         const dueDate = clip(bodyData.dueDate, 20).trim();
         if (!vehicle || !service) return json(env, { error: "missing_fields" }, 400);
         if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return json(env, { error: "invalid_fields" }, 400);
-        await env.DB.prepare("UPDATE maintenance SET vehicle=?1, service=?2, due_date=?3, note=?4, updated_at=CURRENT_TIMESTAMP, updated_by=?5 WHERE id=?6")
-          .bind(vehicle, service, dueDate || null, clip(bodyData.note, 300), me.username, id).run();
+        const fleetStatus = ["ready","rented","service","blocked"].includes(bodyData.status) ? bodyData.status : "ready";
+        await env.DB.prepare("UPDATE maintenance SET vehicle=?1, service=?2, due_date=?3, note=?4, updated_at=CURRENT_TIMESTAMP, updated_by=?5, fleet_status=?6 WHERE id=?7")
+          .bind(vehicle, service, dueDate || null, clip(bodyData.note, 300), me.username, fleetStatus, id).run();
         return json(env, { ok: true });
       }
       if (m && method === "DELETE") {
@@ -636,6 +642,26 @@ export default {
         await ensureMaint(env);
         await env.DB.prepare("DELETE FROM maintenance WHERE id = ?1").bind(parseInt(m[1], 10)).run();
         return json(env, { ok: true });
+      }
+
+      /* ---- Digital Iwwergab- / Retourprotokoller ---- */
+      if (path === "/rental-inspections" && method === "GET") {
+        if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
+        await ensureRentalInspections(env);
+        const rows = (await env.DB.prepare("SELECT i.*, b.veh, b.cust_name, b.from_dt, b.to_dt FROM rental_inspections i LEFT JOIN bookings b ON b.id=i.booking_id ORDER BY i.inspected_at DESC, i.id DESC").all()).results || [];
+        return json(env, { items: rows.map((x) => ({ id:x.id, bookingId:x.booking_id, stage:x.stage, inspectedAt:x.inspected_at, odometer:x.odometer, fuelLevel:x.fuel_level || "", conditionNote:x.condition_note || "", damageNote:x.damage_note || "", photoRefs:x.photo_refs || "", accessories:x.accessories || "", licenseChecked:!!x.license_checked, depositAmount:x.deposit_amount, extraKm:x.extra_km, extraCosts:x.extra_costs, customerSignature:x.customer_signature || "", staffSignature:x.staff_signature || "", note:x.note || "", updatedAt:x.updated_at, updatedBy:x.updated_by || "", vehicle:x.veh || "", customer:x.cust_name || "", from:x.from_dt || "", to:x.to_dt || "" })) });
+      }
+      if (path === "/rental-inspections" && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
+        await ensureRentalInspections(env);
+        const bookingId = parseInt(bodyData.bookingId, 10), stage = clip(bodyData.stage, 10), inspectedAt = clip(bodyData.inspectedAt, 20);
+        const odometer = bodyData.odometer === "" ? null : parseInt(bodyData.odometer, 10);
+        if (!bookingId || ["pickup","return"].indexOf(stage) < 0 || !validDateTime(inspectedAt)) return json(env, { error: "invalid_fields" }, 400);
+        if (!(await env.DB.prepare("SELECT id FROM bookings WHERE id=?1").bind(bookingId).first())) return json(env, { error: "not_found" }, 404);
+        const vals = [bookingId, stage, inspectedAt, Number.isFinite(odometer) ? odometer : null, clip(bodyData.fuelLevel,30), clip(bodyData.conditionNote,1000), clip(bodyData.damageNote,1500), clip(bodyData.photoRefs,2000), clip(bodyData.accessories,1000), bodyData.licenseChecked ? 1 : 0, bodyData.depositAmount === "" ? null : Number(bodyData.depositAmount), bodyData.extraKm === "" ? null : parseInt(bodyData.extraKm,10), bodyData.extraCosts === "" ? null : Number(bodyData.extraCosts), clip(bodyData.customerSignature,120), clip(bodyData.staffSignature,120), clip(bodyData.note,1500), me.username];
+        await env.DB.prepare("INSERT INTO rental_inspections (booking_id,stage,inspected_at,odometer,fuel_level,condition_note,damage_note,photo_refs,accessories,license_checked,deposit_amount,extra_km,extra_costs,customer_signature,staff_signature,note,updated_by) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17) ON CONFLICT(booking_id,stage) DO UPDATE SET inspected_at=?3,odometer=?4,fuel_level=?5,condition_note=?6,damage_note=?7,photo_refs=?8,accessories=?9,license_checked=?10,deposit_amount=?11,extra_km=?12,extra_costs=?13,customer_signature=?14,staff_signature=?15,note=?16,updated_at=CURRENT_TIMESTAMP,updated_by=?17").bind(...vals).run();
+        await env.DB.prepare("INSERT INTO booking_events (booking_id,action,by_user,note) VALUES (?1,?2,?3,?4)").bind(bookingId, stage === "pickup" ? "Iwwergabprotokoll gespäichert" : "Retourprotokoll gespäichert", me.username, clip(bodyData.damageNote || bodyData.note,500)).run();
+        return json(env, { ok:true });
       }
 
       /* ---- members (admin only) ---- */

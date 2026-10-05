@@ -3862,13 +3862,22 @@ html.shop-dev .shop-dev-badge a {
 .rental-trust-grid article > span { font-size: 1.4rem; }
 .rental-trust-grid h3 { color: #0d1b2a; margin: 11px 0 6px; font-size: 1.03rem; }
 .rental-trust-grid p { color: #5f6e7d; margin: 0; }
-.rental-faq { background: #fff; }
+.rental-faq {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 92% 12%, rgba(198, 93, 46, .2), transparent 32%), linear-gradient(145deg, #111b27 0%, #09121c 100%);
+}
+.rental-faq::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 72px 100%; }
+.rental-faq .container { position: relative; }
+.rental-faq .eyebrow { color: var(--rental-accent-light, #ffaa68); }
+.rental-faq h2 { color: #fff; }
 .rental-faq-list { display: grid; gap: 10px; max-width: 860px; }
-.rental-faq-list details { border: 1px solid #dde3e9; border-radius: 12px; background: #f8fafb; padding: 0 17px; }
-.rental-faq-list summary { cursor: pointer; padding: 15px 28px 15px 0; font-weight: 750; color: #0d1b2a; position: relative; }
+.rental-faq-list details { border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(255,255,255,.055); padding: 0 18px; backdrop-filter: blur(8px); }
+.rental-faq-list details[open] { border-color: rgba(255,170,104,.38); background: rgba(198,93,46,.11); }
+.rental-faq-list summary { cursor: pointer; padding: 17px 30px 17px 0; font-weight: 750; color: #f7f9fb; position: relative; }
 .rental-faq-list summary::after { content: "+"; position: absolute; right: 2px; font-size: 1.2rem; }
 .rental-faq-list details[open] summary::after { content: "−"; }
-.rental-faq-list p { color: #5f6e7d; margin: 0; padding: 0 0 16px; }
+.rental-faq-list p { color: #b9c5d1; margin: 0; padding: 0 0 17px; line-height: 1.65; }
 .rental-busy {
   margin: 4px 0 6px;
   padding: 12px 14px;

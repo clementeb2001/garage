@@ -71,6 +71,8 @@
     addMaintenance: function (p) { return api("/maintenance", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true, id: r.body.id } : { error: r.body.error }; }); },
     editMaintenance: function (id, p) { return api("/maintenance/" + id, { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     delMaintenance: function (id) { return api("/maintenance/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
+    listInspections: function () { return api("/rental-inspections").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.items; }); },
+    saveInspection: function (p) { return api("/rental-inspections", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
   };
 
   var STORE = liveStore;
@@ -80,7 +82,7 @@
   function errMsg(e) { return ERR[e] || "Feeler – probéiert nach eng Kéier."; }
 
   /* ---------- Views ---------- */
-  var activePage = "bookings", activeFilter = "all", editingMember = null, editingBooking = null, bookingQuery = "";
+  var activePage = "bookings", activeFilter = "all", editingMember = null, editingBooking = null, bookingQuery = "", protocolOpen = null, inspections = [];
   var STATUS = { new: "Nei", confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss" };
 
   function showLogin() { $("view-app").hidden = true; $("view-login").hidden = false; $("login-err").textContent = ""; $("login-form").reset(); }
@@ -163,6 +165,28 @@
     var days = Math.max(1, Math.ceil((to - from) / 86400000));
     return days + " × 24 h · viraussiichtlech " + (days * 80) + " €";
   }
+  function inspectionFor(id, stage) { return inspections.filter(function (x) { return Number(x.bookingId) === Number(id) && x.stage === stage; })[0] || null; }
+  function nowLocal() { var d=new Date(), z=function(n){return n<10?"0"+n:n;}; return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())+"T"+z(d.getHours())+":"+z(d.getMinutes()); }
+  function protocolHtml(b, stage) {
+    var x=inspectionFor(b.id,stage)||{}, p="pr-"+b.id+"-"+stage+"-", title=stage==="pickup"?"Iwwergabprotokoll":"Retourprotokoll";
+    return '<div class="protocol-box"><h4>'+title+(x.id?' <span class="protocol-saved">✓ gespäichert</span>':'')+'</h4><div class="protocol-grid">'+
+      '<label>Zäitpunkt<input id="'+p+'at" type="datetime-local" value="'+esc(dtLocal(x.inspectedAt)||nowLocal())+'"></label>'+
+      '<label>Kilometerstand<input id="'+p+'km" type="number" min="0" value="'+esc(x.odometer==null?'':x.odometer)+'"></label>'+
+      '<label>Tankstand<select id="'+p+'fuel">'+["Voll","3/4","1/2","1/4","Eidel"].map(function(v){return '<option'+(x.fuelLevel===v?' selected':'')+'>'+v+'</option>';}).join('')+'</select></label>'+
+      '<label>Kautioun (€)<input id="'+p+'deposit" type="number" min="0" step="0.01" value="'+esc(x.depositAmount==null?'':x.depositAmount)+'"></label>'+
+      '<label>Zousaz-km<input id="'+p+'extraKm" type="number" min="0" value="'+esc(x.extraKm==null?'':x.extraKm)+'"></label>'+
+      '<label>Zousazkäschten (€)<input id="'+p+'extraCosts" type="number" min="0" step="0.01" value="'+esc(x.extraCosts==null?'':x.extraCosts)+'"></label>'+
+      '<label class="wide">Allgemengen Zoustand<textarea id="'+p+'condition" rows="2">'+esc(x.conditionNote||'')+'</textarea></label>'+
+      '<label class="wide">Schied / nei Feststellungen<textarea id="'+p+'damage" rows="2">'+esc(x.damageNote||'')+'</textarea></label>'+
+      '<label class="wide">Foto-Referenzen oder Links<textarea id="'+p+'photos" rows="2" placeholder="z.B. IMG_1024–IMG_1032 oder Cloud-Link">'+esc(x.photoRefs||'')+'</textarea></label>'+
+      '<label class="wide">Zubehör / Schlësselen / Dokumenter<textarea id="'+p+'accessories" rows="2">'+esc(x.accessories||'')+'</textarea></label>'+
+      '<label>Numm vum Client<input id="'+p+'customer" value="'+esc(x.customerSignature||b.name||'')+'"></label>'+
+      '<label>Numm vum Mataarbechter<input id="'+p+'staff" value="'+esc(x.staffSignature||session.name||'')+'"></label>'+
+      '<label class="protocol-check"><input id="'+p+'license" type="checkbox"'+(x.licenseChecked?' checked':'')+'> Führerschäin an Identitéit kontrolléiert</label>'+
+      '<label class="wide">Intern Notiz<textarea id="'+p+'note" rows="2">'+esc(x.note||'')+'</textarea></label></div>'+
+      '<div class="b-actions"><button class="btn btn-ok btn-sm" data-save-protocol="'+b.id+'" data-stage="'+stage+'">Protokoll späicheren</button><button class="btn btn-outline btn-sm" data-close-protocol="1">Zoumaachen</button></div></div>';
+  }
+  function saveProtocol(b,stage) { var p="pr-"+b.id+"-"+stage+"-"; STORE.saveInspection({bookingId:b.id,stage:stage,inspectedAt:$(p+"at").value,odometer:$(p+"km").value,fuelLevel:$(p+"fuel").value,depositAmount:$(p+"deposit").value,extraKm:$(p+"extraKm").value,extraCosts:$(p+"extraCosts").value,conditionNote:$(p+"condition").value,damageNote:$(p+"damage").value,photoRefs:$(p+"photos").value,accessories:$(p+"accessories").value,customerSignature:$(p+"customer").value,staffSignature:$(p+"staff").value,licenseChecked:$(p+"license").checked,note:$(p+"note").value}).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Protokoll gespäichert.");renderBookings();}); }
   function bookingCard(b) {
     var el = document.createElement("div"); el.className = "booking" + (b.status === "new" ? " is-new" : "");
     var canVal = can("bookings.validate"), isAdmin = can("members.manage");
@@ -189,7 +213,8 @@
 
     var actions = "";
     if (canVal && b.status === "new") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-act="confirmed" data-id="' + b.id + '">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-act="declined" data-id="' + b.id + '">✕ Ofleenen</button>';
-    else if (canVal && b.status === "confirmed") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-outline btn-sm" data-act="done" data-id="' + b.id + '">Als ofgeschloss markéieren</button>';
+    else if (canVal && b.status === "confirmed") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-primary btn-sm" data-protocol="pickup">Iwwergab</button><button class="btn btn-primary btn-sm" data-protocol="return">Retour</button><button class="btn btn-outline btn-sm" data-act="done" data-id="' + b.id + '">Als ofgeschloss markéieren</button>';
+    else if (canVal && b.status === "done") actions = '<button class="btn btn-outline btn-sm" data-protocol="pickup">Iwwergab ukucken</button><button class="btn btn-outline btn-sm" data-protocol="return">Retour ukucken</button>';
     if (canVal) actions += '<button class="btn btn-outline btn-sm" data-edit-booking="' + b.id + '">✎ Änneren</button>';
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-del-booking="' + b.id + '">Läschen</button>';
     el.innerHTML =
@@ -199,10 +224,14 @@
       '<div class="b-cust"><strong>' + esc(b.name) + "</strong><span>✉ " + esc(b.email) + "</span>" + (b.phone ? "<span>☎ " + esc(b.phone) + "</span>" : "") + "</div>" +
       (b.msg ? '<p class="b-msg">' + esc(b.msg) + "</p>" : "") +
       (actions ? '<div class="b-actions">' + actions + "</div>" : "") +
+      (protocolOpen && protocolOpen.id===b.id ? protocolHtml(b,protocolOpen.stage) : "") +
       '<div class="b-audit">' + audit + "</div>";
     el.querySelectorAll("[data-act]").forEach(function (btn) { btn.addEventListener("click", function () { doAct(b.id, btn.getAttribute("data-act")); }); });
     el.querySelectorAll("[data-edit-booking]").forEach(function (btn) { btn.addEventListener("click", function () { editingBooking = b.id; renderBookings(); }); });
     el.querySelectorAll("[data-del-booking]").forEach(function (btn) { btn.addEventListener("click", function () { doDelBooking(parseInt(btn.getAttribute("data-del-booking"), 10)); }); });
+    el.querySelectorAll("[data-protocol]").forEach(function(btn){btn.addEventListener("click",function(){protocolOpen={id:b.id,stage:btn.getAttribute("data-protocol")};renderBookings();});});
+    el.querySelectorAll("[data-close-protocol]").forEach(function(btn){btn.addEventListener("click",function(){protocolOpen=null;renderBookings();});});
+    el.querySelectorAll("[data-save-protocol]").forEach(function(btn){btn.addEventListener("click",function(){saveProtocol(b,btn.getAttribute("data-stage"));});});
     return el;
   }
   function doEditBooking(id) {
@@ -277,7 +306,8 @@
   function renderInquiries() { renderReq("inquiry"); }
   function renderBookings() {
     $("bookings-sub").textContent = can("bookings.validate") ? "Ufroe bestätegen oder ofleenen. All Aktioun gëtt mam Benotzernumm festgehalen." : "Dir hutt Liesrechter (Kucker).";
-    STORE.listBookings().then(function (bk) {
+    Promise.all([STORE.listBookings(), STORE.listInspections()]).then(function (allData) {
+      var bk=allData[0]; inspections=allData[1]||[];
       updateNewBadge(bk);
       renderFilters(bk);
       var list = $("booking-list"); list.innerHTML = "";
@@ -655,22 +685,25 @@
 
   /* ---------- Wartung ---------- */
   var editingMaint = null;
+  function fleetStatus(s) { return {ready:["Asazbereet","ready"],rented:["Verlount","rented"],service:["Am Service","service"],blocked:["Gespaart","blocked"]}[s] || ["Asazbereet","ready"]; }
   function renderWartung() {
     var canEdit = can("bookings.validate");
     $("wartung-form").style.display = canEdit ? "" : "none";
     STORE.listMaintenance().then(function (items) {
       var body = $("wartung-body"); body.innerHTML = "";
-      if (!items.length) { body.innerHTML = '<tr><td colspan="5" class="muted" style="padding:16px">Nach keng Wartungs-Antrag.</td></tr>'; return; }
+      if (!items.length) { body.innerHTML = '<tr><td colspan="6" class="muted" style="padding:16px">Nach kee Gefier an der Flotte.</td></tr>'; return; }
       items.map(function (m) { return { m: m, days: maintDays(m) }; }).sort(function (a, b) { if (a.days == null && b.days == null) return 0; if (a.days == null) return 1; if (b.days == null) return -1; return a.days - b.days; }).forEach(function (x) {
         var m = x.m, lab = maintLabel(x.days), tr = document.createElement("tr");
         if (editingMaint === m.id && canEdit) {
           tr.innerHTML = '<td><input class="member-sel" id="em-veh" value="' + esc(m.vehicle) + '" style="width:120px" /></td>' +
+            '<td><select class="member-sel" id="em-status">'+["ready","rented","service","blocked"].map(function(s){return '<option value="'+s+'"'+(m.status===s?' selected':'')+'>'+fleetStatus(s)[0]+'</option>';}).join('')+'</select></td>'+
             '<td><input class="member-sel" id="em-service" value="' + esc(m.service) + '" style="width:120px" /></td>' +
             '<td><input class="member-sel" id="em-due" type="date" value="' + esc(m.dueDate || "") + '" /></td>' +
             '<td><input class="member-sel" id="em-note" value="' + esc(m.note || "") + '" style="width:120px" /></td>' +
             '<td style="text-align:right;white-space:nowrap"><button class="btn btn-ok btn-sm" data-msave="' + m.id + '">Späicheren</button> <button class="btn btn-outline btn-sm" data-mcancel="1">Ofbriechen</button></td>';
         } else {
-          tr.innerHTML = "<td><b>" + esc(m.vehicle) + "</b></td><td>" + maintIcon(m.service) + " " + esc(m.service) + "</td>" +
+          var fs=fleetStatus(m.status);
+          tr.innerHTML = "<td><b>" + esc(m.vehicle) + "</b></td><td><span class=\"fleet-status fleet-"+fs[1]+"\">"+fs[0]+"</span></td><td>" + maintIcon(m.service) + " " + esc(m.service) + "</td>" +
             '<td>' + (m.dueDate ? dLabel(m.dueDate) + ' <span class="mdue ' + lab.c + '" style="margin-left:4px">' + lab.t + "</span>" : '<span class="muted">—</span>') + "</td>" +
             "<td class=\"muted\">" + esc(m.note || "") + "</td>" +
             '<td style="text-align:right;white-space:nowrap">' + (canEdit ? '<button class="btn btn-outline btn-sm" data-medit="' + m.id + '">Änneren</button> <button class="btn btn-danger btn-sm" data-mdel="' + m.id + '">Läschen</button>' : "") + "</td>";
@@ -679,9 +712,9 @@
       });
       body.querySelectorAll("[data-medit]").forEach(function (b) { b.addEventListener("click", function () { editingMaint = parseInt(b.getAttribute("data-medit"), 10); renderWartung(); }); });
       body.querySelectorAll("[data-mcancel]").forEach(function (b) { b.addEventListener("click", function () { editingMaint = null; renderWartung(); }); });
-      body.querySelectorAll("[data-msave]").forEach(function (b) { b.addEventListener("click", function () { var id = parseInt(b.getAttribute("data-msave"), 10); STORE.editMaintenance(id, { vehicle: $("em-veh").value.trim(), service: $("em-service").value.trim(), dueDate: $("em-due").value, note: $("em-note").value.trim() }).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } editingMaint = null; toast("Wartung gespäichert."); renderWartung(); }); }); });
+      body.querySelectorAll("[data-msave]").forEach(function (b) { b.addEventListener("click", function () { var id = parseInt(b.getAttribute("data-msave"), 10); STORE.editMaintenance(id, { vehicle: $("em-veh").value.trim(), status: $("em-status").value, service: $("em-service").value.trim(), dueDate: $("em-due").value, note: $("em-note").value.trim() }).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } editingMaint = null; toast("Flotte gespäichert."); renderWartung(); }); }); });
       body.querySelectorAll("[data-mdel]").forEach(function (b) { b.addEventListener("click", function () { var id = parseInt(b.getAttribute("data-mdel"), 10); if (!confirm("Dëse Wartungs-Antrag läschen?")) return; STORE.delMaintenance(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Geläscht."); renderWartung(); }); }); });
-    }).catch(function () { $("wartung-body").innerHTML = '<tr><td colspan="5">⚠ Net gelueden. <button class="btn btn-outline btn-sm" id="retry-wartung">Nei probéieren</button></td></tr>'; var r = $("retry-wartung"); if (r) r.addEventListener("click", renderWartung); });
+    }).catch(function () { $("wartung-body").innerHTML = '<tr><td colspan="6">⚠ Net gelueden. <button class="btn btn-outline btn-sm" id="retry-wartung">Nei probéieren</button></td></tr>'; var r = $("retry-wartung"); if (r) r.addEventListener("click", renderWartung); });
   }
   (function () {
     var f = $("wartung-form"); if (!f) return;
@@ -690,7 +723,7 @@
       var veh = $("w-veh").value.trim(), service = $("w-service").value.trim();
       if (!veh || !service) { $("wartung-msg").textContent = "Auto a Service mussen ausgefëllt sinn."; return; }
       $("wartung-msg").textContent = "…";
-      STORE.addMaintenance({ vehicle: veh, service: service, dueDate: $("w-due").value, note: $("w-note").value.trim() }).then(function (r) {
+      STORE.addMaintenance({ vehicle: veh, status: $("w-status").value, service: service, dueDate: $("w-due").value, note: $("w-note").value.trim() }).then(function (r) {
         if (r.error) { $("wartung-msg").textContent = errMsg(r.error); return; }
         f.reset(); $("wartung-msg").textContent = "✓ Bäigesat."; renderWartung();
       });

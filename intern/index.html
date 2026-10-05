@@ -151,6 +151,20 @@
       .mev-list .mev-when { color: var(--mut); font-size: 0.76rem; }
       .mev-empty { padding: 14px; color: var(--mut); font-size: 0.85rem; }
       .btn-warn { background: var(--input-bg); border-color: #e3c893; color: #8a6d1f; }
+      .fleet-form { grid-template-columns: 1fr 150px 1fr 150px 1fr auto; }
+      .fleet-status { display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:999px; font-size:.74rem; font-weight:800; white-space:nowrap; }
+      .fleet-ready { background:var(--ok-soft); color:var(--ok); } .fleet-rented { background:#e8efff; color:#2f6df6; } .fleet-service { background:var(--warn-soft); color:#8a6d1f; } .fleet-blocked { background:var(--new-soft); color:var(--accent-dark); }
+      .protocol-box { margin-top:12px; padding:14px; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); }
+      .protocol-box h4 { margin:0 0 12px; font-size:.95rem; }
+      .protocol-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+      .protocol-grid label { display:flex; flex-direction:column; gap:4px; color:var(--mut); font-size:.76rem; font-weight:700; }
+      .protocol-grid input,.protocol-grid select,.protocol-grid textarea { width:100%; min-width:0; box-sizing:border-box; font:inherit; font-size:.88rem; color:var(--fg); background:var(--input-bg); border:1px solid var(--line); border-radius:8px; padding:8px 9px; }
+      .protocol-grid .wide { grid-column:1/-1; }
+      .protocol-check { flex-direction:row!important; align-items:center; color:var(--fg)!important; }
+      .protocol-check input { width:auto; }
+      .protocol-saved { display:inline-flex; margin-left:5px; color:var(--ok); font-size:.72rem; font-weight:800; }
+      @media (max-width:900px) { .fleet-form { grid-template-columns:1fr 1fr; } .protocol-grid { grid-template-columns:1fr 1fr; } }
+      @media (max-width:560px) { .fleet-form,.protocol-grid { grid-template-columns:1fr; } }
 
       /* Dashboard */
       .stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 16px 0 18px; }
@@ -491,7 +505,7 @@
           <button type="button" data-page="bookings">Reservatiounen <span id="nav-new-badge" class="nav-badge" hidden></span></button>
           <button type="button" data-page="appointments">Rendez-vous <span id="nav-appt-badge" class="nav-badge" hidden></span></button>
           <button type="button" data-page="inquiries">Produktufroen <span id="nav-inq-badge" class="nav-badge" hidden></span></button>
-          <button type="button" data-page="wartung" id="nav-wartung">Wartung</button>
+          <button type="button" data-page="wartung" id="nav-wartung">Flotte</button>
           <button type="button" data-page="members" id="nav-members" hidden>Memberen</button>
         </nav>
         <div class="who">
@@ -549,7 +563,7 @@
               <div id="fleet-status"></div>
             </div>
             <div class="panel">
-              <div class="panel-head"><h3>🛠️ Wartung & Service</h3><button type="button" class="btn btn-outline btn-sm" id="maint-manage" hidden>Verwalten</button></div>
+              <div class="panel-head"><h3>🚐 Flotte</h3><button type="button" class="btn btn-outline btn-sm" id="maint-manage" hidden>Verwalten</button></div>
               <div id="maint-dash"></div>
             </div>
             <div class="panel">
@@ -573,14 +587,15 @@
         </div>
       </div>
 
-      <!-- Wartung page -->
+      <!-- Flotte page -->
       <div class="wrap" id="page-wartung" hidden>
-        <div class="page-head"><h2 class="page-title">Wartung & Service</h2></div>
-        <p class="muted" id="wartung-sub" style="margin:2px 0 0;font-size:0.9rem">Pro Auto festhalen wéini déi nächst Wartung (Vidange, Kontroll, Pneuen …) fälleg ass. Um Dashboard gesäis du d'nächst Termäiner no Dringlechkeet.</p>
-        <div class="card" style="margin-top:14px;overflow-x:auto"><table class="members"><thead><tr><th>Auto</th><th>Service</th><th>Fälleg</th><th>Notiz</th><th></th></tr></thead><tbody id="wartung-body"></tbody></table></div>
-        <h3 style="margin:24px 0 2px;font-size:1.05rem">Neie Wartungs-Antrag</h3>
-        <form class="add-form" id="wartung-form" autocomplete="off" style="grid-template-columns:1fr 1fr 150px 1fr auto">
+        <div class="page-head"><h2 class="page-title">Flotte</h2></div>
+        <p class="muted" id="wartung-sub" style="margin:2px 0 0;font-size:0.9rem">Disponibilitéit, Zoustand an déi nächst Wartung vun all Verleihgefier op enger Plaz.</p>
+        <div class="card" style="margin-top:14px;overflow-x:auto"><table class="members"><thead><tr><th>Auto</th><th>Status</th><th>Nächste Service</th><th>Fälleg</th><th>Notiz</th><th></th></tr></thead><tbody id="wartung-body"></tbody></table></div>
+        <h3 style="margin:24px 0 2px;font-size:1.05rem">Gefier an d'Flotte bäisetzen</h3>
+        <form class="add-form fleet-form" id="wartung-form" autocomplete="off">
           <div class="field"><label for="w-veh">Auto</label><input id="w-veh" type="text" required placeholder="z.B. VW Caddy" /></div>
+          <div class="field"><label for="w-status">Status</label><select id="w-status"><option value="ready">Asazbereet</option><option value="rented">Verlount</option><option value="service">Am Service</option><option value="blocked">Gespaart</option></select></div>
           <div class="field"><label for="w-service">Service</label><input id="w-service" type="text" required placeholder="z.B. Vidange" /></div>
           <div class="field"><label for="w-due">Fälleg (Datum)</label><input id="w-due" type="date" /></div>
           <div class="field"><label for="w-note">Notiz</label><input id="w-note" type="text" placeholder="fräiwëlleg" /></div>
@@ -674,6 +689,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=28"></script>
+    <script src="intern.js?v=29"></script>
   </body>
 </html>
