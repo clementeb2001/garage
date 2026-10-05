@@ -413,10 +413,16 @@ export default {
         const username = clip(bodyData.username, 60).trim().toLowerCase();
         const password = String(bodyData.password || "");
         const lbk = await loginBucket(request);
-        if (await loginFails(env, lbk) >= 10) return json(env, { error: "rate_limited" }, 429);
+        const failedAttempts = await loginFails(env, lbk);
         const row = await env.DB.prepare("SELECT * FROM users WHERE username = ?1").bind(username).first();
         const ok = row && row.active && (await verifyPw(row.pw, password));
-        if (!ok) { await loginBump(env, lbk); return json(env, { error: "invalid_credentials" }, 401); }
+        // Eng IP-Sperr dierf e legitimme Benotzer mat korrektem Passwuert net aussperren.
+        // Falsch Versich bleiwen no 10 Feeler gedrosselt; e korrekte Login läscht de Bucket.
+        if (!ok) {
+          if (failedAttempts >= 10) return json(env, { error: "rate_limited" }, 429);
+          await loginBump(env, lbk);
+          return json(env, { error: "invalid_credentials" }, 401);
+        }
         await loginClear(env, lbk);
         const storedIterations = parseInt(String(row.pw || "").split("$")[1], 10) || 0;
         if (storedIterations < PW_ITERATIONS) {
