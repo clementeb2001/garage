@@ -545,6 +545,12 @@
       .pp-sigbox img { max-height: 21mm; max-width: 100%; object-fit: contain; display: block; margin: 0 auto; }
       .pp-sigline { font-size: 9pt; color: #5b6b7c; margin-top: 5px; border-top: 1px solid #1c2430; padding-top: 4px; }
       .pp-foot { margin-top: 18px; font-size: 8pt; color: #8a96a2; text-align: center; border-top: 1px solid #e6e9ee; padding-top: 7px; }
+      .pp-stage { margin-top: 22px; padding-top: 14px; border-top: 2px solid #0d1b2a; }
+      .pp-stage-title { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+      .pp-stage-title > span { display:grid; place-items:center; width:30px; height:30px; border-radius:50%; background:#e63946; color:#fff; font-weight:900; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .pp-stage-title small { display:block; color:#6b7886; font-size:7.5pt; font-weight:800; letter-spacing:.08em; }
+      .pp-stage-title h2 { margin:0; color:#0d1b2a; font-size:14pt; }
+      .pp-sign-single { margin-top:16px; }
 
       /* Mobil-Virschau: alles liesbar, een Kolonn */
       @media screen and (max-width: 600px) {
@@ -566,6 +572,7 @@
         body.protocol-printing #protocol-print-root.open { display: block !important; position: static; background: #fff; padding: 0; overflow: visible; }
         #protocol-print-root.open .pp-doc { box-shadow: none; max-width: none; margin: 0; border-radius: 0; }
         .pp-noprint { display: none !important; }
+        .pp-combined .pp-stage + .pp-stage { break-before: page; padding-top: 0; border-top: 0; }
         @page { size: A4; margin: 12mm; }
       }
     </style>
@@ -812,6 +819,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=39"></script>
+    <script src="intern.js?v=40"></script>
   </body>
 </html>
