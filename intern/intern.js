@@ -827,10 +827,22 @@
     var bar = $("modebar");
     bar.className = "testbar modebar-live"; bar.textContent = "● Live · verbonne mam Server (Cloudflare)";
   }
-  /* ---------- PWA: Service Worker + Install ---------- */
+  /* ---------- PWA: Service Worker + Install (mat Auto-Update) ---------- */
   (function () {
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js", { scope: "/intern/" }).catch(function () {}); });
+      var refreshing = false, hadController = !!navigator.serviceWorker.controller;
+      // Wann eng nei Versioun d'Kontroll iwwerhëlt: Säit eng Kéier automatesch nei lueden.
+      navigator.serviceWorker.addEventListener("controllerchange", function () {
+        if (refreshing || !hadController) return; refreshing = true; window.location.reload();
+      });
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("sw.js", { scope: "/intern/" }).then(function (reg) {
+          reg.update();
+          // Beim Zréckkommen an d'App a reegelméisseg no Updates kucken.
+          document.addEventListener("visibilitychange", function () { if (!document.hidden) { try { reg.update(); } catch (e) {} } });
+          setInterval(function () { try { reg.update(); } catch (e) {} }, 30 * 60 * 1000);
+        }).catch(function () {});
+      });
     }
     var deferredPrompt = null, btn = $("btn-install");
     window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); deferredPrompt = e; if (btn) btn.hidden = false; });
