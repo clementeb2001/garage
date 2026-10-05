@@ -231,21 +231,9 @@ async function ensureAppts(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS appointment_events (id INTEGER PRIMARY KEY AUTOINCREMENT, appointment_id INTEGER NOT NULL, action TEXT NOT NULL, by_user TEXT, note TEXT, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
   // Defensiv: Spalt "kind" bei enger aler Tabell derbäisetzen (ignoréiert wann se scho besteet).
   try { await env.DB.prepare("ALTER TABLE appointments ADD COLUMN kind TEXT NOT NULL DEFAULT 'appointment'").run(); } catch (e) {}
-  try { await env.DB.prepare("ALTER TABLE appointments ADD COLUMN reminder_sent INTEGER NOT NULL DEFAULT 0").run(); } catch (e) {}
-}
-async function ensureBookingReminderCol(env) {
-  try { await env.DB.prepare("ALTER TABLE bookings ADD COLUMN reminder_sent INTEGER NOT NULL DEFAULT 0").run(); } catch (e) {}
 }
 async function ensureMaint(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS maintenance (id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle TEXT NOT NULL, service TEXT NOT NULL, due_date TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT)").run();
-}
-async function ensureSettings(env) {
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value TEXT)").run();
-}
-async function getSetting(env, key, fallback) {
-  await ensureSettings(env);
-  const row = await env.DB.prepare("SELECT value FROM app_settings WHERE key = ?1").bind(key).first();
-  return row ? row.value : fallback;
 }
 async function sendNewApptNotice(env, apptId, a) {
   const inq = a.kind === "inquiry";
@@ -326,74 +314,6 @@ function declineMail(b) {
     "</div></div>";
   return { subject: t.s, html: html, text: mailText(t, b) };
 }
-function reminderMail(b) {
-  // b: { kind: 'booking'|'appointment', lang, ref, veh, when(date str), service, vehicle }
-  var L = (b.lang || "lb").slice(0, 2);
-  var isAppt = b.kind === "appointment";
-  var T = {
-    lb: { sB: "Erënnerung: Är Reservatioun ass muer", sA: "Erënnerung: Äre Rendez-vous ass muer", h: "Erënnerung", pB: "Just eng frëndlech Erënnerung un Är Reservatioun muer:", pA: "Just eng frëndlech Erënnerung un Äre Rendez-vous muer:", veh: "Gefier", svc: "Service", when: "Datum", foot: "Bis muer! Bei Froen rufft eis gären un." },
-    de: { sB: "Erinnerung: Ihre Reservierung ist morgen", sA: "Erinnerung: Ihr Termin ist morgen", h: "Erinnerung", pB: "Eine freundliche Erinnerung an Ihre Reservierung morgen:", pA: "Eine freundliche Erinnerung an Ihren Termin morgen:", veh: "Fahrzeug", svc: "Service", when: "Datum", foot: "Bis morgen! Bei Fragen rufen Sie uns gerne an." },
-    fr: { sB: "Rappel : votre réservation est demain", sA: "Rappel : votre rendez-vous est demain", h: "Rappel", pB: "Un petit rappel concernant votre réservation demain :", pA: "Un petit rappel concernant votre rendez-vous demain :", veh: "Véhicule", svc: "Service", when: "Date", foot: "À demain ! Pour toute question, appelez-nous." },
-    en: { sB: "Reminder: your reservation is tomorrow", sA: "Reminder: your appointment is tomorrow", h: "Reminder", pB: "A friendly reminder about your reservation tomorrow:", pA: "A friendly reminder about your appointment tomorrow:", veh: "Vehicle", svc: "Service", when: "Date", foot: "See you tomorrow! If you have questions, call us." },
-  }[L] || null;
-  var t = T || { sB: "Erënnerung: Är Reservatioun ass muer", sA: "Erënnerung: Äre Rendez-vous ass muer", h: "Erënnerung", pB: "Erënnerung un Är Reservatioun muer:", pA: "Erënnerung un Äre Rendez-vous muer:", veh: "Gefier", svc: "Service", when: "Datum", foot: "Bis muer!" };
-  t.ref = { lb: "Réf.", de: "Ref.", fr: "Réf.", en: "Ref." }[L] || "Réf.";
-  var rows = [];
-  if (b.ref) rows.push([t.ref, b.ref]);
-  if (isAppt) { if (b.service) rows.push([t.svc, b.service]); if (b.vehicle) rows.push([t.veh, b.vehicle]); }
-  else if (b.veh) rows.push([t.veh, b.veh]);
-  if (b.when) rows.push([t.when, b.when]);
-  var html =
-    '<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1c2430">' +
-    '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +
-    '<div style="border:1px solid #e6e9ee;border-top:0;border-radius:0 0 10px 10px;padding:20px">' +
-    '<h2 style="margin:0 0 8px;color:#0d1b2a">🔔 ' + esc(t.h) + "</h2>" +
-    "<p>" + esc(isAppt ? t.pA : t.pB) + "</p>" +
-    '<table style="font-size:14px;border-collapse:collapse">' +
-    rows.map(function (r) { return "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(r[0]) + "</td><td><b>" + esc(r[1]) + "</b></td></tr>"; }).join("") +
-    "</table>" +
-    '<p style="color:#5b6b7c;font-size:13px;margin-top:18px">' + esc(t.foot) + "</p>" +
-    '<p style="color:#8a96a2;font-size:12px;margin-top:14px">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87</p>' +
-    "</div></div>";
-  var text = [(isAppt ? t.sA : t.sB), "", (isAppt ? t.pA : t.pB), ""].concat(rows.map(function (r) { return r[0] + ": " + r[1]; })).concat(["", t.foot, "", "Autoservice Bettenduerf · +352 80 86 87"]).join("\n");
-  return { subject: isAppt ? t.sA : t.sB, html: html, text: text };
-}
-async function runReminders(env) {
-  const out = { bookings: 0, appointments: 0, errors: [] };
-  const enabled = await getSetting(env, "reminders_enabled", "1");
-  if (String(enabled) === "0") return out;
-  await ensureBookingReminderCol(env);
-  await ensureAppts(env);
-  // "Muer" (morgen) als Datum YYYY-MM-DD
-  const tmr = new Date(Date.now() + 86400000);
-  const dayStr = tmr.toISOString().slice(0, 10);
-  // Reservatiounen: bestätegt, Ofhuelung muer
-  try {
-    const bs = (await env.DB.prepare("SELECT id, veh, from_dt, to_dt, cust_email, lang FROM bookings WHERE status='confirmed' AND reminder_sent=0 AND substr(from_dt,1,10)=?1").bind(dayStr).all()).results || [];
-    for (const b of bs) {
-      if (!b.cust_email) continue;
-      const mail = reminderMail({ kind: "booking", lang: b.lang, ref: "R-" + (Number(b.id) + 1000), veh: b.veh, when: (b.from_dt || "").replace("T", " ") });
-      const r = await sendEmail(env, b.cust_email, mail.subject, mail.html, mail.text);
-      await env.DB.prepare("UPDATE bookings SET reminder_sent=1 WHERE id=?1").bind(b.id).run();
-      await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)").bind(b.id, r.ok ? "Erënnerungsmail geschéckt" : "Erënnerungsmail feelgeschloen", clip(r.ok ? r.id : r.error, 500)).run();
-      if (r.ok) out.bookings++; else out.errors.push("b" + b.id + ":" + r.error);
-    }
-  } catch (e) { out.errors.push("bookings:" + clip(e && e.message || e, 120)); }
-  // Rendez-vous: bestätegt, Wonschdatum muer
-  try {
-    const as = (await env.DB.prepare("SELECT id, email, service, vehicle, pref_date, lang FROM appointments WHERE status='confirmed' AND reminder_sent=0 AND kind='appointment' AND pref_date=?1").bind(dayStr).all()).results || [];
-    for (const a of as) {
-      if (!a.email) continue;
-      const mail = reminderMail({ kind: "appointment", lang: a.lang, ref: "T-" + (Number(a.id) + 1000), service: a.service, vehicle: a.vehicle, when: a.pref_date });
-      const r = await sendEmail(env, a.email, mail.subject, mail.html, mail.text);
-      await env.DB.prepare("UPDATE appointments SET reminder_sent=1 WHERE id=?1").bind(a.id).run();
-      await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,'System',?3)").bind(a.id, r.ok ? "Erënnerungsmail geschéckt" : "Erënnerungsmail feelgeschloen", clip(r.ok ? r.id : r.error, 500)).run();
-      if (r.ok) out.appointments++; else out.errors.push("a" + a.id + ":" + r.error);
-    }
-  } catch (e) { out.errors.push("appointments:" + clip(e && e.message || e, 120)); }
-  return out;
-}
-
 async function authUser(request, env) {
   // Sessiouns-Token: fir d'éischt iwwer den Authorization-Header (robust, Cross-
   // Subdomain- a Cookie-onofhängeg), soss iwwer de Cookie.
@@ -698,32 +618,6 @@ export default {
         return json(env, { ok: true });
       }
 
-      /* ---- Astellungen (Settings) ---- */
-      if (path === "/settings" && method === "GET") {
-        if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
-        await ensureSettings(env);
-        const rows = (await env.DB.prepare("SELECT key, value FROM app_settings").all()).results || [];
-        const s = { reminders_enabled: "1" };
-        rows.forEach((r) => { s[r.key] = r.value; });
-        return json(env, { settings: s });
-      }
-      if (path === "/settings" && method === "POST") {
-        if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
-        await ensureSettings(env);
-        if (bodyData.reminders_enabled !== undefined) {
-          const v = Number(bodyData.reminders_enabled) ? "1" : "0";
-          await env.DB.prepare("INSERT INTO app_settings (key, value) VALUES ('reminders_enabled', ?1) ON CONFLICT(key) DO UPDATE SET value=?1").bind(v).run();
-        }
-        return json(env, { ok: true });
-      }
-
-      /* ---- Erënnerungen elo manuell ausléisen (admin, fir Test) ---- */
-      if (path === "/reminders/run" && method === "POST") {
-        if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
-        const result = await runReminders(env);
-        return json(env, { ok: true, result });
-      }
-
       /* ---- members (admin only) ---- */
       if (path === "/members" && method === "GET") {
         if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
@@ -828,11 +722,6 @@ export default {
     } catch (e) {
       return json(env, { error: "server_error", detail: String(e && e.message || e) }, 500);
     }
-  },
-
-  // Deeglech Cron (wrangler: [triggers] crons) — schéckt Erënnerungs-Mailen fir muer.
-  async scheduled(event, env, ctx) {
-    ctx.waitUntil(runReminders(env));
   },
 };
 

@@ -64,8 +64,6 @@
     addMaintenance: function (p) { return api("/maintenance", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true, id: r.body.id } : { error: r.body.error }; }); },
     editMaintenance: function (id, p) { return api("/maintenance/" + id, { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     delMaintenance: function (id) { return api("/maintenance/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
-    getSettings: function () { return api("/settings").then(function (r) { return r.status === 200 ? (r.body.settings || {}) : {}; }); },
-    setSetting: function (k, v) { var b = {}; b[k] = v; return api("/settings", { method: "POST", body: b }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
   };
 
   var STORE = liveStore;
@@ -282,7 +280,7 @@
 
   /* ---------- Dashboard ---------- */
   var calRef = new Date(), dashActive = [], dashAppts = [];
-  var dashBk = [], dashAp = [], dashMaint = [], dashSettings = {};
+  var dashBk = [], dashAp = [], dashMaint = [];
   var VEH_COLORS = ["#2f6df6", "#e63946", "#2e7d5b", "#b7791f", "#7c4dff", "#0ea5a5", "#d6457f", "#546e7a"];
   var APPT_COLOR = "#334155"; // Rendez-vousen (Service) — donkel, onofhängeg vun de Gefier-Faarwen
   function apptDay(a) { return parseDay(a.prefDate) || parseDay(a.altDate); }
@@ -312,12 +310,11 @@
       STORE.listBookings().then(function (v) { return v; }, function () { return null; }),
       STORE.listAppointments().then(function (v) { return v; }, function () { return null; }),
       STORE.listMaintenance().then(function (v) { return v; }, function () { return []; }),
-      STORE.getSettings().then(function (v) { return v; }, function () { return {}; }),
     ]).then(function (res) {
       var bk = res[0], ap = res[1];
       if (bk === null && ap === null) { throw new Error("load_failed"); }
       bk = bk || []; ap = ap || [];
-      dashBk = bk; dashAp = ap; dashMaint = res[2] || []; dashSettings = res[3] || {};
+      dashBk = bk; dashAp = ap; dashMaint = res[2] || [];
       updateNewBadge(bk);
       updateReqBadge("appointment", ap); updateReqBadge("inquiry", ap);
       var rentals = bk.filter(function (b) { return b.status !== "declined"; });
@@ -358,7 +355,6 @@
 
       renderAttn(cntNewR, cntNewA, cntNewI, bk);
       renderConflicts(bk);
-      renderReminderStrip(rentals, appts);
       renderTimeline(rentals, appts);
       renderActionNeeded(bk, ap);
       renderFleet(rentals);
@@ -369,7 +365,7 @@
       $("dash-sub").textContent = "Serverfeeler";
       $("stat-row").innerHTML = '<div class="empty">⚠ D’Donnéeë konnten net geluede ginn. <button class="btn btn-outline btn-sm" id="retry-dashboard">Nei probéieren</button></div>';
       $("retry-dashboard").addEventListener("click", renderDashboard);
-      ["attn-box", "conflict-box", "rem-box", "today-timeline", "action-needed", "fleet-status", "maint-dash", "activity-bars", "activity-x", "calendar", "cal-legend"].forEach(function (id) { if ($(id)) $(id).innerHTML = ""; });
+      ["attn-box", "conflict-box", "today-timeline", "action-needed", "fleet-status", "maint-dash", "activity-bars", "activity-x", "calendar", "cal-legend"].forEach(function (id) { if ($(id)) $(id).innerHTML = ""; });
     });
   }
 
@@ -394,22 +390,6 @@
     }
     if (!confs.length) return;
     box.innerHTML = '<div class="conflict-box"><b>⚠ ' + confs.length + " méigleche Konflikt" + (confs.length > 1 ? "er" : "") + ":</b> " + confs.map(function (c) { return esc(c[0].veh) + " (" + refOf(c[0].id) + " ↔ " + refOf(c[1].id) + ")"; }).join(" · ") + ". Déiselwecht Gefier(er) iwwerlappen am Datum.</div>";
-  }
-
-  function renderReminderStrip(rentals, appts) {
-    var box = $("rem-box"); if (!box) return;
-    var today = new Date(); today.setHours(0, 0, 0, 0); var tmr = new Date(today); tmr.setDate(tmr.getDate() + 1); var tmrMs = tmr.getTime();
-    function dayMs(s) { var d = parseDay(s); return d ? d.getTime() : null; }
-    var n = rentals.filter(function (b) { return b.status === "confirmed" && dayMs(b.from) === tmrMs && b.email; }).length
-          + appts.filter(function (a) { var d = apptDay(a); return a.status === "confirmed" && d && d.getTime() === tmrMs && a.email; }).length;
-    var on = dashSettings.reminders_enabled == null ? true : !!Number(dashSettings.reminders_enabled);
-    var isAdmin = can("members.manage");
-    var txt = on
-      ? "<b>Automatesch Erënnerungen</b> · " + (n ? n + " ginn muer verschéckt (Mail un d'Clienten den Dag virum Termin)." : "muer keng ze verschécken.")
-      : "<b>Automatesch Erënnerungen</b> · ausgeschalt.";
-    var tog = isAdmin ? '<button class="btn btn-outline btn-sm" id="rem-toggle" style="margin-left:auto">' + (on ? "Ausschalten" : "Aschalten") + "</button>" : "";
-    box.innerHTML = '<div class="rem"><span class="ic">✉️</span><div>' + txt + "</div>" + tog + "</div>";
-    var tb = $("rem-toggle"); if (tb) tb.addEventListener("click", function () { STORE.setSetting("reminders_enabled", on ? 0 : 1).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } dashSettings.reminders_enabled = on ? 0 : 1; renderReminderStrip(rentals, appts); toast(on ? "Erënnerungen ausgeschalt." : "Erënnerungen ageschalt."); }); });
   }
 
   function renderTimeline(rentals, appts) {
