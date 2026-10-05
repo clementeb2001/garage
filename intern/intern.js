@@ -23,9 +23,13 @@
   /* ======================================================================
      LIVE-STORE (Cloudflare-Worker)
      ====================================================================== */
-  function onAuthLost() { if (!session) return; session = null; showLogin(); toast("Sessioun ofgelaf – logg dech w.e.g. nei an."); }
+  var TOKEN_KEY = "gk_intern_token";
+  var token = null; try { token = localStorage.getItem(TOKEN_KEY); } catch (e) {}
+  function setToken(t) { token = t || null; try { if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+  function onAuthLost() { setToken(null); if (!session) return; session = null; showLogin(); toast("Sessioun ofgelaf – logg dech w.e.g. nei an."); }
   function api(path, opts) {
-    opts = opts || {}; var headers = {}; var hadSession = !!session;
+    opts = opts || {}; var headers = {}; var hadSession = !!session || !!token;
+    if (token) headers.Authorization = "Bearer " + token;
     var init = { method: opts.method || "GET", headers: headers, credentials: "include" };
     if (opts.body) { headers["Content-Type"] = "application/json"; init.body = JSON.stringify(opts.body); }
     return fetch(API_BASE + path, init).then(function (r) {
@@ -37,10 +41,10 @@
   }
   var liveStore = {
     mode: "live",
-    login: function (u, p) { return api("/auth/login", { method: "POST", body: { username: u, password: p } }).then(function (r) { return r.status === 200 ? { ok: true, user: r.body.user } : { error: r.body.error || "invalid_credentials" }; }); },
+    login: function (u, p) { return api("/auth/login", { method: "POST", body: { username: u, password: p } }).then(function (r) { if (r.status === 200) { if (r.body.token) setToken(r.body.token); return { ok: true, user: r.body.user }; } return { error: r.body.error || "invalid_credentials" }; }); },
     me: function () { return api("/auth/me").then(function (r) { return r.status === 200 ? r.body.user : null; }); },
-    logout: function () { return api("/auth/logout", { method: "POST" }); },
-    changePassword: function (cur, next) { return api("/auth/password", { method: "POST", body: { current: cur, next: next } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error || "error" }; }); },
+    logout: function () { return api("/auth/logout", { method: "POST" }).then(function (r) { setToken(null); return r; }); },
+    changePassword: function (cur, next) { return api("/auth/password", { method: "POST", body: { current: cur, next: next } }).then(function (r) { if (r.status === 200) { if (r.body.token) setToken(r.body.token); return { ok: true }; } return { error: r.body.error || "error" }; }); },
     listBookings: function () { return api("/bookings").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.bookings; }); },
     setStatus: function (id, status, note) { return api("/bookings/" + id + "/status", { method: "POST", body: { status: status, note: note || "" } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listMembers: function () { return api("/members").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.members; }); },
@@ -61,7 +65,7 @@
   var STORE = liveStore;
   var session = null;
   function can(perm) { return !!(session && ROLES[session.role] && ROLES[session.role].perms.indexOf(perm) !== -1); }
-  var ERR = { invalid_credentials: "Falsche Benotzernumm oder Passwuert.", wrong_current: "Aktuellt Passwuert ass falsch.", weak_password: "Neit Passwuert ze kuerz (op mannst 8 Zeechen).", exists: "Dee Benotzernumm gëtt et schonn.", last_admin: "Et muss op mannst een Admin bleiwen.", self: "Du kanns dech net selwer läschen.", bad_input: "Ongëlteg Agab.", forbidden: "Keng Berechtegung.", rate_limited: "Ze vill Loginversich. Waart w.e.g. eng Stonn oder rufft den Admin un.", booking_conflict: "Dëst Gefier ass an dësem Zäitraum schonn bestätegt – kee Konflikt méiglech.", not_found: "Reservatioun net fonnt.", bad_status: "Ongëltege Status.", missing_fields: "Pflichtfelder feelen (Gefier, Numm, Vun, Bis).", invalid_fields: "Ongëlteg E-Mail oder Datum.", invalid_period: "D'Enddatum muss nom Ufanksdatum leien." };
+  var ERR = { invalid_credentials: "Falsche Benotzernumm oder Passwuert.", wrong_current: "Aktuellt Passwuert ass falsch.", weak_password: "Neit Passwuert ze kuerz (op mannst 8 Zeechen).", exists: "Dee Benotzernumm gëtt et schonn.", last_admin: "Et muss op mannst een Admin bleiwen.", self: "Du kanns dech net selwer läschen.", bad_input: "Ongëlteg Agab.", forbidden: "Keng Berechtegung.", rate_limited: "Ze vill Loginversich. Waart w.e.g. eng Stonn oder rufft den Admin un.", booking_conflict: "Dëst Gefier ass an dësem Zäitraum schonn bestätegt – kee Konflikt méiglech.", not_found: "Reservatioun net fonnt.", bad_status: "Ongëltege Status.", missing_fields: "Pflichtfelder feelen (Gefier, Numm, Vun, Bis).", invalid_fields: "Ongëlteg E-Mail oder Datum.", invalid_period: "D'Enddatum muss nom Ufanksdatum leien.", forbidden_origin: "Zougrëff vun dëser Adress blockéiert – benotzt w.e.g. https://autoservicebettenduerf.lu/intern/", server_not_configured: "Server net konfiguréiert." };
   function errMsg(e) { return ERR[e] || "Feeler – probéiert nach eng Kéier."; }
 
   /* ---------- Views ---------- */
@@ -387,7 +391,7 @@
   (function () { var e = $("btn-export"), pr = $("btn-print"); if (e) e.addEventListener("click", exportCSV); if (pr) pr.addEventListener("click", function () { window.print(); }); })();
 
   /* ---------- Members ---------- */
-  function afterSelfRename() { toast("Däi Benotzernumm gouf geännert – logg dech w.e.g. nei an."); setTimeout(function () { session = null; showLogin(); }, 1400); }
+  function afterSelfRename() { toast("Däi Benotzernumm gouf geännert – logg dech w.e.g. nei an."); setToken(null); setTimeout(function () { session = null; showLogin(); }, 1400); }
   function renderMembers() {
     if (!can("members.manage")) return;
     STORE.listMembers().then(function (users) {

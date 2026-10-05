@@ -98,7 +98,7 @@ function cors(env, extra) {
     "Access-Control-Allow-Origin": env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu",
     "Access-Control-Allow-Credentials": "true",
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
   }, extra || {});
@@ -283,7 +283,13 @@ function declineMail(b) {
 }
 
 async function authUser(request, env) {
-  const token = cookieValue(request, SESSION_COOKIE);
+  // Sessiouns-Token: fir d'éischt iwwer den Authorization-Header (robust, Cross-
+  // Subdomain- a Cookie-onofhängeg), soss iwwer de Cookie.
+  let token = "";
+  const h = request.headers.get("Authorization") || "";
+  const m = h.match(/^Bearer\s+(.+)$/i);
+  if (m) token = m[1];
+  if (!token) token = cookieValue(request, SESSION_COOKIE);
   if (!token) return null;
   await ensureSessions(env);
   const tokenHash = await hashText(token);
@@ -374,8 +380,6 @@ export default {
 
       /* ---- login (mat Brute-Force-Schutz: max 10 falsch Versich/Stonn/IP) ---- */
       if (path === "/auth/login" && method === "POST") {
-        const allowedOrigin = env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
-        if (request.headers.get("Origin") !== allowedOrigin) return json(env, { error: "forbidden_origin" }, 403);
         const username = clip(bodyData.username, 60).trim().toLowerCase();
         const password = String(bodyData.password || "");
         const lbk = await loginBucket(request);
@@ -389,7 +393,8 @@ export default {
           await env.DB.prepare("UPDATE users SET pw = ?1 WHERE username = ?2").bind(await hashPw(password), row.username).run();
         }
         const token = await createSession(env, row.username);
-        return json(env, { ok: true, user: { username: row.username, name: row.name, role: row.role, mustChange: !!row.must_change } }, 200, { "Set-Cookie": sessionCookie(token) });
+        // Token am Body (fir Authorization-Header) + Cookie (SameSite=Strict) als Zousaz.
+        return json(env, { ok: true, token, user: { username: row.username, name: row.name, role: row.role, mustChange: !!row.must_change } }, 200, { "Set-Cookie": sessionCookie(token) });
       }
 
       /* ---- all routes below need auth ---- */
@@ -404,10 +409,6 @@ export default {
       }
       if (!me) return json(env, { error: "unauthorized" }, 401);
 
-      if ((method === "POST" || method === "DELETE") && request.headers.get("Origin") !== (env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu")) {
-        return json(env, { error: "forbidden_origin" }, 403);
-      }
-
       /* ---- change own password ---- */
       if (path === "/auth/password" && method === "POST") {
         const cur = String(bodyData.current || ""), next = String(bodyData.next || "");
@@ -418,7 +419,7 @@ export default {
         await ensureSessions(env);
         await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(me.username).run();
         const token = await createSession(env, me.username);
-        return json(env, { ok: true }, 200, { "Set-Cookie": sessionCookie(token) });
+        return json(env, { ok: true, token }, 200, { "Set-Cookie": sessionCookie(token) });
       }
 
       /* ---- bookings list ---- */
