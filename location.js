@@ -104,7 +104,7 @@
       nav: "Location · geschwënn",
       soon_eyebrow: "Location · Verlee",
       soon_title: "Eise Verlee ass an der Aarbecht",
-      soon_text: "Mir sinn amgaang, eise Verlee vun Unhänger a Gefierer opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
+      soon_text: "Mir sinn amgaang, eise Verleih vun Unhänger a Gefierer opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
       soon_cta: "Ufro schécken", soon_back: "Zréck op d’Startsäit",
       dev_badge: "Virschau-Modus – Location ëffentlech nach „an der Aarbecht“",
       cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",

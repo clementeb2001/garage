@@ -93,26 +93,24 @@ async function createSession(env, username) {
 }
 
 /* ---------- helpers ---------- */
-// Pro Ufro gesate Origin fir d'CORS-Äntwert (ënnerstëtzt apex + www).
-let CURRENT_ORIGIN = null;
 function allowedOrigins(env) {
-  const base = env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
+  const base = (env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu").replace(/\/$/, "");
   const list = [base];
   if (base.indexOf("://www.") === -1) list.push(base.replace("://", "://www."));
   return list;
 }
+function isAllowedOrigin(request, env) {
+  return allowedOrigins(env).indexOf(request.headers.get("Origin") || "") !== -1;
+}
 function resolveOrigin(request, env) {
   const origin = request.headers.get("Origin") || "";
-  // Erlaabt: apex/www vun der konfiguréierter Domain, soss all gëltegen https-Origin
-  // (Token/Passwuert-Schutz maachen dat sécher). Sou klappt CORS onofhängeg vun der
-  // ALLOW_ORIGIN-Konfiguratioun, egal op apex, www oder eng aner Variant benotzt gëtt.
+  // Nëmmen déi explizitt Haaptdomain an hir www-Variant dierfen d'API am Browser benotzen.
   if (allowedOrigins(env).indexOf(origin) !== -1) return origin;
-  if (/^https:\/\/[A-Za-z0-9.-]+(:\d+)?$/.test(origin)) return origin;
   return env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu";
 }
 function cors(env, extra) {
   return Object.assign({
-    "Access-Control-Allow-Origin": CURRENT_ORIGIN || env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu",
+    "Access-Control-Allow-Origin": env.RESPONSE_ORIGIN || env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu",
     "Access-Control-Allow-Credentials": "true",
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
@@ -174,16 +172,31 @@ async function sendEmail(env, to, subject, html, text) {
       from: env.MAIL_FROM || "Autoservice Bettenduerf <noreply@autoservicebettenduerf.lu>",
       to: [to], reply_to: "Autoservicebettenduerf@outlook.com", subject: subject, html: html,
     };
+    const idempotencyKey = crypto.randomUUID();
     if (text) payload.text = text;
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) return { ok: false, error: "resend_http_" + response.status };
-    const data = await response.json().catch(() => ({}));
-    return { ok: true, id: data.id || "" };
+    let lastStatus = 0;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
+        body: JSON.stringify(payload),
+      });
+      lastStatus = response.status;
+      if (response.ok) {
+        const data = await response.json().catch(() => ({}));
+        return { ok: true, id: data.id || "", attempts: attempt + 1 };
+      }
+      if (response.status !== 429 && response.status < 500) break;
+      if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1)));
+    }
+    return { ok: false, error: "resend_http_" + lastStatus + "_after_retries" };
   } catch (e) { return { ok: false, error: clip(e && e.message || e, 160) }; }
+}
+
+async function saveConsent(env, type, id, privacy, terms) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS request_consents (request_type TEXT NOT NULL, request_id INTEGER NOT NULL, privacy_accepted INTEGER NOT NULL, terms_accepted INTEGER NOT NULL DEFAULT 0, consent_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (request_type, request_id))").run();
+  await env.DB.prepare("INSERT OR REPLACE INTO request_consents (request_type, request_id, privacy_accepted, terms_accepted, consent_at) VALUES (?1,?2,?3,?4,CURRENT_TIMESTAMP)")
+    .bind(type, id, privacy ? 1 : 0, terms ? 1 : 0).run();
 }
 async function sendConfirmation(env, bookingId, booking) {
   booking.ref = "R-" + (Number(bookingId) + 1000);
@@ -324,11 +337,10 @@ async function authUser(request, env) {
 /* ---------- main ---------- */
 export default {
   async fetch(request, env, ctx) {
+    env = Object.assign(Object.create(env), { RESPONSE_ORIGIN: resolveOrigin(request, env) });
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, "") || "/";
     const method = request.method.toUpperCase();
-    CURRENT_ORIGIN = resolveOrigin(request, env);
-
     if (method === "OPTIONS") return new Response(null, { status: 204, headers: cors(env) });
 
     let bodyData = {};
@@ -339,7 +351,7 @@ export default {
     try {
       /* ---- public: neng Reservatiounsufro (vum Location-Formulaire) ---- */
       if (path === "/bookings" && method === "POST") {
-        if (!/^https:\/\/(?:[a-z0-9-]+\.)*autoservicebettenduerf\.lu$/i.test(request.headers.get("Origin") || "")) return json(env, { error: "forbidden_origin" }, 403);
+        if (!isAllowedOrigin(request, env)) return json(env, { error: "forbidden_origin" }, 403);
         if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
         if (bodyData.website) return json(env, { ok: true }, 202);
         if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
@@ -359,6 +371,7 @@ export default {
           "INSERT INTO bookings (veh, from_dt, to_dt, cust_name, cust_email, cust_phone, msg, lang, status) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,'new')"
         ).bind(veh, from, to, name, email, clip(bodyData.phone, 60), clip(bodyData.msg, 2000), ["lb","de","fr","en"].includes(bodyData.lang) ? bodyData.lang : "lb").run();
         const id = r.meta.last_row_id;
+        await saveConsent(env, "booking", id, bodyData.privacy, bodyData.terms);
         await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,'Ufro erakomm','System','')").bind(id).run();
         ctx.waitUntil(sendNewBookingNotice(env, id, { veh, from_dt: from, to_dt: to, cust_name: name, cust_email: email }));
         return json(env, { ok: true, id });
@@ -373,14 +386,14 @@ export default {
 
       /* ---- public: neie Rendez-vous (vun der Kontakt-Formulaire) ---- */
       if (path === "/appointments" && method === "POST") {
-        if (!/^https:\/\/(?:[a-z0-9-]+\.)*autoservicebettenduerf\.lu$/i.test(request.headers.get("Origin") || "")) return json(env, { error: "forbidden_origin" }, 403);
+        if (!isAllowedOrigin(request, env)) return json(env, { error: "forbidden_origin" }, 403);
         if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
         if (bodyData.website) return json(env, { ok: true }, 202);
         if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
         const name = clip(bodyData.name, 120).trim();
         const email = clip(bodyData.email, 160).trim().toLowerCase();
         const loadedAt = Number(bodyData.loadedAt || 0), nowMs = Date.now();
-        if (!name || !email) return json(env, { error: "missing_fields" }, 400);
+        if (!name || !email || !bodyData.privacy) return json(env, { error: "missing_fields" }, 400);
         if (!validEmail(email)) return json(env, { error: "invalid_fields" }, 400);
         if (!loadedAt || nowMs - loadedAt < 2500 || nowMs - loadedAt > 86400000) return json(env, { error: "invalid_submission" }, 400);
         const kind = bodyData.kind === "inquiry" ? "inquiry" : "appointment";
@@ -389,6 +402,7 @@ export default {
           "INSERT INTO appointments (name, email, phone, service, vehicle, pref_date, alt_date, daytime, vin, msg, lang, kind, status) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,'new')"
         ).bind(name, email, clip(bodyData.phone, 60), clip(bodyData.service, 120), clip(bodyData.vehicle, 120), clip(bodyData.prefDate, 20), clip(bodyData.altDate, 20), clip(bodyData.daytime, 40), clip(bodyData.vin, 40), clip(bodyData.msg, 2000), ["lb", "de", "fr", "en"].includes(bodyData.lang) ? bodyData.lang : "lb", kind).run();
         const id = r.meta.last_row_id;
+        await saveConsent(env, kind, id, bodyData.privacy, false);
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,'Ufro erakomm','System','')").bind(id).run();
         ctx.waitUntil(sendNewApptNotice(env, id, { name: name, email: email, service: clip(bodyData.service, 120), vehicle: clip(bodyData.vehicle, 120), pref_date: clip(bodyData.prefDate, 20), kind: kind }));
         return json(env, { ok: true, id });
