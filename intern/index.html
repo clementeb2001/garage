@@ -19,16 +19,17 @@
         --bg: #f4f5f7; --surface: #ffffff; --fg: #1c2430;
       }
       * { box-sizing: border-box; }
+      html { overflow-x: hidden; }
       body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.5; }
+      button, input, select, textarea { max-width: 100%; }
       a { color: var(--accent-dark); }
       .testbar { background: repeating-linear-gradient(45deg, #ffe9b0, #ffe9b0 12px, #ffdf85 12px, #ffdf85 24px); color: #6b4e00; font-size: 0.8rem; font-weight: 700; text-align: center; padding: 7px 14px; border-bottom: 1px solid #e3c870; }
       .testbar.modebar-live { background: #e4f3ec; color: #1d6b47; border-bottom-color: #b8dcc8; }
       .topbar { background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 18px; flex-wrap: wrap; }
-      .topbar .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
-      .topbar .brand img { height: 26px; width: auto; }
+      .topbar .brand { display: flex; align-items: c      .topnav { display: flex; gap: 6px; min-width: 0; }  .topbar .brand img { height: 26px; width: auto; }
       .topnav { display: flex; gap: 6px; }
-      .topnav button { font: inherit; font-size: 0.85rem; font-weight: 700; color: #c7d2dd; background: transparent; border: 0; border-radius: 8px; padding: 7px 13px; cursor: pointer; }
-      .topnav button.active { background: rgba(255,255,255,0.14); color: #fff; }
+      .topnav button { font: inherit; font-size: 0.85rem; font-weight: 700; color: #c7d2dd; background: transparent; border: 0; border-radius: 8px; padding: 7p      .who { font-size: 0.85rem; color: #c7d2dd; display: flex; align-items: center; gap: 12px; min-width: 0; }
+      .who #who-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }r: #fff; }
       .who { font-size: 0.85rem; color: #c7d2dd; display: flex; align-items: center; gap: 12px; }
       .btn { font: inherit; font-weight: 700; border-radius: 10px; border: 1px solid transparent; padding: 9px 16px; cursor: pointer; transition: filter 0.15s; }
       .btn:hover { filter: brightness(1.05); }
@@ -156,8 +157,7 @@
       .veh-bar .vb-top b { font-variant-numeric: tabular-nums; }
       .veh-bar .vb-track { height: 8px; background: #eef1f4; border-radius: 999px; overflow: hidden; }
       .veh-bar .vb-fill { height: 100%; border-radius: 999px; }
-      .up-item { display: flex; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 0.85rem; }
-      .up-item:last-child { border-bottom: 0; }
+av      .up-item:last-child { border-bottom: 0; }
       .up-when { color: var(--mut); font-size: 0.78rem; white-space: nowrap; }
       .up-dot { width: 9px; height: 9px; border-radius: 3px; flex: none; align-self: center; }
       .conflict-box { background: #fdeaec; border: 1px solid #f1b9bf; color: #8a2b33; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.86rem; }
