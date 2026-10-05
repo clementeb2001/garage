@@ -66,7 +66,6 @@
 
   /* ---------- Views ---------- */
   var activePage = "bookings", activeFilter = "all", editingMember = null, editingBooking = null, bookingQuery = "";
-  var apptFilter = "all", apptQuery = "";
   var STATUS = { new: "Nei", confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss" };
 
   function showLogin() { $("view-app").hidden = true; $("view-login").hidden = false; $("login-err").textContent = ""; $("login-form").reset(); }
@@ -85,12 +84,14 @@
     $("page-dashboard").hidden = p !== "dashboard";
     $("page-bookings").hidden = p !== "bookings";
     $("page-appointments").hidden = p !== "appointments";
+    $("page-inquiries").hidden = p !== "inquiries";
     $("page-members").hidden = p !== "members";
     $("page-pw").hidden = p !== "pw";
     document.querySelectorAll("#topnav button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-page") === p); });
     if (p === "dashboard") renderDashboard();
     else if (p === "bookings") renderBookings();
     else if (p === "appointments") renderAppointments();
+    else if (p === "inquiries") renderInquiries();
     else if (p === "members") renderMembers();
   }
 
@@ -107,7 +108,8 @@
   $("btn-logout").addEventListener("click", function () { STORE.logout().catch(function () {}).then(function () { session = null; showLogin(); }); });
   document.querySelectorAll("#topnav button").forEach(function (b) { b.addEventListener("click", function () { gotoPage(b.getAttribute("data-page")); }); });
   var searchEl = $("booking-search"); if (searchEl) searchEl.addEventListener("input", function () { bookingQuery = searchEl.value.trim(); renderBookings(); });
-  var apptSearchEl = $("appt-search"); if (apptSearchEl) apptSearchEl.addEventListener("input", function () { apptQuery = apptSearchEl.value.trim(); renderAppointments(); });
+  var apptSearchEl = $("appt-search"); if (apptSearchEl) apptSearchEl.addEventListener("input", function () { reqState.appointment.query = apptSearchEl.value.trim(); renderReq("appointment"); });
+  var inqSearchEl = $("inq-search"); if (inqSearchEl) inqSearchEl.addEventListener("input", function () { reqState.inquiry.query = inqSearchEl.value.trim(); renderReq("inquiry"); });
 
   /* ---------- Change password ---------- */
   function openPw(forced) { gotoPage("pw"); $("pw-forced-note").hidden = !forced; $("pw-err").textContent = ""; $("pw-form").reset(); }
@@ -187,57 +189,66 @@
   function matchQuery(b) { if (!bookingQuery) return true; var q = bookingQuery.toLowerCase(); return (refOf(b.id) + " " + (b.veh || "") + " " + (b.name || "") + " " + (b.email || "") + " " + (b.phone || "")).toLowerCase().indexOf(q) !== -1; }
   function updateNewBadge(bk) { var badge = $("nav-new-badge"); if (!badge) return; var n = bk.filter(function (b) { return b.status === "new"; }).length; badge.textContent = n; badge.hidden = n === 0; }
 
-  /* ---------- Rendez-vous (Appointments) ---------- */
-  function apptRefOf(id) { return "T-" + (id >= 1000 ? id : id + 1000); }
-  function updateApptBadge(as) { var badge = $("nav-appt-badge"); if (!badge) return; var n = as.filter(function (a) { return a.status === "new"; }).length; badge.textContent = n; badge.hidden = n === 0; }
-  function apptMatchQuery(a) { if (!apptQuery) return true; var q = apptQuery.toLowerCase(); return (apptRefOf(a.id) + " " + (a.service || "") + " " + (a.vehicle || "") + " " + (a.name || "") + " " + (a.email || "") + " " + (a.phone || "")).toLowerCase().indexOf(q) !== -1; }
-  function renderApptFilters(as) {
-    var c = { all: as.length, new: 0, confirmed: 0, declined: 0, done: 0 };
-    as.forEach(function (a) { c[a.status] = (c[a.status] || 0) + 1; });
-    var defs = [["all", "All"], ["new", "Nei"], ["confirmed", "Bestätegt"], ["declined", "Ofgeleent"], ["done", "Ofgeschloss"]], wrap = $("appt-filters");
+  /* ---------- Ufroen: Rendez-vous + Produktufroen (gemeinsamt Backend) ---------- */
+  var REQCFG = {
+    appointment: { list: "appt-list", sub: "appt-sub", filters: "appt-filters", badge: "nav-appt-badge", ref: "T-", noun: "Rendez-vous", titleFb: "Rendez-vous", subAct: "Rendez-vous-Ufroe bestätegen oder ofleenen. All Aktioun gëtt mam Benotzernumm festgehalen." },
+    inquiry: { list: "inq-list", sub: "inq-sub", filters: "inq-filters", badge: "nav-inq-badge", ref: "P-", noun: "Produktufro", titleFb: "Produktufro", subAct: "Produktufroe bestätegen oder ofleenen. All Aktioun gëtt mam Benotzernumm festgehalen." },
+  };
+  var reqState = { appointment: { filter: "all", query: "" }, inquiry: { filter: "all", query: "" } };
+  function reqRef(kind, id) { return REQCFG[kind].ref + (id >= 1000 ? id : id + 1000); }
+  function updateReqBadge(kind, all) { var badge = $(REQCFG[kind].badge); if (!badge) return; var n = all.filter(function (a) { return (a.kind || "appointment") === kind && a.status === "new"; }).length; badge.textContent = n; badge.hidden = n === 0; }
+  function reqMatch(kind, a) { var q = reqState[kind].query; if (!q) return true; q = q.toLowerCase(); return (reqRef(kind, a.id) + " " + (a.service || "") + " " + (a.vehicle || "") + " " + (a.name || "") + " " + (a.email || "") + " " + (a.phone || "")).toLowerCase().indexOf(q) !== -1; }
+  function renderReqFilters(kind, items) {
+    var c = { all: items.length, new: 0, confirmed: 0, declined: 0, done: 0 };
+    items.forEach(function (a) { c[a.status] = (c[a.status] || 0) + 1; });
+    var defs = [["all", "All"], ["new", "Nei"], ["confirmed", "Bestätegt"], ["declined", "Ofgeleent"], ["done", "Ofgeschloss"]], wrap = $(REQCFG[kind].filters);
     wrap.innerHTML = "";
-    defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (apptFilter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { apptFilter = d[0]; renderAppointments(); }); wrap.appendChild(b); });
+    defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (reqState[kind].filter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { reqState[kind].filter = d[0]; renderReq(kind); }); wrap.appendChild(b); });
   }
-  function doApptAct(id, status) { if (!can("bookings.validate")) return; var noteEl = $("anote-" + id), note = noteEl ? noteEl.value.trim() : ""; STORE.setApptStatus(id, status, note).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Rendez-vous " + apptRefOf(id) + ": " + (STATUS[status] || status).toLowerCase() + "."); renderAppointments(); }); }
-  function doDelAppt(id) { if (!can("members.manage")) return; if (!confirm("Rendez-vous " + apptRefOf(id) + " endgülteg läschen?")) return; STORE.delAppt(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Rendez-vous " + apptRefOf(id) + " geläscht."); renderAppointments(); }); }
-  function apptCard(a) {
+  function doReqAct(kind, id, status) { if (!can("bookings.validate")) return; var noteEl = $("rnote-" + kind + "-" + id), note = noteEl ? noteEl.value.trim() : ""; STORE.setApptStatus(id, status, note).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast(REQCFG[kind].noun + " " + reqRef(kind, id) + ": " + (STATUS[status] || status).toLowerCase() + "."); renderReq(kind); }); }
+  function doDelReq(kind, id) { if (!can("members.manage")) return; if (!confirm(REQCFG[kind].noun + " " + reqRef(kind, id) + " endgülteg läschen?")) return; STORE.delAppt(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast(REQCFG[kind].noun + " " + reqRef(kind, id) + " geläscht."); renderReq(kind); }); }
+  function reqCard(kind, a) {
     var el = document.createElement("div"); el.className = "booking" + (a.status === "new" ? " is-new" : "");
-    var canVal = can("bookings.validate"), isAdmin = can("members.manage"), actions = "";
-    if (canVal && a.status === "new") actions = '<input class="b-note-input" id="anote-' + a.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-aact="confirmed" data-id="' + a.id + '">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-aact="declined" data-id="' + a.id + '">✕ Ofleenen</button>';
-    else if (canVal && a.status === "confirmed") actions = '<input class="b-note-input" id="anote-' + a.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-outline btn-sm" data-aact="done" data-id="' + a.id + '">Als ofgeschloss markéieren</button>';
-    if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-del-appt="' + a.id + '">Läschen</button>';
+    var canVal = can("bookings.validate"), isAdmin = can("members.manage"), actions = "", nid = "rnote-" + kind + "-" + a.id;
+    if (canVal && a.status === "new") actions = '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-ract="confirmed">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-ract="declined">✕ Ofleenen</button>';
+    else if (canVal && a.status === "confirmed") actions = '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button>';
+    if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-delr="1">Läschen</button>';
     var audit = (a.events || []).map(function (ev) { return '<div class="ev">• ' + esc(ev.action) + ' vum <b>' + esc(ev.by) + "</b>, " + fmt(ev.at) + (ev.note ? ' – „' + esc(ev.note) + "“" : "") + "</div>"; }).join("");
     var meta = [];
     if (a.vehicle) meta.push("🚗 " + esc(a.vehicle));
     if (a.prefDate) meta.push("📅 " + esc(a.prefDate) + (a.altDate ? " / " + esc(a.altDate) : "") + (a.daytime ? " · " + esc(a.daytime) : ""));
     if (a.vin) meta.push("VIN " + esc(a.vin));
     el.innerHTML =
-      '<div class="b-top"><div><div class="b-veh">' + esc(a.service || "Rendez-vous") + '</div><div class="b-id">Réf. ' + apptRefOf(a.id) + "</div></div><span class=\"status status-" + a.status + '">' + esc(STATUS[a.status]) + "</span></div>" +
+      '<div class="b-top"><div><div class="b-veh">' + esc(a.service || REQCFG[kind].titleFb) + '</div><div class="b-id">Réf. ' + reqRef(kind, a.id) + "</div></div><span class=\"status status-" + a.status + '">' + esc(STATUS[a.status]) + "</span></div>" +
       (meta.length ? '<div class="b-dates" style="gap:6px 16px;flex-wrap:wrap">' + meta.join('<span class="arrow">·</span>') + "</div>" : "") +
       '<div class="b-cust"><strong>' + esc(a.name) + "</strong>" + (a.email ? "<span>✉ " + esc(a.email) + "</span>" : "") + (a.phone ? "<span>☎ " + esc(a.phone) + "</span>" : "") + "</div>" +
       (a.msg ? '<p class="b-msg">' + esc(a.msg) + "</p>" : "") +
       (actions ? '<div class="b-actions">' + actions + "</div>" : "") +
       '<div class="b-audit">' + audit + "</div>";
-    el.querySelectorAll("[data-aact]").forEach(function (btn) { btn.addEventListener("click", function () { doApptAct(a.id, btn.getAttribute("data-aact")); }); });
-    el.querySelectorAll("[data-del-appt]").forEach(function (btn) { btn.addEventListener("click", function () { doDelAppt(parseInt(btn.getAttribute("data-del-appt"), 10)); }); });
+    el.querySelectorAll("[data-ract]").forEach(function (btn) { btn.addEventListener("click", function () { doReqAct(kind, a.id, btn.getAttribute("data-ract")); }); });
+    el.querySelectorAll("[data-delr]").forEach(function (btn) { btn.addEventListener("click", function () { doDelReq(kind, a.id); }); });
     return el;
   }
-  function renderAppointments() {
-    $("appt-sub").textContent = can("bookings.validate") ? "Rendez-vous-Ufroe bestätegen oder ofleenen. All Aktioun gëtt mam Benotzernumm festgehalen." : "Dir hutt Liesrechter (Kucker).";
-    STORE.listAppointments().then(function (as) {
-      updateApptBadge(as);
-      renderApptFilters(as);
-      var list = $("appt-list"); list.innerHTML = "";
-      var shown = as.filter(function (a) { return (apptFilter === "all" || a.status === apptFilter) && apptMatchQuery(a); });
-      if (!shown.length) { var e = document.createElement("p"); e.className = "empty"; e.textContent = apptQuery ? "Kee Rendez-vous fir dës Sich." : "Keng Rendez-vous an dëser Kategorie."; list.appendChild(e); return; }
-      shown.forEach(function (a) { list.appendChild(apptCard(a)); });
+  function renderReq(kind) {
+    var c = REQCFG[kind];
+    $(c.sub).textContent = can("bookings.validate") ? c.subAct : "Dir hutt Liesrechter (Kucker).";
+    STORE.listAppointments().then(function (all) {
+      updateReqBadge("appointment", all); updateReqBadge("inquiry", all);
+      var items = all.filter(function (a) { return (a.kind || "appointment") === kind; });
+      renderReqFilters(kind, items);
+      var list = $(c.list); list.innerHTML = "";
+      var shown = items.filter(function (a) { return (reqState[kind].filter === "all" || a.status === reqState[kind].filter) && reqMatch(kind, a); });
+      if (!shown.length) { var e = document.createElement("p"); e.className = "empty"; e.textContent = reqState[kind].query ? "Keng Ufro fir dës Sich." : "Keng Ufroen an dëser Kategorie."; list.appendChild(e); return; }
+      shown.forEach(function (a) { list.appendChild(reqCard(kind, a)); });
     }).catch(function () {
-      $("appt-filters").innerHTML = "";
-      $("appt-sub").textContent = "D'Donnéeë konnten net vum Server geluede ginn.";
-      $("appt-list").innerHTML = '<p class="empty">⚠ Serverfeeler. <button class="btn btn-outline btn-sm" id="retry-appts">Nei probéieren</button></p>';
-      $("retry-appts").addEventListener("click", renderAppointments);
+      $(c.filters).innerHTML = "";
+      $(c.sub).textContent = "D'Donnéeë konnten net vum Server geluede ginn.";
+      $(c.list).innerHTML = '<p class="empty">⚠ Serverfeeler. <button class="btn btn-outline btn-sm" id="retry-' + kind + '">Nei probéieren</button></p>';
+      $("retry-" + kind).addEventListener("click", function () { renderReq(kind); });
     });
   }
+  function renderAppointments() { renderReq("appointment"); }
+  function renderInquiries() { renderReq("inquiry"); }
   function renderBookings() {
     $("bookings-sub").textContent = can("bookings.validate") ? "Ufroe bestätegen oder ofleenen. All Aktioun gëtt mam Benotzernumm festgehalen." : "Dir hutt Liesrechter (Kucker).";
     STORE.listBookings().then(function (bk) {
@@ -264,7 +275,7 @@
   function overlaps(a, b) { var a1 = parseDay(a.from) || parseDay(a.to), a2 = parseDay(a.to) || a1, b1 = parseDay(b.from) || parseDay(b.to), b2 = parseDay(b.to) || b1; if (!a1 || !b1) return false; return a1 <= b2 && b1 <= a2; }
 
   function renderDashboard() {
-    STORE.listAppointments().then(updateApptBadge).catch(function () {});
+    STORE.listAppointments().then(function (all) { updateReqBadge("appointment", all); updateReqBadge("inquiry", all); }).catch(function () {});
     STORE.listBookings().then(function (bk) {
       updateNewBadge(bk);
       var active = bk.filter(function (b) { return b.status !== "declined"; });

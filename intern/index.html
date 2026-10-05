@@ -192,6 +192,7 @@
           <button type="button" data-page="dashboard" class="active">Dashboard</button>
           <button type="button" data-page="bookings">Reservatiounen <span id="nav-new-badge" class="nav-badge" hidden></span></button>
           <button type="button" data-page="appointments">Rendez-vous <span id="nav-appt-badge" class="nav-badge" hidden></span></button>
+          <button type="button" data-page="inquiries">Produktufroen <span id="nav-inq-badge" class="nav-badge" hidden></span></button>
           <button type="button" data-page="members" id="nav-members" hidden>Memberen</button>
         </nav>
         <div class="who"><span id="who-name"></span><button class="btn btn-ghost" id="btn-pw" type="button">Passwuert</button><button class="btn btn-ghost" id="btn-logout" type="button">Ausloggen</button></div>
@@ -270,6 +271,18 @@
         <p class="footer-note">Rendez-vous-Ufroen vun der Kontakt-Formulaire · um séchere Cloudflare-Server gespäichert.</p>
       </div>
 
+      <!-- Product inquiries page -->
+      <div class="wrap" id="page-inquiries" hidden>
+        <div class="page-head">
+          <h2 class="page-title">Produktufroen</h2>
+        </div>
+        <p class="muted" id="inq-sub" style="margin:2px 0 0;font-size:0.9rem"></p>
+        <input type="search" id="inq-search" class="booking-search" placeholder="Sichen (Numm, E-Mail, Produkt, Réf.) …" autocomplete="off" />
+        <div class="filters" id="inq-filters"></div>
+        <div id="inq-list"></div>
+        <p class="footer-note">Produktufroen („Passt dat zu mengem Auto?“) aus dem Shop · um séchere Cloudflare-Server gespäichert.</p>
+      </div>
+
       <!-- Members page -->
       <div class="wrap" id="page-members" hidden>
         <div class="page-head"><h2 class="page-title">Memberen</h2></div>
@@ -299,6 +312,6 @@
       </div>
     </section>
 
-    <script src="intern.js?v=12"></script>
+    <script src="intern.js?v=13"></script>
   </body>
 </html>
