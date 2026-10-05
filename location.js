@@ -65,11 +65,13 @@
     fact("🪪",v.licenseClass?"Führerschäin "+v.licenseClass:""); fact("📅",v.year?"Baujoer "+v.year:"");
     var rows=[[trailer?"Dimensiounen":"Luedraum",v.loadSpace],["Gesamtgewiicht",v.grossWeight],["Notzlaascht",v.payload],["Brems",trailer?(v.braked?"Gebremst":"Ongebremst"):""],["Sëtzplazen",trailer?"":v.seats],["Kraftstoff",trailer?"":v.fuel],["Getriebe",trailer?"":v.transmission],["Führerschäin",v.licenseClass],["Kautioun",v.deposit==null?"":v.deposit+" €"]].filter(function(r){return r[1];});
     var details={lb:rows,de:rows,fr:rows,en:rows}, specs=(v.features||[]).length?v.features:[desc];
-    return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:Number(v.priceDay||0),featured:false,name:name,tagline:tagline,facts:facts,details:details,specs:{lb:specs,de:specs,fr:specs,en:specs}};
+    return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:Number(v.priceDay||0),featured:!!v.featured,name:name,tagline:tagline,facts:facts,details:details,specs:{lb:specs,de:specs,fr:specs,en:specs}};
   }
   function loadFleet() {
     return fetch("https://garage-admin.autoservicebettenduerf.lu/fleet/public", {headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw new Error("fleet");return r.json();}).then(function(data){
       var next=(data.vehicles||[]).map(fleetItem); if(!next.length)return;
+      // Ëmmer e Showcase: wann keent als "featured" markéiert ass, dat éischt Gefier huelen.
+      if(!next.some(function(x){return x.featured;})){ var hero=next.filter(function(x){return x.cat!=="trailer";})[0]||next[0]; if(hero)hero.featured=true; }
       CATALOG=next; state.selected=state.selected.filter(function(id){return CATALOG.some(function(x){return x.id===id;});});
       if(CATALOG.length===1&&!state.selected.length)state.selected=[CATALOG[0].id]; renderCatalog(); renderSelection();
     }).catch(function(){});
