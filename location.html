@@ -183,8 +183,30 @@
             <p class="rental-step" id="rental-step-1">Schrëtt 1 vun 3 · Gefier an Zäitraum</p>
             <h2 id="rental-sel-h">Är Auswiel</h2>
             <p class="rental-empty" id="rental-empty">Nach näischt ausgewielt. Wielt uewen Äert Material aus.</p>
-            <p class="rental-availability-note" id="rental-availability-note">D’Disponibilitéit gëtt no Ärer Ufro manuell kontrolléiert.</p>
+            <p class="rental-availability-note" id="rental-availability-note">De Live-Kalenner weist déi aktuell Beleeung. Mir bestätegen all Ufro nach eemol perséinlech.</p>
             <ul class="rental-sel-list" id="rental-sel-list"></ul>
+            <section class="rental-calendar" id="rental-calendar" aria-labelledby="rental-calendar-title" hidden>
+              <div class="rental-calendar-head">
+                <div>
+                  <p class="rental-calendar-kicker" id="rental-calendar-kicker">Live-Disponibilitéit</p>
+                  <h3 id="rental-calendar-title">Fräi Datumer kucken</h3>
+                </div>
+                <div class="rental-calendar-nav">
+                  <button type="button" id="rental-calendar-prev" aria-label="Mount virdrun">‹</button>
+                  <strong id="rental-calendar-month" aria-live="polite"></strong>
+                  <button type="button" id="rental-calendar-next" aria-label="Nächste Mount">›</button>
+                </div>
+              </div>
+              <p class="rental-calendar-help" id="rental-calendar-help">Wielt fir d’éischt den Ufanksdag an duerno den Enndag.</p>
+              <div class="rental-calendar-weekdays" id="rental-calendar-weekdays" aria-hidden="true"></div>
+              <div class="rental-calendar-grid" id="rental-calendar-grid" role="grid"></div>
+              <div class="rental-calendar-legend" id="rental-calendar-legend">
+                <span><i class="is-free"></i><b id="rental-calendar-free">Fräi</b></span>
+                <span><i class="is-partial"></i><b id="rental-calendar-partial">Deelweis besat</b></span>
+                <span><i class="is-busy"></i><b id="rental-calendar-busy-label">Besat</b></span>
+                <span><i class="is-past"></i><b id="rental-calendar-past">Net buchbar</b></span>
+              </div>
+            </section>
             <div class="rental-price-summary" id="rental-price-summary" aria-live="polite">
               <div><span id="rental-price-days-label">Berechent Mietdauer</span><strong id="rental-price-days">—</strong></div>
               <div><span id="rental-price-rate-label">Dagespräis</span><strong id="rental-price-rate">—</strong></div>
@@ -321,7 +343,7 @@
     <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
     <script src="script.js?v=20"></script>
-  <script src="location.js?v=21"></script>
+  <script src="location.js?v=22"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->

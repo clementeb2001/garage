@@ -202,7 +202,7 @@
     },
   };
 
-  var state = { cat: "all", selected: [], busy: [], availabilityError: false };
+  var state = { cat: "all", selected: [], busy: [], availabilityError: false, calendarMonth: new Date(new Date().getFullYear(), new Date().getMonth(), 1) };
   var API_BASE = "https://garage-admin.autoservicebettenduerf.lu";
 
   var EXTRA = {
@@ -232,6 +232,13 @@
     }
   };
 
+  var CALENDAR_TEXT = {
+    lb: { kicker:"Live-Disponibilitéit", title:"Fräi Datumer kucken", help:"Tippt op e fräien Dag fir den Ufank an duerno op den Enndag.", free:"Fräi", partial:"Deelweis besat", busy:"Besat", past:"Net buchbar", prev:"Mount virdrun", next:"Nächste Mount", weekdays:["Mé","Dë","Më","Do","Fr","Sa","So"] },
+    de: { kicker:"Live-Verfügbarkeit", title:"Freie Termine ansehen", help:"Tippen Sie auf einen freien Starttag und anschließend auf den Endtag.", free:"Frei", partial:"Teilweise belegt", busy:"Belegt", past:"Nicht buchbar", prev:"Vorheriger Monat", next:"Nächster Monat", weekdays:["Mo","Di","Mi","Do","Fr","Sa","So"] },
+    fr: { kicker:"Disponibilité en direct", title:"Voir les dates disponibles", help:"Touchez un jour libre pour le début, puis le jour de fin.", free:"Libre", partial:"Partiellement occupé", busy:"Occupé", past:"Non réservable", prev:"Mois précédent", next:"Mois suivant", weekdays:["Lu","Ma","Me","Je","Ve","Sa","Di"] },
+    en: { kicker:"Live availability", title:"See available dates", help:"Tap a free start day, then tap the end day.", free:"Available", partial:"Partly booked", busy:"Booked", past:"Unavailable", prev:"Previous month", next:"Next month", weekdays:["Mo","Tu","We","Th","Fr","Sa","Su"] }
+  };
+
   function lang() {
     var l = document.documentElement.getAttribute("lang");
     if (l && T[l]) return l;
@@ -255,7 +262,7 @@
     license_text: "Déi néideg Kategorie hänkt vum Gefier, dem Unhänger an der zulässeger Gesamtmass of a gëtt virum Verlee kontrolléiert.",
     terms_title: "Konditiounen",
     terms_text: "Assurance, Kilometer, Ofhuelung, Retour a Storno gi virun der Bestätegung transparent matgedeelt.",
-    availability_note: "D’Disponibilitéit gëtt no Ärer Ufro manuell kontrolléiert.",
+    availability_note: "De Live-Kalenner weist déi aktuell Beleeung. Mir bestätegen all Ufro nach eemol perséinlech.",
     m_past: "en Datum an eng Auerzäit vun elo un"
   });
   Object.assign(T.de, {
@@ -271,7 +278,7 @@
     license_text: "Die erforderliche Klasse hängt von Fahrzeug, Anhänger und zulässiger Gesamtmasse ab und wird vor der Vermietung geprüft.",
     terms_title: "Bedingungen",
     terms_text: "Kaution, Versicherung, Kilometer, Abholung, Rückgabe und Stornierung werden vor der Bestätigung transparent mitgeteilt.",
-    availability_note: "Die Verfügbarkeit wird nach Ihrer Anfrage manuell geprüft.",
+    availability_note: "Der Live-Kalender zeigt die aktuelle Belegung. Jede Anfrage wird zusätzlich persönlich bestätigt.",
     m_past: "ein Datum und eine Uhrzeit ab jetzt"
   });
   Object.assign(T.fr, {
@@ -287,7 +294,7 @@
     license_text: "La catégorie requise dépend du véhicule, de la remorque et de la masse maximale autorisée; elle est vérifiée avant la location.",
     terms_title: "Conditions",
     terms_text: "L’assurance, le kilométrage, l’enlèvement, le retour et l’annulation sont communiqués clairement avant confirmation.",
-    availability_note: "La disponibilité est vérifiée manuellement après votre demande.",
+    availability_note: "Le calendrier en direct affiche l’occupation actuelle. Chaque demande est ensuite confirmée personnellement.",
     m_past: "une date et une heure à partir de maintenant"
   });
   Object.assign(T.en, {
@@ -303,7 +310,7 @@
     license_text: "The required category depends on the vehicle, trailer and permitted gross weight and is checked before rental.",
     terms_title: "Conditions",
     terms_text: "Insurance, mileage, collection, return and cancellation terms are communicated clearly before confirmation.",
-    availability_note: "Availability is checked manually after your request.",
+    availability_note: "The live calendar shows current occupancy. Every request is also confirmed personally.",
     m_past: "a date and time from now onwards"
   });
 
@@ -491,34 +498,104 @@
     } catch (e) { state.busy = []; state.availabilityError = true; renderAvailability(); }
   }
 
+  function itemMatchesBooking(it, booking) {
+    var key = (it.name.de || it.name.lb).toLowerCase();
+    var type = it.cat === "trailer" ? "trailer" : (it.icon === "car" ? "car" : "van");
+    return String(booking.veh || "").split(",").some(function (raw) {
+      var n = raw.trim().toLowerCase();
+      if (n === key || n.indexOf(key) !== -1 || key.indexOf(n) !== -1) return true;
+      if (type === "van") return /transporter|lieferwagen|utilitaire|\bvan\b/.test(n);
+      if (type === "trailer") return /anhänger|unhänger|remorque|trailer/.test(n);
+      return /personenwagen|voiture|\bauto\b|\bcar\b/.test(n);
+    });
+  }
+
+  function selectedBusyIntervals() {
+    var intervals = [];
+    state.selected.forEach(function (id) {
+      var it = CATALOG.filter(function (x) { return x.id === id; })[0];
+      if (!it) return;
+      state.busy.forEach(function (b) {
+        if (itemMatchesBooking(it, b)) intervals.push({ item: it, from: b.from, to: b.to });
+      });
+    });
+    return intervals;
+  }
+
+  function isoDay(date) {
+    return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+  }
+
+  function calendarDayStatus(date) {
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    if (date < today) return "past";
+    if (state.availabilityError) return "unknown";
+    var start = isoDay(date) + "T00:00";
+    var nextDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    var end = isoDay(nextDate) + "T00:00";
+    var hits = selectedBusyIntervals().filter(function (b) { return b.from < end && b.to > start; });
+    if (!hits.length) return "free";
+    var coversDay = hits.some(function (b) { return b.from <= start && b.to >= end; });
+    return coversDay ? "busy" : "partial";
+  }
+
+  function renderCalendar() {
+    var shell = $("rental-calendar"), grid = $("rental-calendar-grid"), weekdays = $("rental-calendar-weekdays");
+    if (!shell || !grid || !weekdays) return;
+    shell.hidden = !state.selected.length;
+    if (!state.selected.length) return;
+    var c = CALENDAR_TEXT[lang()] || CALENDAR_TEXT.lb;
+    setTxt("rental-calendar-kicker", c.kicker); setTxt("rental-calendar-title", c.title);
+    setTxt("rental-calendar-help", c.help); setTxt("rental-calendar-free", c.free);
+    setTxt("rental-calendar-partial", c.partial); setTxt("rental-calendar-busy-label", c.busy); setTxt("rental-calendar-past", c.past);
+    var prev = $("rental-calendar-prev"), next = $("rental-calendar-next");
+    if (prev) prev.setAttribute("aria-label", c.prev); if (next) next.setAttribute("aria-label", c.next);
+    weekdays.innerHTML = c.weekdays.map(function (d) { return "<span>" + d + "</span>"; }).join("");
+    var month = state.calendarMonth;
+    setTxt("rental-calendar-month", new Intl.DateTimeFormat(lang() === "lb" ? "lb-LU" : lang(), { month:"long", year:"numeric" }).format(month));
+    var firstOffset = (month.getDay() + 6) % 7;
+    var count = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+    var fromValue = (($("r-from") || {}).value || "").slice(0, 10), toValue = (($("r-to") || {}).value || "").slice(0, 10);
+    var html = "";
+    for (var blank = 0; blank < firstOffset; blank++) html += '<span class="rental-calendar-blank" aria-hidden="true"></span>';
+    for (var day = 1; day <= count; day++) {
+      var date = new Date(month.getFullYear(), month.getMonth(), day), iso = isoDay(date), status = calendarDayStatus(date);
+      var chosen = iso === fromValue || iso === toValue, inRange = fromValue && toValue && iso > fromValue && iso < toValue;
+      var disabled = status !== "free";
+      var label = iso + " – " + (c[status] || c.past);
+      html += '<button type="button" role="gridcell" class="rental-calendar-day is-' + status + (chosen ? " is-chosen" : "") + (inRange ? " is-range" : "") + '" data-date="' + iso + '" aria-label="' + label + '"' + (disabled ? " disabled" : "") + '><span>' + day + '</span></button>';
+    }
+    grid.innerHTML = html;
+  }
+
+  function selectCalendarDay(iso) {
+    var from = $("r-from"), to = $("r-to"); if (!from || !to) return;
+    var start = from.value.slice(0, 10), end = to.value.slice(0, 10);
+    if (!start || (start && end) || iso < start) {
+      from.value = iso + "T09:00"; to.value = ""; to.min = from.value;
+    } else {
+      to.value = iso + "T17:00";
+      if (to.value <= from.value) to.value = iso + "T18:00";
+    }
+    updateReview(); renderAvailability();
+  }
+
   function busyForSelection() {
     var from = $("r-from"), to = $("r-to");
     var cFrom = from && from.value, cTo = to && to.value;
     if (!cFrom || !cTo || cTo <= cFrom || !state.selected.length) return [];
     var hits = [];
-    state.selected.forEach(function (id) {
-      var it = CATALOG.filter(function (x) { return x.id === id; })[0];
-      if (!it) return;
-      var key = (it.name.de || it.name.lb).toLowerCase(), type = it.cat === "trailer" ? "trailer" : (it.icon === "car" ? "car" : "van");
-      state.busy.forEach(function (b) {
-        var names = String(b.veh || "").split(",").map(function (s) { return s.trim().toLowerCase(); });
-        // ISO "YYYY-MM-DDTHH:MM" strings compare correctly lexicographically
-        var same = names.some(function(n){
-          if (n === key || n.indexOf(key) !== -1 || key.indexOf(n) !== -1) return true;
-          if (type === "van") return /transporter|lieferwagen|utilitaire|\bvan\b/.test(n);
-          if (type === "trailer") return /anhänger|unhänger|remorque|trailer/.test(n);
-          return /personenwagen|voiture|\bauto\b|\bcar\b/.test(n);
-        });
-        if (same && b.from < cTo && b.to > cFrom) {
-          hits.push({ name: it.name[lang()] || it.name.lb, from: b.from, to: b.to });
-        }
-      });
+    selectedBusyIntervals().forEach(function (b) {
+      if (b.from < cTo && b.to > cFrom) {
+        hits.push({ name: b.item.name[lang()] || b.item.name.lb, from: b.from, to: b.to });
+      }
     });
     return hits;
   }
 
   function renderAvailability() {
     var box = $("rental-busy");
+    renderCalendar();
     if (!box) return;
     var m = t();
     if (state.availabilityError) {
@@ -625,6 +702,24 @@
         var b = e.target.closest(".rental-sel-x");
         if (b) toggle(b.getAttribute("data-id"));
       });
+  }
+
+  function wireCalendar() {
+    var grid = $("rental-calendar-grid"), prev = $("rental-calendar-prev"), next = $("rental-calendar-next");
+    if (grid) grid.addEventListener("click", function (e) {
+      var day = e.target.closest(".rental-calendar-day[data-date]");
+      if (day && !day.disabled) selectCalendarDay(day.getAttribute("data-date"));
+    });
+    if (prev) prev.addEventListener("click", function () {
+      var current = new Date(); current = new Date(current.getFullYear(), current.getMonth(), 1);
+      var candidate = new Date(state.calendarMonth.getFullYear(), state.calendarMonth.getMonth() - 1, 1);
+      if (candidate >= current) state.calendarMonth = candidate;
+      renderCalendar();
+    });
+    if (next) next.addEventListener("click", function () {
+      state.calendarMonth = new Date(state.calendarMonth.getFullYear(), state.calendarMonth.getMonth() + 1, 1);
+      renderCalendar();
+    });
   }
 
   function mark(el, bad) {
@@ -757,6 +852,7 @@
     renderSelection();
     wireFilter();
     wireGrid();
+    wireCalendar();
     wireClear();
     document.querySelectorAll('form [name="_loaded_at"]').forEach(function (field) { field.value = String(Date.now()); });
     var fromDate = $("r-from"), toDate = $("r-to");
