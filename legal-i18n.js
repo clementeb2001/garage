@@ -5,6 +5,12 @@
 (function () {
   "use strict";
   var SUP = ["lb", "de", "fr", "en"];
+  var UI = {
+    lb: { skip: "Bei den Inhalt sprangen", home: "Zréck op d’Startsäit" },
+    de: { skip: "Zum Inhalt springen", home: "Zurück zur Startseite" },
+    fr: { skip: "Aller au contenu", home: "Retour à l’accueil" },
+    en: { skip: "Skip to content", home: "Back to the homepage" }
+  };
   function getLang() {
     try { var l = localStorage.getItem("gk_lang"); return SUP.indexOf(l) >= 0 ? l : "lb"; }
     catch (e) { return "lb"; }
@@ -21,6 +27,11 @@
       b.hidden = b.getAttribute("data-lang-block") !== show;
     });
     if (show) document.documentElement.setAttribute("lang", show);
+    var labels = UI[show] || UI.lb;
+    var skip = document.querySelector(".skip-link");
+    if (skip) skip.textContent = labels.skip;
+    var brand = document.querySelector(".site-header .brand");
+    if (brand) brand.setAttribute("aria-label", labels.home);
     /* Déi gewise Sprooch markéieren (net déi ugefrote) – sou ass bei engem
        Fallback (z. B. lb → de) ëmmer dee richtege Knäppchen aktiv. */
     document.querySelectorAll("[data-set-lang]").forEach(function (btn) {

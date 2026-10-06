@@ -178,6 +178,11 @@
       .protocol-grid label { display:flex; flex-direction:column; gap:4px; color:var(--mut); font-size:.76rem; font-weight:700; }
       .protocol-grid input,.protocol-grid select,.protocol-grid textarea { width:100%; min-width:0; box-sizing:border-box; font:inherit; font-size:.88rem; color:var(--fg); background:var(--input-bg); border:1px solid var(--line); border-radius:8px; padding:8px 9px; }
       .protocol-grid .wide { grid-column:1/-1; }
+      .protocol-section { grid-column:1/-1; display:flex; align-items:center; gap:9px; margin:7px 0 -1px; color:var(--fg); font-size:.79rem; font-weight:900; letter-spacing:.035em; text-transform:uppercase; }
+      .protocol-section::after { content:""; flex:1; height:1px; background:var(--line); }
+      .protocol-help { grid-column:1/-1; margin:-3px 0 2px; color:var(--mut); font-size:.76rem; line-height:1.45; }
+      .protocol-checks { grid-column:1/-1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 14px; padding:10px; border:1px solid var(--line); border-radius:9px; background:var(--input-bg); }
+      .protocol-checks .protocol-check { margin:0; }
       .protocol-check { flex-direction:row!important; align-items:center; color:var(--fg)!important; }
       .protocol-check input { width:auto; }
       .protocol-saved { display:inline-flex; margin-left:5px; color:var(--ok); font-size:.72rem; font-weight:800; }
@@ -186,13 +191,41 @@
       .protocol-photo { position:relative; min-width:0; }
       .protocol-photo img { width:100%; height:76px; display:block; object-fit:cover; border:1px solid var(--line); border-radius:8px; }
       .protocol-photo button { position:absolute; top:3px; right:3px; width:25px; height:25px; padding:0; border:0; border-radius:50%; background:rgba(13,27,42,.82); color:#fff; font-weight:900; }
+      .damage-map { padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
+      .damage-map-head { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:8px; }
+      .damage-map-head strong { display:block; color:var(--fg); font-size:.84rem; }
+      .damage-map-head span { display:block; margin-top:2px; color:var(--mut); font-size:.73rem; }
+      .damage-count { flex:none; padding:4px 8px; border-radius:999px; background:var(--surface-2); font-weight:800; }
+      .damage-svg { width:100%; max-height:620px; display:block; border:1px solid var(--line); border-radius:12px; background:linear-gradient(180deg,#fff,#f8fafc); touch-action:manipulation; cursor:crosshair; }
+      .damage-panel > rect { fill:#fff; stroke:#d9e1e8; stroke-width:2; }
+      .damage-view-label { fill:#0d1b2a; font:900 15px system-ui,sans-serif; letter-spacing:1.6px; }
+      .damage-blueprint { pointer-events:none; }
+      .damage-label rect { fill:rgba(13,27,42,.9); stroke:#fff; stroke-width:2; }
+      .damage-label text { fill:#fff; font:900 13px system-ui,sans-serif; letter-spacing:1px; pointer-events:none; }
+      .damage-shape { fill:#eef2f5; stroke:#25384a; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+      .damage-shape circle { fill:#fff; }
+      .damage-shape .damage-detail { fill:none; stroke:#718093; stroke-width:2; }
+      .damage-rear { fill:#e7ecef; }
+      .damage-direction { fill:none; stroke:#e63946; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+      .damage-marker circle { fill:#e63946; stroke:#fff; stroke-width:3; filter:drop-shadow(0 1px 2px rgba(0,0,0,.3)); }
+      .damage-marker text { fill:#fff; font:800 13px system-ui,sans-serif; pointer-events:none; }
+      .damage-tip { fill:#667789; font:600 11px system-ui,sans-serif; }
+      .damage-items { display:grid; gap:7px; margin-top:9px; }
+      .damage-item { display:grid; grid-template-columns:28px minmax(120px,.65fr) minmax(150px,1.4fr) 30px; gap:7px; align-items:center; }
+      .damage-number { display:grid; place-items:center; width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; font-weight:900; font-size:.75rem; }
+      .damage-item select,.damage-item input { padding:7px 8px; }
+      .damage-item button { width:30px; height:30px; border:0; border-radius:50%; background:var(--new-soft); color:var(--accent-dark); font-size:1.1rem; font-weight:900; }
+      .pp-damage { margin-top:10px; break-inside:avoid; }
+      .pp-damage .damage-svg { width:100%; max-height:360px; margin:6px 0; }
+      .pp-damage ol { margin:5px 0 0 20px; padding:0; font-size:8.5pt; }
+      .pp-no-damage { margin:5px 0 0; color:#667789; font-size:8.5pt; font-style:italic; }
       .signature-wrap { grid-column:1/-1; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
       .signature-wrap > strong { display:block; margin-bottom:6px; font-size:.82rem; color:var(--fg); }
       .signature-pad { width:100%; height:170px; display:block; border:1px dashed var(--mut); border-radius:8px; background:#fff; touch-action:none; cursor:crosshair; }
       .signature-tools { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-top:7px; color:var(--mut); font-size:.74rem; }
       .signature-existing { max-width:240px; max-height:90px; margin:8px 0 0; border:1px solid var(--line); border-radius:8px; background:#fff; }
       @media (max-width:900px) { .fleet-form { grid-template-columns:1fr 1fr; } .protocol-grid { grid-template-columns:1fr 1fr; } }
-      @media (max-width:560px) { .fleet-form,.protocol-grid { grid-template-columns:1fr; } .fleet-photo-field { grid-column:auto; } .fleet-photo-row { grid-template-columns:84px 1fr; } .fleet-photo-preview { width:84px; height:70px; } .fleet-card { grid-template-columns:76px 1fr; } .fleet-card img { width:76px; height:62px; } .fleet-card .fleet-actions { grid-column:1/-1; } }
+      @media (max-width:560px) { .fleet-form,.protocol-grid { grid-template-columns:1fr; } .protocol-checks { grid-template-columns:1fr; } .fleet-photo-field { grid-column:auto; } .fleet-photo-row { grid-template-columns:84px 1fr; } .fleet-photo-preview { width:84px; height:70px; } .fleet-card { grid-template-columns:76px 1fr; } .fleet-card img { width:76px; height:62px; } .fleet-card .fleet-actions { grid-column:1/-1; } .damage-map-head { display:block; } .damage-count { display:inline-block!important; margin-top:7px!important; } .damage-item { grid-template-columns:28px 1fr 30px; } .damage-item input { grid-column:2/4; } }
 
       /* Dashboard */
       .stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 16px 0 18px; }
@@ -540,6 +573,12 @@
       .pp-sigbox img { max-height: 21mm; max-width: 100%; object-fit: contain; display: block; margin: 0 auto; }
       .pp-sigline { font-size: 9pt; color: #5b6b7c; margin-top: 5px; border-top: 1px solid #1c2430; padding-top: 4px; }
       .pp-foot { margin-top: 18px; font-size: 8pt; color: #8a96a2; text-align: center; border-top: 1px solid #e6e9ee; padding-top: 7px; }
+      .pp-stage { margin-top: 22px; padding-top: 14px; border-top: 2px solid #0d1b2a; }
+      .pp-stage-title { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+      .pp-stage-title > span { display:grid; place-items:center; width:30px; height:30px; border-radius:50%; background:#e63946; color:#fff; font-weight:900; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .pp-stage-title small { display:block; color:#6b7886; font-size:7.5pt; font-weight:800; letter-spacing:.08em; }
+      .pp-stage-title h2 { margin:0; color:#0d1b2a; font-size:14pt; }
+      .pp-sign-single { margin-top:16px; }
 
       /* Mobil-Virschau: alles liesbar, een Kolonn */
       @media screen and (max-width: 600px) {
@@ -561,6 +600,7 @@
         body.protocol-printing #protocol-print-root.open { display: block !important; position: static; background: #fff; padding: 0; overflow: visible; }
         #protocol-print-root.open .pp-doc { box-shadow: none; max-width: none; margin: 0; border-radius: 0; }
         .pp-noprint { display: none !important; }
+        .pp-combined .pp-stage + .pp-stage { break-before: page; padding-top: 0; border-top: 0; }
         @page { size: A4; margin: 12mm; }
       }
     </style>
@@ -707,16 +747,14 @@
           <div class="field"><label for="w-price">Präis / Dag (€)</label><input id="w-price" type="number" min="0" step="0.01" /></div>
           <div class="field"><label for="w-year">Baujoer</label><input id="w-year" type="text" /></div>
           <div class="field"><label for="w-seats">Sëtzplazen</label><input id="w-seats" type="text" /></div>
-          <div class="field"><label for="w-fuel">Kraftstoff</label><input id="w-fuel" type="text" /></div>
-          <div class="field"><label for="w-transmission">Getriebe</label><input id="w-transmission" type="text" /></div>
+          <div class="field"><label for="w-fuel">Brennstoff / Undriff</label><input id="w-fuel" type="text" /></div>
+          <div class="field"><label for="w-transmission">Boîte</label><input id="w-transmission" type="text" /></div>
           <div class="field"><label for="w-license">Führerschäin</label><input id="w-license" type="text" placeholder="B" /></div>
           <div class="field"><label for="w-load">Luedraum / Dimensiounen</label><input id="w-load" type="text" /></div>
           <div class="field"><label for="w-gross">Zoulässegt Gesamtgewiicht</label><input id="w-gross" type="text" placeholder="z.B. 750 kg" /></div>
           <div class="field"><label for="w-payload">Notzlaascht</label><input id="w-payload" type="text" placeholder="z.B. 550 kg" /></div>
-          <div class="field"><label for="w-deposit">Kautioun (€)</label><input id="w-deposit" type="number" min="0" step="0.01" /></div>
-          <div class="field"><label for="w-features">Ausstattung</label><textarea id="w-features" rows="3" placeholder="Eng Eegenschaft pro Zeil"></textarea></div>
+          <div class="field"><label for="w-features">Ekipement</label><textarea id="w-features" rows="3" placeholder="Eng Eegenschaft pro Zeil"></textarea></div>
           <label class="protocol-check"><input id="w-active" type="checkbox" /> Op der Verleihsäit weisen</label>
-          <label class="protocol-check"><input id="w-featured" type="checkbox" /> Als Haaptgefier (Showcase) uewen weisen</label>
           <label class="protocol-check" id="w-braked-wrap"><input id="w-braked" type="checkbox" /> Gebremsten Unhänger</label>
           <button class="btn btn-primary" type="submit">Bäisetzen</button>
         </form>
@@ -809,6 +847,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=38"></script>
+    <script src="intern.js?v=45"></script>
   </body>
 </html>

@@ -128,11 +128,27 @@ function json(env, body, status, extraHeaders) {
   return new Response(JSON.stringify(body), { status: status || 200, headers: cors(env, Object.assign({ "Content-Type": "application/json; charset=utf-8" }, extraHeaders || {})) });
 }
 function clip(s, n) { return String(s == null ? "" : s).slice(0, n); }
+function protocolMediaUrl(s) { const v=clip(s,500).trim(); return /^https:\/\/garage-admin\.autoservicebettenduerf\.lu\/media\/protocol\/[a-z0-9/_-]+\.(?:webp|jpg|png)$/i.test(v) ? v : ""; }
+function protocolMediaList(s) { return String(s||"").split("\n").map(protocolMediaUrl).filter(Boolean).slice(0,24).join("\n"); }
 function hasPerm(role, perm) { return (PERMS[role] || []).indexOf(perm) !== -1; }
 function validEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 160; }
 function validDateTime(s) { return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s) && Number.isFinite(Date.parse(s)); }
-function vehicleKeys(s) { return String(s || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean); }
-function hasSameVehicle(a, b) { const bb = new Set(vehicleKeys(b)); return vehicleKeys(a).some((x) => bb.has(x)); }
+function vehicleDescriptors(s, fleet) {
+  return String(s || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean).map((raw) => {
+    const match = fleet.find((f) => {
+      const name = String(f.vehicle || "").trim().toLowerCase();
+      return name && (name === raw || name.includes(raw) || raw.includes(name));
+    });
+    if (match) return { id:Number(match.id), type:match.asset_type || "van", generic:false, raw };
+    const type = /transporter|lieferwagen|utilitaire|\bvan\b/.test(raw) ? "van" : /anhänger|unhänger|remorque|trailer/.test(raw) ? "trailer" : /personenwagen|voiture|\bauto\b|\bcar\b/.test(raw) ? "car" : "";
+    return { id:0, type, generic:!!type, raw };
+  });
+}
+function descriptorOverlap(a,b) {
+  if (a.id && b.id) return a.id === b.id;
+  if (a.raw === b.raw) return true;
+  return !!(a.type && b.type && a.type === b.type && (a.generic || b.generic));
+}
 async function hashText(s) {
   const digest = await crypto.subtle.digest("SHA-256", enc(s));
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -148,8 +164,11 @@ async function publicRateAllowed(request, env) {
   return !!row && Number(row.count) <= 8;
 }
 async function findConflict(env, veh, from, to, excludeId) {
+  await ensureMaint(env);
+  const fleet = (await env.DB.prepare("SELECT id,vehicle,asset_type FROM maintenance").all()).results || [];
+  const wanted = vehicleDescriptors(veh,fleet);
   const rows = (await env.DB.prepare("SELECT id, veh, from_dt, to_dt FROM bookings WHERE status='confirmed' AND from_dt < ?1 AND to_dt > ?2").bind(to, from).all()).results || [];
-  return rows.find((b) => Number(b.id) !== Number(excludeId || 0) && hasSameVehicle(veh, b.veh)) || null;
+  return rows.find((b) => Number(b.id) !== Number(excludeId || 0) && wanted.some((a) => vehicleDescriptors(b.veh,fleet).some((x) => descriptorOverlap(a,x)))) || null;
 }
 /* ---------- Login brute-force throttle (reuse booking_rate_limits table) ---------- */
 async function loginBucket(request) {
@@ -205,21 +224,21 @@ async function saveConsent(env, type, id, privacy, terms) {
     .bind(type, id, privacy ? 1 : 0, terms ? 1 : 0).run();
 }
 async function sendConfirmation(env, bookingId, booking) {
-  booking.ref = "R-" + (Number(bookingId) + 1000);
+  booking.ref = "AB-L-" + String(bookingId).padStart(5, "0");
   const mail = confirmMail(booking);
   const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html, mail.text);
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Bestätegungsmail geschéckt" : "Bestätegungsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
 async function sendDecline(env, bookingId, booking) {
-  booking.ref = "R-" + (Number(bookingId) + 1000);
+  booking.ref = "AB-L-" + String(bookingId).padStart(5, "0");
   const mail = declineMail(booking);
   const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html, mail.text);
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Ofsomail geschéckt" : "Ofsomail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
 async function sendNewBookingNotice(env, bookingId, booking) {
-  const subject = "Nei Location-Ufro R-" + (Number(bookingId) + 1000);
+  const subject = "Nei Location-Ufro AB-L-" + String(bookingId).padStart(5, "0");
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430">' +
     '<h2 style="color:#c81420">Nei Location-Ufro</h2>' +
     '<p><b>' + esc(booking.cust_name) + '</b> freet <b>' + esc(booking.veh) + '</b> un.</p>' +
@@ -270,29 +289,49 @@ async function ensureMaint(env) {
     ["asset_type","TEXT NOT NULL DEFAULT 'van'"],["gross_weight","TEXT"],["payload","TEXT"],["braked","INTEGER NOT NULL DEFAULT 0"]
   ];
   for (const c of cols) { try { await env.DB.prepare("ALTER TABLE maintenance ADD COLUMN " + c[0] + " " + c[1]).run(); } catch (e) {} }
+  // Al Claude-Donnéeën neutraliséieren: et gëtt weder Haaptgefier nach Kautiounsfeld.
+  try { await env.DB.prepare("UPDATE maintenance SET featured=0, deposit=NULL WHERE featured!=0 OR deposit IS NOT NULL").run(); } catch (e) {}
+  // Präiskorrektur Oktober 2026: nëmmen den ale Renault-Master-Tarif vun 80 € migréieren.
+  try { await env.DB.prepare("UPDATE maintenance SET price_day=100 WHERE lower(vehicle)='renault master' AND (price_day IS NULL OR price_day=80)").run(); } catch (e) {}
   const master = await env.DB.prepare("SELECT id FROM maintenance WHERE lower(vehicle)='renault master' LIMIT 1").first();
-  if (!master) await env.DB.prepare("INSERT INTO maintenance (vehicle,service,note,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,updated_by) VALUES ('Renault Master','Nach Bedarf','Automatesch aus dem bestehende Verleih iwwerholl','ready','Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.','assets/rental-renault-master.webp',80,'2021','3','Diesel','','B','L2H2','Grousse Luedraum (L2H2)\nBis 3,5 t\nVollgetankt zréckbréngen',1,0,'System')").run();
+  if (!master) await env.DB.prepare("INSERT INTO maintenance (vehicle,service,note,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,updated_by) VALUES ('Renault Master','Nach Bedarf','Automatesch aus dem bestehende Verleih iwwerholl','ready','Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.','assets/rental-renault-master.webp',100,'2021','3','Diesel','','B','L2H2','Grousse Luedraum (L2H2)\nBis 3,5 t\nVollgetankt zréckbréngen',1,0,'System')").run();
 }
 async function ensureRentalInspections(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS rental_inspections (id INTEGER PRIMARY KEY AUTOINCREMENT, booking_id INTEGER NOT NULL, stage TEXT NOT NULL, inspected_at TEXT NOT NULL, odometer INTEGER, fuel_level TEXT, condition_note TEXT, damage_note TEXT, photo_refs TEXT, accessories TEXT, license_checked INTEGER NOT NULL DEFAULT 0, deposit_amount REAL, extra_km INTEGER, extra_costs REAL, customer_signature TEXT, staff_signature TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT, UNIQUE(booking_id, stage))").run();
   try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_inspections_booking ON rental_inspections(booking_id)").run(); } catch (e) {}
+  try { await env.DB.prepare("ALTER TABLE rental_inspections ADD COLUMN checklist_json TEXT").run(); } catch (e) {}
 }
 /* ---------- Deeglecht Backup vun der D1-Datebank op R2 ---------- */
 async function runBackup(env) {
   if (!env.MEDIA) return { ok: false, error: "no_media" };
   const tables = ["bookings", "booking_events", "appointments", "appointment_events", "maintenance", "rental_inspections", "request_consents", "member_events"];
-  const dump = { exportedAt: new Date().toISOString(), db: "garage-admin", tables: {} };
+  const dump = { formatVersion: 2, exportedAt: new Date().toISOString(), db: "garage-admin", tables: {}, mediaInventory: { fleet: 0, protocol: 0 } };
   for (const tbl of tables) {
     try { dump.tables[tbl] = (await env.DB.prepare("SELECT * FROM " + tbl).all()).results || []; }
     catch (e) { dump.tables[tbl] = []; }
   }
   // Memberen ouni Passwuert-Hash (manner sensibel Backup)
   try { dump.tables.users = (await env.DB.prepare("SELECT username,name,role,active,must_change FROM users").all()).results || []; } catch (e) {}
+  // Medien bleiwen am private R2-Bucket; den Inventar mécht eng Integritéitskontroll méiglech.
+  for (const scope of ["fleet/", "protocol/"]) {
+    let cursor;
+    do {
+      const listed = await env.MEDIA.list({ prefix: scope, limit: 1000, cursor });
+      dump.mediaInventory[scope.slice(0, -1)] += (listed.objects || []).length;
+      cursor = listed.truncated ? listed.cursor : undefined;
+    } while (cursor);
+  }
   const now = new Date();
   const key = "backups/" + now.getUTCFullYear() + "/" + now.toISOString().slice(0, 10) + ".json";
   const body = JSON.stringify(dump);
-  await env.MEDIA.put(key, body, { httpMetadata: { contentType: "application/json", cacheControl: "private, no-store" }, customMetadata: { kind: "backup" } });
-  return { ok: true, key, bytes: body.length };
+  const checksum = await hashText(body);
+  await env.MEDIA.put(key, body, { httpMetadata: { contentType: "application/json", cacheControl: "private, no-store" }, customMetadata: { kind: "backup", sha256: checksum } });
+  // Donnéeëminiméierung: automatesch Backuppe maximal 90 Deeg behalen.
+  const cutoff = Date.now() - 90 * 86400000;
+  const old = await env.MEDIA.list({ prefix: "backups/", limit: 1000 });
+  const expired = (old.objects || []).filter((o) => o.uploaded && new Date(o.uploaded).getTime() < cutoff).map((o) => o.key);
+  if (expired.length) await env.MEDIA.delete(expired);
+  return { ok: true, key, bytes: body.length, checksum };
 }
 async function sendNewApptNotice(env, apptId, a) {
   const inq = a.kind === "inquiry";
@@ -329,6 +368,12 @@ function confirmMail(b) {
   }[L] || null;
   var t = T || { s: "Är Reservatioun ass bestätegt", h: "Reservatioun bestätegt", p: "Mir hunn Är Reservatioun bestätegt:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Merci!" };
   t.ref = { lb: "Réf.", de: "Ref.", fr: "Réf.", en: "Ref." }[L] || "Réf.";
+  var masterTerms = /renault\s+master/i.test(b.veh || "") ? ({
+    lb: "Konditiounen: 100 € pro ugefaangene 24 Stonnen, 250 km pro Locatioun abegraff, duerno 0,30 €/km, Kautioun 300 €, verspiet Retour 20 € pro ugefaangener Stonn.",
+    de: "Konditionen: 100 € pro angefangenen 24 Stunden, 250 km pro Miete inklusive, danach 0,30 €/km, Kaution 300 €, verspätete Rückgabe 20 € pro angefangener Stunde.",
+    fr: "Conditions : 100 € par tranche de 24 heures entamée, 250 km par location inclus, puis 0,30 €/km, caution 300 €, retard 20 € par heure entamée.",
+    en: "Terms: €100 per started 24-hour period, 250 km per rental included, then €0.30/km, €300 deposit, late return €20 per started hour."
+  }[L] || "") : "";
   var html =
     '<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1c2430">' +
     '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +
@@ -341,10 +386,11 @@ function confirmMail(b) {
     (b.from_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.from) + "</td><td>" + esc(b.from_dt.replace("T", " ")) + "</td></tr>" : "") +
     (b.to_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.to) + "</td><td>" + esc(b.to_dt.replace("T", " ")) + "</td></tr>" : "") +
     "</table>" +
+    (masterTerms ? '<p style="background:#f5f7f9;border-radius:8px;padding:12px;font-size:13px;line-height:1.5">' + esc(masterTerms) + "</p>" : "") +
     '<p style="color:#5b6b7c;font-size:13px;margin-top:18px">' + esc(t.foot) + "</p>" +
     '<p style="color:#8a96a2;font-size:12px;margin-top:14px">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87</p>' +
     "</div></div>";
-  return { subject: t.s, html: html, text: mailText(t, b) };
+  return { subject: t.s, html: html, text: mailText(t, b) + (masterTerms ? "\n\n" + masterTerms : "") };
 }
 function declineMail(b) {
   var L = (b.lang || "lb").slice(0, 2);
@@ -449,8 +495,8 @@ export default {
       /* ---- public: aktiv Gefierer aus der interner Flotte ---- */
       if (path === "/fleet/public" && method === "GET") {
         await ensureMaint(env);
-        const rows = (await env.DB.prepare("SELECT id,vehicle,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,deposit,features,asset_type,gross_weight,payload,braked,featured FROM maintenance WHERE public_active=1 AND fleet_status!='blocked' ORDER BY featured DESC, id ASC").all()).results || [];
-        return json(env, { vehicles: rows.map((x) => ({ id:"fleet-"+x.id,type:["van","car","trailer"].includes(x.asset_type)?x.asset_type:"van",name:x.vehicle,description:x.description||"",image:x.image_url||"",priceDay:Number(x.price_day||0),year:x.year||"",seats:x.seats||"",fuel:x.fuel||"",transmission:x.transmission||"",licenseClass:x.license_class||"",loadSpace:x.load_space||"",grossWeight:x.gross_weight||"",payload:x.payload||"",braked:!!x.braked,deposit:x.deposit==null?null:Number(x.deposit),featured:!!x.featured,features:String(x.features||"").split("\n").map((v)=>v.trim()).filter(Boolean) })) }, 200, { "Cache-Control": "public, max-age=120" });
+        const rows = (await env.DB.prepare("SELECT id,vehicle,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,asset_type,gross_weight,payload,braked FROM maintenance WHERE public_active=1 AND fleet_status!='blocked' ORDER BY id ASC").all()).results || [];
+        return json(env, { vehicles: rows.map((x) => ({ id:"fleet-"+x.id,type:["van","car","trailer"].includes(x.asset_type)?x.asset_type:"van",name:x.vehicle,description:x.description||"",image:x.image_url||"",priceDay:Number(x.price_day||0),year:x.year||"",seats:x.seats||"",fuel:x.fuel||"",transmission:x.transmission||"",licenseClass:x.license_class||"",loadSpace:x.load_space||"",grossWeight:x.gross_weight||"",payload:x.payload||"",braked:!!x.braked,features:String(x.features||"").split("\n").map((v)=>v.trim()).filter(Boolean) })) }, 200, { "Cache-Control": "public, max-age=120" });
       }
 
       /* ---- Fotoen aus dem private R2-Bucket ausliwweren ----
@@ -689,7 +735,7 @@ export default {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
         await ensureMaint(env);
         const ms = (await env.DB.prepare("SELECT * FROM maintenance ORDER BY (due_date IS NULL), due_date ASC, id DESC").all()).results || [];
-        return json(env, { items: ms.map((m) => ({ id:m.id, type:["van","car","trailer"].includes(m.asset_type)?m.asset_type:"van", vehicle:m.vehicle, service:m.service, dueDate:m.due_date||"", note:m.note||"", status:m.fleet_status||"ready", description:m.description||"", imageUrl:m.image_url||"", priceDay:m.price_day==null?"":m.price_day, year:m.year||"", seats:m.seats||"", fuel:m.fuel||"", transmission:m.transmission||"", licenseClass:m.license_class||"", loadSpace:m.load_space||"", grossWeight:m.gross_weight||"", payload:m.payload||"", braked:!!m.braked, deposit:m.deposit==null?"":m.deposit, features:m.features||"", active:!!m.public_active, featured:!!m.featured, updated_at:m.updated_at, updated_by:m.updated_by||"" })) });
+        return json(env, { items: ms.map((m) => ({ id:m.id, type:["van","car","trailer"].includes(m.asset_type)?m.asset_type:"van", vehicle:m.vehicle, service:m.service, dueDate:m.due_date||"", note:m.note||"", status:m.fleet_status||"ready", description:m.description||"", imageUrl:m.image_url||"", priceDay:m.price_day==null?"":m.price_day, year:m.year||"", seats:m.seats||"", fuel:m.fuel||"", transmission:m.transmission||"", licenseClass:m.license_class||"", loadSpace:m.load_space||"", grossWeight:m.gross_weight||"", payload:m.payload||"", braked:!!m.braked, features:m.features||"", active:!!m.public_active, updated_at:m.updated_at, updated_by:m.updated_by||"" })) });
       }
       if (path === "/maintenance" && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
@@ -700,8 +746,8 @@ export default {
         if (!vehicle) return json(env, { error: "missing_fields" }, 400);
         if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return json(env, { error: "invalid_fields" }, 400);
         const fleetStatus = ["ready","rented","service","blocked"].includes(bodyData.status) ? bodyData.status : "ready", assetType=["van","car","trailer"].includes(bodyData.type)?bodyData.type:"van";
-        const r = await env.DB.prepare("INSERT INTO maintenance (vehicle,service,due_date,note,updated_by,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,deposit,features,public_active,featured,asset_type,gross_weight,payload,braked) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21,?22,?23)")
-          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),bodyData.priceDay===""?null:Number(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),bodyData.deposit===""?null:Number(bodyData.deposit),clip(bodyData.features,1200),bodyData.active?1:0,bodyData.featured?1:0,assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0).run();
+        const r = await env.DB.prepare("INSERT INTO maintenance (vehicle,service,due_date,note,updated_by,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,deposit,asset_type,gross_weight,payload,braked) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,0,NULL,?18,?19,?20,?21)")
+          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),bodyData.priceDay===""?null:Number(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),clip(bodyData.features,1200),bodyData.active?1:0,assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0).run();
         return json(env, { ok: true, id: r.meta.last_row_id });
       }
       m = path.match(/^\/maintenance\/(\d+)$/);
@@ -717,8 +763,8 @@ export default {
         if (!vehicle) return json(env, { error: "missing_fields" }, 400);
         if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return json(env, { error: "invalid_fields" }, 400);
         const fleetStatus = ["ready","rented","service","blocked"].includes(bodyData.status) ? bodyData.status : "ready", assetType=["van","car","trailer"].includes(bodyData.type)?bodyData.type:"van";
-        await env.DB.prepare("UPDATE maintenance SET vehicle=?1,service=?2,due_date=?3,note=?4,updated_at=CURRENT_TIMESTAMP,updated_by=?5,fleet_status=?6,description=?7,image_url=?8,price_day=?9,year=?10,seats=?11,fuel=?12,transmission=?13,license_class=?14,load_space=?15,deposit=?16,features=?17,public_active=?18,featured=?19,asset_type=?20,gross_weight=?21,payload=?22,braked=?23 WHERE id=?24")
-          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),bodyData.priceDay===""?null:Number(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),bodyData.deposit===""?null:Number(bodyData.deposit),clip(bodyData.features,1200),bodyData.active?1:0,bodyData.featured?1:0,assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0,id).run();
+        await env.DB.prepare("UPDATE maintenance SET vehicle=?1,service=?2,due_date=?3,note=?4,updated_at=CURRENT_TIMESTAMP,updated_by=?5,fleet_status=?6,description=?7,image_url=?8,price_day=?9,year=?10,seats=?11,fuel=?12,transmission=?13,license_class=?14,load_space=?15,features=?16,public_active=?17,featured=0,deposit=NULL,asset_type=?18,gross_weight=?19,payload=?20,braked=?21 WHERE id=?22")
+          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),bodyData.priceDay===""?null:Number(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),clip(bodyData.features,1200),bodyData.active?1:0,assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0,id).run();
         return json(env, { ok: true });
       }
       if (m && method === "DELETE") {
@@ -733,7 +779,7 @@ export default {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
         await ensureRentalInspections(env);
         const rows = (await env.DB.prepare("SELECT i.*, b.veh, b.cust_name, b.from_dt, b.to_dt FROM rental_inspections i LEFT JOIN bookings b ON b.id=i.booking_id ORDER BY i.inspected_at DESC, i.id DESC").all()).results || [];
-        return json(env, { items: rows.map((x) => ({ id:x.id, bookingId:x.booking_id, stage:x.stage, inspectedAt:x.inspected_at, odometer:x.odometer, fuelLevel:x.fuel_level || "", conditionNote:x.condition_note || "", damageNote:x.damage_note || "", photoRefs:x.photo_refs || "", accessories:x.accessories || "", licenseChecked:!!x.license_checked, depositAmount:x.deposit_amount, extraKm:x.extra_km, extraCosts:x.extra_costs, customerSignature:x.customer_signature || "", staffSignature:x.staff_signature || "", note:x.note || "", updatedAt:x.updated_at, updatedBy:x.updated_by || "", vehicle:x.veh || "", customer:x.cust_name || "", from:x.from_dt || "", to:x.to_dt || "" })) });
+        return json(env, { items: rows.map((x) => ({ id:x.id, bookingId:x.booking_id, stage:x.stage, inspectedAt:x.inspected_at, odometer:x.odometer, fuelLevel:x.fuel_level || "", conditionNote:x.condition_note || "", damageNote:x.damage_note || "", photoRefs:x.photo_refs || "", accessories:x.accessories || "", licenseChecked:!!x.license_checked, extraKm:x.extra_km, extraCosts:x.extra_costs, customerSignature:x.customer_signature || "", staffSignature:x.staff_signature || "", note:x.note || "", checklistJson:x.checklist_json || "{}", updatedAt:x.updated_at, updatedBy:x.updated_by || "", vehicle:x.veh || "", customer:x.cust_name || "", from:x.from_dt || "", to:x.to_dt || "" })) });
       }
       if (path === "/rental-inspections" && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
@@ -743,8 +789,21 @@ export default {
         if (!bookingId || ["pickup","return"].indexOf(stage) < 0 || !validDateTime(inspectedAt)) return json(env, { error: "invalid_fields" }, 400);
         if (!(await env.DB.prepare("SELECT id FROM bookings WHERE id=?1").bind(bookingId).first())) return json(env, { error: "not_found" }, 404);
         const pickup = stage === "pickup";
-        const vals = [bookingId, stage, inspectedAt, Number.isFinite(odometer) ? odometer : null, clip(bodyData.fuelLevel,30), clip(bodyData.conditionNote,1000), clip(bodyData.damageNote,1500), clip(bodyData.photoRefs,6000), clip(bodyData.accessories,1000), pickup && bodyData.licenseChecked ? 1 : 0, null, pickup ? null : (bodyData.extraKm === "" ? null : parseInt(bodyData.extraKm,10)), pickup ? null : (bodyData.extraCosts === "" ? null : Number(bodyData.extraCosts)), clip(bodyData.customerSignature,500), clip(bodyData.staffSignature,120), clip(bodyData.note,1500), me.username];
-        await env.DB.prepare("INSERT INTO rental_inspections (booking_id,stage,inspected_at,odometer,fuel_level,condition_note,damage_note,photo_refs,accessories,license_checked,deposit_amount,extra_km,extra_costs,customer_signature,staff_signature,note,updated_by) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17) ON CONFLICT(booking_id,stage) DO UPDATE SET inspected_at=?3,odometer=?4,fuel_level=?5,condition_note=?6,damage_note=?7,photo_refs=?8,accessories=?9,license_checked=?10,deposit_amount=?11,extra_km=?12,extra_costs=?13,customer_signature=?14,staff_signature=?15,note=?16,updated_at=CURRENT_TIMESTAMP,updated_by=?17").bind(...vals).run();
+        const extraKm = pickup || bodyData.extraKm === "" ? null : parseInt(bodyData.extraKm,10), extraCosts = pickup || bodyData.extraCosts === "" ? null : Number(bodyData.extraCosts);
+        const signature = protocolMediaUrl(bodyData.customerSignature), photos = protocolMediaList(bodyData.photoRefs);
+        if (!signature || (odometer != null && (!Number.isFinite(odometer) || odometer < 0)) || (extraKm != null && (!Number.isFinite(extraKm) || extraKm < 0)) || (extraCosts != null && (!Number.isFinite(extraCosts) || extraCosts < 0))) return json(env, { error: "invalid_protocol" }, 400);
+        const rawChecklist = bodyData.checklist && typeof bodyData.checklist === "object" ? bodyData.checklist : {}, keyCount=parseInt(rawChecklist.keyCount,10);
+        const damageTypes = new Set(["Kratzer","Delle","Lackschued","Rëss / Broch","Felg / Pneu","Aneres"]);
+        const damageMarkers = Array.isArray(rawChecklist.damageMarkers) ? rawChecklist.damageMarkers.slice(0,30).map((m) => ({
+          x: Math.max(16,Math.min(784,Number(m && m.x))),
+          y: Math.max(16,Math.min(510,Number(m && m.y))),
+          type: damageTypes.has(m && m.type) ? m.type : "Aneres",
+          note: clip(m && m.note,120),
+          v: 2
+        })).filter((m) => Number.isFinite(m.x) && Number.isFinite(m.y)) : [];
+        const checklist = { keyCount:Number.isFinite(keyCount)&&keyCount>=0&&keyCount<=10?String(keyCount):"", cleanliness:["Propper","Liicht verschmotzt","Staark verschmotzt"].includes(rawChecklist.cleanliness)?rawChecklist.cleanliness:"", documentsChecked:!!rawChecklist.documentsChecked, lightsChecked:!!rawChecklist.lightsChecked, tyresChecked:!!rawChecklist.tyresChecked, jointInspection:!!rawChecklist.jointInspection, damageMarkers };
+        const vals = [bookingId, stage, inspectedAt, odometer, clip(bodyData.fuelLevel,30), clip(bodyData.conditionNote,1000), clip(bodyData.damageNote,1500), photos, clip(bodyData.accessories,1000), pickup && bodyData.licenseChecked ? 1 : 0, extraKm, extraCosts, signature, clip(bodyData.staffSignature,120), clip(bodyData.note,1500), me.username, JSON.stringify(checklist)];
+        await env.DB.prepare("INSERT INTO rental_inspections (booking_id,stage,inspected_at,odometer,fuel_level,condition_note,damage_note,photo_refs,accessories,license_checked,deposit_amount,extra_km,extra_costs,customer_signature,staff_signature,note,updated_by,checklist_json) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,NULL,?11,?12,?13,?14,?15,?16,?17) ON CONFLICT(booking_id,stage) DO UPDATE SET inspected_at=?3,odometer=?4,fuel_level=?5,condition_note=?6,damage_note=?7,photo_refs=?8,accessories=?9,license_checked=?10,deposit_amount=NULL,extra_km=?11,extra_costs=?12,customer_signature=?13,staff_signature=?14,note=?15,updated_at=CURRENT_TIMESTAMP,updated_by=?16,checklist_json=?17").bind(...vals).run();
         await env.DB.prepare("INSERT INTO booking_events (booking_id,action,by_user,note) VALUES (?1,?2,?3,?4)").bind(bookingId, stage === "pickup" ? "Iwwergabprotokoll gespäichert" : "Retourprotokoll gespäichert", me.username, clip(bodyData.damageNote || bodyData.note,500)).run();
         return json(env, { ok:true });
       }

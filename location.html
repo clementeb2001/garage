@@ -148,48 +148,41 @@
         </div>
       </section>
 
-      <!-- Ablauf und Bedingungen -->
-      <section class="rental-info" aria-labelledby="rental-info-title">
-        <div class="container">
-          <div class="rental-info-head">
-            <p class="eyebrow" id="rental-info-eyebrow">Virun der Ufro</p>
-            <h2 id="rental-info-title">Esou leeft d’Reservatioun</h2>
-            <p id="rental-info-intro">D’Online-Ufro ass nach keng verbindlech Buchung. Mir kontrolléieren d’Disponibilitéit a bestätegen Iech den Zäitraum perséinlech.</p>
-          </div>
-          <div class="rental-info-grid">
-            <article class="rental-info-card">
-              <span aria-hidden="true">✓</span>
-              <h3 id="rental-info-availability-title">Disponibilitéit</h3>
-              <p id="rental-info-availability-text">Mir kontrolléieren Är Datumer a mellen eis mat enger definitiver Bestätegung.</p>
-            </article>
-            <article class="rental-info-card">
-              <span aria-hidden="true">🪪</span>
-              <h3 id="rental-info-license-title">Führerschäin</h3>
-              <p id="rental-info-license-text">Déi néideg Kategorie hänkt vum Gefier, dem Unhänger an der zulässeger Gesamtmass of a gëtt virum Verlee kontrolléiert.</p>
-            </article>
-            <article class="rental-info-card">
-              <span aria-hidden="true">🛡️</span>
-              <h3 id="rental-info-terms-title">Konditiounen</h3>
-              <p id="rental-info-terms-text">Kautioun, Assurance, Kilometer, Ofhuelung, Retour a Storno gi virun der Bestätegung transparent matgedeelt.</p>
-            </article>
-          </div>
-        </div>
-      </section>
-
       <!-- Reservation -->
       <section class="rental-reserve" id="reserve">
         <div class="container rental-reserve-inner">
           <div class="rental-summary">
-            <p class="rental-step" id="rental-step-1">Schrëtt 1 vun 3 · Gefier an Zäitraum</p>
+            <p class="rental-step" id="rental-step-1">Schrëtt 1 vun 3 · Auswiel an Zäitraum</p>
             <h2 id="rental-sel-h">Är Auswiel</h2>
             <p class="rental-empty" id="rental-empty">Nach näischt ausgewielt. Wielt uewen Äert Material aus.</p>
-            <p class="rental-availability-note" id="rental-availability-note">D’Disponibilitéit gëtt no Ärer Ufro manuell kontrolléiert.</p>
+            <p class="rental-availability-note" id="rental-availability-note">De Live-Kalenner weist déi aktuell Beleeung. Mir bestätegen all Ufro nach eemol perséinlech.</p>
             <ul class="rental-sel-list" id="rental-sel-list"></ul>
+            <section class="rental-calendar" id="rental-calendar" aria-labelledby="rental-calendar-title" hidden>
+              <div class="rental-calendar-head">
+                <div>
+                  <p class="rental-calendar-kicker" id="rental-calendar-kicker">Live-Disponibilitéit</p>
+                  <h3 id="rental-calendar-title">Fräi Datumer kucken</h3>
+                </div>
+                <div class="rental-calendar-nav">
+                  <button type="button" id="rental-calendar-prev" aria-label="Mount virdrun">‹</button>
+                  <strong id="rental-calendar-month" aria-live="polite"></strong>
+                  <button type="button" id="rental-calendar-next" aria-label="Nächste Mount">›</button>
+                </div>
+              </div>
+              <p class="rental-calendar-help" id="rental-calendar-help">Wielt fir d’éischt den Ufanksdag an duerno den Enndag.</p>
+              <div class="rental-calendar-weekdays" id="rental-calendar-weekdays" aria-hidden="true"></div>
+              <div class="rental-calendar-grid" id="rental-calendar-grid" role="grid"></div>
+              <div class="rental-calendar-legend" id="rental-calendar-legend">
+                <span><i class="is-free"></i><b id="rental-calendar-free">Fräi</b></span>
+                <span><i class="is-busy"></i><b id="rental-calendar-busy-label">Besat</b></span>
+                <span><i class="is-past"></i><b id="rental-calendar-past">Net buchbar</b></span>
+              </div>
+            </section>
             <div class="rental-price-summary" id="rental-price-summary" aria-live="polite">
-              <div><span id="rental-price-days-label">Berechent Mietdauer</span><strong id="rental-price-days">—</strong></div>
+              <div><span id="rental-price-days-label">Berechent Locatiounsdauer</span><strong id="rental-price-days">—</strong></div>
               <div><span id="rental-price-rate-label">Dagespräis</span><strong id="rental-price-rate">—</strong></div>
-              <div class="rental-price-total"><span id="rental-price-total-label">Viraussiichtleche Mietpräis</span><strong id="rental-price-total">—</strong></div>
-              <p id="rental-price-disclaimer">D’Endkonditioune ginn Iech virun der verbindlicher Bestätegung matgedeelt.</p>
+              <div class="rental-price-total"><span id="rental-price-total-label">Viraussiichtleche Locatiounspräis</span><strong id="rental-price-total">—</strong></div>
+              <p id="rental-price-disclaimer">D’Endkonditioune ginn Iech virun der verbindlecher Bestätegung matgedeelt.</p>
             </div>
           </div>
 
@@ -198,11 +191,7 @@
             id="rental-form"
             novalidate
           >
-            <input type="hidden" name="_subject" value="Nei Location-Ufro – Autoservice Bettenduerf" />
-            <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_captcha" value="false" />
             <input type="hidden" name="_loaded_at" value="" />
-            <input type="hidden" name="Material" id="rental-hidden-items" value="" />
             <input type="text" name="_honey" tabindex="-1" autocomplete="off" class="sr-only" aria-hidden="true" />
 
             <p class="rental-step" id="rental-step-2">Schrëtt 2 vun 3 · Är Donnéeën</p>
@@ -210,12 +199,20 @@
 
             <div class="field-row">
               <div class="field">
-                <label for="r-from" id="lbl-r-from">Vun</label>
-                <input type="datetime-local" id="r-from" name="Vun (Datum an Auerzäit)" step="1800" required />
+                <label for="r-from-date" id="lbl-r-from">Vun</label>
+                <input type="hidden" id="r-from" name="Vun (Datum an Auerzäit)" required />
+                <div class="rental-datetime" data-for="r-from">
+                  <input type="date" id="r-from-date" aria-labelledby="lbl-r-from" required />
+                  <select id="r-from-time" aria-label="Auerzäit vun" required></select>
+                </div>
               </div>
               <div class="field">
-                <label for="r-to" id="lbl-r-to">Bis</label>
-                <input type="datetime-local" id="r-to" name="Bis (Datum an Auerzäit)" step="1800" required />
+                <label for="r-to-date" id="lbl-r-to">Bis</label>
+                <input type="hidden" id="r-to" name="Bis (Datum an Auerzäit)" required />
+                <div class="rental-datetime" data-for="r-to">
+                  <input type="date" id="r-to-date" aria-labelledby="lbl-r-to" required />
+                  <select id="r-to-time" aria-label="Auerzäit bis" required></select>
+                </div>
               </div>
             </div>
 
@@ -254,7 +251,7 @@
 
             <label class="privacy-confirm terms-confirm" for="r-terms">
               <input id="r-terms" name="Mietinformationen gelesen" type="checkbox" />
-              <span id="r-terms-text">Ech hunn déi <a href="mietbedingungen.html" target="_blank" rel="noopener">virleefeg Mietinformatiounen</a> gelies.</span>
+              <span id="r-terms-text">Ech hunn d’<a href="mietbedingungen.html" target="_blank" rel="noopener">Locatiouns- a Reservatiounsinformatiounen</a> gelies.</span>
             </label>
 
             <label class="privacy-confirm" for="r-privacy">
@@ -262,9 +259,9 @@
               <span id="r-privacy-text">Ech hunn d'Dateschutzerklärung gelies a sinn averstanen, datt meng Donnéeë fir d'Veraarbechtung vun der Ufro benotzt ginn.</span>
             </label>
 
+            <p class="rental-note" id="rental-note">D'Reservéierung ass eng Ufro a gëtt vun eis bestätegt.</p>
             <button type="submit" class="btn btn-primary btn-block" id="rental-submit">Reservéierung ufroen</button>
             <p class="form-status" id="rental-status" role="status" aria-live="polite"></p>
-            <p class="rental-note" id="rental-note">D'Reservéierung ass eng Ufro a gëtt vun eis bestätegt.</p>
           </form>
         </div>
       </section>
@@ -313,7 +310,7 @@
       <div class="footer-bottom">
         <div class="container">
           <span>© <span id="year">2026</span> Autoservice Bettenduerf. <span data-i18n="footer_rights">All Rechter reservéiert.</span></span>
-          <span class="footer-legal"><a href="impressum.html" data-i18n="footer_impressum">Impressum</a> · <a href="datenschutz.html" data-i18n="footer_datenschutz">Dateschutz</a> · <a href="mietbedingungen.html">Mietinformatiounen</a></span>
+          <span class="footer-legal"><a href="impressum.html" data-i18n="footer_impressum">Impressum</a> · <a href="datenschutz.html" data-i18n="footer_datenschutz">Dateschutz</a> · <a href="mietbedingungen.html">Locatiounsinformatiounen</a></span>
         </div>
       </div>
     </footer>
@@ -321,7 +318,7 @@
     <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
     <script src="script.js?v=20"></script>
-    <script src="location.js?v=21"></script>
+    <script src="location.js?v=29"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->

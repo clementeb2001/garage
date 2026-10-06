@@ -26,8 +26,7 @@
       cat: "vehicle",
       icon: "van",
       img: "assets/rental-renault-master.webp",
-      priceDay: 80,
-      featured: false,
+      priceDay: 100,
       name: { lb: "Renault Master", de: "Renault Master", fr: "Renault Master", en: "Renault Master" },
       tagline: {
         lb: "Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.",
@@ -36,7 +35,7 @@
         en: "Large van for moving, transport and bulky loads.",
       },
       facts: [
-        { ic: "📦", lb: "Grousse Luedraum (L2H2)", de: "Großer Laderaum (L2H2)", fr: "Grand volume (L2H2)", en: "Large load space (L2H2)" },
+        { ic: "📦", lb: "Grousse zouene Luedraum", de: "Großer geschlossener Laderaum", fr: "Grand espace de chargement fermé", en: "Large enclosed load space" },
         { ic: "⛽", lb: "Diesel", de: "Diesel", fr: "Diesel", en: "Diesel" },
         { ic: "🪑", lb: "3 Sëtzplazen", de: "3 Sitzplätze", fr: "3 places", en: "3 seats" },
         { ic: "⚖️", lb: "bis 3,5 t", de: "bis 3,5 t", fr: "jusqu'à 3,5 t", en: "up to 3.5 t" },
@@ -44,16 +43,16 @@
         { ic: "📅", lb: "Baujoer 2021", de: "Baujahr 2021", fr: "Année 2021", en: "Year 2021" },
       ],
       details: {
-        lb: [["Notzung", "Ëmzuch, Miwwelen a Wueren"], ["Luedraum", "L2H2 · genee Moossen ginn nach ergänzt"], ["Sëtzplazen", "3"], ["Führerschäin", "Kategorie B"], ["Kraftstoff", "Diesel · vollgetankt zréck"]],
-        de: [["Einsatz", "Umzug, Möbel und Waren"], ["Laderaum", "L2H2 · genaue Maße folgen"], ["Sitzplätze", "3"], ["Führerschein", "Klasse B"], ["Kraftstoff", "Diesel · vollgetankt zurück"]],
-        fr: [["Usage", "Déménagement, meubles et marchandises"], ["Volume", "L2H2 · dimensions exactes à venir"], ["Places", "3"], ["Permis", "Catégorie B"], ["Carburant", "Diesel · retour avec le plein"]],
-        en: [["Use", "Moving, furniture and goods"], ["Load space", "L2H2 · exact dimensions to follow"], ["Seats", "3"], ["Licence", "Category B"], ["Fuel", "Diesel · return with a full tank"]],
+        lb: [["Notzung", "Ëmzuch, Miwwelen a Wueren"], ["Luedraum", "Grouss an zou; genee Moosse ginn nach ergänzt"], ["Sëtzplazen", "3"], ["Führerschäin", "Kategorie B"], ["Brennstoff", "Diesel · vollgetankt zréck"]],
+        de: [["Einsatz", "Umzug, Möbel und Waren"], ["Laderaum", "Groß und geschlossen; genaue Maße folgen"], ["Sitzplätze", "3"], ["Führerschein", "Klasse B"], ["Kraftstoff", "Diesel · vollgetankt zurück"]],
+        fr: [["Usage", "Déménagement, meubles et marchandises"], ["Volume", "Grand et fermé ; dimensions exactes à venir"], ["Places", "3"], ["Permis", "Catégorie B"], ["Carburant", "Diesel · retour avec le plein"]],
+        en: [["Use", "Moving, furniture and goods"], ["Load space", "Large and enclosed; exact dimensions to follow"], ["Seats", "3"], ["Licence", "Category B"], ["Fuel", "Diesel · return with a full tank"]],
       },
       specs: {
-        lb: ["Fir Ëmzuch a Transport", "Grousse Luedraum (L2H2)", "Diesel · Führerschäin B duergeet", "Vollgetankt zréckbréngen"],
-        de: ["Für Umzug & Transport", "Großer Laderaum (L2H2)", "Diesel · Führerschein B ausreichend", "Vollgetankt zurückbringen"],
-        fr: ["Déménagement & transport", "Grand volume (L2H2)", "Diesel · permis B suffisant", "À rendre le plein fait"],
-        en: ["Moving & transport", "Large load space (L2H2)", "Diesel · licence B is enough", "Return with a full tank"],
+        lb: ["Führerschäin Kategorie B", "Grousse zouene Luedraum", "250 km pro Locatioun abegraff", "0,30 € pro Zousaz-km", "Kautioun: 300 €", "Verspéidung: 20 € / Stonn"],
+        de: ["Führerschein Kategorie B", "Großer geschlossener Laderaum", "250 km pro Miete inklusive", "0,30 € je Mehrkilometer", "Kaution: 300 €", "Verspätung: 20 € / Stunde"],
+        fr: ["Permis de conduire catégorie B", "Grand espace de chargement fermé", "250 km inclus par location", "0,30 € par km supplémentaire", "Caution : 300 €", "Retard : 20 € / heure"],
+        en: ["Category B driving licence", "Large enclosed load space", "250 km included per rental", "€0.30 per extra kilometre", "Deposit: €300", "Late return: €20 / hour"],
       },
     },
   ];
@@ -63,17 +62,22 @@
     fact("📦",v.loadSpace); fact("⚖️",v.grossWeight); fact("🏋️",v.payload); if(trailer)fact("🛞",v.braked?"Gebremst":"Ongebremst");
     if(!trailer){fact("⛽",v.fuel);fact("⚙️",v.transmission);fact("🪑",v.seats?String(v.seats)+" Sëtzplazen":"");}
     fact("🪪",v.licenseClass?"Führerschäin "+v.licenseClass:""); fact("📅",v.year?"Baujoer "+v.year:"");
-    var rows=[[trailer?"Dimensiounen":"Luedraum",v.loadSpace],["Gesamtgewiicht",v.grossWeight],["Notzlaascht",v.payload],["Brems",trailer?(v.braked?"Gebremst":"Ongebremst"):""],["Sëtzplazen",trailer?"":v.seats],["Kraftstoff",trailer?"":v.fuel],["Getriebe",trailer?"":v.transmission],["Führerschäin",v.licenseClass],["Kautioun",v.deposit==null?"":v.deposit+" €"]].filter(function(r){return r[1];});
-    var details={lb:rows,de:rows,fr:rows,en:rows}, specs=(v.features||[]).length?v.features:[desc];
-    return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:Number(v.priceDay||0),featured:!!v.featured,name:name,tagline:tagline,facts:facts,details:details,specs:{lb:specs,de:specs,fr:specs,en:specs}};
+    var rows=[[trailer?"Dimensiounen":"Luedraum",v.loadSpace],["Gesamtgewiicht",v.grossWeight],["Notzlaascht",v.payload],["Brems",trailer?(v.braked?"Gebremst":"Ongebremst"):""],["Sëtzplazen",trailer?"":v.seats],["Brennstoff / Undriff",trailer?"":v.fuel],["Boîte",trailer?"":v.transmission],["Führerschäin",v.licenseClass]].filter(function(r){return r[1];});
+    var details={lb:rows,de:rows,fr:rows,en:rows}, specs=(v.features||[]).length?v.features:[desc], specMap={lb:specs.slice(),de:specs.slice(),fr:specs.slice(),en:specs.slice()};
+    var master=/renault\s+master/i.test(v.name||"");
+    if(master){
+      specMap.lb=["Führerschäin Kategorie B","Grousse zouene Luedraum","250 km pro Locatioun abegraff","0,30 € pro Zousaz-km","Kautioun: 300 €","Verspéidung: 20 € / Stonn"];
+      specMap.de=["Führerschein Kategorie B","Großer geschlossener Laderaum","250 km pro Miete inklusive","0,30 € je Mehrkilometer","Kaution: 300 €","Verspätung: 20 € / Stunde"];
+      specMap.fr=["Permis de conduire catégorie B","Grand espace de chargement fermé","250 km inclus par location","0,30 € par km supplémentaire","Caution : 300 €","Retard : 20 € / heure"];
+      specMap.en=["Category B driving licence","Large enclosed load space","250 km included per rental","€0.30 per extra kilometre","Deposit: €300","Late return: €20 / hour"];
+    }
+    return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:master?100:Number(v.priceDay||0),name:name,tagline:tagline,facts:facts,details:details,specs:specMap};
   }
   function loadFleet() {
     return fetch("https://garage-admin.autoservicebettenduerf.lu/fleet/public", {headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw new Error("fleet");return r.json();}).then(function(data){
       var next=(data.vehicles||[]).map(fleetItem); if(!next.length)return;
-      // Ëmmer e Showcase: wann keent als "featured" markéiert ass, dat éischt Gefier huelen.
-      if(!next.some(function(x){return x.featured;})){ var hero=next.filter(function(x){return x.cat!=="trailer";})[0]||next[0]; if(hero)hero.featured=true; }
       CATALOG=next; state.selected=state.selected.filter(function(id){return CATALOG.some(function(x){return x.id===id;});});
-      if(CATALOG.length===1&&!state.selected.length)state.selected=[CATALOG[0].id]; renderCatalog(); renderSelection();
+      renderCatalog(); renderSelection();
     }).catch(function(){});
   }
 
@@ -92,7 +96,7 @@
       cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",
       cat_trailer_lbl: "Unhänger", cat_vehicle_lbl: "Gefier",
       price: "Präis op Ufro",
-      perDay: "Dag", payOnReturn: "Bezuelt bei der Retour · vollgetankt zréckbréngen", payOnReturnTrailer:"Bezuelt bei der Retour · propper zréckbréngen", featured_label: "Eise Transporter",
+      perDay: "Dag", payOnReturn: "Bezuelung beim Retour · vollgetankt zréckbréngen", payOnReturnTrailer:"Bezuelung beim Retour · propper zréckbréngen",
       select: "Auswielen", selected: "Ausgewielt", remove: "Ewechhuelen",
       sel_h: "Är Auswiel", empty: "Nach näischt ausgewielt. Wielt uewen dat gewënschte Material aus.",
       form_h: "Reservéieren",
@@ -107,7 +111,7 @@
       unavailable: "Dat ausgewielte Gefier oder Material ass an dësem Zäitraum leider net disponibel.",
       rate: "Ze vill Ufroen a kuerzer Zäit. Probéiert et w.e.g. méi spéit nach eng Kéier.",
       missing: "Fëllt w.e.g. nach aus:",
-      m_items: "op d'mannst 1 Material", m_from: "Ufanksdatum", m_to: "Enndatum",
+      m_items: "op d'mannst ee Gefier oder Material", m_from: "Ufanksdatum", m_to: "Enndatum",
       m_daterange: "en Enndatum no dem Ufank", m_name: "Numm", m_email: "eng gëlteg E-Mail", m_privacy: "Dateschutz-Zoustëmmung",
     },
     de: {
@@ -123,7 +127,7 @@
       cat_all: "Alles", cat_trailer: "Anhänger", cat_vehicle: "Fahrzeuge",
       cat_trailer_lbl: "Anhänger", cat_vehicle_lbl: "Fahrzeug",
       price: "Preis auf Anfrage",
-      perDay: "Tag", payOnReturn: "Zahlung bei Rückgabe · vollgetankt zurückbringen", payOnReturnTrailer:"Zahlung bei Rückgabe · sauber zurückbringen", featured_label: "Unser Transporter",
+      perDay: "Tag", payOnReturn: "Zahlung bei Rückgabe · vollgetankt zurückbringen", payOnReturnTrailer:"Zahlung bei Rückgabe · sauber zurückbringen",
       select: "Auswählen", selected: "Ausgewählt", remove: "Entfernen",
       sel_h: "Ihre Auswahl", empty: "Noch nichts ausgewählt. Wählen Sie oben Ihr Material.",
       form_h: "Reservieren",
@@ -138,7 +142,7 @@
       unavailable: "Das ausgewählte Fahrzeug oder Material ist in diesem Zeitraum leider nicht verfügbar.",
       rate: "Zu viele Anfragen in kurzer Zeit. Bitte versuchen Sie es später erneut.",
       missing: "Bitte ergänzen Sie noch:",
-      m_items: "mindestens 1 Material", m_from: "Startdatum", m_to: "Enddatum",
+      m_items: "mindestens ein Fahrzeug oder Material", m_from: "Startdatum", m_to: "Enddatum",
       m_daterange: "ein Enddatum nach dem Start", m_name: "Name", m_email: "eine gültige E-Mail", m_privacy: "Datenschutz-Zustimmung",
     },
     fr: {
@@ -154,7 +158,7 @@
       cat_all: "Tout", cat_trailer: "Remorques", cat_vehicle: "Véhicules",
       cat_trailer_lbl: "Remorque", cat_vehicle_lbl: "Véhicule",
       price: "Prix sur demande",
-      perDay: "jour", payOnReturn: "Paiement au retour · à rendre le plein fait", payOnReturnTrailer:"Paiement au retour · à rendre propre", featured_label: "Notre utilitaire",
+      perDay: "jour", payOnReturn: "Paiement au retour · à rendre le plein fait", payOnReturnTrailer:"Paiement au retour · à rendre propre",
       select: "Choisir", selected: "Sélectionné", remove: "Retirer",
       sel_h: "Votre sélection", empty: "Rien de sélectionné. Choisissez votre matériel ci-dessus.",
       form_h: "Réserver",
@@ -169,7 +173,7 @@
       unavailable: "Le véhicule ou le matériel sélectionné n'est malheureusement pas disponible pendant cette période.",
       rate: "Trop de demandes en peu de temps. Veuillez réessayer plus tard.",
       missing: "Veuillez compléter :",
-      m_items: "au moins 1 matériel", m_from: "date de début", m_to: "date de fin",
+      m_items: "au moins un véhicule ou matériel", m_from: "date de début", m_to: "date de fin",
       m_daterange: "une date de fin après le début", m_name: "nom", m_email: "un e-mail valide", m_privacy: "accord de confidentialité",
     },
     en: {
@@ -185,7 +189,7 @@
       cat_all: "All", cat_trailer: "Trailers", cat_vehicle: "Vehicles",
       cat_trailer_lbl: "Trailer", cat_vehicle_lbl: "Vehicle",
       price: "Price on request",
-      perDay: "day", payOnReturn: "Pay on return · bring it back with a full tank", payOnReturnTrailer:"Pay on return · return it clean", featured_label: "Our van",
+      perDay: "day", payOnReturn: "Pay on return · bring it back with a full tank", payOnReturnTrailer:"Pay on return · return it clean",
       select: "Select", selected: "Selected", remove: "Remove",
       sel_h: "Your selection", empty: "Nothing selected yet. Pick your equipment above.",
       form_h: "Reserve",
@@ -205,34 +209,41 @@
     },
   };
 
-  var state = { cat: "all", selected: [], busy: [], availabilityError: false };
+  var state = { cat: "all", selected: [], busy: [], availabilityError: false, calendarMonth: new Date(new Date().getFullYear(), new Date().getMonth(), 1) };
   var API_BASE = "https://garage-admin.autoservicebettenduerf.lu";
 
   var EXTRA = {
     lb: {
-      step1: "Schrëtt 1 vun 3 · Gefier an Zäitraum", step2: "Schrëtt 2 vun 3 · Är Donnéeën", step3: "Schrëtt 3 vun 3 · Kontrolléieren",
-      daysLabel: "Berechent Mietdauer", rateLabel: "Dagespräis", totalLabel: "Viraussiichtleche Mietpräis", priceHint: "Berechnung pro ugefaangene 24 Stonnen. Kautioun, Kilometer, Assurance an aner Konditioune ginn Iech virun der verbindlicher Bestätegung schrëftlech matgedeelt.",
+      step1: "Schrëtt 1 vun 3 · Auswiel an Zäitraum", step2: "Schrëtt 2 vun 3 · Är Donnéeën", step3: "Schrëtt 3 vun 3 · Kontrolléieren",
+      daysLabel: "Berechent Locatiounsdauer", rateLabel: "Dagespräis", totalLabel: "Viraussiichtleche Locatiounspräis", priceHint: "100 € pro ugefaangene 24 Stonnen · 250 km pro Locatioun abegraff · duerno 0,30 €/km · Kautioun 300 € · Verspéidung 20 €/Stonn.",
       trustEye: "Lokal · transparent · perséinlech", trustTitle: "Äre Transporter, direkt bei Ärer Garage", trust: [["An der eegener Garage betreit", "D’Gefier gëtt vun eis kontrolléiert a reegelméisseg ënnerhalen."], ["Lokal Ofhuelung", "Perséinlech Iwwergab beim Autoservice Bettenduerf zu Bettendorf."], ["Eng richteg Kontaktpersoun", "Mir kontrolléieren all Ufro a klären oppe Froen direkt mat Iech."]],
-      faqEye: "Gutt ze wëssen", faqTitle: "Heefeg Froen zum Verlee", faq: [["Ass meng Online-Ufro direkt verbindlech?", "Nee. Mir kontrolléieren d’Disponibilitéit an d’Konditiounen a schécken Iech duerno eng perséinlech Bestätegung."], ["Wéi ee Führerschäin brauch ech?", "Fir de Renault Master geet d’Kategorie B duer. De gültege Führerschäin an en Identitéitsdokument ginn bei der Iwwergab kontrolléiert."], ["Wéi gëtt de Mietpräis berechent?", "D’Schätzung baséiert op 80 € pro ugefaangene 24 Stonnen. Déi definitiv Konditioune stinn an eiser Bestätegung."], ["Wou sinn Ofhuelung a Retour?", "Beim Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, zu der bestätegter Auerzäit."], ["Wéi muss d’Gefier zréckkommen?", "Zu der vereinbarter Zäit a vollgetankt. Wann Dir Iech verspéit, kontaktéiert eis w.e.g. direkt."], ["Darf ech an d’Ausland fueren?", "Gitt geplangten Auslandsfaarte bei der Ufro un. Mir bestätegen Iech virum Verlee, ob a wéi eng Länner erlaabt sinn."]]
+      faqEye: "Gutt ze wëssen", faqTitle: "Heefeg Froen zur Locatioun", faq: [["Ass meng Online-Ufro direkt verbindlech?", "Nee. Mir kontrolléieren d’Disponibilitéit an d’Konditiounen a schécken Iech duerno eng perséinlech Bestätegung."], ["Wéi ee Führerschäin brauch ech?", "Déi néideg Kategorie steet beim jeeweilege Gefier oder Unhänger. Si hänkt vum gelounte Material, dem Zuchgefier an den zougeloossene Gesamtmassen of a gëtt virun der Iwwergab kontrolléiert."], ["Wat muss ech bei der Ofhuelung matbréngen?", "Eng gülteg Identitéitskaart oder e Pass, de passende gültege Führerschäin an Är Reservatiounsbestätegung. Dat gëllt och fir all zousätzlech Persoun, déi fuere soll."], ["Däerf eng aner Persoun fueren?", "Nëmme Persounen, déi virun der Iwwergab ugemellt, kontrolléiert an am Bail agedroe goufen, däerfen d’Gefier oder d’Gespan féieren."], ["Wéi gëtt de Präis berechent?", "Dagespräis, abegraff Kilometer, Zousazkilometer, Kautioun an eventuell Verspéidungskäschte stinn direkt beim jeeweilege Gefier oder Material an an Ärer Bestätegung."], ["Kann ech d’Reservatioun änneren, annuléieren oder verlängeren?", "Kontaktéiert eis esou fréi wéi méiglech. Eng Verlängerung ass nëmme mat eiser Bestätegung a wann d’Material disponibel ass méiglech. Eventuell Käschte ginn Iech virun der Ännerung matgedeelt."], ["Wou sinn Ofhuelung a Retour?", "Beim Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, zu der bestätegter Auerzäit."], ["Wéi muss d’Material zréckkommen?", "Zu der vereinbarter Zäit, propper an am vereinbarte Brennstoff- oder Luedzoustand. Déi genee Reegelen hänke vum gelounte Gefier oder Material of. Kontaktéiert eis bei enger Verspéidung direkt."], ["Wat maachen ech bei engem Accident, enger Pann oder engem Schued?", "Sécher d’Plaz of, alarméiert wann néideg d’Rettungsdéngschter oder d’Police, dokumentéiert alles mat Fotoen a kontaktéiert eis direkt. Maacht keng Reparatur ouni eis Zoustëmmung."], ["Däerf ech an d’Ausland fueren?", "Gitt geplangten Auslandsfaarte bei der Ufro un. Mir bestätegen Iech virun der Locatioun, ob a wéi eng Länner erlaabt sinn."]]
     },
     de: {
-      step1: "Schritt 1 von 3 · Fahrzeug und Zeitraum", step2: "Schritt 2 von 3 · Ihre Daten", step3: "Schritt 3 von 3 · Prüfen",
-      daysLabel: "Berechnete Mietdauer", rateLabel: "Tagespreis", totalLabel: "Voraussichtlicher Mietpreis", priceHint: "Berechnung pro angefangenen 24 Stunden. Kaution, Kilometer, Versicherung und weitere Bedingungen werden Ihnen vor der verbindlichen Bestätigung schriftlich mitgeteilt.",
+      step1: "Schritt 1 von 3 · Auswahl und Zeitraum", step2: "Schritt 2 von 3 · Ihre Daten", step3: "Schritt 3 von 3 · Prüfen",
+      daysLabel: "Berechnete Mietdauer", rateLabel: "Tagespreis", totalLabel: "Voraussichtlicher Mietpreis", priceHint: "100 € je angefangene 24 Stunden · 250 km pro Miete inklusive · danach 0,30 €/km · Kaution 300 € · Verspätung 20 €/Stunde.",
       trustEye: "Lokal · transparent · persönlich", trustTitle: "Ihr Transporter, direkt bei Ihrer Garage", trust: [["In der eigenen Werkstatt betreut", "Das Fahrzeug wird von uns kontrolliert und regelmäßig gewartet."], ["Lokale Abholung", "Persönliche Übergabe beim Autoservice Bettenduerf in Bettendorf."], ["Ein echter Ansprechpartner", "Wir prüfen jede Anfrage und klären offene Fragen direkt mit Ihnen."]],
-      faqEye: "Gut zu wissen", faqTitle: "Häufige Fragen zum Verleih", faq: [["Ist meine Online-Anfrage sofort verbindlich?", "Nein. Wir prüfen Verfügbarkeit und Bedingungen und senden Ihnen anschließend eine persönliche Bestätigung."], ["Welchen Führerschein benötige ich?", "Für den Renault Master genügt Klasse B. Gültiger Führerschein und Ausweis werden bei der Übergabe geprüft."], ["Wie wird der Mietpreis berechnet?", "Die Schätzung basiert auf 80 € pro angefangenen 24 Stunden. Die endgültigen Bedingungen stehen in unserer Bestätigung."], ["Wo erfolgen Abholung und Rückgabe?", "Beim Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, zur bestätigten Uhrzeit."], ["Wie muss das Fahrzeug zurückgegeben werden?", "Zur vereinbarten Zeit und vollgetankt. Bei einer Verspätung kontaktieren Sie uns bitte sofort."], ["Darf ich ins Ausland fahren?", "Geben Sie geplante Auslandsfahrten in der Anfrage an. Wir bestätigen vor der Vermietung, ob und welche Länder erlaubt sind."]]
+      faqEye: "Gut zu wissen", faqTitle: "Häufige Fragen zum Verleih", faq: [["Ist meine Online-Anfrage sofort verbindlich?", "Nein. Wir prüfen Verfügbarkeit und Bedingungen und senden Ihnen anschließend eine persönliche Bestätigung."], ["Welchen Führerschein benötige ich?", "Die erforderliche Kategorie steht beim jeweiligen Fahrzeug oder Anhänger. Sie hängt vom Mietobjekt, Zugfahrzeug und den zulässigen Gesamtmassen ab und wird vor der Übergabe geprüft."], ["Was muss ich bei der Abholung mitbringen?", "Einen gültigen Personalausweis oder Reisepass, den passenden gültigen Führerschein und Ihre Reservierungsbestätigung. Dies gilt auch für jeden zusätzlichen Fahrer."], ["Darf eine andere Person fahren?", "Nur Personen, die vor der Übergabe angemeldet, geprüft und im Mietvertrag eingetragen wurden, dürfen das Fahrzeug oder Gespann führen."], ["Wie wird der Mietpreis berechnet?", "Tagespreis, enthaltene Kilometer, Mehrkilometer, Kaution und mögliche Verspätungskosten stehen direkt beim jeweiligen Mietobjekt und in Ihrer Bestätigung."], ["Kann ich die Reservierung ändern, stornieren oder verlängern?", "Kontaktieren Sie uns so früh wie möglich. Eine Verlängerung ist nur nach unserer Bestätigung und bei verfügbarer Kapazität möglich. Etwaige Kosten teilen wir Ihnen vor der Änderung mit."], ["Wo erfolgen Abholung und Rückgabe?", "Beim Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, zur bestätigten Uhrzeit."], ["Wie muss das Mietobjekt zurückgegeben werden?", "Zur vereinbarten Zeit, sauber und mit dem vereinbarten Kraftstoff- oder Ladestand. Die genauen Regeln hängen vom Mietobjekt ab. Bitte kontaktieren Sie uns bei einer Verspätung sofort."], ["Was mache ich bei Unfall, Panne oder Schaden?", "Sichern Sie die Stelle, verständigen Sie bei Bedarf Rettungsdienst oder Polizei, dokumentieren Sie alles mit Fotos und kontaktieren Sie uns sofort. Nehmen Sie ohne unsere Zustimmung keine Reparatur vor."], ["Darf ich ins Ausland fahren?", "Geben Sie geplante Auslandsfahrten in der Anfrage an. Wir bestätigen vor der Vermietung, ob und welche Länder erlaubt sind."]]
     },
     fr: {
-      step1: "Étape 1 sur 3 · Véhicule et période", step2: "Étape 2 sur 3 · Vos coordonnées", step3: "Étape 3 sur 3 · Vérification",
-      daysLabel: "Durée de location calculée", rateLabel: "Tarif journalier", totalLabel: "Prix de location estimé", priceHint: "Calcul par tranche de 24 heures entamée. La caution, le kilométrage, l’assurance et les autres conditions vous sont communiqués par écrit avant la confirmation ferme.",
+      step1: "Étape 1 sur 3 · Sélection et période", step2: "Étape 2 sur 3 · Vos coordonnées", step3: "Étape 3 sur 3 · Vérification",
+      daysLabel: "Durée de location calculée", rateLabel: "Tarif journalier", totalLabel: "Prix de location estimé", priceHint: "100 € par tranche de 24 heures entamée · 250 km par location inclus · puis 0,30 €/km · caution 300 € · retard 20 €/heure.",
       trustEye: "Local · transparent · personnel", trustTitle: "Votre utilitaire, directement auprès de votre garage", trust: [["Entretenu dans notre atelier", "Le véhicule est contrôlé et entretenu régulièrement par nos soins."], ["Enlèvement local", "Remise personnelle chez Autoservice Bettenduerf à Bettendorf."], ["Un interlocuteur réel", "Nous vérifions chaque demande et clarifions directement avec vous les questions ouvertes."]],
-      faqEye: "Bon à savoir", faqTitle: "Questions fréquentes sur la location", faq: [["Ma demande en ligne est-elle immédiatement ferme ?", "Non. Nous vérifions la disponibilité et les conditions, puis vous envoyons une confirmation personnelle."], ["Quel permis me faut-il ?", "Le permis B suffit pour le Renault Master. Le permis valable et une pièce d’identité sont contrôlés lors de la remise."], ["Comment le prix est-il calculé ?", "L’estimation est basée sur 80 € par tranche de 24 heures entamée. Les conditions définitives figurent dans notre confirmation."], ["Où ont lieu l’enlèvement et le retour ?", "Chez Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, à l’heure confirmée."], ["Comment restituer le véhicule ?", "À l’heure convenue et avec le plein. En cas de retard, contactez-nous immédiatement."], ["Puis-je circuler à l’étranger ?", "Indiquez les trajets à l’étranger dans votre demande. Nous vous confirmons avant la location les pays autorisés."]]
+      faqEye: "Bon à savoir", faqTitle: "Questions fréquentes sur la location", faq: [["Ma demande en ligne est-elle immédiatement ferme ?", "Non. Nous vérifions la disponibilité et les conditions, puis vous envoyons une confirmation personnelle."], ["Quel permis me faut-il ?", "La catégorie requise est indiquée pour chaque véhicule ou remorque. Elle dépend du matériel loué, du véhicule tracteur et des masses maximales autorisées et est contrôlée avant la remise."], ["Que dois-je apporter lors de l’enlèvement ?", "Une carte d’identité ou un passeport valable, le permis de conduire valable correspondant et votre confirmation de réservation. Ces documents sont également requis pour chaque conducteur supplémentaire."], ["Une autre personne peut-elle conduire ?", "Seules les personnes déclarées, contrôlées et inscrites au contrat avant la remise peuvent conduire le véhicule ou l’ensemble attelé."], ["Comment le prix est-il calculé ?", "Le tarif journalier, les kilomètres inclus, les kilomètres supplémentaires, la caution et les éventuels frais de retard sont indiqués pour chaque matériel loué et dans votre confirmation."], ["Puis-je modifier, annuler ou prolonger la réservation ?", "Contactez-nous le plus tôt possible. Toute prolongation nécessite notre confirmation et dépend de la disponibilité. Les éventuels frais vous sont communiqués avant la modification."], ["Où ont lieu l’enlèvement et le retour ?", "Chez Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, à l’heure confirmée."], ["Comment restituer le matériel loué ?", "À l’heure convenue, propre et avec le niveau de carburant ou de charge convenu. Les règles précises dépendent du matériel loué. Contactez-nous immédiatement en cas de retard."], ["Que faire en cas d’accident, de panne ou de dommage ?", "Sécurisez les lieux, prévenez si nécessaire les secours ou la police, documentez la situation avec des photos et contactez-nous immédiatement. N’effectuez aucune réparation sans notre accord."], ["Puis-je circuler à l’étranger ?", "Indiquez les trajets à l’étranger dans votre demande. Nous vous confirmons avant la location les pays autorisés."]]
     },
     en: {
-      step1: "Step 1 of 3 · Vehicle and period", step2: "Step 2 of 3 · Your details", step3: "Step 3 of 3 · Review",
-      daysLabel: "Calculated rental duration", rateLabel: "Daily rate", totalLabel: "Estimated rental price", priceHint: "Calculated per started 24-hour period. Deposit, mileage, insurance and other conditions are provided in writing before binding confirmation.",
+      step1: "Step 1 of 3 · Selection and period", step2: "Step 2 of 3 · Your details", step3: "Step 3 of 3 · Review",
+      daysLabel: "Calculated rental duration", rateLabel: "Daily rate", totalLabel: "Estimated rental price", priceHint: "€100 per started 24-hour period · 250 km per rental included · then €0.30/km · €300 deposit · late return €20/hour.",
       trustEye: "Local · transparent · personal", trustTitle: "Your van, directly from your local garage", trust: [["Maintained in our own workshop", "The vehicle is inspected and regularly maintained by us."], ["Local collection", "Personal handover at Autoservice Bettenduerf in Bettendorf."], ["A real contact person", "We review every request and clarify open questions directly with you."]],
-      faqEye: "Good to know", faqTitle: "Frequently asked rental questions", faq: [["Is my online request immediately binding?", "No. We check availability and conditions, then send you a personal confirmation."], ["Which driving licence do I need?", "Category B is sufficient for the Renault Master. A valid licence and ID are checked at handover."], ["How is the rental price calculated?", "The estimate is based on €80 per started 24-hour period. Final conditions are included in our confirmation."], ["Where are collection and return?", "At Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, at the confirmed time."], ["How must the vehicle be returned?", "At the agreed time and with a full tank. If delayed, please contact us immediately."], ["May I drive abroad?", "Mention planned cross-border trips in your request. We confirm the permitted countries before rental."]]
+      faqEye: "Good to know", faqTitle: "Frequently asked rental questions", faq: [["Is my online request immediately binding?", "No. We check availability and conditions, then send you a personal confirmation."], ["Which driving licence do I need?", "The required category is shown for each vehicle or trailer. It depends on the rented item, towing vehicle and permitted gross weights and is checked before handover."], ["What must I bring when collecting the rental?", "A valid identity card or passport, the appropriate valid driving licence and your reservation confirmation. The same documents are required for every additional driver."], ["May another person drive?", "Only people declared, checked and listed in the rental agreement before handover may drive the vehicle or vehicle-trailer combination."], ["How is the rental price calculated?", "The daily rate, included mileage, additional mileage, deposit and possible late-return charges are shown for each rented item and in your confirmation."], ["Can I change, cancel or extend the reservation?", "Contact us as early as possible. An extension requires our confirmation and depends on availability. Any applicable charges are communicated before the change."], ["Where are collection and return?", "At Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, at the confirmed time."], ["How must the rented item be returned?", "At the agreed time, clean and with the agreed fuel or charge level. The exact rules depend on the rented item. Contact us immediately if delayed."], ["What should I do after an accident, breakdown or damage?", "Secure the location, contact emergency services or police if necessary, document everything with photos and contact us immediately. Do not arrange repairs without our approval."], ["May I drive abroad?", "Mention planned cross-border trips in your request. We confirm the permitted countries before rental."]]
     }
+  };
+
+  var CALENDAR_TEXT = {
+    lb: { kicker:"Live-Disponibilitéit", title:"Fräi Datumer kucken", help:"Tippt op e fräien Dag fir den Ufank an duerno op den Enndag.", free:"Fräi", busy:"Besat", past:"Net buchbar", prev:"Mount virdrun", next:"Nächste Mount", weekdays:["Mé","Dë","Më","Do","Fr","Sa","So"] },
+    de: { kicker:"Live-Verfügbarkeit", title:"Freie Termine ansehen", help:"Tippen Sie auf einen freien Starttag und anschließend auf den Endtag.", free:"Frei", busy:"Belegt", past:"Nicht buchbar", prev:"Vorheriger Monat", next:"Nächster Monat", weekdays:["Mo","Di","Mi","Do","Fr","Sa","So"] },
+    fr: { kicker:"Disponibilité en direct", title:"Voir les dates disponibles", help:"Touchez un jour libre pour le début, puis le jour de fin.", free:"Libre", busy:"Occupé", past:"Non réservable", prev:"Mois précédent", next:"Mois suivant", weekdays:["Lu","Ma","Me","Je","Ve","Sa","Di"] },
+    en: { kicker:"Live availability", title:"See available dates", help:"Tap a free start day, then tap the end day.", free:"Available", busy:"Booked", past:"Unavailable", prev:"Previous month", next:"Next month", weekdays:["Mo","Tu","We","Th","Fr","Sa","Su"] }
   };
 
   function lang() {
@@ -257,8 +268,8 @@
     license_title: "Führerschäin",
     license_text: "Déi néideg Kategorie hänkt vum Gefier, dem Unhänger an der zulässeger Gesamtmass of a gëtt virum Verlee kontrolléiert.",
     terms_title: "Konditiounen",
-    terms_text: "Kautioun, Assurance, Kilometer, Ofhuelung, Retour a Storno gi virun der Bestätegung transparent matgedeelt.",
-    availability_note: "D’Disponibilitéit gëtt no Ärer Ufro manuell kontrolléiert.",
+    terms_text: "Assurance, Kilometer, Ofhuelung, Retour a Storno gi virun der Bestätegung transparent matgedeelt.",
+    availability_note: "De Live-Kalenner weist déi aktuell Beleeung. Mir bestätegen all Ufro nach eemol perséinlech.",
     m_past: "en Datum an eng Auerzäit vun elo un"
   });
   Object.assign(T.de, {
@@ -274,7 +285,7 @@
     license_text: "Die erforderliche Klasse hängt von Fahrzeug, Anhänger und zulässiger Gesamtmasse ab und wird vor der Vermietung geprüft.",
     terms_title: "Bedingungen",
     terms_text: "Kaution, Versicherung, Kilometer, Abholung, Rückgabe und Stornierung werden vor der Bestätigung transparent mitgeteilt.",
-    availability_note: "Die Verfügbarkeit wird nach Ihrer Anfrage manuell geprüft.",
+    availability_note: "Der Live-Kalender zeigt die aktuelle Belegung. Jede Anfrage wird zusätzlich persönlich bestätigt.",
     m_past: "ein Datum und eine Uhrzeit ab jetzt"
   });
   Object.assign(T.fr, {
@@ -289,8 +300,8 @@
     license_title: "Permis de conduire",
     license_text: "La catégorie requise dépend du véhicule, de la remorque et de la masse maximale autorisée; elle est vérifiée avant la location.",
     terms_title: "Conditions",
-    terms_text: "La caution, l’assurance, le kilométrage, l’enlèvement, le retour et l’annulation sont communiqués clairement avant confirmation.",
-    availability_note: "La disponibilité est vérifiée manuellement après votre demande.",
+    terms_text: "L’assurance, le kilométrage, l’enlèvement, le retour et l’annulation sont communiqués clairement avant confirmation.",
+    availability_note: "Le calendrier en direct affiche l’occupation actuelle. Chaque demande est ensuite confirmée personnellement.",
     m_past: "une date et une heure à partir de maintenant"
   });
   Object.assign(T.en, {
@@ -305,8 +316,8 @@
     license_title: "Driving licence",
     license_text: "The required category depends on the vehicle, trailer and permitted gross weight and is checked before rental.",
     terms_title: "Conditions",
-    terms_text: "Deposit, insurance, mileage, collection, return and cancellation terms are communicated clearly before confirmation.",
-    availability_note: "Availability is checked manually after your request.",
+    terms_text: "Insurance, mileage, collection, return and cancellation terms are communicated clearly before confirmation.",
+    availability_note: "The live calendar shows current occupancy. Every request is also confirmed personally.",
     m_past: "a date and time from now onwards"
   });
 
@@ -314,8 +325,8 @@
     review_title: "Ufro iwwerpréiwen", review_items: "Auswiel", review_period: "Zäitraum",
     review_contact: "Kontakt", review_empty: "Nach näischt ausgewielt", review_missing: "Nach net uginn",
     review_hint: "Kontrolléiert dës Donnéeën, ier Dir d’Ufro schéckt.",
-    terms_html: "Ech hunn déi <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">virleefeg Mietinformatiounen</a> gelies.",
-    m_terms: "Bestätegung vun de Mietinformatiounen",
+    terms_html: "Ech hunn d’<a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">Locatiouns- a Reservatiounsinformatiounen</a> gelies.",
+    m_terms: "Bestätegung vun de Locatiounsinformatiounen",
     busy_title: "Am gewielten Zäitraum net disponibel:",
     busy_hint: "Wielt w.e.g. aner Datumer – oder frot trotzdem un, mir kucken no.",
     busy_period: "schonn reservéiert", availability_error: "D’Live-Disponibilitéit konnt net geluede ginn. Dir kënnt d’Ufro trotzdem schécken; mir kontrolléieren den Zäitraum virun der Bestätegung."
@@ -324,7 +335,7 @@
     review_title: "Anfrage überprüfen", review_items: "Auswahl", review_period: "Zeitraum",
     review_contact: "Kontakt", review_empty: "Noch nichts ausgewählt", review_missing: "Noch nicht angegeben",
     review_hint: "Prüfen Sie diese Angaben, bevor Sie die Anfrage senden.",
-    terms_html: "Ich habe die <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">vorläufigen Mietinformationen</a> gelesen.",
+    terms_html: "Ich habe die <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">Miet- und Reservierungsinformationen</a> gelesen.",
     m_terms: "Bestätigung der Mietinformationen",
     busy_title: "Im gewählten Zeitraum nicht verfügbar:",
     busy_hint: "Bitte wählen Sie andere Daten – oder fragen Sie trotzdem an, wir prüfen es.",
@@ -334,7 +345,7 @@
     review_title: "Vérifier la demande", review_items: "Sélection", review_period: "Période",
     review_contact: "Contact", review_empty: "Aucun élément sélectionné", review_missing: "Non renseigné",
     review_hint: "Vérifiez ces informations avant d’envoyer la demande.",
-    terms_html: "J’ai lu les <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">informations provisoires de location</a>.",
+    terms_html: "J’ai lu les <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">informations de location et de réservation</a>.",
     m_terms: "confirmation des informations de location",
     busy_title: "Indisponible sur la période choisie :",
     busy_hint: "Veuillez choisir d’autres dates – ou envoyez quand même la demande, nous vérifierons.",
@@ -344,7 +355,7 @@
     review_title: "Review request", review_items: "Selection", review_period: "Period",
     review_contact: "Contact", review_empty: "Nothing selected yet", review_missing: "Not provided yet",
     review_hint: "Check these details before sending your request.",
-    terms_html: "I have read the <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">preliminary rental information</a>.",
+    terms_html: "I have read the <a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">rental and reservation information</a>.",
     m_terms: "confirmation of the rental information",
     busy_title: "Unavailable for the selected period:",
     busy_hint: "Please choose other dates – or send the request anyway, we'll check.",
@@ -367,7 +378,6 @@
     CATALOG.forEach(function (it) {
       if (state.cat !== "all" && it.cat !== state.cat) return;
       var picked = state.selected.indexOf(it.id) !== -1;
-      if (it.featured) { grid.appendChild(featureCard(it, L, m, picked)); return; }
       var card = document.createElement("article");
       card.className = "rental-card" + (picked ? " is-selected" : "");
       var specs = (it.specs[L] || it.specs.lb)
@@ -394,34 +404,6 @@
     });
   }
 
-  function featureCard(it, L, m, picked) {
-    var card = document.createElement("article");
-    card.className = "rental-feature" + (picked ? " is-selected" : "");
-    var facts = (it.facts || []).map(function (f) {
-      return '<li><span class="vf-ic" aria-hidden="true">' + f.ic + "</span>" + (f[L] || f.lb) + "</li>";
-    }).join("");
-    var cta = picked ? "✓ " + m.selected : m.select;
-    var details = ((it.details && (it.details[L] || it.details.lb)) || []).map(function (row) {
-      return '<div><dt>' + row[0] + '</dt><dd>' + row[1] + '</dd></div>';
-    }).join("");
-    card.innerHTML =
-      '<div class="vf-media"><span class="rental-ribbon">' + catLabel(it.cat) + "</span>" +
-      '<img class="rental-photo" src="' + it.img + '" alt="' + (it.name[L] || it.name.lb) + '" loading="lazy" decoding="async" /></div>' +
-      '<div class="vf-info">' +
-      '<p class="vf-eyebrow">' + m.featured_label + "</p>" +
-      "<h3>" + (it.name[L] || it.name.lb) + "</h3>" +
-      (it.tagline ? '<p class="vf-lead">' + (it.tagline[L] || it.tagline.lb) + "</p>" : "") +
-      '<ul class="vf-facts">' + facts + "</ul>" +
-      '<details class="vf-details"><summary>' + ({ lb: "Gefierdetailer", de: "Fahrzeugdetails", fr: "Détails du véhicule", en: "Vehicle details" }[L] || "Fahrzeugdetails") + '</summary><dl>' + details + '</dl></details>' +
-      '<div class="vf-foot">' +
-      '<div class="vf-price"><span class="vf-amount">' + it.priceDay + ' €</span><span class="vf-unit"> / ' + m.perDay + "</span></div>" +
-      '<button type="button" class="btn btn-primary rental-select" data-id="' + it.id + '">' + cta + "</button>" +
-      "</div>" +
-      '<p class="vf-note">💶 ' + m.payOnReturn + "</p>" +
-      "</div>";
-    return card;
-  }
-
   function renderSelection() {
     var m = t();
     var list = $("rental-sel-list"), empty = $("rental-empty");
@@ -444,15 +426,6 @@
       });
     }
     // Hidden field used by the server-side bot protection
-    var hidden = $("rental-hidden-items");
-    if (hidden) {
-      hidden.value = state.selected
-        .map(function (id) {
-          var it = CATALOG.filter(function (x) { return x.id === id; })[0];
-          return it ? it.name.de : id;
-        })
-        .join(", ");
-    }
     updateReview();
   }
 
@@ -523,28 +496,144 @@
     } catch (e) { state.busy = []; state.availabilityError = true; renderAvailability(); }
   }
 
+  function itemMatchesBooking(it, booking) {
+    var key = (it.name.de || it.name.lb).toLowerCase();
+    var type = it.cat === "trailer" ? "trailer" : (it.icon === "car" ? "car" : "van");
+    return String(booking.veh || "").split(",").some(function (raw) {
+      var n = raw.trim().toLowerCase();
+      if (n === key || n.indexOf(key) !== -1 || key.indexOf(n) !== -1) return true;
+      if (type === "van") return /transporter|lieferwagen|utilitaire|\bvan\b/.test(n);
+      if (type === "trailer") return /anhänger|unhänger|remorque|trailer/.test(n);
+      return /personenwagen|voiture|\bauto\b|\bcar\b/.test(n);
+    });
+  }
+
+  function selectedBusyIntervals() {
+    var intervals = [];
+    state.selected.forEach(function (id) {
+      var it = CATALOG.filter(function (x) { return x.id === id; })[0];
+      if (!it) return;
+      state.busy.forEach(function (b) {
+        if (itemMatchesBooking(it, b)) intervals.push({ item: it, from: b.from, to: b.to });
+      });
+    });
+    return intervals;
+  }
+
+  function isoDay(date) {
+    return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+  }
+
+  function fillRentalTimes() {
+    [["r-from-time", "08:00"], ["r-to-time", "17:00"]].forEach(function (entry) {
+      var select = $(entry[0]); if (!select) return;
+      select.innerHTML = "";
+      for (var minutes = 6 * 60; minutes <= 19 * 60; minutes += 30) {
+        var value = String(Math.floor(minutes / 60)).padStart(2, "0") + ":" + String(minutes % 60).padStart(2, "0");
+        var option = document.createElement("option"); option.value = value; option.textContent = value;
+        if (value === entry[1]) option.defaultSelected = true;
+        select.appendChild(option);
+      }
+      select.value = entry[1];
+    });
+  }
+
+  function syncRentalDateTime(prefix) {
+    var hidden = $(prefix), date = $(prefix + "-date"), time = $(prefix + "-time");
+    if (hidden) hidden.value = date && date.value && time && time.value ? date.value + "T" + time.value : "";
+    if (prefix === "r-from") {
+      var toDate = $("r-to-date"); if (toDate) toDate.min = date && date.value ? date.value : toDate.min;
+    }
+  }
+
+  function setRentalDateTime(prefix, date, time) {
+    var dateInput = $(prefix + "-date"), timeInput = $(prefix + "-time");
+    if (dateInput) dateInput.value = date || "";
+    if (timeInput && time) timeInput.value = time;
+    syncRentalDateTime(prefix);
+  }
+
+  function calendarDayStatus(date) {
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    if (date < today) return "past";
+    var current = new Date();
+    if (date.getTime() === today.getTime() && current.getHours() * 60 + current.getMinutes() >= 18 * 60 + 30) return "past";
+    if (state.availabilityError) return "unknown";
+    var start = isoDay(date) + "T00:00";
+    var nextDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    var end = isoDay(nextDate) + "T00:00";
+    var hits = selectedBusyIntervals().filter(function (b) { return b.from < end && b.to > start; });
+    if (!hits.length) return "free";
+    return "busy";
+  }
+
+  function renderCalendar() {
+    var shell = $("rental-calendar"), grid = $("rental-calendar-grid"), weekdays = $("rental-calendar-weekdays");
+    if (!shell || !grid || !weekdays) return;
+    shell.hidden = !state.selected.length;
+    if (!state.selected.length) return;
+    var c = CALENDAR_TEXT[lang()] || CALENDAR_TEXT.lb;
+    setTxt("rental-calendar-kicker", c.kicker); setTxt("rental-calendar-title", c.title);
+    setTxt("rental-calendar-help", c.help); setTxt("rental-calendar-free", c.free);
+    setTxt("rental-calendar-busy-label", c.busy); setTxt("rental-calendar-past", c.past);
+    var prev = $("rental-calendar-prev"), next = $("rental-calendar-next");
+    if (prev) prev.setAttribute("aria-label", c.prev); if (next) next.setAttribute("aria-label", c.next);
+    weekdays.innerHTML = c.weekdays.map(function (d) { return "<span>" + d + "</span>"; }).join("");
+    var month = state.calendarMonth;
+    setTxt("rental-calendar-month", new Intl.DateTimeFormat(lang() === "lb" ? "lb-LU" : lang(), { month:"long", year:"numeric" }).format(month));
+    var firstOffset = (month.getDay() + 6) % 7;
+    var count = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+    var fromValue = (($("r-from") || {}).value || "").slice(0, 10), toValue = (($("r-to") || {}).value || "").slice(0, 10);
+    var html = "";
+    for (var blank = 0; blank < firstOffset; blank++) html += '<span class="rental-calendar-blank" aria-hidden="true"></span>';
+    for (var day = 1; day <= count; day++) {
+      var date = new Date(month.getFullYear(), month.getMonth(), day), iso = isoDay(date), status = calendarDayStatus(date);
+      var chosen = iso === fromValue || iso === toValue, inRange = fromValue && toValue && iso > fromValue && iso < toValue;
+      var disabled = status !== "free";
+      var label = iso + " – " + (c[status] || c.past);
+      html += '<button type="button" role="gridcell" class="rental-calendar-day is-' + status + (chosen ? " is-chosen" : "") + (inRange ? " is-range" : "") + '" data-date="' + iso + '" aria-label="' + label + '"' + (disabled ? " disabled" : "") + '><span>' + day + '</span></button>';
+    }
+    grid.innerHTML = html;
+  }
+
+  function selectCalendarDay(iso) {
+    var from = $("r-from"), to = $("r-to"); if (!from || !to) return;
+    var start = from.value.slice(0, 10), end = to.value.slice(0, 10);
+    if (!start || (start && end) || iso < start) {
+      var startTime = "08:00", now = new Date();
+      if (iso === isoDay(now)) {
+        var rounded = Math.ceil((now.getHours() * 60 + now.getMinutes()) / 30) * 30;
+        rounded = Math.max(6 * 60, Math.min(19 * 60, rounded));
+        startTime = String(Math.floor(rounded / 60)).padStart(2, "0") + ":" + String(rounded % 60).padStart(2, "0");
+      }
+      setRentalDateTime("r-from", iso, startTime); setRentalDateTime("r-to", "", "17:00");
+    } else {
+      setRentalDateTime("r-to", iso, "17:00");
+      if (to.value <= from.value) {
+        var parts = from.value.slice(11).split(":"), nextMinutes = Math.min(19 * 60, Number(parts[0]) * 60 + Number(parts[1]) + 30);
+        var nextTime = String(Math.floor(nextMinutes / 60)).padStart(2, "0") + ":" + String(nextMinutes % 60).padStart(2, "0");
+        setRentalDateTime("r-to", iso, nextTime);
+      }
+    }
+    updateReview();
+  }
+
   function busyForSelection() {
     var from = $("r-from"), to = $("r-to");
     var cFrom = from && from.value, cTo = to && to.value;
     if (!cFrom || !cTo || cTo <= cFrom || !state.selected.length) return [];
     var hits = [];
-    state.selected.forEach(function (id) {
-      var it = CATALOG.filter(function (x) { return x.id === id; })[0];
-      if (!it) return;
-      var key = (it.name.de || it.name.lb).toLowerCase();
-      state.busy.forEach(function (b) {
-        var names = String(b.veh || "").split(",").map(function (s) { return s.trim().toLowerCase(); });
-        // ISO "YYYY-MM-DDTHH:MM" strings compare correctly lexicographically
-        if (names.indexOf(key) !== -1 && b.from < cTo && b.to > cFrom) {
-          hits.push({ name: it.name[lang()] || it.name.lb, from: b.from, to: b.to });
-        }
-      });
+    selectedBusyIntervals().forEach(function (b) {
+      if (b.from < cTo && b.to > cFrom) {
+        hits.push({ name: b.item.name[lang()] || b.item.name.lb, from: b.from, to: b.to });
+      }
     });
     return hits;
   }
 
   function renderAvailability() {
     var box = $("rental-busy");
+    renderCalendar();
     if (!box) return;
     var m = t();
     if (state.availabilityError) {
@@ -585,6 +674,9 @@
     setTxt("rental-form-h", m.form_h);
     setTxt("lbl-r-from", m.from);
     setTxt("lbl-r-to", m.to);
+    var fromTime = $("r-from-time"), toTime = $("r-to-time");
+    if (fromTime) fromTime.setAttribute("aria-label", m.from + " · 06:00–19:00");
+    if (toTime) toTime.setAttribute("aria-label", m.to + " · 06:00–19:00");
     setTxt("lbl-r-name", m.name);
     setTxt("lbl-r-email", m.email);
     setTxt("lbl-r-phone", m.phone);
@@ -653,10 +745,28 @@
       });
   }
 
+  function wireCalendar() {
+    var grid = $("rental-calendar-grid"), prev = $("rental-calendar-prev"), next = $("rental-calendar-next");
+    if (grid) grid.addEventListener("click", function (e) {
+      var day = e.target.closest(".rental-calendar-day[data-date]");
+      if (day && !day.disabled) selectCalendarDay(day.getAttribute("data-date"));
+    });
+    if (prev) prev.addEventListener("click", function () {
+      var current = new Date(); current = new Date(current.getFullYear(), current.getMonth(), 1);
+      var candidate = new Date(state.calendarMonth.getFullYear(), state.calendarMonth.getMonth() - 1, 1);
+      if (candidate >= current) state.calendarMonth = candidate;
+      renderCalendar();
+    });
+    if (next) next.addEventListener("click", function () {
+      state.calendarMonth = new Date(state.calendarMonth.getFullYear(), state.calendarMonth.getMonth() + 1, 1);
+      renderCalendar();
+    });
+  }
+
   function mark(el, bad) {
     if (!el) return;
-    if (bad) el.classList.add("field-invalid");
-    else el.classList.remove("field-invalid");
+    var targets = el.type === "hidden" ? document.querySelectorAll('.rental-datetime[data-for="' + el.id + '"] input, .rental-datetime[data-for="' + el.id + '"] select') : [el];
+    targets.forEach(function (target) { target.classList.toggle("field-invalid", !!bad); });
   }
 
   function localDateTimeValue(date) {
@@ -742,7 +852,7 @@
         st.className = "form-status ok";
         st.textContent = (received[lang()] || received.lb) + ref + ".";
         f.reset();
-        state.selected = (CATALOG.length === 1) ? [CATALOG[0].id] : [];
+        state.selected = [];
         renderCatalog();
         renderSelection();
       })
@@ -751,9 +861,14 @@
   }
 
   function wireClear() {
-    ["r-from", "r-to", "r-name", "r-email", "r-phone", "r-message"].forEach(function (id) {
+    ["r-from-date", "r-from-time", "r-to-date", "r-to-time", "r-name", "r-email", "r-phone", "r-message"].forEach(function (id) {
       var el = $(id);
-      if (el) el.addEventListener("input", function () { mark(el, false); updateReview(); });
+      if (el) el.addEventListener("input", function () {
+        if (id.indexOf("r-from-") === 0) { syncRentalDateTime("r-from"); mark($("r-from"), false); }
+        else if (id.indexOf("r-to-") === 0) { syncRentalDateTime("r-to"); mark($("r-to"), false); }
+        else mark(el, false);
+        updateReview();
+      });
     });
     var priv = $("r-privacy");
     if (priv) priv.addEventListener("change", function () {
@@ -775,33 +890,34 @@
   }
 
   function init() {
-    // Bei engem eenzege Gefier gëtt et automatesch virausgewielt (keng Auswiel néideg).
-    if (CATALOG.length === 1 && !state.selected.length) state.selected = [CATALOG[0].id];
     applyStatics();
     applyExtraContent();
     renderCatalog();
     renderSelection();
     wireFilter();
     wireGrid();
+    wireCalendar();
     wireClear();
     document.querySelectorAll('form [name="_loaded_at"]').forEach(function (field) { field.value = String(Date.now()); });
-    var fromDate = $("r-from"), toDate = $("r-to");
+    fillRentalTimes();
+    var fromDate = $("r-from-date"), toDate = $("r-to-date");
     var now = new Date();
     now.setSeconds(0, 0);
     var remainder = now.getMinutes() % 30;
     if (remainder) now.setMinutes(now.getMinutes() + (30 - remainder));
     var minDateTime = localDateTimeValue(now);
+    var minDay = minDateTime.slice(0, 10);
     if (fromDate) {
-      fromDate.min = minDateTime;
+      fromDate.min = minDay;
       fromDate.addEventListener("change", function () {
         if (toDate) {
-          toDate.min = fromDate.value || minDateTime;
-          if (toDate.value && fromDate.value && toDate.value <= fromDate.value) toDate.value = "";
+          toDate.min = fromDate.value || minDay;
+          if (toDate.value && fromDate.value && toDate.value < fromDate.value) { toDate.value = ""; syncRentalDateTime("r-to"); }
         }
         renderAvailability();
       });
     }
-    if (toDate) { toDate.min = minDateTime; toDate.addEventListener("change", renderAvailability); }
+    if (toDate) { toDate.min = minDay; toDate.addEventListener("change", renderAvailability); }
     fetchAvailability();
     loadFleet();
     document.addEventListener("submit", handleSubmit, true);
