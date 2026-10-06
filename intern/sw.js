@@ -1,11 +1,11 @@
 /* Service Worker fir d'Interne Verwaltung (PWA). Scope: /intern/
    Network-first fir eegen Dateien (ëmmer frësch wann online, offline-fäeg
    duerch Cache). API-Uruff (aner Origin) ginn NET ofgefaangen. */
-var CACHE = "ab-intern-v52";
+var CACHE = "ab-intern-v53";
 var CORE = [
   "/intern/",
   "/intern/index.html",
-  "/intern/intern.js?v=51",
+  "/intern/intern.js?v=52",
   "/assets/damage-diagram-car.png",
   "/assets/damage-diagram-van.png",
   "/intern/manifest.webmanifest",
@@ -21,9 +21,10 @@ var CORE = [
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(CORE).catch(function () {}); }));
 });
+self.addEventListener("message", function (e) { if (e.data && e.data.type === "SKIP_WAITING") self.skipWaiting(); });
 self.addEventListener("activate", function (e) {
   e.waitUntil(
-    caches.keys().then(function (keys) { return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); })); })
+    caches.keys().then(function (keys) { return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); })); }).then(function(){ return self.clients.claim(); })
   );
 });
 function putCache(req, res) {

@@ -64,6 +64,11 @@
     fact("🪪",v.licenseClass?"Führerschäin "+v.licenseClass:""); fact("📅",v.year?"Baujoer "+v.year:"");
     var rows=[[trailer?"Dimensiounen":"Luedraum",v.loadSpace],["Gesamtgewiicht",v.grossWeight],["Notzlaascht",v.payload],["Brems",trailer?(v.braked?"Gebremst":"Ongebremst"):""],["Sëtzplazen",trailer?"":v.seats],["Brennstoff / Undriff",trailer?"":v.fuel],["Boîte",trailer?"":v.transmission],["Führerschäin",v.licenseClass]].filter(function(r){return r[1];});
     var details={lb:rows,de:rows,fr:rows,en:rows}, specs=(v.features||[]).length?v.features:[desc], specMap={lb:specs.slice(),de:specs.slice(),fr:specs.slice(),en:specs.slice()};
+    function money(n){return Number(n||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";}
+    if(!trailer&&Number(v.includedKm||0)) { specMap.lb.push(v.includedKm+" km pro Locatioun abegraff");specMap.de.push(v.includedKm+" km pro Miete inklusive");specMap.fr.push(v.includedKm+" km inclus par location");specMap.en.push(v.includedKm+" km included per rental"); }
+    if(!trailer&&Number(v.extraKmRate||0)) { specMap.lb.push(money(v.extraKmRate)+" pro Zousaz-km");specMap.de.push(money(v.extraKmRate)+" je Mehrkilometer");specMap.fr.push(money(v.extraKmRate)+" par km supplémentaire");specMap.en.push(money(v.extraKmRate)+" per extra kilometre"); }
+    if(Number(v.deposit||0)) { specMap.lb.push("Kautioun: "+money(v.deposit));specMap.de.push("Kaution: "+money(v.deposit));specMap.fr.push("Caution : "+money(v.deposit));specMap.en.push("Deposit: "+money(v.deposit)); }
+    if(Number(v.lateFeeHour||0)) { specMap.lb.push("Verspéidung: "+money(v.lateFeeHour)+" / Stonn");specMap.de.push("Verspätung: "+money(v.lateFeeHour)+" / Stunde");specMap.fr.push("Retard : "+money(v.lateFeeHour)+" / heure");specMap.en.push("Late return: "+money(v.lateFeeHour)+" / hour"); }
     var master=/renault\s+master/i.test(v.name||"");
     if(master){
       specMap.lb=["Führerschäin Kategorie B","Grousse zouene Luedraum","250 km pro Locatioun abegraff","0,30 € pro Zousaz-km","Kautioun: 300 €","Verspéidung: 20 € / Stonn"];
@@ -71,7 +76,7 @@
       specMap.fr=["Permis de conduire catégorie B","Grand espace de chargement fermé","250 km inclus par location","0,30 € par km supplémentaire","Caution : 300 €","Retard : 20 € / heure"];
       specMap.en=["Category B driving licence","Large enclosed load space","250 km included per rental","€0.30 per extra kilometre","Deposit: €300","Late return: €20 / hour"];
     }
-    return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:master?100:Number(v.priceDay||0),name:name,tagline:tagline,facts:facts,details:details,specs:specMap};
+    return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:Number(v.priceDay||0),deposit:Number(v.deposit||0),includedKm:Number(v.includedKm||0),extraKmRate:Number(v.extraKmRate||0),lateFeeHour:Number(v.lateFeeHour||0),name:name,tagline:tagline,facts:facts,details:details,specs:specMap};
   }
   function loadFleet() {
     return fetch("https://garage-admin.autoservicebettenduerf.lu/fleet/public", {headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw new Error("fleet");return r.json();}).then(function(data){
