@@ -213,6 +213,9 @@
     list.querySelectorAll('[data-damage-note]').forEach(function(el){el.addEventListener('input',function(){markers[+el.dataset.damageNote].note=el.value;input.value=JSON.stringify(markers);});});
     list.querySelectorAll('[data-damage-remove]').forEach(function(el){el.addEventListener('click',function(){markers.splice(+el.dataset.damageRemove,1);input.value=JSON.stringify(markers);renderDamageEditor(p,kind);});});
   }
+  var KM_RATE = 0.30; // €/km fir Zousaz-Kilometer (Renault Master)
+  function kmEur(km) { return (Math.max(0, Number(km) || 0) * KM_RATE); }
+  function eurTxt(n) { return (Math.round(n * 100) / 100).toFixed(2).replace(".", ",") + " €"; }
   function protocolHtml(b, stage) {
     var x=inspectionFor(b.id,stage)||{}, p="pr-"+b.id+"-"+stage+"-", pickup=stage==="pickup", title=pickup?"Iwwergabprotokoll":"Retourprotokoll",storedSignature=/^https:\/\/garage-admin\.autoservicebettenduerf\.lu\/media\/protocol\//.test(x.customerSignature||"")?x.customerSignature:"",f=matchFleet(b.veh)||{},trailer=f.type==="trailer",diagramKind=trailer?"trailer":(f.type==="car"?"car":"van"),c=inspectionChecklist(x);
     return '<div class="protocol-box"><h4>'+title+(x.id?' <span class="protocol-saved">✓ gespäichert</span>':'')+'</h4><div class="protocol-grid">'+
@@ -220,7 +223,7 @@
       '<label>Zäitpunkt<input id="'+p+'at" type="datetime-local" value="'+esc(dtLocal(x.inspectedAt)||nowLocal())+'"></label>'+
       (trailer?'':'<label>Kilometerstand<input id="'+p+'km" type="number" min="0" inputmode="numeric" value="'+esc(x.odometer==null?'':x.odometer)+'"></label><label>Brennstoff- / Luedstand<select id="'+p+'fuel">'+["Voll / 100 %","3/4 / 75 %","1/2 / 50 %","1/4 / 25 %","Eidel / 0 %"].map(function(v){return '<option'+(x.fuelLevel===v?' selected':'')+'>'+v+'</option>';}).join('')+'</select></label>')+
       '<label>Unzuel Schlësselen<input id="'+p+'keys" type="number" min="0" max="10" inputmode="numeric" value="'+esc(c.keyCount==null?'':c.keyCount)+'"></label>'+
-      (pickup?'':'<label>Zousaz-km<input id="'+p+'extraKm" type="number" min="0" value="'+esc(x.extraKm==null?'':x.extraKm)+'"></label><label>Zousazkäschten (€)<input id="'+p+'extraCosts" type="number" min="0" step="0.01" value="'+esc(x.extraCosts==null?'':x.extraCosts)+'"></label>')+
+      (pickup?'':'<label>Zousaz-km<input id="'+p+'extraKm" type="number" min="0" value="'+esc(x.extraKm==null?'':x.extraKm)+'"><small id="'+p+'extraKmEur" style="display:block;color:var(--muted);font-size:0.72rem;margin-top:3px">× '+eurTxt(KM_RATE)+'/km = '+eurTxt(kmEur(x.extraKm))+'</small></label><label>Aner Käschten (€)<input id="'+p+'extraCosts" type="number" min="0" step="0.01" value="'+esc(x.extraCosts==null?'':x.extraCosts)+'"><small style="display:block;color:var(--muted);font-size:0.72rem;margin-top:3px">Sprit, Verspéidung, Botzen … (ouni km)</small></label>')+
       '<div class="protocol-section">Kontroll</div>'+
       '<label>Propretéit<select id="'+p+'cleanliness">'+["Propper","Liicht verschmotzt","Staark verschmotzt"].map(function(v){return '<option'+(c.cleanliness===v?' selected':'')+'>'+v+'</option>';}).join('')+'</select></label>'+
       '<div class="protocol-checks"><label class="protocol-check"><input id="'+p+'documents" type="checkbox"'+(c.documentsChecked?' checked':'')+'> Dokumenter kontrolléiert</label><label class="protocol-check"><input id="'+p+'lights" type="checkbox"'+(c.lightsChecked?' checked':'')+'> Beliichtung kontrolléiert</label><label class="protocol-check"><input id="'+p+'tyres" type="checkbox"'+(c.tyresChecked?' checked':'')+'> Pneuen a Rieder kontrolléiert</label><label class="protocol-check"><input id="'+p+'joint" type="checkbox"'+(c.jointInspection?' checked':'')+'> Zesumme mam Client kontrolléiert</label></div>'+
@@ -240,7 +243,7 @@
   function drawSignaturePad(canvas) { var rect=canvas.getBoundingClientRect(),dpr=Math.max(1,window.devicePixelRatio||1),ctx;canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);ctx.strokeStyle="#111827";ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";var drawing=false;function pos(e){var r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}canvas.addEventListener("pointerdown",function(e){drawing=true;canvas.setPointerCapture(e.pointerId);var q=pos(e);ctx.beginPath();ctx.moveTo(q.x,q.y);canvas._signed=true;var old=$(canvas.id+"-existing");if(old)old.hidden=true;e.preventDefault();});canvas.addEventListener("pointermove",function(e){if(!drawing)return;var q=pos(e);ctx.lineTo(q.x,q.y);ctx.stroke();e.preventDefault();});function stop(){drawing=false;}canvas.addEventListener("pointerup",stop);canvas.addEventListener("pointercancel",stop);}
   function refreshProtocolPhotos(p) { var box=$(p+"photo-list"),urls=protocolPhotoList($(p+"photos").value),status=$(p+"photo-status");box.innerHTML=urls.map(function(url,i){return '<div class="protocol-photo"><img src="'+url+'" alt="Protokollfoto '+(i+1)+'"><button type="button" data-remove-photo="'+i+'" aria-label="Foto ewechhuelen">×</button></div>';}).join('');if(status)status.textContent=urls.length?urls.length+' Foto(en) gespäichert'+(urls.length<6?' · 6 Perspektive recommandéiert':' · Dokumentatioun komplett'):'Nach keng Foto · 6 Perspektive recommandéiert';box.querySelectorAll("[data-remove-photo]").forEach(function(btn){btn.addEventListener("click",function(){urls.splice(parseInt(btn.getAttribute("data-remove-photo"),10),1);$(p+"photos").value=urls.join("\n");refreshProtocolPhotos(p);});}); }
   function addProtocolPhotos(p,files) { var status=$(p+"photo-status"),list=Array.prototype.slice.call(files||[]);if(!list.length)return;status.textContent="Fotoe ginn eropgelueden …";Promise.all(list.map(function(file){return resizeFleetPhoto(file).then(function(blob){return STORE.uploadProtocolImage(blob);});})).then(function(results){var urls=protocolPhotoList($(p+"photos").value);results.forEach(function(r){if(r&&r.url)urls.push(r.url);});$(p+"photos").value=urls.join("\n");refreshProtocolPhotos(p);status.textContent="✓ "+results.length+" Foto(en) eropgelueden.";}).catch(function(){status.textContent="E Foto konnt net eropgeluede ginn. Probéiert nach eng Kéier.";}); }
-  function initProtocolUi(b,stage) { var p="pr-"+b.id+"-"+stage+"-",canvas=$(p+"signature"),f=matchFleet(b.veh)||{},kind=f.type==="trailer"?"trailer":(f.type==="car"?"car":"van");if(!canvas)return;renderDamageEditor(p,kind);drawSignaturePad(canvas);refreshProtocolPhotos(p);$(p+"camera-btn").addEventListener("click",function(){$(p+"camera").click();});$(p+"gallery-btn").addEventListener("click",function(){$(p+"gallery").click();});[$(p+"camera"),$(p+"gallery")].forEach(function(inp){inp.addEventListener("change",function(){addProtocolPhotos(p,inp.files);inp.value="";});});$(p+"signature-clear").addEventListener("click",function(){var ctx=canvas.getContext("2d");ctx.clearRect(0,0,canvas.width,canvas.height);canvas._signed=false;canvas.dataset.existing="";var old=$(p+"signature-existing");if(old)old.hidden=true;}); }
+  function initProtocolUi(b,stage) { var p="pr-"+b.id+"-"+stage+"-",canvas=$(p+"signature"),f=matchFleet(b.veh)||{},kind=f.type==="trailer"?"trailer":(f.type==="car"?"car":"van");if(!canvas)return;renderDamageEditor(p,kind);drawSignaturePad(canvas);refreshProtocolPhotos(p);$(p+"camera-btn").addEventListener("click",function(){$(p+"camera").click();});$(p+"gallery-btn").addEventListener("click",function(){$(p+"gallery").click();});[$(p+"camera"),$(p+"gallery")].forEach(function(inp){inp.addEventListener("change",function(){addProtocolPhotos(p,inp.files);inp.value="";});});$(p+"signature-clear").addEventListener("click",function(){var ctx=canvas.getContext("2d");ctx.clearRect(0,0,canvas.width,canvas.height);canvas._signed=false;canvas.dataset.existing="";var old=$(p+"signature-existing");if(old)old.hidden=true;});if(stage==="return"){var ek=$(p+"extraKm"),lbl=$(p+"extraKmEur");if(ek&&lbl){var upd=function(){lbl.textContent="× "+eurTxt(KM_RATE)+"/km = "+eurTxt(kmEur(ek.value));};ek.addEventListener("input",upd);upd();}} }
   function signatureBlob(canvas) { return new Promise(function(resolve){canvas.toBlob(function(blob){resolve(blob);},"image/webp",.9);}); }
 
   /* ---------- Professionellt Protokoll-PDF (iwwer Drécken → "Als PDF späicheren") ---------- */
@@ -265,7 +268,7 @@
       var ref = refOf(b.id), title = pickup ? "Iwwergab­protokoll" : "Retour­protokoll";
       var carRows = ppRow("Verleihobjet", b.veh) + ppRow("Typ", trailer?"Unhänger":(f.type==="car"?"Auto":"Transporter")) + ppRow("Baujoer", f.year) + ppRow("Brennstoff / Undriff", trailer?"":f.fuel) + ppRow(trailer?"Dimensiounen":"Luedraum", f.loadSpace) + ppRow("Führerschäin", f.licenseClass);
       var stateRows = ppRow("Datum / Zäit", at ? fmt(at) : "") + ppRow("Kilometerstand", km ? km + " km" : "") + ppRow("Brennstoff- / Luedstand", fuel) + ppRow("Schlësselen", keys) + ppRow("Propretéit", cleanliness) + ppRow("Kontrolléiert", checkText) +
-        (pickup ? ppRow("Führerschäin & Identitéit kontrolléiert", licenseChecked ? "Jo" : "Nee") : (ppRow("Zousaz-Kilometer", extraKm ? extraKm + " km" : "") + ppRow("Zousazkäschten", extraCosts ? extraCosts + " €" : "")));
+        (pickup ? ppRow("Führerschäin & Identitéit kontrolléiert", licenseChecked ? "Jo" : "Nee") : (ppRow("Zousaz-Kilometer", extraKm ? extraKm + " km (" + eurTxt(kmEur(extraKm)) + ")" : "") + ppRow("Aner Käschten", extraCosts ? eurTxt(extraCosts) : "") + ppRow("Zousaz total", (kmEur(extraKm) + (Number(extraCosts) || 0)) ? eurTxt(kmEur(extraKm) + (Number(extraCosts) || 0)) : "")));
       var photoHtml = photos.length ? '<div class="pp-sec"><h3>Fotoen</h3><div class="pp-photos">' + photos.map(function (u) { return '<img src="' + u + '" alt="">'; }).join("") + "</div></div>" : "";
       var html =
         '<div class="pp-doc">' +
@@ -309,7 +312,7 @@
       function yn(v){return v?"Jo":"Nee";}
       function stageHtml(x,pickupStage){
         var c=inspectionChecklist(x),photos=protocolPhotoList(x.photoRefs),checks=[c.documentsChecked?"Dokumenter":"",c.lightsChecked?"Beliichtung":"",c.tyresChecked?"Pneuen/Rieder":"",c.jointInspection?"zesumme mam Client":""].filter(Boolean).join(", ");
-        var rows=ppRow("Datum / Zäit",fmt(x.inspectedAt))+ppRow("Kilometerstand",trailer?"":(x.odometer==null?"":x.odometer+" km"))+ppRow("Brennstoff- / Luedstand",trailer?"":x.fuelLevel)+ppRow("Schlësselen",c.keyCount)+ppRow("Propretéit",c.cleanliness)+ppRow("Kontrolléiert",checks)+(pickupStage?ppRow("Führerschäin & Identitéit",yn(x.licenseChecked)):ppRow("Zousaz-Kilometer",x.extraKm==null?"":x.extraKm+" km")+ppRow("Zousazkäschten",x.extraCosts==null?"":x.extraCosts+" €"));
+        var rows=ppRow("Datum / Zäit",fmt(x.inspectedAt))+ppRow("Kilometerstand",trailer?"":(x.odometer==null?"":x.odometer+" km"))+ppRow("Brennstoff- / Luedstand",trailer?"":x.fuelLevel)+ppRow("Schlësselen",c.keyCount)+ppRow("Propretéit",c.cleanliness)+ppRow("Kontrolléiert",checks)+(pickupStage?ppRow("Führerschäin & Identitéit",yn(x.licenseChecked)):ppRow("Zousaz-Kilometer",x.extraKm==null?"":x.extraKm+" km ("+eurTxt(kmEur(x.extraKm))+")")+ppRow("Aner Käschten",x.extraCosts==null?"":eurTxt(x.extraCosts))+ppRow("Zousaz total",(kmEur(x.extraKm)+(Number(x.extraCosts)||0))?eurTxt(kmEur(x.extraKm)+(Number(x.extraCosts)||0)):""));
         var marks=damageMarkers(c.damageMarkers),map='<div class="pp-damage"><strong>Visuell Schuedmarkéierungen</strong>'+damageDiagramSvg(marks,diagramKind,false)+(marks.length?'<ol>'+marks.map(function(m){return '<li><b>'+esc(m.type||'Schued')+':</b> '+esc(m.note||'keng Zousaznotiz')+'</li>';}).join('')+'</ol>':'<p class="pp-no-damage">Keng Schued op der Skizz markéiert.</p>')+'</div>';
         return '<section class="pp-stage"><div class="pp-stage-title"><span>'+(pickupStage?"1":"2")+'</span><div><small>'+(pickupStage?"UFANK VUN DER LOCATIOUN":"ENN VUN DER LOCATIOUN")+'</small><h2>'+(pickupStage?"Iwwergab":"Retour")+'</h2></div></div><div class="pp-sec"><h3>Zoustand</h3><table class="pp-tbl">'+rows+'</table>'+(x.conditionNote?'<p><strong>Allgemengen Zoustand:</strong> '+esc(x.conditionNote)+'</p>':"")+(x.damageNote?'<p><strong>'+(pickupStage?"Besteeënd":"Nei")+' Schied / Feststellungen:</strong> '+esc(x.damageNote)+'</p>':"")+map+(x.accessories?'<p><strong>Schlësselen, Dokumenter an Ekipement:</strong> '+esc(x.accessories)+'</p>':"")+'</div>'+(photos.length?'<div class="pp-sec"><h3>Fotodokumentatioun · '+photos.length+' Foto(en)</h3><div class="pp-photos">'+photos.map(function(u,i){return '<img src="'+u+'" alt="'+(pickupStage?"Iwwergab":"Retour")+' Foto '+(i+1)+'">';}).join("")+'</div></div>':"")+'<div class="pp-sign pp-sign-single"><div><span class="pp-sigbox"><img src="'+x.customerSignature+'" alt="Ënnerschrëft Client"></span><div class="pp-sigline">Ënnerschrëft Client · '+esc(b.name)+'</div></div><div><span class="pp-sigbox"></span><div class="pp-sigline">Autoservice Bettenduerf · '+esc(x.staffSignature||x.updatedBy||"")+'</div></div></div></section>';
       }
@@ -805,7 +808,7 @@
         if (x.extraCosts != null && x.extraCosts !== "") retExtra[id] = (retExtra[id] || 0) + (Number(x.extraCosts) || 0);
         if (x.extraKm != null && x.extraKm !== "") retKm[id] = (retKm[id] || 0) + (Number(x.extraKm) || 0);
       });
-      var realized = {}, expected = {}, realizedTot = 0, expectedTot = 0, doneCount = 0, unpriced = 0, extrasTot = 0, kmTot = 0;
+      var realized = {}, expected = {}, realizedTot = 0, expectedTot = 0, doneCount = 0, unpriced = 0, otherTot = 0, kmCostTot = 0, kmTot = 0;
       rentals.forEach(function (b) {
         if (b.status !== "done" && b.status !== "confirmed") return;
         var days = billedDays(b); if (!days) return;
@@ -820,11 +823,12 @@
           if (b.status === "done") { realized[nm] = (realized[nm] || 0) + amt; realizedTot += amt; }
           else { expected[nm] = (expected[nm] || 0) + amt; expectedTot += amt; }
         });
-        // Zousazkäschten nëmme bei ofgeschlossene Verleiher (echt kasséiert)
+        // Zousaz nëmme bei ofgeschlossene Verleiher (echt kasséiert):
+        // Zousaz-km × km-Tarif ginn automatesch gerechent + d'aner Käschten.
         if (b.status === "done") {
-          var ex = retExtra[Number(b.id)] || 0, km = retKm[Number(b.id)] || 0;
-          if (ex) { var key = primary || names[0]; realized[key] = (realized[key] || 0) + ex; realizedTot += ex; extrasTot += ex; }
-          if (km) kmTot += km;
+          var ex = retExtra[Number(b.id)] || 0, km = retKm[Number(b.id)] || 0, kmCost = kmEur(km), addon = ex + kmCost;
+          if (addon) { var key = primary || names[0]; realized[key] = (realized[key] || 0) + addon; realizedTot += addon; }
+          otherTot += ex; kmCostTot += kmCost; kmTot += km;
         }
       });
       var revKpis = [
@@ -846,7 +850,7 @@
           '<span style="flex:0 0 auto;text-align:right;font-weight:800;white-space:nowrap">' + fmtEur(x.r) + exp + '</span>' +
           '</div>';
       }).join("") : '<p class="muted" style="font-size:0.85rem">Nach kee realiséierten oder confirméierten Verleih.</p>';
-      $("an-rev-note").textContent = "Basis: Verleih-Deeg × Dagespräis, plus d'Zousazkäschten aus de Retour-Protokoller." + (extrasTot ? " Dovunner " + fmtEur(extrasTot) + " Zousazkäschten" + (kmTot ? " · " + kmTot.toLocaleString("de-DE") + " Zousaz-km" : "") + "." : "") + " D'Kautioun zielt net als Ëmsaz." + (unpriced ? " Puer Gefierer ouni hannerluechte Präis goufen iwwersprongen." : "");
+      $("an-rev-note").textContent = "Basis: Verleih-Deeg × Dagespräis. Zousaz-km ginn automatesch mat " + eurTxt(KM_RATE) + "/km gerechent, plus d'aner Käschten aus de Retour-Protokoller." + ((kmCostTot || otherTot) ? " Dovunner " + fmtEur(kmCostTot) + " aus " + kmTot.toLocaleString("de-DE") + " Zousaz-km an " + fmtEur(otherTot) + " aner Käschten." : "") + " D'Kautioun zielt net als Ëmsaz." + (unpriced ? " Puer Gefierer ouni hannerluechte Präis goufen iwwersprongen." : "");
 
       // utilization per vehicle (count of rental-days in last 90d)
       var byVeh = {};
