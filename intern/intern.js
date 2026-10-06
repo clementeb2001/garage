@@ -755,9 +755,11 @@
     Promise.all([
       STORE.listBookings().then(function (v) { return v; }, function () { return null; }),
       STORE.listAppointments().then(function (v) { return v; }, function () { return []; }),
+      STORE.listMaintenance().then(function (v) { return v; }, function () { return []; }),
     ]).then(function (res) {
       var bk = res[0]; if (bk === null) throw new Error("load");
       var ap = res[1] || [];
+      var fleet = res[2] || [];
       var appts = ap.filter(function (a) { return (a.kind || "appointment") === "appointment"; });
       $("analyse-sub").textContent = "aus dengen Donnéeën berechent";
       var today = new Date(); today.setHours(0, 0, 0, 0);
@@ -779,6 +781,53 @@
         { cls: "ok", n: rentals.length, l: "Reservatiounen total", ic: "📊" },
       ];
       $("analyse-kpis").innerHTML = kpis.map(function (t) { return '<div class="stat ' + t.cls + '"><div class="stat-ic">' + t.ic + '</div><div><div class="n">' + t.n + '</div><div class="l">' + t.l + "</div></div></div>"; }).join("");
+
+      // ---- Akommes / Ëmsaz aus der Locatioun ----
+      // Schätzung: Verleih-Deeg × aktuellen Dagespräis vum Gefier.
+      // "Realiséiert" = ofgeschloss (done), "Erwaart" = confirméiert mee nach net zréck.
+      function fmtEur(n) { return (Math.round(n)).toLocaleString("de-DE") + " €"; }
+      function rateForName(nm) {
+        var k = String(nm || "").trim().toLowerCase();
+        var hit = fleet.filter(function (x) { return String(x.vehicle || "").trim().toLowerCase() === k; })[0];
+        if (hit && hit.priceDay !== "" && hit.priceDay != null) return Number(hit.priceDay) || 0;
+        if (/master|transporter|lieferwagen/.test(k)) return 100; // al Nimm → de Master
+        return 0;
+      }
+      function billedDays(b) { var f = new Date(b.from), t = new Date(b.to); if (isNaN(f) || isNaN(t) || t <= f) return 0; return Math.max(1, Math.ceil((t - f) / 86400000)); }
+      var realized = {}, expected = {}, realizedTot = 0, expectedTot = 0, doneCount = 0, unpriced = 0;
+      rentals.forEach(function (b) {
+        if (b.status !== "done" && b.status !== "confirmed") return;
+        var days = billedDays(b); if (!days) return;
+        var names = String(b.veh || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+        if (!names.length) names = [b.veh || "?"];
+        if (b.status === "done") doneCount++;
+        names.forEach(function (nm) {
+          var rate = rateForName(nm), amt = days * rate;
+          if (!rate) { unpriced++; return; }
+          if (b.status === "done") { realized[nm] = (realized[nm] || 0) + amt; realizedTot += amt; }
+          else { expected[nm] = (expected[nm] || 0) + amt; expectedTot += amt; }
+        });
+      });
+      var revKpis = [
+        { cls: "ok", n: fmtEur(realizedTot), l: "Ëmsaz realiséiert", ic: "💰" },
+        { cls: "accent", n: fmtEur(expectedTot), l: "Erwaart (confirméiert)", ic: "📅" },
+        { cls: "", n: doneCount, l: "Ofgeschloss Verleiher", ic: "✅" },
+      ];
+      $("an-rev-kpis").innerHTML = revKpis.map(function (t) { return '<div class="stat ' + t.cls + '"><div class="stat-ic">' + t.ic + '</div><div><div class="n" style="white-space:nowrap">' + t.n + '</div><div class="l">' + t.l + "</div></div></div>"; }).join("");
+      var revNames = {}; Object.keys(realized).forEach(function (k) { revNames[k] = 1; }); Object.keys(expected).forEach(function (k) { revNames[k] = 1; });
+      var revRows = Object.keys(revNames).map(function (nm) { return { nm: nm, r: realized[nm] || 0, e: expected[nm] || 0 }; }).sort(function (a, b) { return (b.r + b.e) - (a.r + a.e); });
+      var rmax = revRows.reduce(function (m, x) { return Math.max(m, x.r + x.e); }, 0) || 1;
+      var rpal = ["#2e7d5b", "#2f6df6", "#b7791f", "#7c4dff", "#0ea5a5", "#d6457f", "#546e7a", "#e63946"];
+      $("an-rev-byveh").innerHTML = revRows.length ? revRows.map(function (x, i) {
+        var w = Math.round((x.r + x.e) / rmax * 100);
+        var exp = x.e ? '<small style="display:block;font-weight:600;font-size:0.72em;opacity:0.7">+ ' + fmtEur(x.e) + ' erwaart</small>' : "";
+        return '<div style="display:flex;align-items:center;gap:10px;margin:8px 0">' +
+          '<span style="flex:0 0 40%;max-width:40%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:0.9rem">' + esc(vehName(x.nm)) + '</span>' +
+          '<div style="flex:1;height:12px;background:var(--line,#e6e9ee);border-radius:6px;overflow:hidden"><div style="height:100%;width:' + w + '%;background:' + rpal[i % rpal.length] + '"></div></div>' +
+          '<span style="flex:0 0 auto;text-align:right;font-weight:800;white-space:nowrap">' + fmtEur(x.r) + exp + '</span>' +
+          '</div>';
+      }).join("") : '<p class="muted" style="font-size:0.85rem">Nach kee realiséierten oder confirméierten Verleih.</p>';
+      $("an-rev-note").textContent = "Schätzung: Verleih-Deeg × aktuellen Dagespräis. Extra-Käschten (Kilometer, Sprit, Verspéidung) a Kautioun sinn net abegraff." + (unpriced ? " Puer Gefierer ouni hannerluechte Präis goufen iwwersprongen." : "");
 
       // utilization per vehicle (count of rental-days in last 90d)
       var byVeh = {};
