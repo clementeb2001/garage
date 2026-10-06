@@ -1211,7 +1211,16 @@
   }
   function fleetStatus(s) { return {ready:["Asazbereet","ready"],rented:["Verlount","rented"],service:["Am Service","service"],blocked:["Gespaart","blocked"]}[s] || ["Asazbereet","ready"]; }
   function fleetTypeLabel(t) { return {van:"Transporter",car:"Auto",trailer:"Unhänger"}[t] || "Transporter"; }
-  function syncFleetType() { var trailer=$("w-type").value==="trailer"; $("w-braked-wrap").hidden=!trailer; }
+  function syncFleetType() {
+    var trailer = $("w-type").value === "trailer";
+    $("w-braked-wrap").hidden = !trailer;
+    // Felder, déi nëmme fir motoriséiert Gefierer gëllen, bei enger Remorque verstoppen.
+    ["w-seats", "w-fuel", "w-transmission", "w-included-km", "w-extra-km-rate"].forEach(function (id) {
+      var el = $(id), f = el && el.closest ? el.closest(".field") : null; if (f) f.style.display = trailer ? "none" : "";
+    });
+    var loadLbl = document.querySelector('label[for="w-load"]'); if (loadLbl) loadLbl.textContent = trailer ? "Dimensiounen" : "Luedraum / Dimensiounen";
+    var lic = $("w-license"); if (lic) lic.placeholder = trailer ? "BE" : "B";
+  }
   function fleetPayload() { return { type:$("w-type").value,vehicle:$("w-veh").value.trim(),plate:$("w-plate").value.trim(),status:$("w-status").value,service:$("w-service").value.trim(),dueDate:$("w-due").value,note:$("w-note").value.trim(),description:$("w-description").value.trim(),imageUrl:$("w-image").value.trim(),priceDay:$("w-price").value,deposit:$("w-deposit").value,includedKm:$("w-included-km").value,extraKmRate:$("w-extra-km-rate").value,lateFeeHour:$("w-late-fee").value,year:$("w-year").value.trim(),seats:$("w-seats").value.trim(),fuel:$("w-fuel").value.trim(),transmission:$("w-transmission").value.trim(),licenseClass:$("w-license").value.trim(),loadSpace:$("w-load").value.trim(),grossWeight:$("w-gross").value.trim(),payload:$("w-payload").value.trim(),braked:$("w-braked").checked,features:$("w-features").value.trim(),active:$("w-active").checked }; }
   function fillFleet(m) { $("w-type").value=m.type||"van"; syncFleetType(); $("w-veh").value=m.vehicle||""; $("w-plate").value=m.plate||""; $("w-status").value=m.status||"ready"; $("w-service").value=m.service||""; $("w-due").value=m.dueDate||""; $("w-note").value=m.note||""; $("w-description").value=m.description||""; $("w-image").value=m.imageUrl||""; showFleetPhoto(m.imageUrl||""); $("w-price").value=m.priceDay==null?"":m.priceDay; $("w-deposit").value=m.deposit==null?"":m.deposit; $("w-included-km").value=m.includedKm==null?"":m.includedKm; $("w-extra-km-rate").value=m.extraKmRate==null?"":m.extraKmRate; $("w-late-fee").value=m.lateFeeHour==null?"":m.lateFeeHour; $("w-year").value=m.year||""; $("w-seats").value=m.seats||""; $("w-fuel").value=m.fuel||""; $("w-transmission").value=m.transmission||""; $("w-license").value=m.licenseClass||""; $("w-load").value=m.loadSpace||""; $("w-gross").value=m.grossWeight||""; $("w-payload").value=m.payload||""; $("w-braked").checked=!!m.braked; $("w-features").value=m.features||""; $("w-active").checked=!!m.active; }
   function renderWartung() {
