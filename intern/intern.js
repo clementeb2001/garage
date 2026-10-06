@@ -175,7 +175,7 @@
     var from = new Date(b.from), to = new Date(b.to);
     if (isNaN(from) || isNaN(to) || to <= from || String(b.veh || "").toLowerCase().indexOf("renault master") === -1) return "";
     var days = Math.max(1, Math.ceil((to - from) / 86400000));
-    return days + " × 24 h · viraussiichtlech " + (days * 80) + " €";
+    return days + " × 24 h · viraussiichtlech " + (days * 100) + " €";
   }
   function inspectionFor(id, stage) { return inspections.filter(function (x) { return Number(x.bookingId) === Number(id) && x.stage === stage; })[0] || null; }
   function nowLocal() { var d=new Date(), z=function(n){return n<10?"0"+n:n;}; return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())+"T"+z(d.getHours())+":"+z(d.getMinutes()); }
@@ -325,6 +325,64 @@
     });
   }
   function saveProtocol(b,stage) { var p="pr-"+b.id+"-"+stage+"-",pickup=stage==="pickup",canvas=$(p+"signature"),existing=decodeURIComponent(canvas.dataset.existing||""),signature=Promise.resolve(existing),photos=protocolPhotoList($(p+"photos").value),km=$(p+"km"),fuel=$(p+"fuel"),marks=[];try{marks=damageMarkers(JSON.parse($(p+'damage-markers').value||'[]'));}catch(e){}if(!$(p+"at").value||!$(p+"staff").value.trim()){toast("Zäitpunkt a Mataarbechter mussen ausgefëllt sinn.");return;}if(photos.length<4&&!confirm("Et si manner wéi 4 Fotoe gespäichert. Protokoll trotzdem späicheren?"))return;if(canvas._signed)signature=signatureBlob(canvas).then(function(blob){return STORE.uploadProtocolImage(blob);}).then(function(r){if(!r||r.error)throw new Error("signature_upload");return r.url;});signature.then(function(signatureUrl){if(!signatureUrl){toast("D'Ënnerschrëft vum Client feelt.");return;}return STORE.saveInspection({bookingId:b.id,stage:stage,inspectedAt:$(p+"at").value,odometer:km?km.value:"",fuelLevel:fuel?fuel.value:"",extraKm:pickup?"":$(p+"extraKm").value,extraCosts:pickup?"":$(p+"extraCosts").value,conditionNote:$(p+"condition").value,damageNote:$(p+"damage").value,photoRefs:$(p+"photos").value,accessories:$(p+"accessories").value,customerSignature:signatureUrl,staffSignature:$(p+"staff").value,licenseChecked:pickup?$(p+"license").checked:false,note:$(p+"note").value,checklist:{keyCount:$(p+"keys").value,cleanliness:$(p+"cleanliness").value,documentsChecked:$(p+"documents").checked,lightsChecked:$(p+"lights").checked,tyresChecked:$(p+"tyres").checked,jointInspection:$(p+"joint").checked,damageMarkers:marks}});}).then(function(r){if(!r)return;if(r.error){toast(errMsg(r.error));return;}toast("Protokoll gespäichert.");renderBookings();}).catch(function(){toast("D'Protokoll konnt net gespäichert ginn.");}); }
+  /* ---------- Mietvertrag-PDF (selwecht Design wéi de Protokoll) ---------- */
+  function plateFor(veh) { return /renault\s+master|transporter|lieferwagen/i.test(String(veh || "")) ? "GK 0106" : ""; }
+  function ppFill(label) { return '<tr><th>' + esc(label) + '</th><td style="border-bottom:1px dotted #94a3b8">&nbsp;</td></tr>'; }
+  function printContract(b) {
+    ensureFleetCache().then(function () {
+      var f = matchFleet(b.veh) || {};
+      var isMaster = /renault\s+master|transporter|lieferwagen/i.test(String(b.veh || ""));
+      var rate = Number(f.priceDay) || (isMaster ? 100 : 0);
+      var from = new Date(b.from), to = new Date(b.to);
+      var days = (!isNaN(from) && !isNaN(to) && to > from) ? Math.max(1, Math.ceil((to - from) / 86400000)) : 0;
+      var total = days * rate;
+      var deposit = (f.deposit != null && f.deposit !== "") ? Number(f.deposit) : 300;
+      var ref = refOf(b.id), plate = plateFor(b.veh);
+      var vermieter = '<table class="pp-tbl">' + ppRow("Firma", "Autoservice Bettenduerf") + ppRow("Adress", "63, rue de Diekirch-Echternach · L-9355 Bettendorf") + ppRow("Telefon", "+352 80 86 87 · +352 621 435 495") + ppRow("E-Mail", "Autoservicebettenduerf@outlook.com") + ppRow("RCS / TVA", "A39773 · LU26600977") + "</table>";
+      var mieter = '<table class="pp-tbl">' + ppRow("Numm", b.name) + ppRow("E-Mail", b.email) + ppRow("Telefon", b.phone) + ppFill("Adress") + ppFill("Gebuertsdatum") + ppFill("Führerschäin-Nr.") + ppFill("Ausweis-Nr.") + "</table>";
+      var objet = '<table class="pp-tbl">' + ppRow("Gefier", b.veh) + ppRow("Immatrikulatioun", plate) + ppRow("Typ", f.type === "trailer" ? "Unhänger" : (f.type === "car" ? "Auto" : "Transporter")) + ppRow("Baujoer", f.year) + ppRow("Kraftstoff", f.fuel) + ppRow("Führerschäin", f.licenseClass || "B") + ppFill("Kilometerstand bei der Iwwergab") + "</table>";
+      var period = '<table class="pp-tbl">' + ppRow("Vun", fmt(b.from)) + ppRow("Bis", fmt(b.to)) + ppRow("Ofhuel- a Retourplaz", "Autoservice Bettenduerf · Bettendorf") + "</table>";
+      var prix = '<table class="pp-tbl">' + ppRow("Dagespräis", rate ? eurTxt(rate) : "—") + ppRow("Mietdauer", days ? days + " × 24 h" : "—") + ppRow("Mietpräis (viraussiichtlech)", total ? eurTxt(total) : "—") + ppRow("Abegraff Kilometer", "250 km pro Locatioun") + ppRow("Zousaz-km", eurTxt(KM_RATE) + " / km") + ppRow("Kautioun", eurTxt(deposit)) + ppRow("Bezuelung", "bei der Retour vum Gefier") + ppRow("Verspéidung", "20 € pro ugefaangener Stonn") + ppRow("Tanken", "vollgetankt zréck, soss Volltank + 50 €") + "</table>";
+      var clauses = [
+        "<b>Vertragsofschloss.</b> Mat der Ënnerschrëft gëtt dëse Mietvertrag verbindlech. De Mieter bestätegt, datt hien d'Gefier am Zoustand vum Iwwergabprotokoll iwwerholl huet.",
+        "<b>Chauffeur.</b> E gültegen Identitéitsdokument an de néidege Führerschäin goufe virgeluecht. D'Gefier dierf nëmme vun de Persoune gefouert ginn, déi an dësem Vertrag ageschriwwe sinn.",
+        "<b>Notzung.</b> Suergfälteg a bestëmmungsgeméiss Notzung. Keen Iwwerlueden, keng Weiderverlounung, keng rechtswiddreg Notzung. Fuere mat Unhänger oder am Ausland nëmme mat ausdrécklecher Erlaabnes.",
+        "<b>Kilometer & Tanken.</b> 250 km pro Locatioun sinn abegraff; all weidere Kilometer gëtt mat " + eurTxt(KM_RATE) + " verrechent. D'Gefier muss vollgetankt zréckbruecht ginn, soss ginn d'Tankkäschten + 50 € Pauschal verrechent.",
+        "<b>Retour & Verspéidung.</b> Retour zur vereinbarter Zäit a Plaz. Pro ugefaangener Stonn Verspéidung ginn 20 € verrechent.",
+        "<b>Kautioun & Bezuelung.</b> D'Kautioun bedréit " + eurTxt(deposit) + ". D'Bezuelung geschitt bei der Retour vum Gefier.",
+        "<b>Assurance & Haftung.</b> Bei Accident, Pann, Déifstall oder Schued muss Autoservice Bettenduerf direkt informéiert ginn; keng Reparatur ouni Zoustëmmung. Zwingend gesetzlech Rechter bleiwen onberéiert.",
+        "<b>Dateschutz.</b> D'perséinlech Donnéeë ginn eleng fir d'Ofwécklung vun der Locatioun veraarbecht (cf. Dateschutzerklärung op autoservicebettenduerf.lu)."
+      ];
+      var html =
+        '<div class="pp-doc">' +
+        '<div class="pp-head"><img class="pp-logo" src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf"><div class="pp-co"><strong>Autoservice Bettenduerf</strong><br>63, rue de Diekirch-Echternach · L-9355 Bettendorf<br>+352 80 86 87 · Autoservicebettenduerf@outlook.com</div></div><div class="pp-accent"></div><div class="pp-main">' +
+        '<div class="pp-titlebar"><h1>Mietvertrag</h1><div class="pp-ref">Réf. ' + esc(ref) + '<br>' + esc(fmt(new Date().toISOString())) + "</div></div>" +
+        '<div class="pp-cols">' +
+        '<div class="pp-sec"><h3>Vermieter</h3>' + vermieter + "</div>" +
+        '<div class="pp-sec"><h3>Mieter</h3>' + mieter + "</div>" +
+        "</div>" +
+        '<div class="pp-sec"><h3>Mietobjekt</h3>' + objet + "</div>" +
+        '<div class="pp-sec"><h3>Mietperiod</h3>' + period + "</div>" +
+        '<div class="pp-sec"><h3>Präis, Kautioun a Bezuelung</h3>' + prix + "</div>" +
+        '<div class="pp-sec pp-terms"><h3>Konditiounen</h3><ol style="margin:0;padding-left:18px">' + clauses.map(function (c) { return '<li style="margin:4px 0">' + c + "</li>"; }).join("") + "</ol></div>" +
+        '<p style="margin:14px 0 6px">Zu Bettendorf, den <span style="display:inline-block;min-width:160px;border-bottom:1px dotted #94a3b8">&nbsp;</span></p>' +
+        '<div class="pp-sign"><div><span class="pp-sigbox"></span><div class="pp-sigline">Ënnerschrëft Mieter · ' + esc(b.name) + "</div></div>" +
+        '<div><span class="pp-sigbox"></span><div class="pp-sigline">Ënnerschrëft Vermieter · Autoservice Bettenduerf</div></div></div>' +
+        '<footer class="pp-foot">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87 · autoservicebettenduerf.lu</footer>' +
+        "</div></div>";
+      var root = $("protocol-print-root"); if (!root) return;
+      root.innerHTML = '<div class="pp-bar pp-noprint"><span class="pp-hint" id="pp-status">Dokument gëtt virbereet …</span><button type="button" class="btn btn-primary btn-sm" id="pp-print" disabled>🖨️ Drécken / PDF</button><button type="button" class="btn btn-ghost btn-sm" id="pp-close">Zoumaachen</button></div>' + html;
+      root.classList.add("open");
+      document.body.classList.add("protocol-printing");
+      document.body.style.overflow = "hidden";
+      function close() { root.classList.remove("open"); document.body.classList.remove("protocol-printing"); document.body.style.overflow = ""; root.innerHTML = ""; }
+      $("pp-close").addEventListener("click", close);
+      root.addEventListener("click", function (e) { if (e.target === root) close(); });
+      var imgs = Array.prototype.slice.call(root.querySelectorAll(".pp-doc img")), printBtn = $("pp-print"), status = $("pp-status");
+      Promise.all(imgs.map(function (img) { return img.complete ? Promise.resolve(img.naturalWidth > 0) : new Promise(function (resolve) { img.addEventListener("load", function () { resolve(true); }, { once: true }); img.addEventListener("error", function () { resolve(false); }, { once: true }); }); })).then(function () { printBtn.disabled = false; status.textContent = "Fäerdeg — elo drécken oder als PDF späicheren."; });
+      printBtn.addEventListener("click", function () { try { window.print(); } catch (e) { toast("Drécken net méiglech op dësem Apparat – benotzt d'Deele-Funktioun fir als PDF ze späicheren."); } });
+    });
+  }
   function bookingCard(b) {
     var el = document.createElement("div"); el.className = "booking" + (b.status === "new" ? " is-new" : "");
     var canVal = can("bookings.validate"), isAdmin = can("members.manage");
@@ -354,6 +412,7 @@
     else if (canVal && b.status === "confirmed") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-primary btn-sm" data-protocol="pickup">Iwwergab</button><button class="btn btn-primary btn-sm" data-protocol="return">Retour</button><button class="btn btn-outline btn-sm" data-act="done" data-id="' + b.id + '">Als ofgeschloss markéieren</button>';
     else if (canVal && b.status === "done") actions = '<button class="btn btn-outline btn-sm" data-protocol="pickup">Iwwergab ukucken</button><button class="btn btn-outline btn-sm" data-protocol="return">Retour ukucken</button>';
     if (canVal) actions += '<button class="btn btn-outline btn-sm" data-edit-booking="' + b.id + '">✎ Änneren</button>';
+    if (canVal && (b.status === "confirmed" || b.status === "done")) actions += '<button class="btn btn-outline btn-sm" data-contract="' + b.id + '">📑 Mietvertrag / PDF</button>';
     if (combinedReady) actions += '<button class="btn btn-ok btn-sm" data-combined-pdf="' + b.id + '">📄 Gesamtprotokoll / PDF</button>';
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-del-booking="' + b.id + '">Läschen</button>';
     el.innerHTML =
@@ -372,6 +431,7 @@
     el.querySelectorAll("[data-close-protocol]").forEach(function(btn){btn.addEventListener("click",function(){protocolOpen=null;renderBookings();});});
     el.querySelectorAll("[data-save-protocol]").forEach(function(btn){btn.addEventListener("click",function(){saveProtocol(b,btn.getAttribute("data-stage"));});});
     el.querySelectorAll("[data-combined-pdf]").forEach(function(btn){btn.addEventListener("click",function(){printCombinedProtocol(b);});});
+    el.querySelectorAll("[data-contract]").forEach(function(btn){btn.addEventListener("click",function(){printContract(b);});});
     if(protocolOpen && protocolOpen.id===b.id) setTimeout(function(){initProtocolUi(b,protocolOpen.stage);},0);
     return el;
   }
