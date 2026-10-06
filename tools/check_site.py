@@ -79,6 +79,8 @@ def check_admin_integrity() -> None:
         fail("admin script version differs between index.html and service worker")
     if "pickupDone&&returnDone&&pickupDone.customerSignature&&returnDone.customerSignature" not in admin_js:
         fail("combined protocol is not available after both signed stages")
+    if 'return /^assets\\//.test(value)?"/"+value:value;' not in admin_js:
+        fail("relative fleet image paths are not normalized for the admin PWA")
     for required in (
         'DELETE FROM rental_inspections WHERE booking_id=?1',
         "DELETE FROM request_consents WHERE request_type='booking'",

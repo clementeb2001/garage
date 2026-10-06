@@ -1174,9 +1174,13 @@
 
   /* ---------- Wartung ---------- */
   var editingMaint = null;
+  function fleetImageSrc(url) {
+    var value=String(url||"").trim();
+    return /^assets\//.test(value)?"/"+value:value;
+  }
   function showFleetPhoto(url) {
     var img=$("w-image-preview"), empty=$("w-image-placeholder"), remove=$("w-image-remove");
-    if(url){img.src=url;img.hidden=false;empty.hidden=true;remove.hidden=false;}
+    if(url){img.src=fleetImageSrc(url);img.hidden=false;empty.hidden=true;remove.hidden=false;}
     else{img.removeAttribute("src");img.hidden=true;empty.hidden=false;remove.hidden=true;}
   }
   function resizeFleetPhoto(file) {
@@ -1222,7 +1226,7 @@
       fleetCache = items;
       (function(){ var sel=$("blank-doc-veh"); if(!sel)return; var keep=sel.value; Array.prototype.slice.call(sel.querySelectorAll('option[value^="id:"]')).forEach(function(o){o.remove();}); items.forEach(function(m){ var o=document.createElement("option"); o.value="id:"+m.id; o.textContent=m.vehicle+" ("+fleetTypeLabel(m.type)+")"; sel.appendChild(o); }); try{sel.value=keep;}catch(e){} })();
       if(!items.length){body.innerHTML='<p class="empty">Nach kee Verleihobjet an der Flotte.</p>';return;}
-      items.forEach(function(m){var fs=fleetStatus(m.status),card=document.createElement("article"),ic=m.type==="trailer"?"🛻":(m.type==="car"?"🚗":"🚐");card.className="fleet-card";card.innerHTML=(m.imageUrl?'<img src="'+esc(m.imageUrl)+'" alt="">':'<div class="stat-ic">'+ic+'</div>')+'<div><h3>'+esc(m.vehicle)+'</h3><span class="fleet-status fleet-'+fs[1]+'">'+fs[0]+'</span> <span class="fleet-private">'+fleetTypeLabel(m.type)+'</span> <span class="'+(m.active?'fleet-public':'fleet-private')+'">'+(m.active?'● Online sichtbar':'○ Intern')+'</span><p>'+esc(m.description||'Keng ëffentlech Beschreiwung')+'</p><p>'+esc(m.service||'Nach Bedarf')+(m.dueDate?' · '+dLabel(m.dueDate):'')+(m.priceDay!==''?' · '+esc(m.priceDay)+' €/Dag':'')+'</p></div><div class="fleet-actions">'+(canEdit?'<button class="btn btn-outline btn-sm" data-medit="'+m.id+'">Änneren</button> <button class="btn btn-danger btn-sm" data-mdel="'+m.id+'">Läschen</button>':'')+'</div>';body.appendChild(card);});
+      items.forEach(function(m){var fs=fleetStatus(m.status),card=document.createElement("article"),ic=m.type==="trailer"?"🛻":(m.type==="car"?"🚗":"🚐");card.className="fleet-card";card.innerHTML=(m.imageUrl?'<img src="'+esc(fleetImageSrc(m.imageUrl))+'" alt="'+esc(m.vehicle)+'">':'<div class="stat-ic">'+ic+'</div>')+'<div><h3>'+esc(m.vehicle)+'</h3><span class="fleet-status fleet-'+fs[1]+'">'+fs[0]+'</span> <span class="fleet-private">'+fleetTypeLabel(m.type)+'</span> <span class="'+(m.active?'fleet-public':'fleet-private')+'">'+(m.active?'● Online sichtbar':'○ Intern')+'</span><p>'+esc(m.description||'Keng ëffentlech Beschreiwung')+'</p><p>'+esc(m.service||'Nach Bedarf')+(m.dueDate?' · '+dLabel(m.dueDate):'')+(m.priceDay!==''?' · '+esc(m.priceDay)+' €/Dag':'')+'</p></div><div class="fleet-actions">'+(canEdit?'<button class="btn btn-outline btn-sm" data-medit="'+m.id+'">Änneren</button> <button class="btn btn-danger btn-sm" data-mdel="'+m.id+'">Läschen</button>':'')+'</div>';body.appendChild(card);});
       body.querySelectorAll("[data-medit]").forEach(function(b){b.addEventListener("click",function(){var id=parseInt(b.getAttribute("data-medit"),10),m=items.filter(function(x){return x.id===id;})[0];editingMaint=id;fillFleet(m);$("wartung-msg").textContent="Gefier gëtt geännert – späichere fir z'iwwerhuelen.";$("w-veh").focus();});});
       body.querySelectorAll("[data-mdel]").forEach(function(b){b.addEventListener("click",function(){var id=parseInt(b.getAttribute("data-mdel"),10);if(!confirm("Dëst Gefier aus der Flotte läschen?"))return;STORE.delMaintenance(id).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Gefier geläscht.");renderWartung();});});});
     }).catch(function () { $("wartung-body").innerHTML = '<p class="empty">⚠ Net gelueden. <button class="btn btn-outline btn-sm" id="retry-wartung">Nei probéieren</button></p>'; var r = $("retry-wartung"); if (r) r.addEventListener("click", renderWartung); });
