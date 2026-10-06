@@ -521,7 +521,8 @@
   function snapshotDocData(b,T) {
     var s=parseBookingSnapshot(b); if(!s||!s.items||!s.items.length)return null;
     var items=s.items, f=items[0]||{}, allTrailer=items.every(function(x){return x.type==="trailer";}), d=fleetDocData({type:allTrailer?"trailer":f.type,vehicle:items.map(function(x){return x.name;}).join(", "),plate:items.map(function(x){return x.plate;}).filter(Boolean).join(" · "),year:items.map(function(x){return x.year;}).filter(Boolean).join(" · "),fuel:items.map(function(x){return x.fuel;}).filter(Boolean).join(" · "),licenseClass:items.map(function(x){return x.licenseClass;}).filter(function(v,i,a){return v&&a.indexOf(v)===i;}).join(" / "),loadSpace:items.map(function(x){return x.loadSpace;}).filter(Boolean).join(" · "),grossWeight:items.map(function(x){return x.grossWeight;}).filter(Boolean).join(" · "),payload:items.map(function(x){return x.payload;}).filter(Boolean).join(" · "),braked:items.every(function(x){return !!x.braked;}),priceDay:items.reduce(function(a,x){return a+Number(x.priceDay||0);},0),deposit:items.reduce(function(a,x){return a+Number(x.deposit||0);},0),includedKm:items.reduce(function(a,x){return a+Number(x.includedKm||0);},0),extraKmRate:items.reduce(function(a,x){return a+Number(x.extraKmRate||0);},0),lateFeeHour:items.reduce(function(a,x){return Math.max(a,Number(x.lateFeeHour||0));},0)},T);
-    d.veh=items.map(function(x){return x.name;}).join(", ")||s.rental.requestedVehicle||d.veh; d.name=s.customer.name||b.name; d.email=s.customer.email||b.email; d.phone=s.customer.phone||b.phone; d.from=fmt(s.rental.from||b.from); d.to=fmt(s.rental.to||b.to); return d;
+    var cust=s.customer||{}, rent=s.rental||{};
+    d.veh=items.map(function(x){return x.name;}).join(", ")||rent.requestedVehicle||d.veh; d.name=cust.name||b.name; d.email=cust.email||b.email; d.phone=cust.phone||b.phone; d.from=fmt(rent.from||b.from); d.to=fmt(rent.to||b.to); return d;
   }
   function printContract(b) {
     ensureFleetCache().then(function () {
@@ -532,7 +533,7 @@
       if (!d.plate) d.plate = plateFor(b.veh);
       if (!d.trailer && !d.license) d.license = "B";
       d.ref = refOf(b.id); d.name = d.name||b.name; d.email = d.email||b.email; d.phone = d.phone||b.phone; d.from = d.from||fmt(b.from); d.to = d.to||fmt(b.to);
-      var s=parseBookingSnapshot(b), from = new Date(s&&s.rental.from||b.from), to = new Date(s&&s.rental.to||b.to);
+      var s=parseBookingSnapshot(b), sr=(s&&s.rental)||{}, from = new Date(sr.from||b.from), to = new Date(sr.to||b.to);
       d.days = (!isNaN(from) && !isNaN(to) && to > from) ? Math.max(1, Math.ceil((to - from) / 86400000)) : 0;
       d.total = d.days * d.rate;
       openDocOverlay('<div class="pp-doc">' + docHead() + contractInner(d, T) + "</div>", T);
