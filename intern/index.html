@@ -191,13 +191,32 @@
       .protocol-photo { position:relative; min-width:0; }
       .protocol-photo img { width:100%; height:76px; display:block; object-fit:cover; border:1px solid var(--line); border-radius:8px; }
       .protocol-photo button { position:absolute; top:3px; right:3px; width:25px; height:25px; padding:0; border:0; border-radius:50%; background:rgba(13,27,42,.82); color:#fff; font-weight:900; }
+      .damage-map { padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
+      .damage-map-head { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; margin-bottom:8px; }
+      .damage-map-head strong { display:block; color:var(--fg); font-size:.84rem; }
+      .damage-map-head span { display:block; margin-top:2px; color:var(--mut); font-size:.73rem; }
+      .damage-count { flex:none; padding:4px 8px; border-radius:999px; background:var(--surface-2); font-weight:800; }
+      .damage-svg { width:100%; max-height:300px; display:block; border:1px solid var(--line); border-radius:9px; background:#fff; touch-action:manipulation; cursor:crosshair; }
+      .damage-shape { fill:#f2f5f7; stroke:#25384a; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+      .damage-shape circle { fill:#fff; }
+      .damage-marker circle { fill:#e63946; stroke:#fff; stroke-width:3; filter:drop-shadow(0 1px 2px rgba(0,0,0,.3)); }
+      .damage-marker text { fill:#fff; font:800 13px system-ui,sans-serif; pointer-events:none; }
+      .damage-tip { fill:#667789; font:600 11px system-ui,sans-serif; }
+      .damage-items { display:grid; gap:7px; margin-top:9px; }
+      .damage-item { display:grid; grid-template-columns:28px minmax(120px,.65fr) minmax(150px,1.4fr) 30px; gap:7px; align-items:center; }
+      .damage-number { display:grid; place-items:center; width:26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; font-weight:900; font-size:.75rem; }
+      .damage-item select,.damage-item input { padding:7px 8px; }
+      .damage-item button { width:30px; height:30px; border:0; border-radius:50%; background:var(--new-soft); color:var(--accent-dark); font-size:1.1rem; font-weight:900; }
+      .pp-damage { margin-top:10px; break-inside:avoid; }
+      .pp-damage .damage-svg { width:100%; max-height:210px; margin:6px 0; }
+      .pp-damage ol { margin:5px 0 0 20px; padding:0; font-size:8.5pt; }
       .signature-wrap { grid-column:1/-1; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
       .signature-wrap > strong { display:block; margin-bottom:6px; font-size:.82rem; color:var(--fg); }
       .signature-pad { width:100%; height:170px; display:block; border:1px dashed var(--mut); border-radius:8px; background:#fff; touch-action:none; cursor:crosshair; }
       .signature-tools { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-top:7px; color:var(--mut); font-size:.74rem; }
       .signature-existing { max-width:240px; max-height:90px; margin:8px 0 0; border:1px solid var(--line); border-radius:8px; background:#fff; }
       @media (max-width:900px) { .fleet-form { grid-template-columns:1fr 1fr; } .protocol-grid { grid-template-columns:1fr 1fr; } }
-      @media (max-width:560px) { .fleet-form,.protocol-grid { grid-template-columns:1fr; } .protocol-checks { grid-template-columns:1fr; } .fleet-photo-field { grid-column:auto; } .fleet-photo-row { grid-template-columns:84px 1fr; } .fleet-photo-preview { width:84px; height:70px; } .fleet-card { grid-template-columns:76px 1fr; } .fleet-card img { width:76px; height:62px; } .fleet-card .fleet-actions { grid-column:1/-1; } }
+      @media (max-width:560px) { .fleet-form,.protocol-grid { grid-template-columns:1fr; } .protocol-checks { grid-template-columns:1fr; } .fleet-photo-field { grid-column:auto; } .fleet-photo-row { grid-template-columns:84px 1fr; } .fleet-photo-preview { width:84px; height:70px; } .fleet-card { grid-template-columns:76px 1fr; } .fleet-card img { width:76px; height:62px; } .fleet-card .fleet-actions { grid-column:1/-1; } .damage-map-head { display:block; } .damage-count { display:inline-block!important; margin-top:7px!important; } .damage-item { grid-template-columns:28px 1fr 30px; } .damage-item input { grid-column:2/4; } }
 
       /* Dashboard */
       .stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 16px 0 18px; }
@@ -819,6 +838,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=40"></script>
+    <script src="intern.js?v=41"></script>
   </body>
 </html>
