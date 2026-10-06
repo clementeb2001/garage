@@ -11,7 +11,11 @@
     .pbar button { border: 0; border-radius: 9px; padding: 12px 20px; font-size: 15px; font-weight: 800; cursor: pointer; }
     .pbar .pr { background: #e63946; color: #fff; }
     .pbar .cl { background: #e7ebf0; color: #1c2430; }
-    .phint { max-width: 210mm; margin: 0 auto 10px; color: #dbe3ea; font-size: 13px; text-align: center; }
+    .pguide { max-width: 210mm; margin: 0 auto 12px; background: #fff7e6; border: 1px solid #f2d79a; color: #5a4a1f; border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.5; }
+    .pguide strong { color: #3f3310; }
+    .pguide ol { margin: 6px 0 0; padding-left: 20px; }
+    .pguide li { margin: 3px 0; }
+    .pguide .psmall { display: block; margin-top: 8px; font-size: 12px; color: #857544; }
     .pp-doc { background: #fff; max-width: 210mm; margin: 0 auto; box-shadow: 0 12px 44px rgba(0,0,0,0.4); border-radius: 8px; overflow: hidden; }
     .pp-doc { color: #1c2430; font-size: 11pt; line-height: 1.45; }
     .pp-head { background: #0d1b2a; color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -73,7 +77,15 @@
 </head>
 <body>
   <div class="pbar"><button type="button" class="pr" id="pbtn">🖨️ Drécken / PDF späicheren</button><button type="button" class="cl" id="cbtn">✕ Zoumaachen</button></div>
-  <p class="phint">Falls de Print-Dialog net automatesch opgeet: op „Drécken / PDF späicheren" drécken (oder iwwer d'Deele-Menü ⬆︎ vun Ärem Browser → „Drécken").</p>
+  <div class="pguide">
+    <strong>📄 Um iPhone / iPad späicheren oder drécken:</strong>
+    <ol>
+      <li>Ënnen op <strong>⬆︎ (Deelen)</strong> tippen.</li>
+      <li>Uewen op <strong>„Optiounen"</strong> → <strong>PDF</strong> wielen → dann <strong>„An Dateien späicheren"</strong>.</li>
+      <li>Oder an der Lëscht <strong>„Drécken"</strong> wielen (fir en AirPrint-Drécker).</li>
+    </ol>
+    <span class="psmall">Um Computer funktionéiert de roude Knäppchen „Drécken / PDF" direkt.</span>
+  </div>
   <div id="doc"></div>
   <script src="print-doc.js?v=1"></script>
 </body>
