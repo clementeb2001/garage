@@ -499,11 +499,17 @@
     state.selected.forEach(function (id) {
       var it = CATALOG.filter(function (x) { return x.id === id; })[0];
       if (!it) return;
-      var key = (it.name.de || it.name.lb).toLowerCase();
+      var key = (it.name.de || it.name.lb).toLowerCase(), type = it.cat === "trailer" ? "trailer" : (it.icon === "car" ? "car" : "van");
       state.busy.forEach(function (b) {
         var names = String(b.veh || "").split(",").map(function (s) { return s.trim().toLowerCase(); });
         // ISO "YYYY-MM-DDTHH:MM" strings compare correctly lexicographically
-        if (names.indexOf(key) !== -1 && b.from < cTo && b.to > cFrom) {
+        var same = names.some(function(n){
+          if (n === key || n.indexOf(key) !== -1 || key.indexOf(n) !== -1) return true;
+          if (type === "van") return /transporter|lieferwagen|utilitaire|\bvan\b/.test(n);
+          if (type === "trailer") return /anhänger|unhänger|remorque|trailer/.test(n);
+          return /personenwagen|voiture|\bauto\b|\bcar\b/.test(n);
+        });
+        if (same && b.from < cTo && b.to > cFrom) {
           hits.push({ name: it.name[lang()] || it.name.lb, from: b.from, to: b.to });
         }
       });

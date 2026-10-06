@@ -133,8 +133,22 @@ function protocolMediaList(s) { return String(s||"").split("\n").map(protocolMed
 function hasPerm(role, perm) { return (PERMS[role] || []).indexOf(perm) !== -1; }
 function validEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 160; }
 function validDateTime(s) { return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s) && Number.isFinite(Date.parse(s)); }
-function vehicleKeys(s) { return String(s || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean); }
-function hasSameVehicle(a, b) { const bb = new Set(vehicleKeys(b)); return vehicleKeys(a).some((x) => bb.has(x)); }
+function vehicleDescriptors(s, fleet) {
+  return String(s || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean).map((raw) => {
+    const match = fleet.find((f) => {
+      const name = String(f.vehicle || "").trim().toLowerCase();
+      return name && (name === raw || name.includes(raw) || raw.includes(name));
+    });
+    if (match) return { id:Number(match.id), type:match.asset_type || "van", generic:false, raw };
+    const type = /transporter|lieferwagen|utilitaire|\bvan\b/.test(raw) ? "van" : /anhänger|unhänger|remorque|trailer/.test(raw) ? "trailer" : /personenwagen|voiture|\bauto\b|\bcar\b/.test(raw) ? "car" : "";
+    return { id:0, type, generic:!!type, raw };
+  });
+}
+function descriptorOverlap(a,b) {
+  if (a.id && b.id) return a.id === b.id;
+  if (a.raw === b.raw) return true;
+  return !!(a.type && b.type && a.type === b.type && (a.generic || b.generic));
+}
 async function hashText(s) {
   const digest = await crypto.subtle.digest("SHA-256", enc(s));
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -150,8 +164,11 @@ async function publicRateAllowed(request, env) {
   return !!row && Number(row.count) <= 8;
 }
 async function findConflict(env, veh, from, to, excludeId) {
+  await ensureMaint(env);
+  const fleet = (await env.DB.prepare("SELECT id,vehicle,asset_type FROM maintenance").all()).results || [];
+  const wanted = vehicleDescriptors(veh,fleet);
   const rows = (await env.DB.prepare("SELECT id, veh, from_dt, to_dt FROM bookings WHERE status='confirmed' AND from_dt < ?1 AND to_dt > ?2").bind(to, from).all()).results || [];
-  return rows.find((b) => Number(b.id) !== Number(excludeId || 0) && hasSameVehicle(veh, b.veh)) || null;
+  return rows.find((b) => Number(b.id) !== Number(excludeId || 0) && wanted.some((a) => vehicleDescriptors(b.veh,fleet).some((x) => descriptorOverlap(a,x)))) || null;
 }
 /* ---------- Login brute-force throttle (reuse booking_rate_limits table) ---------- */
 async function loginBucket(request) {
