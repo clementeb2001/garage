@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="lb">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://garage-admin.autoservicebettenduerf.lu; connect-src 'self'; form-action 'self'; frame-src 'none'" />
+  <title>Dokument · Autoservice Bettenduerf</title>
+  <style>
+    body { margin: 0; background: #52606d; padding: 16px; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .pbar { max-width: 210mm; margin: 0 auto 12px; display: flex; gap: 8px; justify-content: flex-end; }
+    .pbar button { background: #e63946; color: #fff; border: 0; border-radius: 9px; padding: 12px 20px; font-size: 15px; font-weight: 800; cursor: pointer; }
+    .pp-doc { background: #fff; max-width: 210mm; margin: 0 auto; box-shadow: 0 12px 44px rgba(0,0,0,0.4); border-radius: 8px; overflow: hidden; }
+    .pp-doc { color: #1c2430; font-size: 11pt; line-height: 1.45; }
+    .pp-head { background: #0d1b2a; color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .pp-logo { height: 54px; width: auto; max-width: 48%; object-fit: contain; }
+    .pp-co { text-align: right; font-size: 8.5pt; line-height: 1.55; color: #e7edf3; }
+    .pp-co strong { color: #fff; font-size: 10pt; }
+    .pp-accent { height: 4px; background: #e63946; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .pp-main { padding: 16px 20px 20px; }
+    .pp-titlebar { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 12px; }
+    .pp-titlebar h1 { font-size: 17pt; margin: 0; color: #0d1b2a; letter-spacing: -0.01em; }
+    .pp-ref { text-align: right; font-size: 9pt; color: #5b6b7c; white-space: nowrap; }
+    .pp-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .pp-sec { margin: 12px 0; break-inside: avoid; }
+    .pp-sec h3 { font-size: 9pt; text-transform: uppercase; letter-spacing: .05em; color: #c92c39; margin: 0 0 5px; border-bottom: 1px solid #e6e9ee; padding-bottom: 3px; }
+    .pp-tbl { width: 100%; border-collapse: collapse; font-size: 10pt; }
+    .pp-tbl th { text-align: left; color: #5b6b7c; font-weight: 600; width: 42%; padding: 3px 8px 3px 0; vertical-align: top; }
+    .pp-tbl td { padding: 3px 0; vertical-align: top; font-weight: 500; }
+    .pp-sec p { font-size: 10pt; margin: 5px 0; }
+    .pp-photos { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pp-photos img { width: 52mm; height: 38mm; object-fit: cover; border: 1px solid #d7dce2; border-radius: 4px; }
+    .pp-terms { background: #f6f8fa; border: 1px solid #e6e9ee; border-radius: 8px; padding: 10px 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .pp-terms h3 { border: 0; margin-bottom: 3px; }
+    .pp-terms p { font-size: 9.5pt; color: #333; margin: 0; }
+    .pp-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 26px; break-inside: avoid; }
+    .pp-sigbox { display: block; height: 22mm; border: 1px dashed #b4bcc6; border-radius: 6px; }
+    .pp-sigbox img { max-height: 21mm; max-width: 100%; object-fit: contain; display: block; margin: 0 auto; }
+    .pp-sigline { font-size: 9pt; color: #5b6b7c; margin-top: 5px; border-top: 1px solid #1c2430; padding-top: 4px; }
+    .pp-foot { margin-top: 18px; font-size: 8pt; color: #8a96a2; text-align: center; border-top: 1px solid #e6e9ee; padding-top: 7px; }
+    .pp-damage svg { max-width: 100%; height: auto; }
+    .pp-damage ol { font-size: 9pt; margin: 6px 0 0; padding-left: 18px; }
+    .pp-no-damage { font-size: 9pt; color: #5b6b7c; }
+    .pp-stage { margin-top: 22px; padding-top: 14px; border-top: 2px solid #0d1b2a; }
+    .pp-stage-title { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .pp-stage-title > span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #e63946; color: #fff; font-weight: 900; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .pp-stage-title small { display: block; color: #6b7886; font-size: 7.5pt; font-weight: 800; letter-spacing: .08em; }
+    .pp-stage-title h2 { margin: 0; color: #0d1b2a; font-size: 14pt; }
+    .pp-sign-single { margin-top: 16px; }
+    @media screen and (max-width: 600px) {
+      body { padding: 8px; }
+      .pp-head { padding: 14px 16px; }
+      .pp-main { padding: 14px 16px 16px; }
+      .pp-doc { font-size: 13px; }
+      .pp-titlebar h1 { font-size: 19px; }
+      .pp-cols, .pp-sign { grid-template-columns: 1fr; gap: 10px; }
+      .pp-tbl, .pp-tbl td, .pp-tbl th, .pp-sec p, .pp-terms p, .pp-co { font-size: 12.5px; }
+      .pp-co strong { font-size: 13px; }
+      .pp-photos img { width: calc(50% - 4px); height: auto; aspect-ratio: 4 / 3; }
+      .pbar { position: sticky; top: 0; }
+      .pbar button { flex: 1; }
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .pbar { display: none !important; }
+      .pp-doc { box-shadow: none; max-width: none; margin: 0; border-radius: 0; }
+      .pp-combined .pp-stage + .pp-stage { break-before: page; padding-top: 0; border-top: 0; }
+      @page { size: A4; margin: 12mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="pbar"><button id="pbtn" type="button">🖨️ Drécken / PDF späicheren</button></div>
+  <div id="doc"></div>
+  <script src="print.js?v=1"></script>
+</body>
+</html>
