@@ -16,6 +16,8 @@
     .pguide ol { margin: 6px 0 0; padding-left: 20px; }
     .pguide li { margin: 3px 0; }
     .pguide .psmall { display: block; margin-top: 8px; font-size: 12px; color: #857544; }
+    body.pdfclean { background: #fff; padding: 0; }
+    body.pdfclean .pbar, body.pdfclean .pguide { display: none !important; }
     .pp-doc { background: #fff; max-width: 210mm; margin: 0 auto; box-shadow: 0 12px 44px rgba(0,0,0,0.4); border-radius: 8px; overflow: hidden; }
     .pp-doc { color: #1c2430; font-size: 11pt; line-height: 1.45; }
     .pp-head { background: #0d1b2a; color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -78,15 +80,14 @@
 <body>
   <div class="pbar"><button type="button" class="pr" id="pbtn">🖨️ Drécken / PDF späicheren</button><button type="button" class="cl" id="cbtn">✕ Zoumaachen</button></div>
   <div class="pguide">
-    <strong>📄 Um iPhone / iPad späicheren oder drécken:</strong>
+    <strong>📄 Um iPhone / iPad späicheren — nëmmen de Vertrag:</strong>
     <ol>
-      <li>Ënnen op <strong>⬆︎ (Deelen)</strong> tippen.</li>
-      <li>Uewen op <strong>„Optiounen"</strong> → <strong>PDF</strong> wielen → dann <strong>„An Dateien späicheren"</strong>.</li>
-      <li>Oder an der Lëscht <strong>„Drécken"</strong> wielen (fir en AirPrint-Drécker).</li>
+      <li>Op de roude Knäppchen <strong>„Drécken / PDF späicheren"</strong> tippen (d'Knäppercher a dës Notiz verschwannen dann).</li>
+      <li>Dann ënnen am Browser op <strong>⬆︎ (Deelen)</strong> → <strong>„An Dateien späicheren"</strong> (PDF) oder <strong>„Drécken"</strong>.</li>
     </ol>
-    <span class="psmall">Um Computer funktionéiert de roude Knäppchen „Drécken / PDF" direkt.</span>
+    <span class="psmall">Esou ass nëmmen de Vertrag drop, net d'Knäppercher. (Op de groen Rand tippen = Knäppercher nees weisen. Um Computer dréckt de roude Knäppchen direkt.)</span>
   </div>
   <div id="doc"></div>
-  <script src="print-doc.js?v=1"></script>
+  <script src="print-doc.js?v=2"></script>
 </body>
 </html>
