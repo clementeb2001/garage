@@ -25,7 +25,7 @@
   var toastT = null;
   function toast(msg) { var t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); clearTimeout(toastT); toastT = setTimeout(function () { t.remove(); }, 2600); }
 
-  function refOf(id) { return "R-" + (id >= 1000 ? id : id + 1000); }
+  function refOf(id) { return "AB-L-" + String(Number(id) || 0).padStart(5, "0"); }
 
   /* ======================================================================
      LIVE-STORE (Cloudflare-Worker)

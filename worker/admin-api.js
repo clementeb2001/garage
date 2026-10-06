@@ -207,21 +207,21 @@ async function saveConsent(env, type, id, privacy, terms) {
     .bind(type, id, privacy ? 1 : 0, terms ? 1 : 0).run();
 }
 async function sendConfirmation(env, bookingId, booking) {
-  booking.ref = "R-" + (Number(bookingId) + 1000);
+  booking.ref = "AB-L-" + String(bookingId).padStart(5, "0");
   const mail = confirmMail(booking);
   const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html, mail.text);
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Bestätegungsmail geschéckt" : "Bestätegungsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
 async function sendDecline(env, bookingId, booking) {
-  booking.ref = "R-" + (Number(bookingId) + 1000);
+  booking.ref = "AB-L-" + String(bookingId).padStart(5, "0");
   const mail = declineMail(booking);
   const result = await sendEmail(env, booking.cust_email, mail.subject, mail.html, mail.text);
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Ofsomail geschéckt" : "Ofsomail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
 async function sendNewBookingNotice(env, bookingId, booking) {
-  const subject = "Nei Location-Ufro R-" + (Number(bookingId) + 1000);
+  const subject = "Nei Location-Ufro AB-L-" + String(bookingId).padStart(5, "0");
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430">' +
     '<h2 style="color:#c81420">Nei Location-Ufro</h2>' +
     '<p><b>' + esc(booking.cust_name) + '</b> freet <b>' + esc(booking.veh) + '</b> un.</p>' +
