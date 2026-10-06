@@ -77,8 +77,10 @@ def check_admin_integrity() -> None:
     version = re.search(r'intern\.js\?v=(\d+)', index)
     if not version or f'intern.js?v={version.group(1)}' not in service_worker:
         fail("admin script version differs between index.html and service worker")
-    if "pickupDone.staffSignature&&returnDone.staffSignature" not in admin_js:
-        fail("combined protocol can be offered without both lessor signatures")
+    if "pickupDone&&returnDone&&pickupDone.customerSignature&&returnDone.customerSignature" not in admin_js:
+        fail("combined protocol is not available after both signed stages")
+    if 'return /^assets\\//.test(value)?"/"+value:value;' not in admin_js:
+        fail("relative fleet image paths are not normalized for the admin PWA")
     for required in (
         'DELETE FROM rental_inspections WHERE booking_id=?1',
         "DELETE FROM request_consents WHERE request_type='booking'",
