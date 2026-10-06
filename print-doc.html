@@ -7,8 +7,11 @@
   <title>Dokument · Autoservice Bettenduerf</title>
   <style>
     body { margin: 0; background: #52606d; padding: 16px; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
-    .pbar { max-width: 210mm; margin: 0 auto 12px; display: flex; gap: 8px; justify-content: flex-end; }
-    .pbar button { background: #e63946; color: #fff; border: 0; border-radius: 9px; padding: 12px 20px; font-size: 15px; font-weight: 800; cursor: pointer; }
+    .pbar { max-width: 210mm; margin: 0 auto 12px; display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+    .pbar button { border: 0; border-radius: 9px; padding: 12px 20px; font-size: 15px; font-weight: 800; cursor: pointer; }
+    .pbar .pr { background: #e63946; color: #fff; }
+    .pbar .cl { background: #e7ebf0; color: #1c2430; }
+    .phint { max-width: 210mm; margin: 0 auto 10px; color: #dbe3ea; font-size: 13px; text-align: center; }
     .pp-doc { background: #fff; max-width: 210mm; margin: 0 auto; box-shadow: 0 12px 44px rgba(0,0,0,0.4); border-radius: 8px; overflow: hidden; }
     .pp-doc { color: #1c2430; font-size: 11pt; line-height: 1.45; }
     .pp-head { background: #0d1b2a; color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 16px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -56,12 +59,12 @@
       .pp-tbl, .pp-tbl td, .pp-tbl th, .pp-sec p, .pp-terms p, .pp-co { font-size: 12.5px; }
       .pp-co strong { font-size: 13px; }
       .pp-photos img { width: calc(50% - 4px); height: auto; aspect-ratio: 4 / 3; }
-      .pbar { position: sticky; top: 0; }
+      .pbar { position: sticky; top: 0; z-index: 2; }
       .pbar button { flex: 1; }
     }
     @media print {
       body { background: #fff; padding: 0; }
-      .pbar { display: none !important; }
+      .pbar, .phint { display: none !important; }
       .pp-doc { box-shadow: none; max-width: none; margin: 0; border-radius: 0; }
       .pp-combined .pp-stage + .pp-stage { break-before: page; padding-top: 0; border-top: 0; }
       @page { size: A4; margin: 12mm; }
@@ -69,8 +72,9 @@
   </style>
 </head>
 <body>
-  <div class="pbar"><button id="pbtn" type="button">🖨️ Drécken / PDF späicheren</button></div>
+  <div class="pbar"><button type="button" class="pr" id="pbtn">🖨️ Drécken / PDF späicheren</button><button type="button" class="cl" id="cbtn">✕ Zoumaachen</button></div>
+  <p class="phint">Falls de Print-Dialog net automatesch opgeet: op „Drécken / PDF späicheren" drécken (oder iwwer d'Deele-Menü ⬆︎ vun Ärem Browser → „Drécken").</p>
   <div id="doc"></div>
-  <script src="print.js?v=1"></script>
+  <script src="print-doc.js?v=1"></script>
 </body>
 </html>

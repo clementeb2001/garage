@@ -429,8 +429,10 @@
     // opmaachen (iwwer den URL-Hash), wou Drécken/PDF-Späicheren funktionéiert.
     var doc = document.querySelector("#protocol-print-root .pp-doc");
     var standalone = (window.navigator.standalone === true) || !!(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
-    function openTab() { if (!doc) return false; try { var a = document.createElement("a"); a.href = "print.html#" + encodeURIComponent(doc.outerHTML); a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); return true; } catch (e) { return false; } }
-    if (standalone) { if (openTab()) { toast("Dokument mécht an engem neien Tab op — do op „Drécken / PDF“."); return; } }
+    // Root-Säit (ausserhalb vun der /intern/-Scope): an enger installéierter App
+    // mécht iOS dat am richtege Safari op, wou Drécken/PDF-Späicheren geet.
+    function openTab() { if (!doc) return false; try { var a = document.createElement("a"); a.href = "/print-doc.html#" + encodeURIComponent(doc.outerHTML); a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); return true; } catch (e) { return false; } }
+    if (standalone) { if (openTab()) { toast("Dokument mécht am Browser op — do op „Drécken / PDF späicheren“."); return; } }
     try { window.print(); return; } catch (e) {}
     if (!openTab()) toast("Drécken net méiglech op dësem Apparat.");
   }
