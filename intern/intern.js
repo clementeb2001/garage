@@ -756,10 +756,12 @@
       STORE.listBookings().then(function (v) { return v; }, function () { return null; }),
       STORE.listAppointments().then(function (v) { return v; }, function () { return []; }),
       STORE.listMaintenance().then(function (v) { return v; }, function () { return []; }),
+      STORE.listInspections().then(function (v) { return v; }, function () { return []; }),
     ]).then(function (res) {
       var bk = res[0]; if (bk === null) throw new Error("load");
       var ap = res[1] || [];
       var fleet = res[2] || [];
+      var insp = res[3] || [];
       var appts = ap.filter(function (a) { return (a.kind || "appointment") === "appointment"; });
       $("analyse-sub").textContent = "aus dengen Donnéeën berechent";
       var today = new Date(); today.setHours(0, 0, 0, 0);
@@ -783,8 +785,9 @@
       $("analyse-kpis").innerHTML = kpis.map(function (t) { return '<div class="stat ' + t.cls + '"><div class="stat-ic">' + t.ic + '</div><div><div class="n">' + t.n + '</div><div class="l">' + t.l + "</div></div></div>"; }).join("");
 
       // ---- Akommes / Ëmsaz aus der Locatioun ----
-      // Schätzung: Verleih-Deeg × aktuellen Dagespräis vum Gefier.
-      // "Realiséiert" = ofgeschloss (done), "Erwaart" = confirméiert mee nach net zréck.
+      // Basis: Verleih-Deeg × aktuellen Dagespräis + d'Zousazkäschten aus de
+      // Retour-Protokoller. "Realiséiert" = ofgeschloss (done), "Erwaart" =
+      // confirméiert mee nach net zréck.
       function fmtEur(n) { return (Math.round(n)).toLocaleString("de-DE") + " €"; }
       function rateForName(nm) {
         var k = String(nm || "").trim().toLowerCase();
@@ -794,19 +797,35 @@
         return 0;
       }
       function billedDays(b) { var f = new Date(b.from), t = new Date(b.to); if (isNaN(f) || isNaN(t) || t <= f) return 0; return Math.max(1, Math.ceil((t - f) / 86400000)); }
-      var realized = {}, expected = {}, realizedTot = 0, expectedTot = 0, doneCount = 0, unpriced = 0;
+      // Zousazkäschten (€) a Zousaz-km aus de Retour-Protokoller, pro Reservatioun
+      var retExtra = {}, retKm = {};
+      insp.forEach(function (x) {
+        if (x.stage !== "return") return;
+        var id = Number(x.bookingId);
+        if (x.extraCosts != null && x.extraCosts !== "") retExtra[id] = (retExtra[id] || 0) + (Number(x.extraCosts) || 0);
+        if (x.extraKm != null && x.extraKm !== "") retKm[id] = (retKm[id] || 0) + (Number(x.extraKm) || 0);
+      });
+      var realized = {}, expected = {}, realizedTot = 0, expectedTot = 0, doneCount = 0, unpriced = 0, extrasTot = 0, kmTot = 0;
       rentals.forEach(function (b) {
         if (b.status !== "done" && b.status !== "confirmed") return;
         var days = billedDays(b); if (!days) return;
         var names = String(b.veh || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
         if (!names.length) names = [b.veh || "?"];
         if (b.status === "done") doneCount++;
+        var primary = null;
         names.forEach(function (nm) {
           var rate = rateForName(nm), amt = days * rate;
           if (!rate) { unpriced++; return; }
+          if (primary === null) primary = nm;
           if (b.status === "done") { realized[nm] = (realized[nm] || 0) + amt; realizedTot += amt; }
           else { expected[nm] = (expected[nm] || 0) + amt; expectedTot += amt; }
         });
+        // Zousazkäschten nëmme bei ofgeschlossene Verleiher (echt kasséiert)
+        if (b.status === "done") {
+          var ex = retExtra[Number(b.id)] || 0, km = retKm[Number(b.id)] || 0;
+          if (ex) { var key = primary || names[0]; realized[key] = (realized[key] || 0) + ex; realizedTot += ex; extrasTot += ex; }
+          if (km) kmTot += km;
+        }
       });
       var revKpis = [
         { cls: "ok", n: fmtEur(realizedTot), l: "Ëmsaz realiséiert", ic: "💰" },
@@ -827,7 +846,7 @@
           '<span style="flex:0 0 auto;text-align:right;font-weight:800;white-space:nowrap">' + fmtEur(x.r) + exp + '</span>' +
           '</div>';
       }).join("") : '<p class="muted" style="font-size:0.85rem">Nach kee realiséierten oder confirméierten Verleih.</p>';
-      $("an-rev-note").textContent = "Schätzung: Verleih-Deeg × aktuellen Dagespräis. Extra-Käschten (Kilometer, Sprit, Verspéidung) a Kautioun sinn net abegraff." + (unpriced ? " Puer Gefierer ouni hannerluechte Präis goufen iwwersprongen." : "");
+      $("an-rev-note").textContent = "Basis: Verleih-Deeg × Dagespräis, plus d'Zousazkäschten aus de Retour-Protokoller." + (extrasTot ? " Dovunner " + fmtEur(extrasTot) + " Zousazkäschten" + (kmTot ? " · " + kmTot.toLocaleString("de-DE") + " Zousaz-km" : "") + "." : "") + " D'Kautioun zielt net als Ëmsaz." + (unpriced ? " Puer Gefierer ouni hannerluechte Präis goufen iwwersprongen." : "");
 
       // utilization per vehicle (count of rental-days in last 90d)
       var byVeh = {};
