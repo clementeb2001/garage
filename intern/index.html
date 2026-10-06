@@ -196,9 +196,14 @@
       .damage-map-head strong { display:block; color:var(--fg); font-size:.84rem; }
       .damage-map-head span { display:block; margin-top:2px; color:var(--mut); font-size:.73rem; }
       .damage-count { flex:none; padding:4px 8px; border-radius:999px; background:var(--surface-2); font-weight:800; }
-      .damage-svg { width:100%; max-height:300px; display:block; border:1px solid var(--line); border-radius:9px; background:#fff; touch-action:manipulation; cursor:crosshair; }
-      .damage-shape { fill:#f2f5f7; stroke:#25384a; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+      .damage-svg { width:100%; max-height:620px; display:block; border:1px solid var(--line); border-radius:12px; background:linear-gradient(180deg,#fff,#f8fafc); touch-action:manipulation; cursor:crosshair; }
+      .damage-panel > rect { fill:#fff; stroke:#d9e1e8; stroke-width:2; }
+      .damage-view-label { fill:#0d1b2a; font:900 15px system-ui,sans-serif; letter-spacing:1.6px; }
+      .damage-shape { fill:#eef2f5; stroke:#25384a; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
       .damage-shape circle { fill:#fff; }
+      .damage-shape .damage-detail { fill:none; stroke:#718093; stroke-width:2; }
+      .damage-rear { fill:#e7ecef; }
+      .damage-direction { fill:none; stroke:#e63946; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
       .damage-marker circle { fill:#e63946; stroke:#fff; stroke-width:3; filter:drop-shadow(0 1px 2px rgba(0,0,0,.3)); }
       .damage-marker text { fill:#fff; font:800 13px system-ui,sans-serif; pointer-events:none; }
       .damage-tip { fill:#667789; font:600 11px system-ui,sans-serif; }
@@ -208,7 +213,7 @@
       .damage-item select,.damage-item input { padding:7px 8px; }
       .damage-item button { width:30px; height:30px; border:0; border-radius:50%; background:var(--new-soft); color:var(--accent-dark); font-size:1.1rem; font-weight:900; }
       .pp-damage { margin-top:10px; break-inside:avoid; }
-      .pp-damage .damage-svg { width:100%; max-height:210px; margin:6px 0; }
+      .pp-damage .damage-svg { width:100%; max-height:360px; margin:6px 0; }
       .pp-damage ol { margin:5px 0 0 20px; padding:0; font-size:8.5pt; }
       .signature-wrap { grid-column:1/-1; padding:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); }
       .signature-wrap > strong { display:block; margin-bottom:6px; font-size:.82rem; color:var(--fg); }
@@ -838,6 +843,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=41"></script>
+    <script src="intern.js?v=42"></script>
   </body>
 </html>
