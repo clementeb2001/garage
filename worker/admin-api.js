@@ -291,8 +291,10 @@ async function ensureMaint(env) {
   for (const c of cols) { try { await env.DB.prepare("ALTER TABLE maintenance ADD COLUMN " + c[0] + " " + c[1]).run(); } catch (e) {} }
   // Al Claude-Donnéeën neutraliséieren: et gëtt weder Haaptgefier nach Kautiounsfeld.
   try { await env.DB.prepare("UPDATE maintenance SET featured=0, deposit=NULL WHERE featured!=0 OR deposit IS NOT NULL").run(); } catch (e) {}
+  // Präiskorrektur Oktober 2026: nëmmen den ale Renault-Master-Tarif vun 80 € migréieren.
+  try { await env.DB.prepare("UPDATE maintenance SET price_day=100 WHERE lower(vehicle)='renault master' AND (price_day IS NULL OR price_day=80)").run(); } catch (e) {}
   const master = await env.DB.prepare("SELECT id FROM maintenance WHERE lower(vehicle)='renault master' LIMIT 1").first();
-  if (!master) await env.DB.prepare("INSERT INTO maintenance (vehicle,service,note,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,updated_by) VALUES ('Renault Master','Nach Bedarf','Automatesch aus dem bestehende Verleih iwwerholl','ready','Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.','assets/rental-renault-master.webp',80,'2021','3','Diesel','','B','L2H2','Grousse Luedraum (L2H2)\nBis 3,5 t\nVollgetankt zréckbréngen',1,0,'System')").run();
+  if (!master) await env.DB.prepare("INSERT INTO maintenance (vehicle,service,note,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,updated_by) VALUES ('Renault Master','Nach Bedarf','Automatesch aus dem bestehende Verleih iwwerholl','ready','Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.','assets/rental-renault-master.webp',100,'2021','3','Diesel','','B','L2H2','Grousse Luedraum (L2H2)\nBis 3,5 t\nVollgetankt zréckbréngen',1,0,'System')").run();
 }
 async function ensureRentalInspections(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS rental_inspections (id INTEGER PRIMARY KEY AUTOINCREMENT, booking_id INTEGER NOT NULL, stage TEXT NOT NULL, inspected_at TEXT NOT NULL, odometer INTEGER, fuel_level TEXT, condition_note TEXT, damage_note TEXT, photo_refs TEXT, accessories TEXT, license_checked INTEGER NOT NULL DEFAULT 0, deposit_amount REAL, extra_km INTEGER, extra_costs REAL, customer_signature TEXT, staff_signature TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT, UNIQUE(booking_id, stage))").run();
@@ -366,6 +368,12 @@ function confirmMail(b) {
   }[L] || null;
   var t = T || { s: "Är Reservatioun ass bestätegt", h: "Reservatioun bestätegt", p: "Mir hunn Är Reservatioun bestätegt:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Merci!" };
   t.ref = { lb: "Réf.", de: "Ref.", fr: "Réf.", en: "Ref." }[L] || "Réf.";
+  var masterTerms = /renault\s+master/i.test(b.veh || "") ? ({
+    lb: "Konditiounen: 100 € pro ugefaangene 24 Stonnen, 250 km pro Locatioun abegraff, duerno 0,30 €/km, Kautioun 300 €, verspiet Retour 20 € pro ugefaangener Stonn.",
+    de: "Konditionen: 100 € pro angefangenen 24 Stunden, 250 km pro Miete inklusive, danach 0,30 €/km, Kaution 300 €, verspätete Rückgabe 20 € pro angefangener Stunde.",
+    fr: "Conditions : 100 € par tranche de 24 heures entamée, 250 km par location inclus, puis 0,30 €/km, caution 300 €, retard 20 € par heure entamée.",
+    en: "Terms: €100 per started 24-hour period, 250 km per rental included, then €0.30/km, €300 deposit, late return €20 per started hour."
+  }[L] || "") : "";
   var html =
     '<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1c2430">' +
     '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +
@@ -378,10 +386,11 @@ function confirmMail(b) {
     (b.from_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.from) + "</td><td>" + esc(b.from_dt.replace("T", " ")) + "</td></tr>" : "") +
     (b.to_dt ? "<tr><td style=\"color:#5b6b7c;padding:3px 12px 3px 0\">" + esc(t.to) + "</td><td>" + esc(b.to_dt.replace("T", " ")) + "</td></tr>" : "") +
     "</table>" +
+    (masterTerms ? '<p style="background:#f5f7f9;border-radius:8px;padding:12px;font-size:13px;line-height:1.5">' + esc(masterTerms) + "</p>" : "") +
     '<p style="color:#5b6b7c;font-size:13px;margin-top:18px">' + esc(t.foot) + "</p>" +
     '<p style="color:#8a96a2;font-size:12px;margin-top:14px">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87</p>' +
     "</div></div>";
-  return { subject: t.s, html: html, text: mailText(t, b) };
+  return { subject: t.s, html: html, text: mailText(t, b) + (masterTerms ? "\n\n" + masterTerms : "") };
 }
 function declineMail(b) {
   var L = (b.lang || "lb").slice(0, 2);
