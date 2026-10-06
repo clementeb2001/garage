@@ -296,6 +296,7 @@
         '<div><span class="pp-sigbox">' + (staffSigUrl ? '<img src="' + staffSigUrl + '" alt="">' : "") + '</span><div class="pp-sigline">Ënnerschrëft Autoservice Bettenduerf' + (staff ? " · " + esc(staff) : "") + "</div></div></div>" +
         '<footer class="pp-foot">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87 · autoservicebettenduerf.lu</footer>' +
         "</div></div>";
+      if (isStandalonePWA() && openDocInBrowser(html)) return;
       var root = $("protocol-print-root"); if (!root) return;
       root.innerHTML = '<div class="pp-bar pp-noprint"><span class="pp-hint" id="pp-status">Biller gi fir d’PDF virbereet …</span><button type="button" class="btn btn-primary btn-sm" id="pp-print" disabled>🖨️ Drécken / PDF</button><button type="button" class="btn btn-ghost btn-sm" id="pp-close">Zoumaachen</button></div>' + html;
       root.classList.add("open");
@@ -306,7 +307,7 @@
       root.addEventListener("click", function (e) { if (e.target === root) close(); });
       var imgs=Array.prototype.slice.call(root.querySelectorAll(".pp-doc img")),printBtn=$("pp-print"),status=$("pp-status");
       Promise.all(imgs.map(function(img){return img.complete?Promise.resolve(img.naturalWidth>0):new Promise(function(resolve){img.addEventListener("load",function(){resolve(true);},{once:true});img.addEventListener("error",function(){resolve(false);},{once:true});});})).then(function(results){var failed=results.filter(function(ok){return !ok;}).length;printBtn.disabled=false;status.textContent=failed?failed+" Bild(er) konnten net geluede ginn — kontrolléiert d’Virschau.":"Virschau komplett — elo drécken oder als PDF späicheren.";});
-      printBtn.addEventListener("click", function () { try { window.print(); } catch (e) { toast("Drécken net méiglech op dësem Apparat – benotzt d'Deele-Funktioun fir als PDF ze späicheren."); } });
+      printBtn.addEventListener("click", printDocEl);
     });
   }
   function printCombinedProtocol(b) {
@@ -325,9 +326,10 @@
       var distance="";if(!trailer&&pickup.odometer!=null&&returned.odometer!=null&&Number(returned.odometer)>=Number(pickup.odometer))distance=(Number(returned.odometer)-Number(pickup.odometer))+" km";
       var carRows=ppRow("Verleihobjet",b.veh)+ppRow("Typ",trailer?"Unhänger":(f.type==="car"?"Auto":"Transporter"))+ppRow("Baujoer",f.year)+ppRow("Brennstoff / Undriff",trailer?"":f.fuel)+ppRow(trailer?"Dimensiounen":"Luedraum",f.loadSpace)+ppRow("Führerschäin",f.licenseClass);
       var html='<div class="pp-doc pp-combined"><div class="pp-head"><img class="pp-logo" src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf"><div class="pp-co"><strong>Autoservice Bettenduerf</strong><br>63, rue de Diekirch-Echternach · L-9355 Bettendorf<br>+352 80 86 87 · Autoservicebettenduerf@outlook.com</div></div><div class="pp-accent"></div><div class="pp-main"><div class="pp-titlebar"><h1>Ofschlossprotokoll</h1><div class="pp-ref">Réf. '+esc(ref)+'<br>'+esc(fmt(new Date().toISOString()))+'</div></div><div class="pp-cols"><div class="pp-sec"><h3>Client</h3><table class="pp-tbl">'+ppRow("Numm",b.name)+ppRow("E-Mail",b.email)+ppRow("Telefon",b.phone)+'</table></div><div class="pp-sec"><h3>Verleihobjet</h3><table class="pp-tbl">'+carRows+'</table></div></div><div class="pp-sec"><h3>Locatioun</h3><table class="pp-tbl">'+ppRow("Vun",fmt(b.from))+ppRow("Bis",fmt(b.to))+ppRow("Gefuer Distanz",distance)+'</table></div>'+stageHtml(pickup,true)+stageHtml(returned,false)+'<div class="pp-sec pp-terms"><h3>Bestätegung</h3><p>Dëst Ofschlossprotokoll vereent d’Iwwergab an d’Retour. Déi zwou Ënnerschrëfte bestätegen déi jeeweils zesumme kontrolléiert an dokumentéiert Zoustänn.</p></div><footer class="pp-foot">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87 · autoservicebettenduerf.lu</footer></div></div>';
+      if (isStandalonePWA() && openDocInBrowser(html)) return;
       var root=$("protocol-print-root");root.innerHTML='<div class="pp-bar pp-noprint"><span class="pp-hint" id="pp-status">Biller gi fir d’PDF virbereet …</span><button type="button" class="btn btn-primary btn-sm" id="pp-print" disabled>🖨️ Drécken / PDF</button><button type="button" class="btn btn-ghost btn-sm" id="pp-close">Zoumaachen</button></div>'+html;root.classList.add("open");document.body.classList.add("protocol-printing");document.body.style.overflow="hidden";
       function close(){root.classList.remove("open");document.body.classList.remove("protocol-printing");document.body.style.overflow="";root.innerHTML="";}$("pp-close").addEventListener("click",close);root.addEventListener("click",function(e){if(e.target===root)close();});
-      var imgs=Array.prototype.slice.call(root.querySelectorAll(".pp-doc img")),btn=$("pp-print"),status=$("pp-status");Promise.all(imgs.map(function(img){return img.complete?Promise.resolve(img.naturalWidth>0):new Promise(function(resolve){img.addEventListener("load",function(){resolve(true);},{once:true});img.addEventListener("error",function(){resolve(false);},{once:true});});})).then(function(results){var failed=results.filter(function(ok){return !ok;}).length;btn.disabled=false;status.textContent=failed?failed+" Bild(er) konnten net geluede ginn — kontrolléiert d’Virschau.":"Iwwergab + Retour komplett — elo drécken oder als PDF späicheren.";});btn.addEventListener("click",function(){try{window.print();}catch(e){toast("Drécken net méiglech op dësem Apparat.");}});
+      var imgs=Array.prototype.slice.call(root.querySelectorAll(".pp-doc img")),btn=$("pp-print"),status=$("pp-status");Promise.all(imgs.map(function(img){return img.complete?Promise.resolve(img.naturalWidth>0):new Promise(function(resolve){img.addEventListener("load",function(){resolve(true);},{once:true});img.addEventListener("error",function(){resolve(false);},{once:true});});})).then(function(results){var failed=results.filter(function(ok){return !ok;}).length;btn.disabled=false;status.textContent=failed?failed+" Bild(er) konnten net geluede ginn — kontrolléiert d’Virschau.":"Iwwergab + Retour komplett — elo drécken oder als PDF späicheren.";});btn.addEventListener("click",printDocEl);
     });
   }
   function uploadSignature(canvas) { var existing=decodeURIComponent(canvas.dataset.existing||"");if(canvas._signed)return signatureBlob(canvas).then(function(blob){return STORE.uploadProtocolImage(blob);}).then(function(r){if(!r||r.error)throw new Error("signature_upload");return r.url;});return Promise.resolve(existing); }
@@ -428,7 +430,21 @@
         "<b>Data protection.</b> Personal data is processed solely to handle the rental (see the privacy policy at autoservicebettenduerf.lu)."
       ] }
   };
+  // Am installéierten App-Modus (standalone PWA, besonnesch iOS) mécht
+  // window.print() näischt an d'App kann net selwer drécken. Dofir d'Dokument
+  // op enger Root-Säit (ausserhalb vun der /intern/-Scope) opmaachen — do mécht
+  // iOS de richtege Browser op, wou een iwwer ⬆︎ Deelen drécke/als PDF späichere kann.
+  function isStandalonePWA() { return (window.navigator.standalone === true) || !!(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches); }
+  function openDocInBrowser(ppDocHtml) { if (!ppDocHtml) return false; try { var a = document.createElement("a"); a.href = "/print-doc.html#" + encodeURIComponent(ppDocHtml); a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); return true; } catch (e) { return false; } }
+  function printDocEl() {
+    var doc = document.querySelector("#protocol-print-root .pp-doc");
+    if (isStandalonePWA() && doc && openDocInBrowser(doc.outerHTML)) return;
+    try { window.print(); return; } catch (e) {}
+    if (!(doc && openDocInBrowser(doc.outerHTML))) toast("Drécken net méiglech op dësem Apparat.");
+  }
   function openDocOverlay(html, T) {
+    // An der installéierter App direkt am Browser opmaachen (kee Tëscheschrëtt).
+    if (isStandalonePWA() && openDocInBrowser(html)) return;
     var root = $("protocol-print-root"); if (!root) return;
     root.innerHTML = '<div class="pp-bar pp-noprint"><span class="pp-hint" id="pp-status">' + esc(T.prep) + '</span><button type="button" class="btn btn-primary btn-sm" id="pp-print" disabled>' + T.printBtn + '</button><button type="button" class="btn btn-ghost btn-sm" id="pp-close">' + esc(T.closeBtn) + '</button></div>' + html;
     root.classList.add("open"); document.body.classList.add("protocol-printing"); document.body.style.overflow = "hidden";
@@ -437,7 +453,7 @@
     root.addEventListener("click", function (e) { if (e.target === root) close(); });
     var imgs = Array.prototype.slice.call(root.querySelectorAll(".pp-doc img")), printBtn = $("pp-print"), status = $("pp-status");
     Promise.all(imgs.map(function (img) { return img.complete ? Promise.resolve(img.naturalWidth > 0) : new Promise(function (resolve) { img.addEventListener("load", function () { resolve(true); }, { once: true }); img.addEventListener("error", function () { resolve(false); }, { once: true }); }); })).then(function () { printBtn.disabled = false; status.textContent = T.ready; });
-    printBtn.addEventListener("click", function () { try { window.print(); } catch (e) { toast("Drécken net méiglech op dësem Apparat."); } });
+    printBtn.addEventListener("click", printDocEl);
   }
   function contractInner(d, T) {
     function R(label, val) { return val ? ppRow(label, val) : ppFill(label); }
