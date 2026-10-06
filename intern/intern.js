@@ -1235,7 +1235,7 @@
     editingMaint = null; blockVehicle = null;
     var f = $("wartung-form"); if (f) f.reset();
     syncFleetType(); showFleetPhoto("");
-    $("fleet-form-wrap").hidden = true;
+    $("fleet-overlay").hidden = true;
     $("fleet-block-mgr").hidden = true;
     $("wartung-form-title").textContent = "Verleihobjet an d'Flotte bäisetzen";
     $("w-submit").textContent = "Bäisetzen";
@@ -1244,22 +1244,23 @@
   }
   function openFleetForm(m) {
     if (!can("bookings.validate")) return;
-    $("fleet-form-wrap").hidden = false;
+    $("fleet-overlay").hidden = false;
+    $("fleet-overlay").scrollTop = 0;
+    var mb = document.querySelector("#fleet-overlay .fleet-modal-body"); if (mb) mb.scrollTop = 0;
     if (m) {
       editingMaint = m.id; blockVehicle = m.vehicle; fillFleet(m);
-      $("wartung-form-title").textContent = "Gefier änneren";
+      $("wartung-form-title").textContent = "Gefier – Detailer";
       $("w-submit").textContent = "Späicheren";
       $("wartung-msg").textContent = "";
       $("fleet-block-mgr").hidden = false;
       renderFleetBlocks();
     } else {
       editingMaint = null; blockVehicle = null; $("wartung-form").reset(); syncFleetType(); showFleetPhoto("");
-      $("wartung-form-title").textContent = "Verleihobjet an d'Flotte bäisetzen";
+      $("wartung-form-title").textContent = "Neit Gefier bäisetzen";
       $("w-submit").textContent = "Bäisetzen";
       $("wartung-msg").textContent = "";
       $("fleet-block-mgr").hidden = true;
     }
-    try { $("fleet-form-wrap").scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {}
     setTimeout(function () { try { $("w-veh").focus(); } catch (e) {} }, 60);
   }
   function renderFleetBlocks() {
@@ -1285,15 +1286,16 @@
   function renderWartung() {
     var canEdit = can("bookings.validate");
     $("fleet-add-toggle").style.display = canEdit ? "" : "none";
-    if (!canEdit) $("fleet-form-wrap").hidden = true;
+    if (!canEdit) $("fleet-overlay").hidden = true;
     STORE.listMaintenance().then(function (items) {
       var body=$("wartung-body"); body.innerHTML="";
       fleetCache = items;
       (function(){ var sel=$("blank-doc-veh"); if(!sel)return; var keep=sel.value; Array.prototype.slice.call(sel.querySelectorAll('option[value^="id:"]')).forEach(function(o){o.remove();}); items.forEach(function(m){ var o=document.createElement("option"); o.value="id:"+m.id; o.textContent=m.vehicle+" ("+fleetTypeLabel(m.type)+")"; sel.appendChild(o); }); try{sel.value=keep;}catch(e){} })();
       if(!items.length){body.innerHTML='<p class="empty">Nach kee Verleihobjet an der Flotte.</p>';return;}
-      items.forEach(function(m){var fs=fleetStatus(m.status),card=document.createElement("article"),ic=m.type==="trailer"?"🛻":(m.type==="car"?"🚗":"🚐");card.className="fleet-card";card.innerHTML=(m.imageUrl?'<img src="'+esc(fleetImageSrc(m.imageUrl))+'" alt="'+esc(m.vehicle)+'">':'<div class="stat-ic">'+ic+'</div>')+'<div><h3>'+esc(m.vehicle)+'</h3><span class="fleet-status fleet-'+fs[1]+'">'+fs[0]+'</span> <span class="fleet-private">'+fleetTypeLabel(m.type)+'</span> <span class="'+(m.active?'fleet-public':'fleet-private')+'">'+(m.active?'● Online sichtbar':'○ Intern')+'</span><p>'+esc(m.description||'Keng ëffentlech Beschreiwung')+'</p><p>'+esc(m.service||'Nach Bedarf')+(m.dueDate?' · '+dLabel(m.dueDate):'')+(m.priceDay!==''?' · '+esc(m.priceDay)+' €/Dag':'')+'</p></div><div class="fleet-actions">'+(canEdit?'<button class="btn btn-outline btn-sm" data-medit="'+m.id+'">Änneren</button> <button class="btn btn-danger btn-sm" data-mdel="'+m.id+'">Läschen</button>':'')+'</div>';body.appendChild(card);});
-      body.querySelectorAll("[data-medit]").forEach(function(b){b.addEventListener("click",function(){var id=parseInt(b.getAttribute("data-medit"),10),m=items.filter(function(x){return x.id===id;})[0];if(m)openFleetForm(m);});});
-      body.querySelectorAll("[data-mdel]").forEach(function(b){b.addEventListener("click",function(){var id=parseInt(b.getAttribute("data-mdel"),10);if(!confirm("Dëst Gefier aus der Flotte läschen?"))return;STORE.delMaintenance(id).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Gefier geläscht.");renderWartung();});});});
+      items.forEach(function(m){var fs=fleetStatus(m.status),card=document.createElement("article"),ic=m.type==="trailer"?"🛻":(m.type==="car"?"🚗":"🚐");card.className="fleet-card";if(canEdit){card.setAttribute("data-mopen",m.id);card.setAttribute("role","button");card.setAttribute("tabindex","0");card.setAttribute("aria-label",m.vehicle+" – Detailer opmaachen");}card.innerHTML=(m.imageUrl?'<img src="'+esc(fleetImageSrc(m.imageUrl))+'" alt="'+esc(m.vehicle)+'">':'<div class="stat-ic">'+ic+'</div>')+'<div><h3>'+esc(m.vehicle)+'</h3><span class="fleet-status fleet-'+fs[1]+'">'+fs[0]+'</span> <span class="fleet-private">'+fleetTypeLabel(m.type)+'</span> <span class="'+(m.active?'fleet-public':'fleet-private')+'">'+(m.active?'● Online sichtbar':'○ Intern')+'</span><p>'+esc(m.description||'Keng ëffentlech Beschreiwung')+'</p><p>'+esc(m.service||'Nach Bedarf')+(m.dueDate?' · '+dLabel(m.dueDate):'')+(m.priceDay!==''?' · '+esc(m.priceDay)+' €/Dag':'')+'</p></div><div class="fleet-actions">'+(canEdit?'<span class="fleet-open-hint">Detailer ›</span> <button class="btn btn-danger btn-sm" data-mdel="'+m.id+'">Läschen</button>':'')+'</div>';body.appendChild(card);});
+      function openCard(el){var id=parseInt(el.getAttribute("data-mopen"),10),m=items.filter(function(x){return x.id===id;})[0];if(m)openFleetForm(m);}
+      body.querySelectorAll("[data-mopen]").forEach(function(c){c.addEventListener("click",function(){openCard(c);});c.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openCard(c);}});});
+      body.querySelectorAll("[data-mdel]").forEach(function(b){b.addEventListener("click",function(e){e.stopPropagation();var id=parseInt(b.getAttribute("data-mdel"),10);if(!confirm("Dëst Gefier aus der Flotte läschen?"))return;STORE.delMaintenance(id).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Gefier geläscht.");renderWartung();});});});
     }).catch(function () { $("wartung-body").innerHTML = '<p class="empty">⚠ Net gelueden. <button class="btn btn-outline btn-sm" id="retry-wartung">Nei probéieren</button></p>'; var r = $("retry-wartung"); if (r) r.addEventListener("click", renderWartung); });
   }
   (function () {
@@ -1303,10 +1305,11 @@
     $("w-gallery-btn").addEventListener("click",function(){$("w-gallery").click();});
     [$("w-camera"),$("w-gallery")].forEach(function(inp){inp.addEventListener("change",function(){if(inp.files&&inp.files[0])handleFleetPhoto(inp.files[0]);inp.value="";});});
     $("w-image-remove").addEventListener("click",function(){$("w-image").value="";showFleetPhoto("");$("w-image-status").textContent="Bild ewechgeholl – späichere fir z'iwwerhuelen.";});
-    $("fleet-add-toggle").addEventListener("click", function () {
-      if ($("fleet-form-wrap").hidden || editingMaint) openFleetForm(null); else closeFleetForm();
-    });
+    $("fleet-add-toggle").addEventListener("click", function () { openFleetForm(null); });
     $("fleet-form-close").addEventListener("click", closeFleetForm);
+    $("fleet-form-cancel").addEventListener("click", closeFleetForm);
+    $("fleet-overlay").addEventListener("click", function (e) { if (e.target === $("fleet-overlay")) closeFleetForm(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("fleet-overlay").hidden) closeFleetForm(); });
     $("fb-add").addEventListener("click", function () {
       if (!can("bookings.validate") || !blockVehicle) return;
       var from = $("fb-from").value, to = $("fb-to").value || from;

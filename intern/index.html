@@ -425,6 +425,19 @@
       .pres .pref { margin-left: auto; font-family: ui-monospace, Menlo, monospace; font-size: 0.72rem; color: var(--mut); white-space: nowrap; }
       .pnores { text-align: center; color: var(--mut); padding: 26px 0; font-size: 0.9rem; }
 
+      /* ===== Flott-Detailséit (Pop-up) ===== */
+      .fleet-overlay { align-items: flex-start; padding: 4vh 16px 16px; overflow-y: auto; }
+      .fleet-modal { width: min(720px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 60px -16px rgba(0,0,0,0.5); display: flex; flex-direction: column; max-height: 92vh; }
+      .fleet-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--surface); border-radius: 16px 16px 0 0; z-index: 1; }
+      .fleet-modal-head h3 { margin: 0; font-size: 1.1rem; }
+      .fleet-modal-close { border: 1px solid var(--line); background: var(--surface-2); color: var(--fg); width: 34px; height: 34px; border-radius: 9px; font-size: 1rem; cursor: pointer; flex: none; line-height: 1; }
+      .fleet-modal-close:hover { background: var(--surface); }
+      .fleet-modal-body { padding: 16px 18px 20px; overflow-y: auto; }
+      .fleet-card { cursor: pointer; transition: transform 0.08s ease, box-shadow 0.12s ease; }
+      .fleet-card:hover { box-shadow: 0 10px 28px -14px rgba(0,0,0,0.45); transform: translateY(-1px); }
+      .fleet-card .fleet-actions .btn { cursor: pointer; }
+      .fleet-open-hint { font-size: 0.8rem; font-weight: 600; color: var(--accent, #e63946); white-space: nowrap; }
+
       /* ===== Day popover ===== */
       .daypop { position: fixed; inset: 0; background: rgba(8,15,24,0.5); z-index: 190; display: flex; align-items: center; justify-content: center; padding: 16px; }
       .daycard { width: min(440px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 60px -16px rgba(0,0,0,0.5); overflow: hidden; max-height: 86vh; display: flex; flex-direction: column; }
@@ -723,14 +736,16 @@
 
       <!-- Flotte page -->
       <div class="wrap" id="page-wartung" hidden>
-        <div class="page-head"><h2 class="page-title">Flotte</h2></div>
+        <div class="page-head" style="align-items:center"><h2 class="page-title">Flotte</h2><button class="btn btn-primary btn-sm" id="fleet-add-toggle" type="button">+ Gefier dobäisetzen</button></div>
         <p class="muted" id="wartung-sub" style="margin:2px 0 0;font-size:0.9rem">Disponibilitéit, Zoustand an déi nächst Wartung vun all Gefier an Unhänger op enger Plaz.</p>
         <div id="wartung-body" class="fleet-list"></div>
-        <div class="page-head" style="margin:24px 0 2px;align-items:center">
-          <h3 id="wartung-form-title" style="font-size:1.05rem;margin:0">Verleihobjet an d'Flotte bäisetzen</h3>
-          <button class="btn btn-primary btn-sm" id="fleet-add-toggle" type="button">+ Gefier dobäisetzen</button>
+        <div class="overlay fleet-overlay" id="fleet-overlay" hidden>
+        <div class="fleet-modal">
+        <div class="fleet-modal-head">
+          <h3 id="wartung-form-title">Verleihobjet an d'Flotte bäisetzen</h3>
+          <button class="fleet-modal-close" id="fleet-form-close" type="button" aria-label="Zoumaachen">✕</button>
         </div>
-        <div id="fleet-form-wrap" hidden>
+        <div class="fleet-modal-body">
         <form class="add-form fleet-form" id="wartung-form" autocomplete="off">
           <div class="field"><label for="w-type">Typ</label><select id="w-type"><option value="van">Transporter</option><option value="car">Auto</option><option value="trailer">Unhänger</option></select></div>
           <div class="field"><label for="w-veh">Numm / Modell</label><input id="w-veh" type="text" required placeholder="z.B. VW Caddy oder Humbaur HA" /></div>
@@ -776,7 +791,7 @@
           <label class="protocol-check" id="w-braked-wrap"><input id="w-braked" type="checkbox" /> Gebremsten Unhänger</label>
           <div class="fleet-form-btns" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
             <button class="btn btn-primary" type="submit" id="w-submit">Bäisetzen</button>
-            <button class="btn btn-outline" type="button" id="fleet-form-close">Zoumaachen</button>
+            <button class="btn btn-outline" type="button" id="fleet-form-cancel">Ofbriechen</button>
           </div>
         </form>
         <p class="muted" id="wartung-msg" style="font-size:0.82rem;margin-top:8px"></p>
@@ -793,7 +808,9 @@
           <p class="muted" id="fb-msg" style="font-size:0.82rem;margin:8px 0 0"></p>
           <div id="fb-list" style="margin-top:12px"></div>
         </div>
-        </div>
+        </div><!-- /.fleet-modal-body -->
+        </div><!-- /.fleet-modal -->
+        </div><!-- /#fleet-overlay -->
 
         <div class="panel" id="blank-docs" style="margin-top:18px">
           <h3>📄 Blanko-Dokumenter</h3>
@@ -893,6 +910,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=61"></script>
+    <script src="intern.js?v=62"></script>
   </body>
 </html>
