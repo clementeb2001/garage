@@ -166,6 +166,9 @@
       .fleet-photo-actions { display:flex; flex-wrap:wrap; gap:8px; }
       .fleet-photo-note { margin:7px 0 0; color:var(--mut); font-size:.74rem; }
       .fleet-list { display:grid; gap:12px; margin-top:14px; }
+      .blank-docs-rows { display:grid; gap:10px; }
+      .blank-docs-row { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:10px 12px; background:var(--surface); border:1px solid var(--line); border-radius:12px; }
+      .blank-docs-btns { display:flex; gap:6px; flex-wrap:wrap; }
       .fleet-card { display:grid; grid-template-columns:120px 1fr auto; gap:14px; padding:14px; background:var(--surface); border:1px solid var(--line); border-radius:14px; }
       .fleet-card img { width:120px; height:86px; object-fit:cover; border-radius:10px; background:var(--surface-2); }
       .fleet-card h3 { margin:0 0 5px; font-size:1rem; } .fleet-card p { margin:4px 0; color:var(--mut); font-size:.82rem; }
@@ -727,6 +730,7 @@
         <form class="add-form fleet-form" id="wartung-form" autocomplete="off">
           <div class="field"><label for="w-type">Typ</label><select id="w-type"><option value="van">Transporter</option><option value="car">Auto</option><option value="trailer">Unhänger</option></select></div>
           <div class="field"><label for="w-veh">Numm / Modell</label><input id="w-veh" type="text" required placeholder="z.B. VW Caddy oder Humbaur HA" /></div>
+          <div class="field"><label for="w-plate">Nummerplaque</label><input id="w-plate" type="text" placeholder="z.B. GK 0106" /></div>
           <div class="field"><label for="w-status">Status</label><select id="w-status"><option value="ready">Asazbereet</option><option value="rented">Verlount</option><option value="service">Am Service</option><option value="blocked">Gespaart</option></select></div>
           <div class="field"><label for="w-service">Service</label><input id="w-service" type="text" required placeholder="z.B. Vidange" /></div>
           <div class="field"><label for="w-due">Fälleg (Datum)</label><input id="w-due" type="date" /></div>
@@ -765,6 +769,16 @@
           <button class="btn btn-primary" type="submit">Bäisetzen</button>
         </form>
         <p class="muted" id="wartung-msg" style="font-size:0.82rem;margin-top:8px"></p>
+
+        <div class="panel" id="blank-docs" style="margin-top:18px">
+          <h3>📄 Blanko-Dokumenter</h3>
+          <p class="muted" style="font-size:0.85rem;margin:2px 0 12px">Eidel Verträg a Protokoller zum Ausdrécken an Hand ausfëllen — an alle Sproochen. Fir de Fall, dass bei enger Reservatioun eppes feelt oder d'Sprooch net passt.</p>
+          <div class="blank-docs-rows">
+            <div class="blank-docs-row"><strong>Mietvertrag</strong><span class="blank-docs-btns"><button class="btn btn-outline btn-sm" data-blankdoc="contract" data-lang="lb">LB</button><button class="btn btn-outline btn-sm" data-blankdoc="contract" data-lang="de">DE</button><button class="btn btn-outline btn-sm" data-blankdoc="contract" data-lang="fr">FR</button><button class="btn btn-outline btn-sm" data-blankdoc="contract" data-lang="en">EN</button></span></div>
+            <div class="blank-docs-row"><strong>Iwwergabprotokoll</strong><span class="blank-docs-btns"><button class="btn btn-outline btn-sm" data-blankdoc="pickup" data-lang="lb">LB</button><button class="btn btn-outline btn-sm" data-blankdoc="pickup" data-lang="de">DE</button><button class="btn btn-outline btn-sm" data-blankdoc="pickup" data-lang="fr">FR</button><button class="btn btn-outline btn-sm" data-blankdoc="pickup" data-lang="en">EN</button></span></div>
+            <div class="blank-docs-row"><strong>Retourprotokoll</strong><span class="blank-docs-btns"><button class="btn btn-outline btn-sm" data-blankdoc="return" data-lang="lb">LB</button><button class="btn btn-outline btn-sm" data-blankdoc="return" data-lang="de">DE</button><button class="btn btn-outline btn-sm" data-blankdoc="return" data-lang="fr">FR</button><button class="btn btn-outline btn-sm" data-blankdoc="return" data-lang="en">EN</button></span></div>
+          </div>
+        </div>
       </div>
 
       <!-- Bookings page -->
@@ -853,6 +867,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=49"></script>
+    <script src="intern.js?v=50"></script>
   </body>
 </html>

@@ -286,7 +286,7 @@ async function ensureMaint(env) {
     ["description","TEXT"],["image_url","TEXT"],["price_day","REAL"],["year","TEXT"],["seats","TEXT"],
     ["fuel","TEXT"],["transmission","TEXT"],["license_class","TEXT"],["load_space","TEXT"],
     ["deposit","REAL"],["features","TEXT"],["public_active","INTEGER NOT NULL DEFAULT 0"],["featured","INTEGER NOT NULL DEFAULT 0"],
-    ["asset_type","TEXT NOT NULL DEFAULT 'van'"],["gross_weight","TEXT"],["payload","TEXT"],["braked","INTEGER NOT NULL DEFAULT 0"]
+    ["asset_type","TEXT NOT NULL DEFAULT 'van'"],["gross_weight","TEXT"],["payload","TEXT"],["braked","INTEGER NOT NULL DEFAULT 0"],["plate","TEXT"]
   ];
   for (const c of cols) { try { await env.DB.prepare("ALTER TABLE maintenance ADD COLUMN " + c[0] + " " + c[1]).run(); } catch (e) {} }
   // Al Claude-Donnéeën neutraliséieren: et gëtt weder Haaptgefier nach Kautiounsfeld.
@@ -294,7 +294,8 @@ async function ensureMaint(env) {
   // Präiskorrektur Oktober 2026: nëmmen den ale Renault-Master-Tarif vun 80 € migréieren.
   try { await env.DB.prepare("UPDATE maintenance SET price_day=100 WHERE lower(vehicle)='renault master' AND (price_day IS NULL OR price_day=80)").run(); } catch (e) {}
   const master = await env.DB.prepare("SELECT id FROM maintenance WHERE lower(vehicle)='renault master' LIMIT 1").first();
-  if (!master) await env.DB.prepare("INSERT INTO maintenance (vehicle,service,note,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,updated_by) VALUES ('Renault Master','Nach Bedarf','Automatesch aus dem bestehende Verleih iwwerholl','ready','Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.','assets/rental-renault-master.webp',100,'2021','3','Diesel','','B','L2H2','Grousse Luedraum (L2H2)\nBis 3,5 t\nVollgetankt zréckbréngen',1,0,'System')").run();
+  if (!master) await env.DB.prepare("INSERT INTO maintenance (vehicle,service,note,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,plate,updated_by) VALUES ('Renault Master','Nach Bedarf','Automatesch aus dem bestehende Verleih iwwerholl','ready','Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.','assets/rental-renault-master.webp',100,'2021','3','Diesel','','B','L2H2','Grousse Luedraum (L2H2)\nBis 3,5 t\nVollgetankt zréckbréngen',1,0,'GK 0106','System')").run();
+  try { await env.DB.prepare("UPDATE maintenance SET plate='GK 0106' WHERE lower(vehicle)='renault master' AND (plate IS NULL OR plate='')").run(); } catch (e) {}
 }
 async function ensureRentalInspections(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS rental_inspections (id INTEGER PRIMARY KEY AUTOINCREMENT, booking_id INTEGER NOT NULL, stage TEXT NOT NULL, inspected_at TEXT NOT NULL, odometer INTEGER, fuel_level TEXT, condition_note TEXT, damage_note TEXT, photo_refs TEXT, accessories TEXT, license_checked INTEGER NOT NULL DEFAULT 0, deposit_amount REAL, extra_km INTEGER, extra_costs REAL, customer_signature TEXT, staff_signature TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT, UNIQUE(booking_id, stage))").run();
@@ -735,7 +736,7 @@ export default {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
         await ensureMaint(env);
         const ms = (await env.DB.prepare("SELECT * FROM maintenance ORDER BY (due_date IS NULL), due_date ASC, id DESC").all()).results || [];
-        return json(env, { items: ms.map((m) => ({ id:m.id, type:["van","car","trailer"].includes(m.asset_type)?m.asset_type:"van", vehicle:m.vehicle, service:m.service, dueDate:m.due_date||"", note:m.note||"", status:m.fleet_status||"ready", description:m.description||"", imageUrl:m.image_url||"", priceDay:m.price_day==null?"":m.price_day, year:m.year||"", seats:m.seats||"", fuel:m.fuel||"", transmission:m.transmission||"", licenseClass:m.license_class||"", loadSpace:m.load_space||"", grossWeight:m.gross_weight||"", payload:m.payload||"", braked:!!m.braked, features:m.features||"", active:!!m.public_active, updated_at:m.updated_at, updated_by:m.updated_by||"" })) });
+        return json(env, { items: ms.map((m) => ({ id:m.id, type:["van","car","trailer"].includes(m.asset_type)?m.asset_type:"van", vehicle:m.vehicle, service:m.service, dueDate:m.due_date||"", note:m.note||"", status:m.fleet_status||"ready", description:m.description||"", imageUrl:m.image_url||"", priceDay:m.price_day==null?"":m.price_day, year:m.year||"", seats:m.seats||"", fuel:m.fuel||"", transmission:m.transmission||"", licenseClass:m.license_class||"", loadSpace:m.load_space||"", grossWeight:m.gross_weight||"", payload:m.payload||"", braked:!!m.braked, plate:m.plate||"", features:m.features||"", active:!!m.public_active, updated_at:m.updated_at, updated_by:m.updated_by||"" })) });
       }
       if (path === "/maintenance" && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
@@ -746,8 +747,8 @@ export default {
         if (!vehicle) return json(env, { error: "missing_fields" }, 400);
         if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return json(env, { error: "invalid_fields" }, 400);
         const fleetStatus = ["ready","rented","service","blocked"].includes(bodyData.status) ? bodyData.status : "ready", assetType=["van","car","trailer"].includes(bodyData.type)?bodyData.type:"van";
-        const r = await env.DB.prepare("INSERT INTO maintenance (vehicle,service,due_date,note,updated_by,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,deposit,asset_type,gross_weight,payload,braked) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,0,NULL,?18,?19,?20,?21)")
-          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),bodyData.priceDay===""?null:Number(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),clip(bodyData.features,1200),bodyData.active?1:0,assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0).run();
+        const r = await env.DB.prepare("INSERT INTO maintenance (vehicle,service,due_date,note,updated_by,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,deposit,asset_type,gross_weight,payload,braked,plate) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,0,NULL,?18,?19,?20,?21,?22)")
+          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),bodyData.priceDay===""?null:Number(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),clip(bodyData.features,1200),bodyData.active?1:0,assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0,clip(bodyData.plate,20)).run();
         return json(env, { ok: true, id: r.meta.last_row_id });
       }
       m = path.match(/^\/maintenance\/(\d+)$/);
@@ -763,8 +764,8 @@ export default {
         if (!vehicle) return json(env, { error: "missing_fields" }, 400);
         if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return json(env, { error: "invalid_fields" }, 400);
         const fleetStatus = ["ready","rented","service","blocked"].includes(bodyData.status) ? bodyData.status : "ready", assetType=["van","car","trailer"].includes(bodyData.type)?bodyData.type:"van";
-        await env.DB.prepare("UPDATE maintenance SET vehicle=?1,service=?2,due_date=?3,note=?4,updated_at=CURRENT_TIMESTAMP,updated_by=?5,fleet_status=?6,description=?7,image_url=?8,price_day=?9,year=?10,seats=?11,fuel=?12,transmission=?13,license_class=?14,load_space=?15,features=?16,public_active=?17,featured=0,deposit=NULL,asset_type=?18,gross_weight=?19,payload=?20,braked=?21 WHERE id=?22")
-          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),bodyData.priceDay===""?null:Number(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),clip(bodyData.features,1200),bodyData.active?1:0,assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0,id).run();
+        await env.DB.prepare("UPDATE maintenance SET vehicle=?1,service=?2,due_date=?3,note=?4,updated_at=CURRENT_TIMESTAMP,updated_by=?5,fleet_status=?6,description=?7,image_url=?8,price_day=?9,year=?10,seats=?11,fuel=?12,transmission=?13,license_class=?14,load_space=?15,features=?16,public_active=?17,featured=0,deposit=NULL,asset_type=?18,gross_weight=?19,payload=?20,braked=?21,plate=?22 WHERE id=?23")
+          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),bodyData.priceDay===""?null:Number(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),clip(bodyData.features,1200),bodyData.active?1:0,assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0,clip(bodyData.plate,20),id).run();
         return json(env, { ok: true });
       }
       if (m && method === "DELETE") {
