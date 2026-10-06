@@ -233,10 +233,10 @@
   };
 
   var CALENDAR_TEXT = {
-    lb: { kicker:"Live-Disponibilitéit", title:"Fräi Datumer kucken", help:"Tippt op e fräien Dag fir den Ufank an duerno op den Enndag.", free:"Fräi", partial:"Deelweis besat", busy:"Besat", past:"Net buchbar", prev:"Mount virdrun", next:"Nächste Mount", weekdays:["Mé","Dë","Më","Do","Fr","Sa","So"] },
-    de: { kicker:"Live-Verfügbarkeit", title:"Freie Termine ansehen", help:"Tippen Sie auf einen freien Starttag und anschließend auf den Endtag.", free:"Frei", partial:"Teilweise belegt", busy:"Belegt", past:"Nicht buchbar", prev:"Vorheriger Monat", next:"Nächster Monat", weekdays:["Mo","Di","Mi","Do","Fr","Sa","So"] },
-    fr: { kicker:"Disponibilité en direct", title:"Voir les dates disponibles", help:"Touchez un jour libre pour le début, puis le jour de fin.", free:"Libre", partial:"Partiellement occupé", busy:"Occupé", past:"Non réservable", prev:"Mois précédent", next:"Mois suivant", weekdays:["Lu","Ma","Me","Je","Ve","Sa","Di"] },
-    en: { kicker:"Live availability", title:"See available dates", help:"Tap a free start day, then tap the end day.", free:"Available", partial:"Partly booked", busy:"Booked", past:"Unavailable", prev:"Previous month", next:"Next month", weekdays:["Mo","Tu","We","Th","Fr","Sa","Su"] }
+    lb: { kicker:"Live-Disponibilitéit", title:"Fräi Datumer kucken", help:"Tippt op e fräien Dag fir den Ufank an duerno op den Enndag.", free:"Fräi", busy:"Besat", past:"Net buchbar", prev:"Mount virdrun", next:"Nächste Mount", weekdays:["Mé","Dë","Më","Do","Fr","Sa","So"] },
+    de: { kicker:"Live-Verfügbarkeit", title:"Freie Termine ansehen", help:"Tippen Sie auf einen freien Starttag und anschließend auf den Endtag.", free:"Frei", busy:"Belegt", past:"Nicht buchbar", prev:"Vorheriger Monat", next:"Nächster Monat", weekdays:["Mo","Di","Mi","Do","Fr","Sa","So"] },
+    fr: { kicker:"Disponibilité en direct", title:"Voir les dates disponibles", help:"Touchez un jour libre pour le début, puis le jour de fin.", free:"Libre", busy:"Occupé", past:"Non réservable", prev:"Mois précédent", next:"Mois suivant", weekdays:["Lu","Ma","Me","Je","Ve","Sa","Di"] },
+    en: { kicker:"Live availability", title:"See available dates", help:"Tap a free start day, then tap the end day.", free:"Available", busy:"Booked", past:"Unavailable", prev:"Previous month", next:"Next month", weekdays:["Mo","Tu","We","Th","Fr","Sa","Su"] }
   };
 
   function lang() {
@@ -526,17 +526,47 @@
     return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
   }
 
+  function fillRentalTimes() {
+    [["r-from-time", "08:00"], ["r-to-time", "17:00"]].forEach(function (entry) {
+      var select = $(entry[0]); if (!select) return;
+      select.innerHTML = "";
+      for (var minutes = 6 * 60; minutes <= 19 * 60; minutes += 30) {
+        var value = String(Math.floor(minutes / 60)).padStart(2, "0") + ":" + String(minutes % 60).padStart(2, "0");
+        var option = document.createElement("option"); option.value = value; option.textContent = value;
+        if (value === entry[1]) option.defaultSelected = true;
+        select.appendChild(option);
+      }
+      select.value = entry[1];
+    });
+  }
+
+  function syncRentalDateTime(prefix) {
+    var hidden = $(prefix), date = $(prefix + "-date"), time = $(prefix + "-time");
+    if (hidden) hidden.value = date && date.value && time && time.value ? date.value + "T" + time.value : "";
+    if (prefix === "r-from") {
+      var toDate = $("r-to-date"); if (toDate) toDate.min = date && date.value ? date.value : toDate.min;
+    }
+  }
+
+  function setRentalDateTime(prefix, date, time) {
+    var dateInput = $(prefix + "-date"), timeInput = $(prefix + "-time");
+    if (dateInput) dateInput.value = date || "";
+    if (timeInput && time) timeInput.value = time;
+    syncRentalDateTime(prefix);
+  }
+
   function calendarDayStatus(date) {
     var today = new Date(); today.setHours(0, 0, 0, 0);
     if (date < today) return "past";
+    var current = new Date();
+    if (date.getTime() === today.getTime() && current.getHours() * 60 + current.getMinutes() >= 18 * 60 + 30) return "past";
     if (state.availabilityError) return "unknown";
     var start = isoDay(date) + "T00:00";
     var nextDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
     var end = isoDay(nextDate) + "T00:00";
     var hits = selectedBusyIntervals().filter(function (b) { return b.from < end && b.to > start; });
     if (!hits.length) return "free";
-    var coversDay = hits.some(function (b) { return b.from <= start && b.to >= end; });
-    return coversDay ? "busy" : "partial";
+    return "busy";
   }
 
   function renderCalendar() {
@@ -547,7 +577,7 @@
     var c = CALENDAR_TEXT[lang()] || CALENDAR_TEXT.lb;
     setTxt("rental-calendar-kicker", c.kicker); setTxt("rental-calendar-title", c.title);
     setTxt("rental-calendar-help", c.help); setTxt("rental-calendar-free", c.free);
-    setTxt("rental-calendar-partial", c.partial); setTxt("rental-calendar-busy-label", c.busy); setTxt("rental-calendar-past", c.past);
+    setTxt("rental-calendar-busy-label", c.busy); setTxt("rental-calendar-past", c.past);
     var prev = $("rental-calendar-prev"), next = $("rental-calendar-next");
     if (prev) prev.setAttribute("aria-label", c.prev); if (next) next.setAttribute("aria-label", c.next);
     weekdays.innerHTML = c.weekdays.map(function (d) { return "<span>" + d + "</span>"; }).join("");
@@ -572,12 +602,22 @@
     var from = $("r-from"), to = $("r-to"); if (!from || !to) return;
     var start = from.value.slice(0, 10), end = to.value.slice(0, 10);
     if (!start || (start && end) || iso < start) {
-      from.value = iso + "T09:00"; to.value = ""; to.min = from.value;
+      var startTime = "08:00", now = new Date();
+      if (iso === isoDay(now)) {
+        var rounded = Math.ceil((now.getHours() * 60 + now.getMinutes()) / 30) * 30;
+        rounded = Math.max(6 * 60, Math.min(19 * 60, rounded));
+        startTime = String(Math.floor(rounded / 60)).padStart(2, "0") + ":" + String(rounded % 60).padStart(2, "0");
+      }
+      setRentalDateTime("r-from", iso, startTime); setRentalDateTime("r-to", "", "17:00");
     } else {
-      to.value = iso + "T17:00";
-      if (to.value <= from.value) to.value = iso + "T18:00";
+      setRentalDateTime("r-to", iso, "17:00");
+      if (to.value <= from.value) {
+        var parts = from.value.slice(11).split(":"), nextMinutes = Math.min(19 * 60, Number(parts[0]) * 60 + Number(parts[1]) + 30);
+        var nextTime = String(Math.floor(nextMinutes / 60)).padStart(2, "0") + ":" + String(nextMinutes % 60).padStart(2, "0");
+        setRentalDateTime("r-to", iso, nextTime);
+      }
     }
-    updateReview(); renderAvailability();
+    updateReview();
   }
 
   function busyForSelection() {
@@ -636,6 +676,9 @@
     setTxt("rental-form-h", m.form_h);
     setTxt("lbl-r-from", m.from);
     setTxt("lbl-r-to", m.to);
+    var fromTime = $("r-from-time"), toTime = $("r-to-time");
+    if (fromTime) fromTime.setAttribute("aria-label", m.from + " · 06:00–19:00");
+    if (toTime) toTime.setAttribute("aria-label", m.to + " · 06:00–19:00");
     setTxt("lbl-r-name", m.name);
     setTxt("lbl-r-email", m.email);
     setTxt("lbl-r-phone", m.phone);
@@ -724,8 +767,8 @@
 
   function mark(el, bad) {
     if (!el) return;
-    if (bad) el.classList.add("field-invalid");
-    else el.classList.remove("field-invalid");
+    var targets = el.type === "hidden" ? document.querySelectorAll('.rental-datetime[data-for="' + el.id + '"] input, .rental-datetime[data-for="' + el.id + '"] select') : [el];
+    targets.forEach(function (target) { target.classList.toggle("field-invalid", !!bad); });
   }
 
   function localDateTimeValue(date) {
@@ -820,9 +863,14 @@
   }
 
   function wireClear() {
-    ["r-from", "r-to", "r-name", "r-email", "r-phone", "r-message"].forEach(function (id) {
+    ["r-from-date", "r-from-time", "r-to-date", "r-to-time", "r-name", "r-email", "r-phone", "r-message"].forEach(function (id) {
       var el = $(id);
-      if (el) el.addEventListener("input", function () { mark(el, false); updateReview(); });
+      if (el) el.addEventListener("input", function () {
+        if (id.indexOf("r-from-") === 0) { syncRentalDateTime("r-from"); mark($("r-from"), false); }
+        else if (id.indexOf("r-to-") === 0) { syncRentalDateTime("r-to"); mark($("r-to"), false); }
+        else mark(el, false);
+        updateReview();
+      });
     });
     var priv = $("r-privacy");
     if (priv) priv.addEventListener("change", function () {
@@ -855,23 +903,25 @@
     wireCalendar();
     wireClear();
     document.querySelectorAll('form [name="_loaded_at"]').forEach(function (field) { field.value = String(Date.now()); });
-    var fromDate = $("r-from"), toDate = $("r-to");
+    fillRentalTimes();
+    var fromDate = $("r-from-date"), toDate = $("r-to-date");
     var now = new Date();
     now.setSeconds(0, 0);
     var remainder = now.getMinutes() % 30;
     if (remainder) now.setMinutes(now.getMinutes() + (30 - remainder));
     var minDateTime = localDateTimeValue(now);
+    var minDay = minDateTime.slice(0, 10);
     if (fromDate) {
-      fromDate.min = minDateTime;
+      fromDate.min = minDay;
       fromDate.addEventListener("change", function () {
         if (toDate) {
-          toDate.min = fromDate.value || minDateTime;
-          if (toDate.value && fromDate.value && toDate.value <= fromDate.value) toDate.value = "";
+          toDate.min = fromDate.value || minDay;
+          if (toDate.value && fromDate.value && toDate.value < fromDate.value) { toDate.value = ""; syncRentalDateTime("r-to"); }
         }
         renderAvailability();
       });
     }
-    if (toDate) { toDate.min = minDateTime; toDate.addEventListener("change", renderAvailability); }
+    if (toDate) { toDate.min = minDay; toDate.addEventListener("change", renderAvailability); }
     fetchAvailability();
     loadFleet();
     document.addEventListener("submit", handleSubmit, true);

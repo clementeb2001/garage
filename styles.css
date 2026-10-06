@@ -3994,7 +3994,6 @@ html.shop-dev .shop-dev-badge a {
 }
 .rental-calendar-day::after { content:""; position:absolute; left:25%; right:25%; bottom:5px; height:3px; border-radius:3px; background:currentColor; opacity:.8; }
 .rental-calendar-day.is-free { background: rgba(42,157,108,.18); border-color: rgba(73,190,137,.38); color: #8ce0b9; }
-.rental-calendar-day.is-partial { background: rgba(236,158,43,.18); border-color: rgba(245,178,75,.45); color: #ffc66d; }
 .rental-calendar-day.is-busy { background: rgba(230,57,70,.17); border-color: rgba(239,88,101,.38); color: #ff9ba4; }
 .rental-calendar-day.is-past,
 .rental-calendar-day.is-unknown { background: rgba(255,255,255,.035); border-color: rgba(255,255,255,.07); color: #667787; }
@@ -4007,7 +4006,6 @@ html.shop-dev .shop-dev-badge a {
 .rental-calendar-legend b { font-weight: 650; }
 .rental-calendar-legend i { width: 9px; height: 9px; border-radius: 3px; }
 .rental-calendar-legend .is-free { background: #49be89; }
-.rental-calendar-legend .is-partial { background: #ec9e2b; }
 .rental-calendar-legend .is-busy { background: #e63946; }
 .rental-calendar-legend .is-past { background: #657587; }
 .rental-form .field label,
@@ -4019,12 +4017,14 @@ html.shop-dev .shop-dev-badge a {
 .rental-form input[type="text"],
 .rental-form input[type="email"],
 .rental-form input[type="tel"],
+.rental-form select,
 .rental-form textarea {
   background: rgba(8, 15, 24, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: #eef3f8;
 }
 .rental-form input:focus,
+.rental-form select:focus,
 .rental-form textarea:focus {
   background: rgba(8, 15, 24, 0.72);
   color: #eef3f8;
@@ -5918,12 +5918,13 @@ html.shop-dev .shop-card-body .shop-price {
 
 
 /* Location: date and time inputs */
-.rental-form input[type="datetime-local"] {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  color-scheme: dark;
+.rental-datetime { display: grid; grid-template-columns: minmax(0,1fr) 96px; gap: 8px; }
+.rental-datetime input[type="date"],
+.rental-datetime select {
+  width: 100%; max-width: 100%; min-width: 0; color-scheme: dark;
+  background: rgba(8,15,24,.55); border: 1px solid rgba(255,255,255,.14); color: #eef3f8;
 }
+.rental-datetime select { appearance: auto; }
 .rental-form .field-row > .field {
   min-width: 0;
 }
@@ -5931,6 +5932,9 @@ html.shop-dev .shop-card-body .shop-price {
   .rental-form .field-row {
     grid-template-columns: 1fr;
   }
+}
+@media (max-width: 370px) {
+  .rental-datetime { grid-template-columns: 1fr; }
 }
 
 
