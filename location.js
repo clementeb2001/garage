@@ -77,7 +77,7 @@
     return fetch("https://garage-admin.autoservicebettenduerf.lu/fleet/public", {headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw new Error("fleet");return r.json();}).then(function(data){
       var next=(data.vehicles||[]).map(fleetItem); if(!next.length)return;
       CATALOG=next; state.selected=state.selected.filter(function(id){return CATALOG.some(function(x){return x.id===id;});});
-      if(CATALOG.length===1&&!state.selected.length)state.selected=[CATALOG[0].id]; renderCatalog(); renderSelection();
+      renderCatalog(); renderSelection();
     }).catch(function(){});
   }
 
@@ -96,7 +96,7 @@
       cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",
       cat_trailer_lbl: "Unhänger", cat_vehicle_lbl: "Gefier",
       price: "Präis op Ufro",
-      perDay: "Dag", payOnReturn: "Bezuelt bei der Retour · vollgetankt zréckbréngen", payOnReturnTrailer:"Bezuelt bei der Retour · propper zréckbréngen",
+      perDay: "Dag", payOnReturn: "Bezuelung beim Retour · vollgetankt zréckbréngen", payOnReturnTrailer:"Bezuelung beim Retour · propper zréckbréngen",
       select: "Auswielen", selected: "Ausgewielt", remove: "Ewechhuelen",
       sel_h: "Är Auswiel", empty: "Nach näischt ausgewielt. Wielt uewen dat gewënschte Material aus.",
       form_h: "Reservéieren",
@@ -111,7 +111,7 @@
       unavailable: "Dat ausgewielte Gefier oder Material ass an dësem Zäitraum leider net disponibel.",
       rate: "Ze vill Ufroen a kuerzer Zäit. Probéiert et w.e.g. méi spéit nach eng Kéier.",
       missing: "Fëllt w.e.g. nach aus:",
-      m_items: "op d'mannst 1 Material", m_from: "Ufanksdatum", m_to: "Enndatum",
+      m_items: "op d'mannst ee Gefier oder Material", m_from: "Ufanksdatum", m_to: "Enndatum",
       m_daterange: "en Enndatum no dem Ufank", m_name: "Numm", m_email: "eng gëlteg E-Mail", m_privacy: "Dateschutz-Zoustëmmung",
     },
     de: {
@@ -142,7 +142,7 @@
       unavailable: "Das ausgewählte Fahrzeug oder Material ist in diesem Zeitraum leider nicht verfügbar.",
       rate: "Zu viele Anfragen in kurzer Zeit. Bitte versuchen Sie es später erneut.",
       missing: "Bitte ergänzen Sie noch:",
-      m_items: "mindestens 1 Material", m_from: "Startdatum", m_to: "Enddatum",
+      m_items: "mindestens ein Fahrzeug oder Material", m_from: "Startdatum", m_to: "Enddatum",
       m_daterange: "ein Enddatum nach dem Start", m_name: "Name", m_email: "eine gültige E-Mail", m_privacy: "Datenschutz-Zustimmung",
     },
     fr: {
@@ -173,7 +173,7 @@
       unavailable: "Le véhicule ou le matériel sélectionné n'est malheureusement pas disponible pendant cette période.",
       rate: "Trop de demandes en peu de temps. Veuillez réessayer plus tard.",
       missing: "Veuillez compléter :",
-      m_items: "au moins 1 matériel", m_from: "date de début", m_to: "date de fin",
+      m_items: "au moins un véhicule ou matériel", m_from: "date de début", m_to: "date de fin",
       m_daterange: "une date de fin après le début", m_name: "nom", m_email: "un e-mail valide", m_privacy: "accord de confidentialité",
     },
     en: {
@@ -214,25 +214,25 @@
 
   var EXTRA = {
     lb: {
-      step1: "Schrëtt 1 vun 3 · Gefier an Zäitraum", step2: "Schrëtt 2 vun 3 · Är Donnéeën", step3: "Schrëtt 3 vun 3 · Kontrolléieren",
-      daysLabel: "Berechent Mietdauer", rateLabel: "Dagespräis", totalLabel: "Viraussiichtleche Mietpräis", priceHint: "100 € pro ugefaangene 24 Stonnen · 250 km pro Locatioun abegraff · duerno 0,30 €/km · Kautioun 300 € · Verspéidung 20 €/Stonn.",
+      step1: "Schrëtt 1 vun 3 · Auswiel an Zäitraum", step2: "Schrëtt 2 vun 3 · Är Donnéeën", step3: "Schrëtt 3 vun 3 · Kontrolléieren",
+      daysLabel: "Berechent Locatiounsdauer", rateLabel: "Dagespräis", totalLabel: "Viraussiichtleche Locatiounspräis", priceHint: "100 € pro ugefaangene 24 Stonnen · 250 km pro Locatioun abegraff · duerno 0,30 €/km · Kautioun 300 € · Verspéidung 20 €/Stonn.",
       trustEye: "Lokal · transparent · perséinlech", trustTitle: "Äre Transporter, direkt bei Ärer Garage", trust: [["An der eegener Garage betreit", "D’Gefier gëtt vun eis kontrolléiert a reegelméisseg ënnerhalen."], ["Lokal Ofhuelung", "Perséinlech Iwwergab beim Autoservice Bettenduerf zu Bettendorf."], ["Eng richteg Kontaktpersoun", "Mir kontrolléieren all Ufro a klären oppe Froen direkt mat Iech."]],
       faqEye: "Gutt ze wëssen", faqTitle: "Heefeg Froen zur Locatioun", faq: [["Ass meng Online-Ufro direkt verbindlech?", "Nee. Mir kontrolléieren d’Disponibilitéit an d’Konditiounen a schécken Iech duerno eng perséinlech Bestätegung."], ["Wéi ee Führerschäin brauch ech?", "Déi néideg Kategorie steet beim jeeweilege Gefier oder Unhänger. Si hänkt vum gelounte Material, dem Zuchgefier an den zougeloossene Gesamtmassen of a gëtt virun der Iwwergab kontrolléiert."], ["Wat muss ech bei der Ofhuelung matbréngen?", "Eng gülteg Identitéitskaart oder e Pass, de passende gültege Führerschäin an Är Reservatiounsbestätegung. Dat gëllt och fir all zousätzlech Persoun, déi fuere soll."], ["Däerf eng aner Persoun fueren?", "Nëmme Persounen, déi virun der Iwwergab ugemellt, kontrolléiert an am Bail agedroe goufen, däerfen d’Gefier oder d’Gespan féieren."], ["Wéi gëtt de Präis berechent?", "Dagespräis, abegraff Kilometer, Zousazkilometer, Kautioun an eventuell Verspéidungskäschte stinn direkt beim jeeweilege Gefier oder Material an an Ärer Bestätegung."], ["Kann ech d’Reservatioun änneren, annuléieren oder verlängeren?", "Kontaktéiert eis esou fréi wéi méiglech. Eng Verlängerung ass nëmme mat eiser Bestätegung a wann d’Material disponibel ass méiglech. Eventuell Käschte ginn Iech virun der Ännerung matgedeelt."], ["Wou sinn Ofhuelung a Retour?", "Beim Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, zu der bestätegter Auerzäit."], ["Wéi muss d’Material zréckkommen?", "Zu der vereinbarter Zäit, propper an am vereinbarte Brennstoff- oder Luedzoustand. Déi genee Reegelen hänke vum gelounte Gefier oder Material of. Kontaktéiert eis bei enger Verspéidung direkt."], ["Wat maachen ech bei engem Accident, enger Pann oder engem Schued?", "Sécher d’Plaz of, alarméiert wann néideg d’Rettungsdéngschter oder d’Police, dokumentéiert alles mat Fotoen a kontaktéiert eis direkt. Maacht keng Reparatur ouni eis Zoustëmmung."], ["Däerf ech an d’Ausland fueren?", "Gitt geplangten Auslandsfaarte bei der Ufro un. Mir bestätegen Iech virun der Locatioun, ob a wéi eng Länner erlaabt sinn."]]
     },
     de: {
-      step1: "Schritt 1 von 3 · Fahrzeug und Zeitraum", step2: "Schritt 2 von 3 · Ihre Daten", step3: "Schritt 3 von 3 · Prüfen",
-      daysLabel: "Berechnete Mietdauer", rateLabel: "Tagespreis", totalLabel: "Voraussichtlicher Mietpreis", priceHint: "100 € pro angefangenen 24 Stunden · 250 km pro Miete inklusive · danach 0,30 €/km · Kaution 300 € · Verspätung 20 €/Stunde.",
+      step1: "Schritt 1 von 3 · Auswahl und Zeitraum", step2: "Schritt 2 von 3 · Ihre Daten", step3: "Schritt 3 von 3 · Prüfen",
+      daysLabel: "Berechnete Mietdauer", rateLabel: "Tagespreis", totalLabel: "Voraussichtlicher Mietpreis", priceHint: "100 € je angefangene 24 Stunden · 250 km pro Miete inklusive · danach 0,30 €/km · Kaution 300 € · Verspätung 20 €/Stunde.",
       trustEye: "Lokal · transparent · persönlich", trustTitle: "Ihr Transporter, direkt bei Ihrer Garage", trust: [["In der eigenen Werkstatt betreut", "Das Fahrzeug wird von uns kontrolliert und regelmäßig gewartet."], ["Lokale Abholung", "Persönliche Übergabe beim Autoservice Bettenduerf in Bettendorf."], ["Ein echter Ansprechpartner", "Wir prüfen jede Anfrage und klären offene Fragen direkt mit Ihnen."]],
       faqEye: "Gut zu wissen", faqTitle: "Häufige Fragen zum Verleih", faq: [["Ist meine Online-Anfrage sofort verbindlich?", "Nein. Wir prüfen Verfügbarkeit und Bedingungen und senden Ihnen anschließend eine persönliche Bestätigung."], ["Welchen Führerschein benötige ich?", "Die erforderliche Kategorie steht beim jeweiligen Fahrzeug oder Anhänger. Sie hängt vom Mietobjekt, Zugfahrzeug und den zulässigen Gesamtmassen ab und wird vor der Übergabe geprüft."], ["Was muss ich bei der Abholung mitbringen?", "Einen gültigen Personalausweis oder Reisepass, den passenden gültigen Führerschein und Ihre Reservierungsbestätigung. Dies gilt auch für jeden zusätzlichen Fahrer."], ["Darf eine andere Person fahren?", "Nur Personen, die vor der Übergabe angemeldet, geprüft und im Mietvertrag eingetragen wurden, dürfen das Fahrzeug oder Gespann führen."], ["Wie wird der Mietpreis berechnet?", "Tagespreis, enthaltene Kilometer, Mehrkilometer, Kaution und mögliche Verspätungskosten stehen direkt beim jeweiligen Mietobjekt und in Ihrer Bestätigung."], ["Kann ich die Reservierung ändern, stornieren oder verlängern?", "Kontaktieren Sie uns so früh wie möglich. Eine Verlängerung ist nur nach unserer Bestätigung und bei verfügbarer Kapazität möglich. Etwaige Kosten teilen wir Ihnen vor der Änderung mit."], ["Wo erfolgen Abholung und Rückgabe?", "Beim Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, zur bestätigten Uhrzeit."], ["Wie muss das Mietobjekt zurückgegeben werden?", "Zur vereinbarten Zeit, sauber und mit dem vereinbarten Kraftstoff- oder Ladestand. Die genauen Regeln hängen vom Mietobjekt ab. Bitte kontaktieren Sie uns bei einer Verspätung sofort."], ["Was mache ich bei Unfall, Panne oder Schaden?", "Sichern Sie die Stelle, verständigen Sie bei Bedarf Rettungsdienst oder Polizei, dokumentieren Sie alles mit Fotos und kontaktieren Sie uns sofort. Nehmen Sie ohne unsere Zustimmung keine Reparatur vor."], ["Darf ich ins Ausland fahren?", "Geben Sie geplante Auslandsfahrten in der Anfrage an. Wir bestätigen vor der Vermietung, ob und welche Länder erlaubt sind."]]
     },
     fr: {
-      step1: "Étape 1 sur 3 · Véhicule et période", step2: "Étape 2 sur 3 · Vos coordonnées", step3: "Étape 3 sur 3 · Vérification",
+      step1: "Étape 1 sur 3 · Sélection et période", step2: "Étape 2 sur 3 · Vos coordonnées", step3: "Étape 3 sur 3 · Vérification",
       daysLabel: "Durée de location calculée", rateLabel: "Tarif journalier", totalLabel: "Prix de location estimé", priceHint: "100 € par tranche de 24 heures entamée · 250 km par location inclus · puis 0,30 €/km · caution 300 € · retard 20 €/heure.",
       trustEye: "Local · transparent · personnel", trustTitle: "Votre utilitaire, directement auprès de votre garage", trust: [["Entretenu dans notre atelier", "Le véhicule est contrôlé et entretenu régulièrement par nos soins."], ["Enlèvement local", "Remise personnelle chez Autoservice Bettenduerf à Bettendorf."], ["Un interlocuteur réel", "Nous vérifions chaque demande et clarifions directement avec vous les questions ouvertes."]],
       faqEye: "Bon à savoir", faqTitle: "Questions fréquentes sur la location", faq: [["Ma demande en ligne est-elle immédiatement ferme ?", "Non. Nous vérifions la disponibilité et les conditions, puis vous envoyons une confirmation personnelle."], ["Quel permis me faut-il ?", "La catégorie requise est indiquée pour chaque véhicule ou remorque. Elle dépend du matériel loué, du véhicule tracteur et des masses maximales autorisées et est contrôlée avant la remise."], ["Que dois-je apporter lors de l’enlèvement ?", "Une carte d’identité ou un passeport valable, le permis de conduire valable correspondant et votre confirmation de réservation. Ces documents sont également requis pour chaque conducteur supplémentaire."], ["Une autre personne peut-elle conduire ?", "Seules les personnes déclarées, contrôlées et inscrites au contrat avant la remise peuvent conduire le véhicule ou l’ensemble attelé."], ["Comment le prix est-il calculé ?", "Le tarif journalier, les kilomètres inclus, les kilomètres supplémentaires, la caution et les éventuels frais de retard sont indiqués pour chaque matériel loué et dans votre confirmation."], ["Puis-je modifier, annuler ou prolonger la réservation ?", "Contactez-nous le plus tôt possible. Toute prolongation nécessite notre confirmation et dépend de la disponibilité. Les éventuels frais vous sont communiqués avant la modification."], ["Où ont lieu l’enlèvement et le retour ?", "Chez Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, à l’heure confirmée."], ["Comment restituer le matériel loué ?", "À l’heure convenue, propre et avec le niveau de carburant ou de charge convenu. Les règles précises dépendent du matériel loué. Contactez-nous immédiatement en cas de retard."], ["Que faire en cas d’accident, de panne ou de dommage ?", "Sécurisez les lieux, prévenez si nécessaire les secours ou la police, documentez la situation avec des photos et contactez-nous immédiatement. N’effectuez aucune réparation sans notre accord."], ["Puis-je circuler à l’étranger ?", "Indiquez les trajets à l’étranger dans votre demande. Nous vous confirmons avant la location les pays autorisés."]]
     },
     en: {
-      step1: "Step 1 of 3 · Vehicle and period", step2: "Step 2 of 3 · Your details", step3: "Step 3 of 3 · Review",
+      step1: "Step 1 of 3 · Selection and period", step2: "Step 2 of 3 · Your details", step3: "Step 3 of 3 · Review",
       daysLabel: "Calculated rental duration", rateLabel: "Daily rate", totalLabel: "Estimated rental price", priceHint: "€100 per started 24-hour period · 250 km per rental included · then €0.30/km · €300 deposit · late return €20/hour.",
       trustEye: "Local · transparent · personal", trustTitle: "Your van, directly from your local garage", trust: [["Maintained in our own workshop", "The vehicle is inspected and regularly maintained by us."], ["Local collection", "Personal handover at Autoservice Bettenduerf in Bettendorf."], ["A real contact person", "We review every request and clarify open questions directly with you."]],
       faqEye: "Good to know", faqTitle: "Frequently asked rental questions", faq: [["Is my online request immediately binding?", "No. We check availability and conditions, then send you a personal confirmation."], ["Which driving licence do I need?", "The required category is shown for each vehicle or trailer. It depends on the rented item, towing vehicle and permitted gross weights and is checked before handover."], ["What must I bring when collecting the rental?", "A valid identity card or passport, the appropriate valid driving licence and your reservation confirmation. The same documents are required for every additional driver."], ["May another person drive?", "Only people declared, checked and listed in the rental agreement before handover may drive the vehicle or vehicle-trailer combination."], ["How is the rental price calculated?", "The daily rate, included mileage, additional mileage, deposit and possible late-return charges are shown for each rented item and in your confirmation."], ["Can I change, cancel or extend the reservation?", "Contact us as early as possible. An extension requires our confirmation and depends on availability. Any applicable charges are communicated before the change."], ["Where are collection and return?", "At Autoservice Bettenduerf, 63 rue de Diekirch-Echternach, L-9355 Bettendorf, at the confirmed time."], ["How must the rented item be returned?", "At the agreed time, clean and with the agreed fuel or charge level. The exact rules depend on the rented item. Contact us immediately if delayed."], ["What should I do after an accident, breakdown or damage?", "Secure the location, contact emergency services or police if necessary, document everything with photos and contact us immediately. Do not arrange repairs without our approval."], ["May I drive abroad?", "Mention planned cross-border trips in your request. We confirm the permitted countries before rental."]]
@@ -326,7 +326,7 @@
     review_contact: "Kontakt", review_empty: "Nach näischt ausgewielt", review_missing: "Nach net uginn",
     review_hint: "Kontrolléiert dës Donnéeën, ier Dir d’Ufro schéckt.",
     terms_html: "Ech hunn d’<a href=\"mietbedingungen.html\" target=\"_blank\" rel=\"noopener\">Locatiouns- a Reservatiounsinformatiounen</a> gelies.",
-    m_terms: "Bestätegung vun de Mietinformatiounen",
+    m_terms: "Bestätegung vun de Locatiounsinformatiounen",
     busy_title: "Am gewielten Zäitraum net disponibel:",
     busy_hint: "Wielt w.e.g. aner Datumer – oder frot trotzdem un, mir kucken no.",
     busy_period: "schonn reservéiert", availability_error: "D’Live-Disponibilitéit konnt net geluede ginn. Dir kënnt d’Ufro trotzdem schécken; mir kontrolléieren den Zäitraum virun der Bestätegung."
@@ -426,15 +426,6 @@
       });
     }
     // Hidden field used by the server-side bot protection
-    var hidden = $("rental-hidden-items");
-    if (hidden) {
-      hidden.value = state.selected
-        .map(function (id) {
-          var it = CATALOG.filter(function (x) { return x.id === id; })[0];
-          return it ? it.name.de : id;
-        })
-        .join(", ");
-    }
     updateReview();
   }
 
@@ -861,7 +852,7 @@
         st.className = "form-status ok";
         st.textContent = (received[lang()] || received.lb) + ref + ".";
         f.reset();
-        state.selected = (CATALOG.length === 1) ? [CATALOG[0].id] : [];
+        state.selected = [];
         renderCatalog();
         renderSelection();
       })
@@ -899,8 +890,6 @@
   }
 
   function init() {
-    // Bei engem eenzege Gefier gëtt et automatesch virausgewielt (keng Auswiel néideg).
-    if (CATALOG.length === 1 && !state.selected.length) state.selected = [CATALOG[0].id];
     applyStatics();
     applyExtraContent();
     renderCatalog();
