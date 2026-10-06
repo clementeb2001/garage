@@ -56,20 +56,34 @@
       },
     },
   ];
+  function money(n){return Number(n||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";}
+  /* Etikette fir d'Kaartepunkten an d'Detailansicht (4 Sproochen) */
+  var DETAIL_L = {
+    lb: { licence:"Führerschäin", deposit:"Kautioun", gross:"Max. zoul. Gewiicht", kmIncl:"km abegraff", dims:"Dimensiounen", loadSpace:"Luedraum", payload:"Notzlaascht", braked:"Brems", seats:"Sëtzplazen", fuel:"Brennstoff / Undriff", box:"Boîte", year:"Baujoer", braked_yes:"Gebremst", braked_no:"Ongebremst", secCond:"Konditiounen", secTech:"Technesch Detailer", more:"All Detailer", close:"Zoumaachen", extrakm:"pro Zousaz-km", late:"Verspéidung", perHour:"/ Stonn", kmInclFull:"km pro Locatioun abegraff" },
+    de: { licence:"Führerschein", deposit:"Kaution", gross:"Max. zul. Gewicht", kmIncl:"km inklusive", dims:"Abmessungen", loadSpace:"Laderaum", payload:"Nutzlast", braked:"Bremse", seats:"Sitzplätze", fuel:"Kraftstoff / Antrieb", box:"Getriebe", year:"Baujahr", braked_yes:"Gebremst", braked_no:"Ungebremst", secCond:"Konditionen", secTech:"Technische Details", more:"Alle Details", close:"Schließen", extrakm:"je Mehrkilometer", late:"Verspätung", perHour:"/ Stunde", kmInclFull:"km pro Miete inklusive" },
+    fr: { licence:"Permis", deposit:"Caution", gross:"PTAC max.", kmIncl:"km inclus", dims:"Dimensions", loadSpace:"Volume", payload:"Charge utile", braked:"Freinage", seats:"Places", fuel:"Carburant / Motorisation", box:"Boîte", year:"Année", braked_yes:"Freiné", braked_no:"Non freiné", secCond:"Conditions", secTech:"Détails techniques", more:"Tous les détails", close:"Fermer", extrakm:"par km supplémentaire", late:"Retard", perHour:"/ heure", kmInclFull:"km inclus par location" },
+    en: { licence:"Licence", deposit:"Deposit", gross:"Max. gross weight", kmIncl:"km included", dims:"Dimensions", loadSpace:"Load space", payload:"Payload", braked:"Braking", seats:"Seats", fuel:"Fuel / drive", box:"Transmission", year:"Year", braked_yes:"Braked", braked_no:"Unbraked", secCond:"Conditions", secTech:"Technical details", more:"All details", close:"Close", extrakm:"per extra kilometre", late:"Late return", perHour:"/ hour", kmInclFull:"km included per rental" }
+  };
   function fleetItem(v) {
     var name={lb:v.name,de:v.name,fr:v.name,en:v.name}, desc=v.description||"", tagline={lb:desc,de:desc,fr:desc,en:desc};
-    var trailer=v.type==="trailer",facts=[]; function fact(ic,val){if(val)facts.push({ic:ic,lb:val,de:val,fr:val,en:val});}
-    fact("📦",v.loadSpace); fact("⚖️",v.grossWeight); fact("🏋️",v.payload); if(trailer)fact("🛞",v.braked?"Gebremst":"Ongebremst");
-    if(!trailer){fact("⛽",v.fuel);fact("⚙️",v.transmission);fact("🪑",v.seats?String(v.seats)+" Sëtzplazen":"");}
-    fact("🪪",v.licenseClass?"Führerschäin "+v.licenseClass:""); fact("📅",v.year?"Baujoer "+v.year:"");
-    var rows=[[trailer?"Dimensiounen":"Luedraum",v.loadSpace],["Gesamtgewiicht",v.grossWeight],["Notzlaascht",v.payload],["Brems",trailer?(v.braked?"Gebremst":"Ongebremst"):""],["Sëtzplazen",trailer?"":v.seats],["Brennstoff / Undriff",trailer?"":v.fuel],["Boîte",trailer?"":v.transmission],["Führerschäin",v.licenseClass]].filter(function(r){return r[1];});
-    var details={lb:rows,de:rows,fr:rows,en:rows}, specs=(v.features||[]).length?v.features:[desc], specMap={lb:specs.slice(),de:specs.slice(),fr:specs.slice(),en:specs.slice()};
-    function money(n){return Number(n||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";}
+    var trailer=v.type==="trailer";
+    var specs=(v.features||[]).length?v.features.slice():(desc?[desc]:[]), specMap={lb:specs.slice(),de:specs.slice(),fr:specs.slice(),en:specs.slice()};
     if(!trailer&&Number(v.includedKm||0)) { specMap.lb.push(v.includedKm+" km pro Locatioun abegraff");specMap.de.push(v.includedKm+" km pro Miete inklusive");specMap.fr.push(v.includedKm+" km inclus par location");specMap.en.push(v.includedKm+" km included per rental"); }
     if(!trailer&&Number(v.extraKmRate||0)) { specMap.lb.push(money(v.extraKmRate)+" pro Zousaz-km");specMap.de.push(money(v.extraKmRate)+" je Mehrkilometer");specMap.fr.push(money(v.extraKmRate)+" par km supplémentaire");specMap.en.push(money(v.extraKmRate)+" per extra kilometre"); }
     if(Number(v.deposit||0)) { specMap.lb.push("Kautioun: "+money(v.deposit));specMap.de.push("Kaution: "+money(v.deposit));specMap.fr.push("Caution : "+money(v.deposit));specMap.en.push("Deposit: "+money(v.deposit)); }
     if(Number(v.lateFeeHour||0)) { specMap.lb.push("Verspéidung: "+money(v.lateFeeHour)+" / Stonn");specMap.de.push("Verspätung: "+money(v.lateFeeHour)+" / Stunde");specMap.fr.push("Retard : "+money(v.lateFeeHour)+" / heure");specMap.en.push("Late return: "+money(v.lateFeeHour)+" / hour"); }
-    return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:Number(v.priceDay||0),deposit:Number(v.deposit||0),includedKm:Number(v.includedKm||0),extraKmRate:Number(v.extraKmRate||0),lateFeeHour:Number(v.lateFeeHour||0),name:name,tagline:tagline,facts:facts,details:details,specs:specMap};
+    // Technesch Detailer, iwwersetzbar gehalen (Schlëssel + Wäert)
+    var tech=[["loadSpace",trailer?"":v.loadSpace],["dims",trailer?v.loadSpace:""],["gross",v.grossWeight],["payload",v.payload],["braked",trailer?(v.braked?"__yes__":"__no__"):""],["seats",trailer?"":v.seats],["fuel",trailer?"":v.fuel],["box",trailer?"":v.transmission],["licence",v.licenseClass],["year",v.year]].filter(function(r){return r[1];});
+    return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:Number(v.priceDay||0),deposit:Number(v.deposit||0),includedKm:Number(v.includedKm||0),extraKmRate:Number(v.extraKmRate||0),lateFeeHour:Number(v.lateFeeHour||0),licenseClass:v.licenseClass||"",grossWeight:v.grossWeight||"",name:name,tagline:tagline,specs:specMap,tech:tech};
+  }
+  /* Déi 4 Schlësselpunkten ënnert der Foto (Plaz spueren) */
+  function keyPoints(it, L) {
+    var d=DETAIL_L[L]||DETAIL_L.lb, out=[];
+    if(it.licenseClass) out.push({k:"🪪",v:d.licence+": "+it.licenseClass});
+    if(it.deposit) out.push({k:"🔒",v:d.deposit+": "+money(it.deposit)});
+    if(it.grossWeight) out.push({k:"⚖️",v:d.gross+": "+it.grossWeight});
+    if(it.cat!=="trailer"&&it.includedKm) out.push({k:"📍",v:it.includedKm+" "+d.kmIncl});
+    return out;
   }
   function loadFleet() {
     return fetch("https://garage-admin.autoservicebettenduerf.lu/fleet/public", {headers:{Accept:"application/json"}}).then(function(r){if(!r.ok)throw new Error("fleet");return r.json();}).then(function(data){
@@ -368,6 +382,33 @@
     return cat === "trailer" ? m.cat_trailer_lbl : m.cat_vehicle_lbl;
   }
 
+  /* ---- Professionell Detailansicht (Pop-up) ---- */
+  function techLabel(key, L) { var d = DETAIL_L[L] || DETAIL_L.lb; return d[key] || key; }
+  function techValue(val, L) { var d = DETAIL_L[L] || DETAIL_L.lb; if (val === "__yes__") return d.braked_yes; if (val === "__no__") return d.braked_no; return val; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function detailInner(it) {
+    var L = lang(), m = t(), d = DETAIL_L[L] || DETAIL_L.lb;
+    var nm = esc(it.name[L] || it.name.lb);
+    var price = it.priceDay ? '<span class="rd-price">' + it.priceDay + ' €<span> / ' + m.perDay + "</span></span>" : "";
+    var media = it.img ? '<img src="' + esc(it.img) + '" alt="' + nm + '" />' : '<span class="rental-ic">' + ICONS[it.icon] + "</span>";
+    var cond = (it.specs[L] || it.specs.lb).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("");
+    var tech = it.tech.map(function (r) { return '<div class="rd-row"><dt>' + esc(techLabel(r[0], L)) + "</dt><dd>" + esc(techValue(r[1], L)) + "</dd></div>"; }).join("");
+    return '<div class="rd-media">' + media + "</div>" +
+      '<div class="rd-head"><div><span class="rd-cat">' + catLabel(it.cat) + "</span><h3>" + nm + "</h3></div>" + price + "</div>" +
+      (it.tagline[L] ? '<p class="rd-tagline">' + esc(it.tagline[L]) + "</p>" : "") +
+      (cond ? "<h4>" + d.secCond + '</h4><ul class="rental-specs">' + cond + "</ul>" : "") +
+      (tech ? "<h4>" + d.secTech + '</h4><dl class="rd-tech">' + tech + "</dl>" : "");
+  }
+  function openDetail(id) {
+    var it = CATALOG.filter(function (x) { return x.id === id; })[0]; if (!it) return;
+    var ov = $("rental-detail-overlay"), box = $("rental-detail"); if (!ov || !box) return;
+    box.innerHTML = detailInner(it);
+    var cl = $("rental-detail-close"); if (cl) cl.setAttribute("aria-label", (DETAIL_L[lang()] || DETAIL_L.lb).close);
+    ov.hidden = false; document.body.classList.add("rd-open");
+    ov.scrollTop = 0; var mb = ov.querySelector(".rental-detail-modal"); if (mb) mb.scrollTop = 0;
+  }
+  function closeDetail() { var ov = $("rental-detail-overlay"); if (ov) ov.hidden = true; document.body.classList.remove("rd-open"); }
+
   function renderCatalog() {
     var grid = $("rental-grid");
     if (!grid) return;
@@ -378,8 +419,8 @@
       var picked = state.selected.indexOf(it.id) !== -1;
       var card = document.createElement("article");
       card.className = "rental-card" + (picked ? " is-selected" : "");
-      var specs = (it.specs[L] || it.specs.lb)
-        .map(function (s) { return "<li>" + s + "</li>"; })
+      var specs = keyPoints(it, L)
+        .map(function (s) { return '<li><span class="rk-ic" aria-hidden="true">' + s.k + "</span>" + s.v + "</li>"; })
         .join("");
       var media = it.img
         ? '<img class="rental-photo" src="' + it.img + '" alt="' + (it.name[L] || it.name.lb) + '" loading="lazy" decoding="async" />'
@@ -391,7 +432,8 @@
         '<div class="rental-media"><span class="rental-ribbon">' + catLabel(it.cat) + "</span>" + media + "</div>" +
         '<div class="rental-body">' +
         "<h3>" + (it.name[L] || it.name.lb) + "</h3>" +
-        '<ul class="rental-specs">' + specs + "</ul>" +
+        '<ul class="rental-specs rental-specs-key">' + specs + "</ul>" +
+        '<button type="button" class="rental-more" data-detail="' + it.id + '">' + (DETAIL_L[L] || DETAIL_L.lb).more + " ›</button>" +
         (it.priceDay ? '<p class="rental-paynote">' + (it.cat==="trailer"?m.payOnReturnTrailer:m.payOnReturn) + "</p>" : "") +
         '<div class="rental-cardfoot">' +
         priceHtml +
@@ -732,6 +774,8 @@
     var grid = $("rental-grid");
     if (grid)
       grid.addEventListener("click", function (e) {
+        var d = e.target.closest(".rental-more");
+        if (d) { openDetail(d.getAttribute("data-detail")); return; }
         var b = e.target.closest(".rental-select");
         if (b) toggle(b.getAttribute("data-id"));
       });
@@ -741,6 +785,10 @@
         var b = e.target.closest(".rental-sel-x");
         if (b) toggle(b.getAttribute("data-id"));
       });
+    var ov = $("rental-detail-overlay"), cl = $("rental-detail-close");
+    if (cl) cl.addEventListener("click", closeDetail);
+    if (ov) ov.addEventListener("click", function (e) { if (e.target === ov) closeDetail(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && ov && !ov.hidden) closeDetail(); });
   }
 
   function wireCalendar() {

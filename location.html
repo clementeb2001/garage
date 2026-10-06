@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=68" />
+    <link rel="stylesheet" href="styles.css?v=69" />
     <script src="location-gate.js?v=1"></script>
   </head>
   <body class="rental-page">
@@ -275,6 +275,14 @@
       </section>
     </main>
 
+    <!-- Gefier-Detailansicht (Pop-up) -->
+    <div class="rental-detail-overlay" id="rental-detail-overlay" hidden>
+      <div class="rental-detail-modal" role="dialog" aria-modal="true" aria-label="Detailer">
+        <button class="rental-detail-close" id="rental-detail-close" type="button" aria-label="Zoumaachen">✕</button>
+        <div id="rental-detail"></div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <footer class="site-footer">
       <div class="container footer-inner">
@@ -318,7 +326,7 @@
     <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
     <script src="script.js?v=21"></script>
-    <script src="location.js?v=31"></script>
+    <script src="location.js?v=32"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->
