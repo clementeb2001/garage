@@ -214,16 +214,16 @@
     list.querySelectorAll('[data-damage-remove]').forEach(function(el){el.addEventListener('click',function(){markers.splice(+el.dataset.damageRemove,1);input.value=JSON.stringify(markers);renderDamageEditor(p,kind);});});
   }
   var KM_RATE = 0.30; // €/km fir Zousaz-Kilometer (Renault Master)
-  function kmEur(km) { return (Math.max(0, Number(km) || 0) * KM_RATE); }
+  function kmEur(km,rate) { return (Math.max(0, Number(km) || 0) * (Number(rate)||KM_RATE)); }
   function eurTxt(n) { return (Math.round(n * 100) / 100).toFixed(2).replace(".", ",") + " €"; }
   function protocolHtml(b, stage) {
-    var x=inspectionFor(b.id,stage)||{}, p="pr-"+b.id+"-"+stage+"-", pickup=stage==="pickup", title=pickup?"Iwwergabprotokoll":"Retourprotokoll",storedSignature=/^https:\/\/garage-admin\.autoservicebettenduerf\.lu\/media\/protocol\//.test(x.customerSignature||"")?x.customerSignature:"",f=matchFleet(b.veh)||{},trailer=f.type==="trailer",diagramKind=trailer?"trailer":(f.type==="car"?"car":"van"),c=inspectionChecklist(x);
+    var x=inspectionFor(b.id,stage)||{}, p="pr-"+b.id+"-"+stage+"-", pickup=stage==="pickup", title=pickup?"Iwwergabprotokoll":"Retourprotokoll",storedSignature=/^https:\/\/garage-admin\.autoservicebettenduerf\.lu\/media\/protocol\//.test(x.customerSignature||"")?x.customerSignature:"",f=matchFleet(b.veh)||{},trailer=f.type==="trailer",diagramKind=trailer?"trailer":(f.type==="car"?"car":"van"),c=inspectionChecklist(x),snap=parseBookingSnapshot(b),kmRate=snap&&snap.items?snap.items.reduce(function(v,i){return v||Number(i.extraKmRate||0);},0):KM_RATE;
     return '<div class="protocol-box"><h4>'+title+(x.id?' <span class="protocol-saved">✓ gespäichert</span>':'')+'</h4><div class="protocol-grid">'+
       '<div class="protocol-section">Basisdaten</div>'+
       '<label>Zäitpunkt<input id="'+p+'at" type="datetime-local" value="'+esc(dtLocal(x.inspectedAt)||nowLocal())+'"></label>'+
       (trailer?'':'<label>Kilometerstand<input id="'+p+'km" type="number" min="0" inputmode="numeric" value="'+esc(x.odometer==null?'':x.odometer)+'"></label><label>Brennstoff- / Luedstand<select id="'+p+'fuel">'+["Voll / 100 %","3/4 / 75 %","1/2 / 50 %","1/4 / 25 %","Eidel / 0 %"].map(function(v){return '<option'+(x.fuelLevel===v?' selected':'')+'>'+v+'</option>';}).join('')+'</select></label>')+
       '<label>Unzuel Schlësselen<input id="'+p+'keys" type="number" min="0" max="10" inputmode="numeric" value="'+esc(c.keyCount==null?'':c.keyCount)+'"></label>'+
-      (pickup?'':'<label>Zousaz-km<input id="'+p+'extraKm" type="number" min="0" value="'+esc(x.extraKm==null?'':x.extraKm)+'"><small id="'+p+'extraKmEur" style="display:block;color:var(--muted);font-size:0.72rem;margin-top:3px">× '+eurTxt(KM_RATE)+'/km = '+eurTxt(kmEur(x.extraKm))+'</small></label><label>Aner Käschten (€)<input id="'+p+'extraCosts" type="number" min="0" step="0.01" value="'+esc(x.extraCosts==null?'':x.extraCosts)+'"><small style="display:block;color:var(--muted);font-size:0.72rem;margin-top:3px">Sprit, Verspéidung, Botzen … (ouni km)</small></label>')+
+      (pickup?'':'<label>Zousaz-km<input id="'+p+'extraKm" type="number" min="0" value="'+esc(x.extraKm==null?'':x.extraKm)+'"><small id="'+p+'extraKmEur" data-km-rate="'+esc(kmRate||KM_RATE)+'" style="display:block;color:var(--muted);font-size:0.72rem;margin-top:3px">× '+eurTxt(kmRate||KM_RATE)+'/km = '+eurTxt(kmEur(x.extraKm,kmRate))+'</small></label><label>Aner Käschten (€)<input id="'+p+'extraCosts" type="number" min="0" step="0.01" value="'+esc(x.extraCosts==null?'':x.extraCosts)+'"><small style="display:block;color:var(--muted);font-size:0.72rem;margin-top:3px">Sprit, Verspéidung, Botzen … (ouni km)</small></label>')+
       '<div class="protocol-section">Kontroll</div>'+
       '<label>Propretéit<select id="'+p+'cleanliness">'+["Propper","Liicht verschmotzt","Staark verschmotzt"].map(function(v){return '<option'+(c.cleanliness===v?' selected':'')+'>'+v+'</option>';}).join('')+'</select></label>'+
       '<div class="protocol-checks"><label class="protocol-check"><input id="'+p+'documents" type="checkbox"'+(c.documentsChecked?' checked':'')+'> Dokumenter kontrolléiert</label><label class="protocol-check"><input id="'+p+'lights" type="checkbox"'+(c.lightsChecked?' checked':'')+'> Beliichtung kontrolléiert</label><label class="protocol-check"><input id="'+p+'tyres" type="checkbox"'+(c.tyresChecked?' checked':'')+'> Pneuen a Rieder kontrolléiert</label><label class="protocol-check"><input id="'+p+'joint" type="checkbox"'+(c.jointInspection?' checked':'')+'> Zesumme mam Client kontrolléiert</label></div>'+
@@ -243,18 +243,19 @@
   function drawSignaturePad(canvas) { var rect=canvas.getBoundingClientRect(),dpr=Math.max(1,window.devicePixelRatio||1),ctx;canvas.width=Math.max(1,Math.round(rect.width*dpr));canvas.height=Math.max(1,Math.round(rect.height*dpr));ctx=canvas.getContext("2d");ctx.scale(dpr,dpr);ctx.strokeStyle="#111827";ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";var drawing=false;function pos(e){var r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};}canvas.addEventListener("pointerdown",function(e){drawing=true;canvas.setPointerCapture(e.pointerId);var q=pos(e);ctx.beginPath();ctx.moveTo(q.x,q.y);canvas._signed=true;var old=$(canvas.id+"-existing");if(old)old.hidden=true;e.preventDefault();});canvas.addEventListener("pointermove",function(e){if(!drawing)return;var q=pos(e);ctx.lineTo(q.x,q.y);ctx.stroke();e.preventDefault();});function stop(){drawing=false;}canvas.addEventListener("pointerup",stop);canvas.addEventListener("pointercancel",stop);}
   function refreshProtocolPhotos(p) { var box=$(p+"photo-list"),urls=protocolPhotoList($(p+"photos").value),status=$(p+"photo-status");box.innerHTML=urls.map(function(url,i){return '<div class="protocol-photo"><img src="'+url+'" alt="Protokollfoto '+(i+1)+'"><button type="button" data-remove-photo="'+i+'" aria-label="Foto ewechhuelen">×</button></div>';}).join('');if(status)status.textContent=urls.length?urls.length+' Foto(en) gespäichert'+(urls.length<6?' · 6 Perspektive recommandéiert':' · Dokumentatioun komplett'):'Nach keng Foto · 6 Perspektive recommandéiert';box.querySelectorAll("[data-remove-photo]").forEach(function(btn){btn.addEventListener("click",function(){urls.splice(parseInt(btn.getAttribute("data-remove-photo"),10),1);$(p+"photos").value=urls.join("\n");refreshProtocolPhotos(p);});}); }
   function addProtocolPhotos(p,files) { var status=$(p+"photo-status"),list=Array.prototype.slice.call(files||[]);if(!list.length)return;status.textContent="Fotoe ginn eropgelueden …";Promise.all(list.map(function(file){return resizeFleetPhoto(file).then(function(blob){return STORE.uploadProtocolImage(blob);});})).then(function(results){var urls=protocolPhotoList($(p+"photos").value);results.forEach(function(r){if(r&&r.url)urls.push(r.url);});$(p+"photos").value=urls.join("\n");refreshProtocolPhotos(p);status.textContent="✓ "+results.length+" Foto(en) eropgelueden.";}).catch(function(){status.textContent="E Foto konnt net eropgeluede ginn. Probéiert nach eng Kéier.";}); }
-  function initProtocolUi(b,stage) { var p="pr-"+b.id+"-"+stage+"-",canvas=$(p+"signature"),f=matchFleet(b.veh)||{},kind=f.type==="trailer"?"trailer":(f.type==="car"?"car":"van");if(!canvas)return;renderDamageEditor(p,kind);drawSignaturePad(canvas);refreshProtocolPhotos(p);$(p+"camera-btn").addEventListener("click",function(){$(p+"camera").click();});$(p+"gallery-btn").addEventListener("click",function(){$(p+"gallery").click();});[$(p+"camera"),$(p+"gallery")].forEach(function(inp){inp.addEventListener("change",function(){addProtocolPhotos(p,inp.files);inp.value="";});});$(p+"signature-clear").addEventListener("click",function(){var ctx=canvas.getContext("2d");ctx.clearRect(0,0,canvas.width,canvas.height);canvas._signed=false;canvas.dataset.existing="";var old=$(p+"signature-existing");if(old)old.hidden=true;});if(stage==="return"){var ek=$(p+"extraKm"),lbl=$(p+"extraKmEur");if(ek&&lbl){var upd=function(){lbl.textContent="× "+eurTxt(KM_RATE)+"/km = "+eurTxt(kmEur(ek.value));};ek.addEventListener("input",upd);upd();}} }
+  function initProtocolUi(b,stage) { var p="pr-"+b.id+"-"+stage+"-",canvas=$(p+"signature"),f=matchFleet(b.veh)||{},kind=f.type==="trailer"?"trailer":(f.type==="car"?"car":"van");if(!canvas)return;renderDamageEditor(p,kind);drawSignaturePad(canvas);refreshProtocolPhotos(p);$(p+"camera-btn").addEventListener("click",function(){$(p+"camera").click();});$(p+"gallery-btn").addEventListener("click",function(){$(p+"gallery").click();});[$(p+"camera"),$(p+"gallery")].forEach(function(inp){inp.addEventListener("change",function(){addProtocolPhotos(p,inp.files);inp.value="";});});$(p+"signature-clear").addEventListener("click",function(){var ctx=canvas.getContext("2d");ctx.clearRect(0,0,canvas.width,canvas.height);canvas._signed=false;canvas.dataset.existing="";var old=$(p+"signature-existing");if(old)old.hidden=true;});if(stage==="return"){var ek=$(p+"extraKm"),lbl=$(p+"extraKmEur"),rate=Number(lbl&&lbl.dataset.kmRate)||KM_RATE;if(ek&&lbl){var upd=function(){lbl.textContent="× "+eurTxt(rate)+"/km = "+eurTxt(kmEur(ek.value,rate));};ek.addEventListener("input",upd);upd();}} }
   function signatureBlob(canvas) { return new Promise(function(resolve){canvas.toBlob(function(blob){resolve(blob);},"image/webp",.9);}); }
 
   /* ---------- Professionellt Protokoll-PDF (iwwer Drécken → "Als PDF späicheren") ---------- */
   var fleetCache = null;
   function ensureFleetCache() { if (fleetCache) return Promise.resolve(fleetCache); return STORE.listMaintenance().then(function (i) { fleetCache = i || []; return fleetCache; }, function () { fleetCache = []; return fleetCache; }); }
-  function matchFleet(veh) { var k = String(veh || "").toLowerCase().trim(); if (!k) return null; return (fleetCache || []).filter(function (m) { var mv = String(m.vehicle || "").toLowerCase().trim(); return mv && (mv === k || k.indexOf(mv) !== -1 || mv.indexOf(k) !== -1); })[0] || null; }
+  function matchFleet(veh) { var k = String(veh || "").toLowerCase().trim(); if (!k) return null; var list=fleetCache||[],hit=list.filter(function (m) { var mv = String(m.vehicle || "").toLowerCase().trim(); return mv && (mv === k || k.indexOf(mv) !== -1 || mv.indexOf(k) !== -1); })[0];if(hit)return hit;var type=/transporter|lieferwagen|utilitaire|\bvan\b/.test(k)?"van":/anhänger|unhänger|remorque|trailer/.test(k)?"trailer":/personenwagen|voiture|\bauto\b|\bcar\b/.test(k)?"car":"",same=type?list.filter(function(m){return (m.type||"van")===type;}):[];return same.length===1?same[0]:null; }
   function ppRow(label, val) { return val ? '<tr><th>' + esc(label) + '</th><td>' + esc(val) + '</td></tr>' : ""; }
   function printProtocol(b, stage) {
     var p = "pr-" + b.id + "-" + stage + "-", pickup = stage === "pickup";
     ensureFleetCache().then(function () {
       var f = matchFleet(b.veh) || {};
+      var rateSnap=parseBookingSnapshot(b), protocolKmRate=rateSnap&&rateSnap.items?rateSnap.items.reduce(function(v,i){return v||Number(i.extraKmRate||0);},0):KM_RATE;
       var val = function (id) { var e = $(p + id); return e ? e.value : ""; };
       var km = val("km"), fuel = val("fuel"), at = val("at"), condition = val("condition"), damage = val("damage"), accessories = val("accessories"), staff = val("staff"), note = val("note");
       var trailer = f.type === "trailer", diagramKind=trailer?"trailer":(f.type==="car"?"car":"van"), cleanliness = val("cleanliness"), keys = val("keys");
@@ -268,7 +269,7 @@
       var ref = refOf(b.id), title = pickup ? "Iwwergab­protokoll" : "Retour­protokoll";
       var carRows = ppRow("Verleihobjet", b.veh) + ppRow("Typ", trailer?"Unhänger":(f.type==="car"?"Auto":"Transporter")) + ppRow("Baujoer", f.year) + ppRow("Brennstoff / Undriff", trailer?"":f.fuel) + ppRow(trailer?"Dimensiounen":"Luedraum", f.loadSpace) + ppRow("Führerschäin", f.licenseClass);
       var stateRows = ppRow("Datum / Zäit", at ? fmt(at) : "") + ppRow("Kilometerstand", km ? km + " km" : "") + ppRow("Brennstoff- / Luedstand", fuel) + ppRow("Schlësselen", keys) + ppRow("Propretéit", cleanliness) + ppRow("Kontrolléiert", checkText) +
-        (pickup ? ppRow("Führerschäin & Identitéit kontrolléiert", licenseChecked ? "Jo" : "Nee") : (ppRow("Zousaz-Kilometer", extraKm ? extraKm + " km (" + eurTxt(kmEur(extraKm)) + ")" : "") + ppRow("Aner Käschten", extraCosts ? eurTxt(extraCosts) : "") + ppRow("Zousaz total", (kmEur(extraKm) + (Number(extraCosts) || 0)) ? eurTxt(kmEur(extraKm) + (Number(extraCosts) || 0)) : "")));
+        (pickup ? ppRow("Führerschäin & Identitéit kontrolléiert", licenseChecked ? "Jo" : "Nee") : (ppRow("Zousaz-Kilometer", extraKm ? extraKm + " km (" + eurTxt(kmEur(extraKm,protocolKmRate)) + ")" : "") + ppRow("Aner Käschten", extraCosts ? eurTxt(extraCosts) : "") + ppRow("Zousaz total", (kmEur(extraKm,protocolKmRate) + (Number(extraCosts) || 0)) ? eurTxt(kmEur(extraKm,protocolKmRate) + (Number(extraCosts) || 0)) : "")));
       var photoHtml = photos.length ? '<div class="pp-sec"><h3>Fotoen</h3><div class="pp-photos">' + photos.map(function (u) { return '<img src="' + u + '" alt="">'; }).join("") + "</div></div>" : "";
       var html =
         '<div class="pp-doc">' +
@@ -309,10 +310,11 @@
     if(!pickup||!returned||!pickup.customerSignature||!returned.customerSignature){toast("Iwwergab a Retour musse fir d'éischt gespäichert an ënnerschriwwe sinn.");return;}
     ensureFleetCache().then(function(){
       var f=matchFleet(b.veh)||{},trailer=f.type==="trailer",diagramKind=trailer?"trailer":(f.type==="car"?"car":"van"),ref=refOf(b.id);
+      var rateSnap=parseBookingSnapshot(b), protocolKmRate=rateSnap&&rateSnap.items?rateSnap.items.reduce(function(v,i){return v||Number(i.extraKmRate||0);},0):KM_RATE;
       function yn(v){return v?"Jo":"Nee";}
       function stageHtml(x,pickupStage){
         var c=inspectionChecklist(x),photos=protocolPhotoList(x.photoRefs),checks=[c.documentsChecked?"Dokumenter":"",c.lightsChecked?"Beliichtung":"",c.tyresChecked?"Pneuen/Rieder":"",c.jointInspection?"zesumme mam Client":""].filter(Boolean).join(", ");
-        var rows=ppRow("Datum / Zäit",fmt(x.inspectedAt))+ppRow("Kilometerstand",trailer?"":(x.odometer==null?"":x.odometer+" km"))+ppRow("Brennstoff- / Luedstand",trailer?"":x.fuelLevel)+ppRow("Schlësselen",c.keyCount)+ppRow("Propretéit",c.cleanliness)+ppRow("Kontrolléiert",checks)+(pickupStage?ppRow("Führerschäin & Identitéit",yn(x.licenseChecked)):ppRow("Zousaz-Kilometer",x.extraKm==null?"":x.extraKm+" km ("+eurTxt(kmEur(x.extraKm))+")")+ppRow("Aner Käschten",x.extraCosts==null?"":eurTxt(x.extraCosts))+ppRow("Zousaz total",(kmEur(x.extraKm)+(Number(x.extraCosts)||0))?eurTxt(kmEur(x.extraKm)+(Number(x.extraCosts)||0)):""));
+        var rows=ppRow("Datum / Zäit",fmt(x.inspectedAt))+ppRow("Kilometerstand",trailer?"":(x.odometer==null?"":x.odometer+" km"))+ppRow("Brennstoff- / Luedstand",trailer?"":x.fuelLevel)+ppRow("Schlësselen",c.keyCount)+ppRow("Propretéit",c.cleanliness)+ppRow("Kontrolléiert",checks)+(pickupStage?ppRow("Führerschäin & Identitéit",yn(x.licenseChecked)):ppRow("Zousaz-Kilometer",x.extraKm==null?"":x.extraKm+" km ("+eurTxt(kmEur(x.extraKm,protocolKmRate))+")")+ppRow("Aner Käschten",x.extraCosts==null?"":eurTxt(x.extraCosts))+ppRow("Zousaz total",(kmEur(x.extraKm,protocolKmRate)+(Number(x.extraCosts)||0))?eurTxt(kmEur(x.extraKm,protocolKmRate)+(Number(x.extraCosts)||0)):""));
         var marks=damageMarkers(c.damageMarkers),map='<div class="pp-damage"><strong>Visuell Schuedmarkéierungen</strong>'+damageDiagramSvg(marks,diagramKind,false)+(marks.length?'<ol>'+marks.map(function(m){return '<li><b>'+esc(m.type||'Schued')+':</b> '+esc(m.note||'keng Zousaznotiz')+'</li>';}).join('')+'</ol>':'<p class="pp-no-damage">Keng Schued op der Skizz markéiert.</p>')+'</div>';
         return '<section class="pp-stage"><div class="pp-stage-title"><span>'+(pickupStage?"1":"2")+'</span><div><small>'+(pickupStage?"UFANK VUN DER LOCATIOUN":"ENN VUN DER LOCATIOUN")+'</small><h2>'+(pickupStage?"Iwwergab":"Retour")+'</h2></div></div><div class="pp-sec"><h3>Zoustand</h3><table class="pp-tbl">'+rows+'</table>'+(x.conditionNote?'<p><strong>Allgemengen Zoustand:</strong> '+esc(x.conditionNote)+'</p>':"")+(x.damageNote?'<p><strong>'+(pickupStage?"Besteeënd":"Nei")+' Schied / Feststellungen:</strong> '+esc(x.damageNote)+'</p>':"")+map+(x.accessories?'<p><strong>Schlësselen, Dokumenter an Ekipement:</strong> '+esc(x.accessories)+'</p>':"")+'</div>'+(photos.length?'<div class="pp-sec"><h3>Fotodokumentatioun · '+photos.length+' Foto(en)</h3><div class="pp-photos">'+photos.map(function(u,i){return '<img src="'+u+'" alt="'+(pickupStage?"Iwwergab":"Retour")+' Foto '+(i+1)+'">';}).join("")+'</div></div>':"")+'<div class="pp-sign pp-sign-single"><div><span class="pp-sigbox"><img src="'+x.customerSignature+'" alt="Ënnerschrëft Client"></span><div class="pp-sigline">Ënnerschrëft Client · '+esc(b.name)+'</div></div><div><span class="pp-sigbox"></span><div class="pp-sigline">Autoservice Bettenduerf · '+esc(x.staffSignature||x.updatedBy||"")+'</div></div></div></section>';
       }
@@ -332,24 +334,24 @@
   function docLang(l) { return ["lb", "de", "fr", "en"].indexOf(l) >= 0 ? l : "lb"; }
   function docHead() { return '<div class="pp-head"><img class="pp-logo" src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf"><div class="pp-co"><strong>Autoservice Bettenduerf</strong><br>63, rue de Diekirch-Echternach · L-9355 Bettendorf<br>+352 80 86 87 · Autoservicebettenduerf@outlook.com</div></div><div class="pp-accent"></div>'; }
   var DOC_I18N = {
-    lb: { title:"Mietvertrag", ref:"Réf.", secVermieter:"Vermieter", secMieter:"Mieter", secObjet:"Mietobjekt", secPeriod:"Mietperiod", secPrix:"Präis, Kautioun a Bezuelung", secTerms:"Konditiounen",
+    lb: { title:"Locatiounsvertrag", ref:"Réf.", secVermieter:"Verléiner", secMieter:"Locataire", secObjet:"Locatiounsobjet", secPeriod:"Locatiounszäitraum", secPrix:"Präis, Kautioun a Bezuelung", secTerms:"Konditiounen",
       firma:"Firma", adr:"Adress", tel:"Telefon", email:"E-Mail", rcs:"RCS / TVA", numm:"Numm", adrMieter:"Adress", dob:"Gebuertsdatum", licNo:"Führerschäin-Nr.", idNo:"Ausweis-Nr.",
       gefier:"Gefier", plaque:"Immatrikulatioun", typ:"Typ", baujoer:"Baujoer", kraftstoff:"Kraftstoff", fs:"Führerschäin", kmStart:"Kilometerstand bei der Iwwergab",
       vun:"Vun", bis:"Bis", plaz:"Ofhuel- a Retourplaz", plazVal:"Autoservice Bettenduerf · Bettendorf",
-      dag:"Dagespräis", dauer:"Mietdauer", preis:"Mietpräis (viraussiichtlech)", inclKm:"Abegraff Kilometer", inclKmVal:"250 km pro Locatioun", zKm:"Zousaz-km", perKm:"/ km", kaut:"Kautioun", bez:"Bezuelung", bezVal:"bei der Retour vum Gefier", versp:"Verspéidung", verspVal:"20 € pro ugefaangener Stonn", tank:"Tanken", tankVal:"vollgetankt zréck, soss Volltank + 50 €", h24:"× 24 h",
+      dag:"Dagespräis", dauer:"Locatiounsdauer", preis:"Locatiounspräis (viraussiichtlech)", inclKm:"Abegraff Kilometer", inclKmVal:"{included} km pro Locatioun", zKm:"Zousaz-km", perKm:"/ km", kaut:"Kautioun", bez:"Bezuelung", bezVal:"beim Retour vum Gefier", versp:"Verspéidung", verspVal:"{late} pro ugefaangener Stonn", tank:"Tanken", tankVal:"vollgetankt zréck, soss Volltank + 50 €", h24:"× 24 h",
       typVan:"Transporter", typCar:"Auto", typTrailer:"Unhänger",
-      dims:"Dimensiounen", gvw:"Gesamtgewiicht", payload:"Notzlaascht", brake:"Brems", braked:"Gebremst", unbraked:"Ongebremst", retCond:"Retour", retCondVal:"propper a sécher zréckbréngen", clause4Trailer:"<b>Retour & Zoustand.</b> De Remorque muss propper a betribsécher zréckkommen; d'Luedung muss uerdnungsgeméiss geséchert ginn. Schied oder feelend Deeler ginn no Käschten verrechent.",
-      place:"Zu Bettendorf, den", signMieter:"Ënnerschrëft Mieter", signVermieter:"Ënnerschrëft Vermieter",
+      dims:"Dimensiounen", gvw:"Gesamtgewiicht", payload:"Notzlaascht", brake:"Brems", braked:"Gebremst", unbraked:"Ongebremst", retCond:"Retour", retCondVal:"propper a sécher zréckbréngen", clause4Trailer:"<b>Retour & Zoustand.</b> Den Unhänger muss propper a betribsécher zréckkommen; d'Luedung muss uerdnungsgeméiss geséchert ginn. Schied oder feelend Deeler ginn no den tatsächleche Käschte verrechent.",
+      place:"Zu Bettendorf, den", signMieter:"Ënnerschrëft vum Locataire", signVermieter:"Ënnerschrëft vum Verléiner",
       prep:"Dokument gëtt virbereet …", ready:"Fäerdeg — elo drécken oder als PDF späicheren.", printBtn:"🖨️ Drécken / PDF", closeBtn:"Zoumaachen",
       pTitlePickup:"Iwwergabprotokoll", pTitleReturn:"Retourprotokoll", pClient:"Client", pStatePickup:"Zoustand bei der Iwwergab", pStateReturn:"Zoustand bei der Retour",
       pDatum:"Datum / Zäit", pKm:"Kilometerstand", pFuel:"Brennstoff- / Luedstand", pKeys:"Unzuel Schlësselen", pClean:"Propretéit", fsCheck:"Führerschäin & Identitéit kontrolléiert", other:"Aner Käschten (€)",
       pCondition:"Allgemengen Zoustand:", pDamage:"Schied / Feststellungen:", pConfirmTitle:"Bestätegung", pConfirmText:"D'Ënnerschrëft bestätegt d'gemeinsam Kontroll an déi hei festgehalen Informatiounen.",
       clauses:[
-        "<b>Vertragsofschloss.</b> Mat der Ënnerschrëft gëtt dëse Mietvertrag verbindlech. De Mieter bestätegt, datt hien d'Gefier am Zoustand vum Iwwergabprotokoll iwwerholl huet.",
-        "<b>Chauffeur.</b> E gültegen Identitéitsdokument an de néidege Führerschäin goufe virgeluecht. D'Gefier dierf nëmme vun de Persoune gefouert ginn, déi an dësem Vertrag ageschriwwe sinn.",
+        "<b>Ofschloss vum Vertrag.</b> Mat der Ënnerschrëft gëtt dëse Locatiounsvertrag verbindlech. De Locataire bestätegt, datt hien d'Gefier am Zoustand vum Iwwergabprotokoll iwwerholl huet.",
+        "<b>Chauffeur.</b> E gültegt Identitéitsdokument an deen néidege Führerschäin goufe virgeluecht. D'Gefier dierf nëmme vun de Persoune gefouert ginn, déi an dësem Vertrag agedroe sinn.",
         "<b>Notzung.</b> Suergfälteg a bestëmmungsgeméiss Notzung. Keen Iwwerlueden, keng Weiderverlounung, keng rechtswiddreg Notzung. Fuere mat Unhänger oder am Ausland nëmme mat ausdrécklecher Erlaabnes.",
-        "<b>Kilometer & Tanken.</b> 250 km pro Locatioun sinn abegraff; all weidere Kilometer gëtt mat {km} verrechent. D'Gefier muss vollgetankt zréckbruecht ginn, soss ginn d'Tankkäschten + 50 € Pauschal verrechent.",
-        "<b>Retour & Verspéidung.</b> Retour zur vereinbarter Zäit a Plaz. Pro ugefaangener Stonn Verspéidung ginn 20 € verrechent.",
+        "<b>Kilometer & Tanken.</b> {included} km pro Locatioun sinn abegraff; all weidere Kilometer gëtt mat {km} verrechent. D'Gefier muss vollgetankt zréckbruecht ginn, soss ginn d'Tankkäschten + 50 € Pauschal verrechent.",
+        "<b>Retour & Verspéidung.</b> Retour zu der vereinbarter Zäit an op der vereinbarter Plaz. Pro ugefaangener Stonn Verspéidung gëtt {late} verrechent.",
         "<b>Kautioun & Bezuelung.</b> D'Kautioun gëtt virum Ufank festgehalen; d'Bezuelung geschitt bei der Retour vum Gefier.",
         "<b>Assurance & Haftung.</b> Bei Accident, Pann, Déifstall oder Schued muss Autoservice Bettenduerf direkt informéiert ginn; keng Reparatur ouni Zoustëmmung. Zwingend gesetzlech Rechter bleiwen onberéiert.",
         "<b>Dateschutz.</b> D'perséinlech Donnéeë ginn eleng fir d'Ofwécklung vun der Locatioun veraarbecht (cf. Dateschutzerklärung op autoservicebettenduerf.lu)."
@@ -358,7 +360,7 @@
       firma:"Firma", adr:"Adresse", tel:"Telefon", email:"E-Mail", rcs:"RCS / USt-IdNr.", numm:"Name", adrMieter:"Adresse", dob:"Geburtsdatum", licNo:"Führerschein-Nr.", idNo:"Ausweis-Nr.",
       gefier:"Fahrzeug", plaque:"Kennzeichen", typ:"Typ", baujoer:"Baujahr", kraftstoff:"Kraftstoff", fs:"Führerschein", kmStart:"Kilometerstand bei Übergabe",
       vun:"Von", bis:"Bis", plaz:"Abhol- und Rückgabeort", plazVal:"Autoservice Bettenduerf · Bettendorf",
-      dag:"Tagespreis", dauer:"Mietdauer", preis:"Mietpreis (voraussichtlich)", inclKm:"Inbegriffene Kilometer", inclKmVal:"250 km pro Miete", zKm:"Mehrkilometer", perKm:"/ km", kaut:"Kaution", bez:"Zahlung", bezVal:"bei Rückgabe des Fahrzeugs", versp:"Verspätung", verspVal:"20 € je angefangene Stunde", tank:"Betankung", tankVal:"vollgetankt zurück, sonst Volltankung + 50 €", h24:"× 24 h",
+      dag:"Tagespreis", dauer:"Mietdauer", preis:"Mietpreis (voraussichtlich)", inclKm:"Inbegriffene Kilometer", inclKmVal:"{included} km pro Miete", zKm:"Mehrkilometer", perKm:"/ km", kaut:"Kaution", bez:"Zahlung", bezVal:"bei Rückgabe des Fahrzeugs", versp:"Verspätung", verspVal:"{late} je angefangene Stunde", tank:"Betankung", tankVal:"vollgetankt zurück, sonst Volltankung + 50 €", h24:"× 24 h",
       typVan:"Transporter", typCar:"Auto", typTrailer:"Anhänger",
       dims:"Abmessungen", gvw:"Gesamtgewicht", payload:"Nutzlast", brake:"Bremse", braked:"Gebremst", unbraked:"Ungebremst", retCond:"Rückgabe", retCondVal:"sauber und sicher zurückbringen", clause4Trailer:"<b>Rückgabe & Zustand.</b> Der Anhänger ist sauber und betriebssicher zurückzugeben; die Ladung ist ordnungsgemäß zu sichern. Schäden oder fehlende Teile werden nach Aufwand berechnet.",
       place:"Bettendorf, den", signMieter:"Unterschrift Mieter", signVermieter:"Unterschrift Vermieter",
@@ -370,8 +372,8 @@
         "<b>Vertragsabschluss.</b> Mit der Unterschrift wird dieser Mietvertrag verbindlich. Der Mieter bestätigt, das Fahrzeug im Zustand des Übergabeprotokolls übernommen zu haben.",
         "<b>Fahrer.</b> Ein gültiges Ausweisdokument und der erforderliche Führerschein wurden vorgelegt. Das Fahrzeug darf nur von den in diesem Vertrag eingetragenen Personen geführt werden.",
         "<b>Nutzung.</b> Sorgfältige und bestimmungsgemäße Nutzung. Kein Überladen, keine Weitervermietung, keine rechtswidrige Nutzung. Fahrten mit Anhänger oder ins Ausland nur mit ausdrücklicher Erlaubnis.",
-        "<b>Kilometer & Betankung.</b> 250 km pro Miete sind inbegriffen; jeder weitere Kilometer wird mit {km} berechnet. Das Fahrzeug ist vollgetankt zurückzubringen, andernfalls werden die Tankkosten + 50 € Pauschale berechnet.",
-        "<b>Rückgabe & Verspätung.</b> Rückgabe zur vereinbarten Zeit und am vereinbarten Ort. Je angefangene Stunde Verspätung werden 20 € berechnet.",
+        "<b>Kilometer & Betankung.</b> {included} km pro Miete sind inbegriffen; jeder weitere Kilometer wird mit {km} berechnet. Das Fahrzeug ist vollgetankt zurückzubringen, andernfalls werden die Tankkosten + 50 € Pauschale berechnet.",
+        "<b>Rückgabe & Verspätung.</b> Rückgabe zur vereinbarten Zeit und am vereinbarten Ort. Je angefangene Stunde Verspätung werden {late} berechnet.",
         "<b>Kaution & Zahlung.</b> Die Kaution wird vor Beginn festgelegt; die Zahlung erfolgt bei der Rückgabe des Fahrzeugs.",
         "<b>Versicherung & Haftung.</b> Bei Unfall, Panne, Diebstahl oder Schaden ist Autoservice Bettenduerf unverzüglich zu informieren; keine Reparatur ohne Zustimmung. Zwingende gesetzliche Rechte bleiben unberührt.",
         "<b>Datenschutz.</b> Die personenbezogenen Daten werden ausschließlich zur Abwicklung der Vermietung verarbeitet (siehe Datenschutzerklärung auf autoservicebettenduerf.lu)."
@@ -380,7 +382,7 @@
       firma:"Société", adr:"Adresse", tel:"Téléphone", email:"E-mail", rcs:"RCS / TVA", numm:"Nom", adrMieter:"Adresse", dob:"Date de naissance", licNo:"N° de permis", idNo:"N° de pièce d'identité",
       gefier:"Véhicule", plaque:"Immatriculation", typ:"Type", baujoer:"Année", kraftstoff:"Carburant", fs:"Permis", kmStart:"Kilométrage à la remise",
       vun:"Du", bis:"Au", plaz:"Lieu d'enlèvement et de retour", plazVal:"Autoservice Bettenduerf · Bettendorf",
-      dag:"Tarif journalier", dauer:"Durée", preis:"Prix de location (estimé)", inclKm:"Kilomètres inclus", inclKmVal:"250 km par location", zKm:"Km supplémentaires", perKm:"/ km", kaut:"Caution", bez:"Paiement", bezVal:"au retour du véhicule", versp:"Retard", verspVal:"20 € par heure entamée", tank:"Carburant", tankVal:"rendu plein, sinon plein + 50 €", h24:"× 24 h",
+      dag:"Tarif journalier", dauer:"Durée", preis:"Prix de location (estimé)", inclKm:"Kilomètres inclus", inclKmVal:"{included} km par location", zKm:"Km supplémentaires", perKm:"/ km", kaut:"Caution", bez:"Paiement", bezVal:"au retour du véhicule", versp:"Retard", verspVal:"{late} par heure entamée", tank:"Carburant", tankVal:"rendu plein, sinon plein + 50 €", h24:"× 24 h",
       typVan:"Utilitaire", typCar:"Voiture", typTrailer:"Remorque",
       dims:"Dimensions", gvw:"Poids total", payload:"Charge utile", brake:"Frein", braked:"Freinée", unbraked:"Non freinée", retCond:"Retour", retCondVal:"rendre propre et sécurisé", clause4Trailer:"<b>Retour & état.</b> La remorque doit être rendue propre et en bon état de marche ; le chargement doit être correctement arrimé. Les dommages ou pièces manquantes sont facturés selon les frais.",
       place:"À Bettendorf, le", signMieter:"Signature locataire", signVermieter:"Signature loueur",
@@ -392,8 +394,8 @@
         "<b>Conclusion du contrat.</b> La signature rend ce contrat de location ferme. Le locataire confirme avoir pris le véhicule dans l'état du procès-verbal de remise.",
         "<b>Conducteur.</b> Une pièce d'identité valable et le permis requis ont été présentés. Le véhicule ne peut être conduit que par les personnes inscrites dans ce contrat.",
         "<b>Utilisation.</b> Utilisation soigneuse et conforme. Pas de surcharge, pas de sous-location, pas d'usage illicite. Les trajets avec remorque ou à l'étranger nécessitent une autorisation expresse.",
-        "<b>Kilométrage & carburant.</b> 250 km par location sont inclus ; chaque kilomètre supplémentaire est facturé {km}. Le véhicule doit être rendu avec le plein, sinon les frais de carburant + un forfait de 50 € sont facturés.",
-        "<b>Retour & retard.</b> Retour à l'heure et au lieu convenus. Chaque heure de retard entamée est facturée 20 €.",
+        "<b>Kilométrage & carburant.</b> {included} km par location sont inclus ; chaque kilomètre supplémentaire est facturé {km}. Le véhicule doit être rendu avec le plein, sinon les frais de carburant + un forfait de 50 € sont facturés.",
+        "<b>Retour & retard.</b> Retour à l'heure et au lieu convenus. Chaque heure de retard entamée est facturée {late}.",
         "<b>Caution & paiement.</b> La caution est fixée avant le début ; le paiement s'effectue au retour du véhicule.",
         "<b>Assurance & responsabilité.</b> En cas d'accident, de panne, de vol ou de dommage, Autoservice Bettenduerf doit être informé immédiatement ; aucune réparation sans accord. Les droits légaux impératifs restent réservés.",
         "<b>Protection des données.</b> Les données personnelles sont traitées uniquement pour la gestion de la location (voir la déclaration de confidentialité sur autoservicebettenduerf.lu)."
@@ -402,7 +404,7 @@
       firma:"Company", adr:"Address", tel:"Phone", email:"E-mail", rcs:"RCS / VAT", numm:"Name", adrMieter:"Address", dob:"Date of birth", licNo:"Licence no.", idNo:"ID no.",
       gefier:"Vehicle", plaque:"Registration", typ:"Type", baujoer:"Year", kraftstoff:"Fuel", fs:"Licence", kmStart:"Odometer at handover",
       vun:"From", bis:"Until", plaz:"Collection and return location", plazVal:"Autoservice Bettenduerf · Bettendorf",
-      dag:"Daily rate", dauer:"Duration", preis:"Rental price (estimated)", inclKm:"Included kilometres", inclKmVal:"250 km per rental", zKm:"Extra km", perKm:"/ km", kaut:"Deposit", bez:"Payment", bezVal:"on return of the vehicle", versp:"Late return", verspVal:"€20 per started hour", tank:"Fuel", tankVal:"return full, otherwise full tank + €50", h24:"× 24 h",
+      dag:"Daily rate", dauer:"Duration", preis:"Rental price (estimated)", inclKm:"Included kilometres", inclKmVal:"{included} km per rental", zKm:"Extra km", perKm:"/ km", kaut:"Deposit", bez:"Payment", bezVal:"on return of the vehicle", versp:"Late return", verspVal:"{late} per started hour", tank:"Fuel", tankVal:"return full, otherwise full tank + €50", h24:"× 24 h",
       typVan:"Van", typCar:"Car", typTrailer:"Trailer",
       dims:"Dimensions", gvw:"Gross weight", payload:"Payload", brake:"Brake", braked:"Braked", unbraked:"Unbraked", retCond:"Return", retCondVal:"return clean and secured", clause4Trailer:"<b>Return & condition.</b> The trailer must be returned clean and roadworthy; the load must be properly secured. Damage or missing parts are charged according to cost.",
       place:"Bettendorf, on", signMieter:"Renter signature", signVermieter:"Lessor signature",
@@ -414,8 +416,8 @@
         "<b>Conclusion.</b> Signing makes this rental agreement binding. The renter confirms having taken over the vehicle in the condition of the handover protocol.",
         "<b>Driver.</b> A valid ID document and the required driving licence were presented. The vehicle may only be driven by the persons named in this agreement.",
         "<b>Use.</b> Careful and proper use. No overloading, no subletting, no unlawful use. Trips with a trailer or abroad require express permission.",
-        "<b>Mileage & fuel.</b> 250 km per rental are included; each additional kilometre is charged at {km}. The vehicle must be returned with a full tank, otherwise the fuel costs + a €50 flat fee are charged.",
-        "<b>Return & lateness.</b> Return at the agreed time and place. Each started hour of delay is charged €20.",
+        "<b>Mileage & fuel.</b> {included} km per rental are included; each additional kilometre is charged at {km}. The vehicle must be returned with a full tank, otherwise the fuel costs + a €50 flat fee are charged.",
+        "<b>Return & lateness.</b> Return at the agreed time and place. Each started hour of delay is charged {late}.",
         "<b>Deposit & payment.</b> The deposit is set before the start; payment is made on return of the vehicle.",
         "<b>Insurance & liability.</b> In case of accident, breakdown, theft or damage, Autoservice Bettenduerf must be informed immediately; no repair without consent. Mandatory statutory rights remain unaffected.",
         "<b>Data protection.</b> Personal data is processed solely to handle the rental (see the privacy policy at autoservicebettenduerf.lu)."
@@ -452,11 +454,13 @@
       : '<table class="pp-tbl">' + R(T.gefier, d.veh) + R(T.plaque, d.plate) + R(T.typ, d.typeLabel) + R(T.baujoer, d.year) + R(T.kraftstoff, d.fuel) + R(T.fs, d.license) + ppFill(T.kmStart) + "</table>";
     var period = '<table class="pp-tbl">' + R(T.vun, d.from) + R(T.bis, d.to) + ppRow(T.plaz, T.plazVal) + "</table>";
     var base = R(T.dag, d.rate ? eurTxt(d.rate) : "") + R(T.dauer, d.days ? d.days + " " + T.h24 : "") + R(T.preis, d.total ? eurTxt(d.total) : "") + R(T.kaut, d.deposit ? eurTxt(d.deposit) : "");
+    var includedText = d.includedKm ? String(T.inclKmVal).replace("{included}", String(d.includedKm)) : "";
+    var lateText = d.lateFeeHour ? String(T.verspVal).replace("{late}", eurTxt(d.lateFeeHour)) : "";
     var prix = d.trailer
-      ? '<table class="pp-tbl">' + base + ppRow(T.bez, T.bezVal) + ppRow(T.versp, T.verspVal) + ppRow(T.retCond, T.retCondVal) + "</table>"
-      : '<table class="pp-tbl">' + base + ppRow(T.inclKm, T.inclKmVal) + ppRow(T.zKm, eurTxt(KM_RATE) + " " + T.perKm) + ppRow(T.bez, T.bezVal) + ppRow(T.versp, T.verspVal) + ppRow(T.tank, T.tankVal) + "</table>";
+      ? '<table class="pp-tbl">' + base + ppRow(T.bez, T.bezVal) + R(T.versp, lateText) + ppRow(T.retCond, T.retCondVal) + "</table>"
+      : '<table class="pp-tbl">' + base + R(T.inclKm, includedText) + R(T.zKm, d.extraKmRate ? eurTxt(d.extraKmRate) + " " + T.perKm : "") + ppRow(T.bez, T.bezVal) + R(T.versp, lateText) + ppRow(T.tank, T.tankVal) + "</table>";
     var cl = T.clauses.slice(); if (d.trailer) cl[3] = T.clause4Trailer;
-    var clauses = cl.map(function (c) { return c.replace("{km}", eurTxt(KM_RATE)); });
+    var clauses = cl.map(function (c) { return c.replace("{km}", d.extraKmRate?eurTxt(d.extraKmRate):"____ €").replace("{included}", d.includedKm?String(d.includedKm):"____").replace("{late}", d.lateFeeHour?eurTxt(d.lateFeeHour):"____ €"); });
     return '<div class="pp-main">' +
       '<div class="pp-titlebar"><h1>' + T.title + '</h1><div class="pp-ref">' + T.ref + ' ' + esc(d.ref || "—") + '<br>' + esc(fmt(new Date().toISOString())) + "</div></div>" +
       '<div class="pp-cols"><div class="pp-sec"><h3>' + T.secVermieter + '</h3>' + vermieter + '</div><div class="pp-sec"><h3>' + T.secMieter + '</h3>' + mieter + "</div></div>" +
@@ -497,19 +501,28 @@
       dims: f ? (f.loadSpace || "") : "", gvw: f ? (f.grossWeight || "") : "", payload: f ? (f.payload || "") : "",
       brakeLabel: (f && trailer) ? (f.braked ? T.braked : T.unbraked) : "",
       rate: f ? (Number(f.priceDay) || 0) : 0,
-      deposit: (f && f.deposit != null && f.deposit !== "") ? Number(f.deposit) : 300
+      deposit: (f && f.deposit != null && f.deposit !== "") ? Number(f.deposit) : 0,
+      includedKm: (f && f.includedKm != null && f.includedKm !== "") ? Number(f.includedKm) : 0,
+      extraKmRate: (f && f.extraKmRate != null && f.extraKmRate !== "") ? Number(f.extraKmRate) : 0,
+      lateFeeHour: (f && f.lateFeeHour != null && f.lateFeeHour !== "") ? Number(f.lateFeeHour) : 0
     };
+  }
+  function parseBookingSnapshot(b) { try { var s=typeof b.contractSnapshot==="string"?JSON.parse(b.contractSnapshot):b.contractSnapshot; return s&&s.version?s:null; } catch(e){ return null; } }
+  function snapshotDocData(b,T) {
+    var s=parseBookingSnapshot(b); if(!s||!s.items||!s.items.length)return null;
+    var items=s.items, f=items[0]||{}, allTrailer=items.every(function(x){return x.type==="trailer";}), d=fleetDocData({type:allTrailer?"trailer":f.type,vehicle:items.map(function(x){return x.name;}).join(", "),plate:items.map(function(x){return x.plate;}).filter(Boolean).join(" · "),year:items.map(function(x){return x.year;}).filter(Boolean).join(" · "),fuel:items.map(function(x){return x.fuel;}).filter(Boolean).join(" · "),licenseClass:items.map(function(x){return x.licenseClass;}).filter(function(v,i,a){return v&&a.indexOf(v)===i;}).join(" / "),loadSpace:items.map(function(x){return x.loadSpace;}).filter(Boolean).join(" · "),grossWeight:items.map(function(x){return x.grossWeight;}).filter(Boolean).join(" · "),payload:items.map(function(x){return x.payload;}).filter(Boolean).join(" · "),braked:items.every(function(x){return !!x.braked;}),priceDay:items.reduce(function(a,x){return a+Number(x.priceDay||0);},0),deposit:items.reduce(function(a,x){return a+Number(x.deposit||0);},0),includedKm:items.reduce(function(a,x){return a+Number(x.includedKm||0);},0),extraKmRate:items.reduce(function(a,x){return a+Number(x.extraKmRate||0);},0),lateFeeHour:items.reduce(function(a,x){return Math.max(a,Number(x.lateFeeHour||0));},0)},T);
+    d.veh=items.map(function(x){return x.name;}).join(", ")||s.rental.requestedVehicle||d.veh; d.name=s.customer.name||b.name; d.email=s.customer.email||b.email; d.phone=s.customer.phone||b.phone; d.from=fmt(s.rental.from||b.from); d.to=fmt(s.rental.to||b.to); return d;
   }
   function printContract(b) {
     ensureFleetCache().then(function () {
       var f = matchFleet(b.veh), T = DOC_I18N[docLang(b.lang)];
-      var d = fleetDocData(f, T);
+      var d = snapshotDocData(b,T) || fleetDocData(f, T);
       if (!d.veh) d.veh = b.veh;
       if (!d.rate && /renault\s+master|transporter|lieferwagen/i.test(String(b.veh || ""))) d.rate = 100;
       if (!d.plate) d.plate = plateFor(b.veh);
       if (!d.trailer && !d.license) d.license = "B";
-      d.ref = refOf(b.id); d.name = b.name; d.email = b.email; d.phone = b.phone; d.from = fmt(b.from); d.to = fmt(b.to);
-      var from = new Date(b.from), to = new Date(b.to);
+      d.ref = refOf(b.id); d.name = d.name||b.name; d.email = d.email||b.email; d.phone = d.phone||b.phone; d.from = d.from||fmt(b.from); d.to = d.to||fmt(b.to);
+      var s=parseBookingSnapshot(b), from = new Date(s&&s.rental.from||b.from), to = new Date(s&&s.rental.to||b.to);
       d.days = (!isNaN(from) && !isNaN(to) && to > from) ? Math.max(1, Math.ceil((to - from) / 86400000)) : 0;
       d.total = d.days * d.rate;
       openDocOverlay('<div class="pp-doc">' + docHead() + contractInner(d, T) + "</div>", T);
@@ -553,8 +566,8 @@
     if (canVal && b.status === "new") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-act="confirmed" data-id="' + b.id + '">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-act="declined" data-id="' + b.id + '">✕ Ofleenen</button>';
     else if (canVal && b.status === "confirmed") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-primary btn-sm" data-protocol="pickup">Iwwergab</button><button class="btn btn-primary btn-sm" data-protocol="return">Retour</button><button class="btn btn-outline btn-sm" data-act="done" data-id="' + b.id + '">Als ofgeschloss markéieren</button>';
     else if (canVal && b.status === "done") actions = '<button class="btn btn-outline btn-sm" data-protocol="pickup">Iwwergab ukucken</button><button class="btn btn-outline btn-sm" data-protocol="return">Retour ukucken</button>';
-    if (canVal) actions += '<button class="btn btn-outline btn-sm" data-edit-booking="' + b.id + '">✎ Änneren</button>';
-    if (canVal && (b.status === "confirmed" || b.status === "done")) actions += '<button class="btn btn-outline btn-sm" data-contract="' + b.id + '">📑 Mietvertrag / PDF</button>';
+    if (canVal && (b.status === "new" || b.status === "confirmed")) actions += '<button class="btn btn-outline btn-sm" data-edit-booking="' + b.id + '">✎ Änneren</button>';
+    if (canVal && (b.status === "confirmed" || b.status === "done")) actions += '<button class="btn btn-outline btn-sm" data-contract="' + b.id + '">📑 Locatiounsvertrag / PDF</button>';
     if (combinedReady) actions += '<button class="btn btn-ok btn-sm" data-combined-pdf="' + b.id + '">📄 Gesamtprotokoll / PDF</button>';
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-del-booking="' + b.id + '">Läschen</button>';
     el.innerHTML =
@@ -704,7 +717,7 @@
       dashBk = bk; dashAp = ap; dashMaint = res[2] || [];
       updateNewBadge(bk);
       updateReqBadge("appointment", ap); updateReqBadge("inquiry", ap);
-      var rentals = bk.filter(function (b) { return b.status !== "declined"; });
+      var rentals = bk.filter(function (b) { return b.status === "confirmed" || b.status === "done"; });
       var appts = ap.filter(function (a) { return (a.kind || "appointment") === "appointment" && a.status !== "declined"; });
       dashActive = rentals; dashAppts = appts;
       buildSearchIndex(bk, ap);
@@ -971,7 +984,7 @@
       $("analyse-sub").textContent = "aus dengen Donnéeën berechent";
       var today = new Date(); today.setHours(0, 0, 0, 0);
       var since = new Date(today); since.setDate(since.getDate() - 90);
-      var rentals = bk.filter(function (b) { return b.status !== "declined"; });
+      var rentals = bk.filter(function (b) { return b.status === "confirmed" || b.status === "done"; });
 
       // KPIs
       var rec = bk.filter(function (b) { var d = parseDay(b.created || b.from); return d && d >= since; });
@@ -985,15 +998,15 @@
         { cls: "accent", n: recAp.length, l: "Rendez-vous (90d)", ic: "🔧" },
         { cls: "", n: (avgDur ? avgDur.toFixed(1).replace(".", ",") : "0"), l: "Ø Deeg / Verleih", ic: "⏱️" },
         { cls: "", n: noShow + "%", l: "Ofgeleent-Quote", ic: "🚫" },
-        { cls: "ok", n: rentals.length, l: "Reservatiounen total", ic: "📊" },
+        { cls: "ok", n: bk.length, l: "Ufroen insgesamt", ic: "📊" },
       ];
       $("analyse-kpis").innerHTML = kpis.map(function (t) { return '<div class="stat ' + t.cls + '"><div class="stat-ic">' + t.ic + '</div><div><div class="n">' + t.n + '</div><div class="l">' + t.l + "</div></div></div>"; }).join("");
 
       // ---- Akommes / Ëmsaz aus der Locatioun ----
-      // Basis: Verleih-Deeg × aktuellen Dagespräis + d'Zousazkäschten aus de
+      // Basis: Verleih-Deeg × bei der Bestätegung agefruerene Präis + Zousazkäschten aus de
       // Retour-Protokoller. "Realiséiert" = ofgeschloss (done), "Erwaart" =
       // confirméiert mee nach net zréck.
-      function fmtEur(n) { return (Math.round(n)).toLocaleString("de-DE") + " €"; }
+      function fmtEur(n) { return Number(n || 0).toLocaleString("de-DE", {minimumFractionDigits:2,maximumFractionDigits:2}) + " €"; }
       function rateForName(nm) {
         var k = String(nm || "").trim().toLowerCase();
         var hit = fleet.filter(function (x) { return String(x.vehicle || "").trim().toLowerCase() === k; })[0];
@@ -1014,12 +1027,13 @@
       rentals.forEach(function (b) {
         if (b.status !== "done" && b.status !== "confirmed") return;
         var days = billedDays(b); if (!days) return;
-        var names = String(b.veh || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+        var snap=parseBookingSnapshot(b), snapItems=snap&&snap.items||[];
+        var names = snapItems.length?snapItems.map(function(x){return x.name;}):String(b.veh || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
         if (!names.length) names = [b.veh || "?"];
         if (b.status === "done") doneCount++;
         var primary = null;
-        names.forEach(function (nm) {
-          var rate = rateForName(nm), amt = days * rate;
+        names.forEach(function (nm,idx) {
+          var rate = snapItems[idx]?Number(snapItems[idx].priceDay||0):rateForName(nm), amt = days * rate;
           if (!rate) { unpriced++; return; }
           if (primary === null) primary = nm;
           if (b.status === "done") { realized[nm] = (realized[nm] || 0) + amt; realizedTot += amt; }
@@ -1028,7 +1042,7 @@
         // Zousaz nëmme bei ofgeschlossene Verleiher (echt kasséiert):
         // Zousaz-km × km-Tarif ginn automatesch gerechent + d'aner Käschten.
         if (b.status === "done") {
-          var ex = retExtra[Number(b.id)] || 0, km = retKm[Number(b.id)] || 0, kmCost = kmEur(km), addon = ex + kmCost;
+          var ex = retExtra[Number(b.id)] || 0, km = retKm[Number(b.id)] || 0, frozenKmRate=snapItems.reduce(function(v,x){return v||Number(x.extraKmRate||0);},0), kmCost = km * (frozenKmRate || KM_RATE), addon = ex + kmCost;
           if (addon) { var key = primary || names[0]; realized[key] = (realized[key] || 0) + addon; realizedTot += addon; }
           otherTot += ex; kmCostTot += kmCost; kmTot += km;
         }
@@ -1052,7 +1066,7 @@
           '<span style="flex:0 0 auto;text-align:right;font-weight:800;white-space:nowrap">' + fmtEur(x.r) + exp + '</span>' +
           '</div>';
       }).join("") : '<p class="muted" style="font-size:0.85rem">Nach kee realiséierten oder confirméierten Verleih.</p>';
-      $("an-rev-note").textContent = "Basis: Verleih-Deeg × Dagespräis. Zousaz-km ginn automatesch mat " + eurTxt(KM_RATE) + "/km gerechent, plus d'aner Käschten aus de Retour-Protokoller." + ((kmCostTot || otherTot) ? " Dovunner " + fmtEur(kmCostTot) + " aus " + kmTot.toLocaleString("de-DE") + " Zousaz-km an " + fmtEur(otherTot) + " aner Käschten." : "") + " D'Kautioun zielt net als Ëmsaz." + (unpriced ? " Puer Gefierer ouni hannerluechte Präis goufen iwwersprongen." : "");
+      $("an-rev-note").textContent = "Basis: Verleih-Deeg × de bei der Bestätegung gespäicherte Präis, plus Zousaz-km an aner Käschten aus dem Retourprotokoll." + ((kmCostTot || otherTot) ? " Dovunner " + fmtEur(kmCostTot) + " aus " + kmTot.toLocaleString("de-DE") + " Zousaz-km an " + fmtEur(otherTot) + " aner Käschten." : "") + " D'Kautioun zielt net als Ëmsaz." + (unpriced ? " Puer Gefierer ouni hannerluechte Präis goufen iwwersprongen." : "");
 
       // utilization per vehicle (count of rental-days in last 90d)
       var byVeh = {};
@@ -1135,8 +1149,8 @@
   function fleetStatus(s) { return {ready:["Asazbereet","ready"],rented:["Verlount","rented"],service:["Am Service","service"],blocked:["Gespaart","blocked"]}[s] || ["Asazbereet","ready"]; }
   function fleetTypeLabel(t) { return {van:"Transporter",car:"Auto",trailer:"Unhänger"}[t] || "Transporter"; }
   function syncFleetType() { var trailer=$("w-type").value==="trailer"; $("w-braked-wrap").hidden=!trailer; }
-  function fleetPayload() { return { type:$("w-type").value,vehicle:$("w-veh").value.trim(),plate:$("w-plate").value.trim(),status:$("w-status").value,service:$("w-service").value.trim(),dueDate:$("w-due").value,note:$("w-note").value.trim(),description:$("w-description").value.trim(),imageUrl:$("w-image").value.trim(),priceDay:$("w-price").value,year:$("w-year").value.trim(),seats:$("w-seats").value.trim(),fuel:$("w-fuel").value.trim(),transmission:$("w-transmission").value.trim(),licenseClass:$("w-license").value.trim(),loadSpace:$("w-load").value.trim(),grossWeight:$("w-gross").value.trim(),payload:$("w-payload").value.trim(),braked:$("w-braked").checked,features:$("w-features").value.trim(),active:$("w-active").checked }; }
-  function fillFleet(m) { $("w-type").value=m.type||"van"; syncFleetType(); $("w-veh").value=m.vehicle||""; $("w-plate").value=m.plate||""; $("w-status").value=m.status||"ready"; $("w-service").value=m.service||""; $("w-due").value=m.dueDate||""; $("w-note").value=m.note||""; $("w-description").value=m.description||""; $("w-image").value=m.imageUrl||""; showFleetPhoto(m.imageUrl||""); $("w-price").value=m.priceDay==null?"":m.priceDay; $("w-year").value=m.year||""; $("w-seats").value=m.seats||""; $("w-fuel").value=m.fuel||""; $("w-transmission").value=m.transmission||""; $("w-license").value=m.licenseClass||""; $("w-load").value=m.loadSpace||""; $("w-gross").value=m.grossWeight||""; $("w-payload").value=m.payload||""; $("w-braked").checked=!!m.braked; $("w-features").value=m.features||""; $("w-active").checked=!!m.active; }
+  function fleetPayload() { return { type:$("w-type").value,vehicle:$("w-veh").value.trim(),plate:$("w-plate").value.trim(),status:$("w-status").value,service:$("w-service").value.trim(),dueDate:$("w-due").value,note:$("w-note").value.trim(),description:$("w-description").value.trim(),imageUrl:$("w-image").value.trim(),priceDay:$("w-price").value,deposit:$("w-deposit").value,includedKm:$("w-included-km").value,extraKmRate:$("w-extra-km-rate").value,lateFeeHour:$("w-late-fee").value,year:$("w-year").value.trim(),seats:$("w-seats").value.trim(),fuel:$("w-fuel").value.trim(),transmission:$("w-transmission").value.trim(),licenseClass:$("w-license").value.trim(),loadSpace:$("w-load").value.trim(),grossWeight:$("w-gross").value.trim(),payload:$("w-payload").value.trim(),braked:$("w-braked").checked,features:$("w-features").value.trim(),active:$("w-active").checked }; }
+  function fillFleet(m) { $("w-type").value=m.type||"van"; syncFleetType(); $("w-veh").value=m.vehicle||""; $("w-plate").value=m.plate||""; $("w-status").value=m.status||"ready"; $("w-service").value=m.service||""; $("w-due").value=m.dueDate||""; $("w-note").value=m.note||""; $("w-description").value=m.description||""; $("w-image").value=m.imageUrl||""; showFleetPhoto(m.imageUrl||""); $("w-price").value=m.priceDay==null?"":m.priceDay; $("w-deposit").value=m.deposit==null?"":m.deposit; $("w-included-km").value=m.includedKm==null?"":m.includedKm; $("w-extra-km-rate").value=m.extraKmRate==null?"":m.extraKmRate; $("w-late-fee").value=m.lateFeeHour==null?"":m.lateFeeHour; $("w-year").value=m.year||""; $("w-seats").value=m.seats||""; $("w-fuel").value=m.fuel||""; $("w-transmission").value=m.transmission||""; $("w-license").value=m.licenseClass||""; $("w-load").value=m.loadSpace||""; $("w-gross").value=m.grossWeight||""; $("w-payload").value=m.payload||""; $("w-braked").checked=!!m.braked; $("w-features").value=m.features||""; $("w-active").checked=!!m.active; }
   function renderWartung() {
     var canEdit = can("bookings.validate");
     $("wartung-form").style.display = canEdit ? "" : "none";
@@ -1322,12 +1336,18 @@
     var bar = $("modebar");
     bar.className = "testbar modebar-live"; bar.textContent = "● Live · verbonne mam Server (Cloudflare)";
   }
-  /* ---------- PWA: Service Worker + Install (Hannergrond-Update, KEE forcéierte Reload) ---------- */
+  /* ---------- PWA: Service Worker + kontrolléierten Update-Hinweis ---------- */
   (function () {
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
         navigator.serviceWorker.register("sw.js", { scope: "/intern/" }).then(function (reg) {
-          // Nei Versioun gëtt am Hannergrond installéiert a gëllt beim nächsten Opmaachen.
+          function offerUpdate(worker) {
+            if (!worker || $("pwa-update")) return;
+            var bar=document.createElement("div");bar.id="pwa-update";bar.setAttribute("role","status");bar.style.cssText="position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:99999;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:#0b1b2b;color:#fff;box-shadow:0 12px 35px rgba(0,0,0,.28);font-weight:700";bar.innerHTML='<span>Eng nei Versioun ass prett.</span><button type="button" class="btn btn-primary btn-sm">Elo aktualiséieren</button>';bar.querySelector("button").addEventListener("click",function(){worker.postMessage({type:"SKIP_WAITING"});});document.body.appendChild(bar);
+          }
+          if (reg.waiting) offerUpdate(reg.waiting);
+          reg.addEventListener("updatefound",function(){var w=reg.installing;if(w)w.addEventListener("statechange",function(){if(w.state==="installed"&&navigator.serviceWorker.controller)offerUpdate(w);});});
+          var reloading=false;navigator.serviceWorker.addEventListener("controllerchange",function(){if(reloading)return;reloading=true;window.location.reload();});
           try { reg.update(); } catch (e) {}
           document.addEventListener("visibilitychange", function () { if (!document.hidden) { try { reg.update(); } catch (e) {} } });
           setInterval(function () { try { reg.update(); } catch (e) {} }, 60 * 60 * 1000);

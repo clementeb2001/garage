@@ -128,6 +128,8 @@ function json(env, body, status, extraHeaders) {
   return new Response(JSON.stringify(body), { status: status || 200, headers: cors(env, Object.assign({ "Content-Type": "application/json; charset=utf-8" }, extraHeaders || {})) });
 }
 function clip(s, n) { return String(s == null ? "" : s).slice(0, n); }
+function nullableNumber(v) { if (v === "" || v == null) return null; const n=Number(v); return Number.isFinite(n) && n >= 0 ? n : null; }
+function validOptionalNumbers(body, keys) { return keys.every((k) => body[k] === "" || body[k] == null || (Number.isFinite(Number(body[k])) && Number(body[k]) >= 0)); }
 function protocolMediaUrl(s) { const v=clip(s,500).trim(); return /^https:\/\/garage-admin\.autoservicebettenduerf\.lu\/media\/protocol\/[a-z0-9/_-]+\.(?:webp|jpg|png)$/i.test(v) ? v : ""; }
 function protocolMediaList(s) { return String(s||"").split("\n").map(protocolMediaUrl).filter(Boolean).slice(0,24).join("\n"); }
 function hasPerm(role, perm) { return (PERMS[role] || []).indexOf(perm) !== -1; }
@@ -285,17 +287,49 @@ async function ensureMaint(env) {
   const cols = [
     ["description","TEXT"],["image_url","TEXT"],["price_day","REAL"],["year","TEXT"],["seats","TEXT"],
     ["fuel","TEXT"],["transmission","TEXT"],["license_class","TEXT"],["load_space","TEXT"],
-    ["deposit","REAL"],["features","TEXT"],["public_active","INTEGER NOT NULL DEFAULT 0"],["featured","INTEGER NOT NULL DEFAULT 0"],
+    ["deposit","REAL"],["included_km","INTEGER"],["extra_km_rate","REAL"],["late_fee_hour","REAL"],["features","TEXT"],["public_active","INTEGER NOT NULL DEFAULT 0"],["featured","INTEGER NOT NULL DEFAULT 0"],
     ["asset_type","TEXT NOT NULL DEFAULT 'van'"],["gross_weight","TEXT"],["payload","TEXT"],["braked","INTEGER NOT NULL DEFAULT 0"],["plate","TEXT"]
   ];
   for (const c of cols) { try { await env.DB.prepare("ALTER TABLE maintenance ADD COLUMN " + c[0] + " " + c[1]).run(); } catch (e) {} }
-  // Al Claude-Donnéeën neutraliséieren: et gëtt weder Haaptgefier nach Kautiounsfeld.
-  try { await env.DB.prepare("UPDATE maintenance SET featured=0, deposit=NULL WHERE featured!=0 OR deposit IS NOT NULL").run(); } catch (e) {}
+  // Et gëtt kee "Haaptgefier". Finanziell Konditioune bleiwen dogéint pro Gefier gespäichert.
+  try { await env.DB.prepare("UPDATE maintenance SET featured=0 WHERE featured!=0").run(); } catch (e) {}
   // Präiskorrektur Oktober 2026: nëmmen den ale Renault-Master-Tarif vun 80 € migréieren.
   try { await env.DB.prepare("UPDATE maintenance SET price_day=100 WHERE lower(vehicle)='renault master' AND (price_day IS NULL OR price_day=80)").run(); } catch (e) {}
   const master = await env.DB.prepare("SELECT id FROM maintenance WHERE lower(vehicle)='renault master' LIMIT 1").first();
   if (!master) await env.DB.prepare("INSERT INTO maintenance (vehicle,service,note,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,plate,updated_by) VALUES ('Renault Master','Nach Bedarf','Automatesch aus dem bestehende Verleih iwwerholl','ready','Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.','assets/rental-renault-master.webp',100,'2021','3','Diesel','','B','L2H2','Grousse Luedraum (L2H2)\nBis 3,5 t\nVollgetankt zréckbréngen',1,0,'GK 0106','System')").run();
   try { await env.DB.prepare("UPDATE maintenance SET plate='GK 0106' WHERE lower(vehicle)='renault master' AND (plate IS NULL OR plate='')").run(); } catch (e) {}
+  try { await env.DB.prepare("UPDATE maintenance SET deposit=COALESCE(deposit,300), included_km=COALESCE(included_km,250), extra_km_rate=COALESCE(extra_km_rate,0.30), late_fee_hour=COALESCE(late_fee_hour,20) WHERE lower(vehicle)='renault master' AND (deposit IS NULL OR included_km IS NULL OR extra_km_rate IS NULL OR late_fee_hour IS NULL)").run(); } catch (e) {}
+}
+async function ensureBookingSnapshots(env) {
+  const cols = [["contract_snapshot","TEXT"],["snapshot_at","TEXT"]];
+  for (const c of cols) { try { await env.DB.prepare("ALTER TABLE bookings ADD COLUMN " + c[0] + " " + c[1]).run(); } catch (e) {} }
+}
+async function snapshotForBooking(env, b) {
+  await ensureMaint(env);
+  const fleet = (await env.DB.prepare("SELECT * FROM maintenance ORDER BY id ASC").all()).results || [];
+  const items = vehicleDescriptors(b.veh, fleet).map((d) => {
+    let f = d.id ? fleet.find((x) => Number(x.id) === d.id) : null;
+    if (!f && d.type) {
+      const sameType = fleet.filter((x) => String(x.asset_type || "van") === d.type);
+      if (sameType.length === 1) f = sameType[0];
+    }
+    return f ? {
+      id:Number(f.id), name:f.vehicle || d.raw, type:f.asset_type || "van", plate:f.plate || "", year:f.year || "",
+      fuel:f.fuel || "", transmission:f.transmission || "", licenseClass:f.license_class || "", loadSpace:f.load_space || "",
+      grossWeight:f.gross_weight || "", payload:f.payload || "", braked:!!f.braked,
+      priceDay:Number(f.price_day || 0), deposit:Number(f.deposit || 0), includedKm:Number(f.included_km || 0),
+      extraKmRate:Number(f.extra_km_rate || 0), lateFeeHour:Number(f.late_fee_hour || 0)
+    } : { name:d.raw || b.veh, type:d.type || "van", priceDay:0, deposit:0, includedKm:0, extraKmRate:0, lateFeeHour:0 };
+  });
+  return JSON.stringify({ version:1, capturedAt:new Date().toISOString(), customer:{ name:b.cust_name || "", email:b.cust_email || "", phone:b.cust_phone || "" }, rental:{ from:b.from_dt, to:b.to_dt, lang:b.lang || "lb", requestedVehicle:b.veh || "" }, items });
+}
+async function freezeBookingSnapshot(env, id, force) {
+  await ensureBookingSnapshots(env);
+  const b = await env.DB.prepare("SELECT * FROM bookings WHERE id=?1").bind(id).first();
+  if (!b || (!force && b.contract_snapshot)) return b;
+  const snapshot = await snapshotForBooking(env, b);
+  await env.DB.prepare("UPDATE bookings SET contract_snapshot=?1, snapshot_at=CURRENT_TIMESTAMP WHERE id=?2").bind(snapshot,id).run();
+  return Object.assign({}, b, { contract_snapshot:snapshot });
 }
 async function ensureRentalInspections(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS rental_inspections (id INTEGER PRIMARY KEY AUTOINCREMENT, booking_id INTEGER NOT NULL, stage TEXT NOT NULL, inspected_at TEXT NOT NULL, odometer INTEGER, fuel_level TEXT, condition_note TEXT, damage_note TEXT, photo_refs TEXT, accessories TEXT, license_checked INTEGER NOT NULL DEFAULT 0, deposit_amount REAL, extra_km INTEGER, extra_costs REAL, customer_signature TEXT, staff_signature TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT, UNIQUE(booking_id, stage))").run();
@@ -496,8 +530,8 @@ export default {
       /* ---- public: aktiv Gefierer aus der interner Flotte ---- */
       if (path === "/fleet/public" && method === "GET") {
         await ensureMaint(env);
-        const rows = (await env.DB.prepare("SELECT id,vehicle,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,asset_type,gross_weight,payload,braked FROM maintenance WHERE public_active=1 AND fleet_status!='blocked' ORDER BY id ASC").all()).results || [];
-        return json(env, { vehicles: rows.map((x) => ({ id:"fleet-"+x.id,type:["van","car","trailer"].includes(x.asset_type)?x.asset_type:"van",name:x.vehicle,description:x.description||"",image:x.image_url||"",priceDay:Number(x.price_day||0),year:x.year||"",seats:x.seats||"",fuel:x.fuel||"",transmission:x.transmission||"",licenseClass:x.license_class||"",loadSpace:x.load_space||"",grossWeight:x.gross_weight||"",payload:x.payload||"",braked:!!x.braked,features:String(x.features||"").split("\n").map((v)=>v.trim()).filter(Boolean) })) }, 200, { "Cache-Control": "public, max-age=120" });
+        const rows = (await env.DB.prepare("SELECT id,vehicle,description,image_url,price_day,deposit,included_km,extra_km_rate,late_fee_hour,year,seats,fuel,transmission,license_class,load_space,features,asset_type,gross_weight,payload,braked FROM maintenance WHERE public_active=1 AND fleet_status!='blocked' ORDER BY id ASC").all()).results || [];
+        return json(env, { vehicles: rows.map((x) => ({ id:"fleet-"+x.id,type:["van","car","trailer"].includes(x.asset_type)?x.asset_type:"van",name:x.vehicle,description:x.description||"",image:x.image_url||"",priceDay:Number(x.price_day||0),deposit:Number(x.deposit||0),includedKm:Number(x.included_km||0),extraKmRate:Number(x.extra_km_rate||0),lateFeeHour:Number(x.late_fee_hour||0),year:x.year||"",seats:x.seats||"",fuel:x.fuel||"",transmission:x.transmission||"",licenseClass:x.license_class||"",loadSpace:x.load_space||"",grossWeight:x.gross_weight||"",payload:x.payload||"",braked:!!x.braked,features:String(x.features||"").split("\n").map((v)=>v.trim()).filter(Boolean) })) }, 200, { "Cache-Control": "public, max-age=120" });
       }
 
       /* ---- Fotoen aus dem private R2-Bucket ausliwweren ----
@@ -618,11 +652,14 @@ export default {
       /* ---- bookings list ---- */
       if (path === "/bookings" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
+        await ensureBookingSnapshots(env);
+        const missing = (await env.DB.prepare("SELECT id FROM bookings WHERE status IN ('confirmed','done') AND (contract_snapshot IS NULL OR contract_snapshot='')").all()).results || [];
+        for (const row of missing) await freezeBookingSnapshot(env, row.id, false);
         const bs = (await env.DB.prepare("SELECT * FROM bookings ORDER BY id DESC").all()).results || [];
         const evs = (await env.DB.prepare("SELECT booking_id, action, by_user, note, at FROM booking_events ORDER BY id ASC").all()).results || [];
         const byId = {};
         evs.forEach((e) => { (byId[e.booking_id] = byId[e.booking_id] || []).push({ action: e.action, by: e.by_user, at: e.at, note: e.note || "" }); });
-        return json(env, { bookings: bs.map((b) => ({ id: b.id, veh: b.veh, from: b.from_dt, to: b.to_dt, name: b.cust_name, email: b.cust_email, phone: b.cust_phone, msg: b.msg, status: b.status, events: byId[b.id] || [] })) });
+        return json(env, { bookings: bs.map((b) => ({ id: b.id, veh: b.veh, from: b.from_dt, to: b.to_dt, name: b.cust_name, email: b.cust_email, phone: b.cust_phone, msg: b.msg, lang:b.lang||"lb", status: b.status, contractSnapshot:b.contract_snapshot||"", snapshotAt:b.snapshot_at||"", events: byId[b.id] || [] })) });
       }
 
       /* ---- booking status change ---- */
@@ -633,12 +670,14 @@ export default {
         const status = clip(bodyData.status, 20);
         const labels = { confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss", new: "Zrécksetzen" };
         if (!labels[status]) return json(env, { error: "bad_status" }, 400);
-        const ex = await env.DB.prepare("SELECT id FROM bookings WHERE id = ?1").bind(id).first();
+        const ex = await env.DB.prepare("SELECT id,status FROM bookings WHERE id = ?1").bind(id).first();
         if (!ex) return json(env, { error: "not_found" }, 404);
+        if (ex.status === "done" && status !== "done") return json(env, { error: "bad_status" }, 409);
         if (status === "confirmed") {
           const candidate = await env.DB.prepare("SELECT veh, from_dt, to_dt FROM bookings WHERE id = ?1").bind(id).first();
           const conflict = candidate && await findConflict(env, candidate.veh, candidate.from_dt, candidate.to_dt, id);
           if (conflict) return json(env, { error: "booking_conflict" }, 409);
+          await freezeBookingSnapshot(env, id, false);
         }
         await env.DB.prepare("UPDATE bookings SET status = ?1 WHERE id = ?2").bind(status, id).run();
         await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,?3,?4)").bind(id, labels[status], me.username, clip(bodyData.note, 500)).run();
@@ -656,6 +695,7 @@ export default {
         const id = parseInt(m[1], 10);
         const cur = await env.DB.prepare("SELECT veh, from_dt, to_dt, cust_name, cust_email, cust_phone, msg, status FROM bookings WHERE id = ?1").bind(id).first();
         if (!cur) return json(env, { error: "not_found" }, 404);
+        if (cur.status === "done" || cur.status === "declined") return json(env, { error: "bad_status" }, 409);
         const veh = clip(bodyData.veh, 120).trim();
         const name = clip(bodyData.name, 120).trim();
         const email = clip(bodyData.email, 160).trim();
@@ -680,6 +720,7 @@ export default {
           .bind(veh, from, to, name, email, phone, msg, id).run();
         await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,'Geännert',?2,?3)")
           .bind(id, me.username, clip(changed.join(", "), 500)).run();
+        if (cur.status === "confirmed") await freezeBookingSnapshot(env, id, true);
         return json(env, { ok: true });
       }
 
@@ -736,7 +777,7 @@ export default {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
         await ensureMaint(env);
         const ms = (await env.DB.prepare("SELECT * FROM maintenance ORDER BY (due_date IS NULL), due_date ASC, id DESC").all()).results || [];
-        return json(env, { items: ms.map((m) => ({ id:m.id, type:["van","car","trailer"].includes(m.asset_type)?m.asset_type:"van", vehicle:m.vehicle, service:m.service, dueDate:m.due_date||"", note:m.note||"", status:m.fleet_status||"ready", description:m.description||"", imageUrl:m.image_url||"", priceDay:m.price_day==null?"":m.price_day, year:m.year||"", seats:m.seats||"", fuel:m.fuel||"", transmission:m.transmission||"", licenseClass:m.license_class||"", loadSpace:m.load_space||"", grossWeight:m.gross_weight||"", payload:m.payload||"", braked:!!m.braked, plate:m.plate||"", features:m.features||"", active:!!m.public_active, updated_at:m.updated_at, updated_by:m.updated_by||"" })) });
+        return json(env, { items: ms.map((m) => ({ id:m.id, type:["van","car","trailer"].includes(m.asset_type)?m.asset_type:"van", vehicle:m.vehicle, service:m.service, dueDate:m.due_date||"", note:m.note||"", status:m.fleet_status||"ready", description:m.description||"", imageUrl:m.image_url||"", priceDay:m.price_day==null?"":m.price_day, deposit:m.deposit==null?"":m.deposit, includedKm:m.included_km==null?"":m.included_km, extraKmRate:m.extra_km_rate==null?"":m.extra_km_rate, lateFeeHour:m.late_fee_hour==null?"":m.late_fee_hour, year:m.year||"", seats:m.seats||"", fuel:m.fuel||"", transmission:m.transmission||"", licenseClass:m.license_class||"", loadSpace:m.load_space||"", grossWeight:m.gross_weight||"", payload:m.payload||"", braked:!!m.braked, plate:m.plate||"", features:m.features||"", active:!!m.public_active, updated_at:m.updated_at, updated_by:m.updated_by||"" })) });
       }
       if (path === "/maintenance" && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
@@ -746,9 +787,10 @@ export default {
         const dueDate = clip(bodyData.dueDate, 20).trim();
         if (!vehicle) return json(env, { error: "missing_fields" }, 400);
         if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return json(env, { error: "invalid_fields" }, 400);
+        if (!validOptionalNumbers(bodyData,["priceDay","deposit","includedKm","extraKmRate","lateFeeHour"])) return json(env,{error:"invalid_fields"},400);
         const fleetStatus = ["ready","rented","service","blocked"].includes(bodyData.status) ? bodyData.status : "ready", assetType=["van","car","trailer"].includes(bodyData.type)?bodyData.type:"van";
-        const r = await env.DB.prepare("INSERT INTO maintenance (vehicle,service,due_date,note,updated_by,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,deposit,asset_type,gross_weight,payload,braked,plate) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,0,NULL,?18,?19,?20,?21,?22)")
-          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),bodyData.priceDay===""?null:Number(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),clip(bodyData.features,1200),bodyData.active?1:0,assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0,clip(bodyData.plate,20)).run();
+        const r = await env.DB.prepare("INSERT INTO maintenance (vehicle,service,due_date,note,updated_by,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,deposit,included_km,extra_km_rate,late_fee_hour,asset_type,gross_weight,payload,braked,plate) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,0,?18,?19,?20,?21,?22,?23,?24,?25,?26)")
+          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),nullableNumber(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),clip(bodyData.features,1200),bodyData.active?1:0,nullableNumber(bodyData.deposit),nullableNumber(bodyData.includedKm),nullableNumber(bodyData.extraKmRate),nullableNumber(bodyData.lateFeeHour),assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0,clip(bodyData.plate,20)).run();
         return json(env, { ok: true, id: r.meta.last_row_id });
       }
       m = path.match(/^\/maintenance\/(\d+)$/);
@@ -763,9 +805,10 @@ export default {
         const dueDate = clip(bodyData.dueDate, 20).trim();
         if (!vehicle) return json(env, { error: "missing_fields" }, 400);
         if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return json(env, { error: "invalid_fields" }, 400);
+        if (!validOptionalNumbers(bodyData,["priceDay","deposit","includedKm","extraKmRate","lateFeeHour"])) return json(env,{error:"invalid_fields"},400);
         const fleetStatus = ["ready","rented","service","blocked"].includes(bodyData.status) ? bodyData.status : "ready", assetType=["van","car","trailer"].includes(bodyData.type)?bodyData.type:"van";
-        await env.DB.prepare("UPDATE maintenance SET vehicle=?1,service=?2,due_date=?3,note=?4,updated_at=CURRENT_TIMESTAMP,updated_by=?5,fleet_status=?6,description=?7,image_url=?8,price_day=?9,year=?10,seats=?11,fuel=?12,transmission=?13,license_class=?14,load_space=?15,features=?16,public_active=?17,featured=0,deposit=NULL,asset_type=?18,gross_weight=?19,payload=?20,braked=?21,plate=?22 WHERE id=?23")
-          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),bodyData.priceDay===""?null:Number(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),clip(bodyData.features,1200),bodyData.active?1:0,assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0,clip(bodyData.plate,20),id).run();
+        await env.DB.prepare("UPDATE maintenance SET vehicle=?1,service=?2,due_date=?3,note=?4,updated_at=CURRENT_TIMESTAMP,updated_by=?5,fleet_status=?6,description=?7,image_url=?8,price_day=?9,year=?10,seats=?11,fuel=?12,transmission=?13,license_class=?14,load_space=?15,features=?16,public_active=?17,featured=0,deposit=?18,included_km=?19,extra_km_rate=?20,late_fee_hour=?21,asset_type=?22,gross_weight=?23,payload=?24,braked=?25,plate=?26 WHERE id=?27")
+          .bind(vehicle,service,dueDate||null,clip(bodyData.note,300),me.username,fleetStatus,clip(bodyData.description,1200),clip(bodyData.imageUrl,500),nullableNumber(bodyData.priceDay),clip(bodyData.year,20),clip(bodyData.seats,20),clip(bodyData.fuel,60),clip(bodyData.transmission,60),clip(bodyData.licenseClass,30),clip(bodyData.loadSpace,200),clip(bodyData.features,1200),bodyData.active?1:0,nullableNumber(bodyData.deposit),nullableNumber(bodyData.includedKm),nullableNumber(bodyData.extraKmRate),nullableNumber(bodyData.lateFeeHour),assetType,clip(bodyData.grossWeight,60),clip(bodyData.payload,60),bodyData.braked?1:0,clip(bodyData.plate,20),id).run();
         return json(env, { ok: true });
       }
       if (m && method === "DELETE") {
