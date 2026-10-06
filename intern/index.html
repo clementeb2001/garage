@@ -772,7 +772,8 @@
 
         <div class="panel" id="blank-docs" style="margin-top:18px">
           <h3>📄 Blanko-Dokumenter</h3>
-          <p class="muted" style="font-size:0.85rem;margin:2px 0 12px">Eidel Verträg a Protokoller zum Ausdrécken an Hand ausfëllen — an alle Sproochen. Fir de Fall, dass bei enger Reservatioun eppes feelt oder d'Sprooch net passt.</p>
+          <p class="muted" style="font-size:0.85rem;margin:2px 0 12px">Verträg a Protokoller zum Ausdrécken an Hand ausfëllen — an alle Sproochen. Wielt e Gefier aus, da ginn seng Donnéeën automatesch ausgefëllt; soss komplett blanko.</p>
+          <div class="field" style="max-width:360px;margin-bottom:12px"><label for="blank-doc-veh">Gefier</label><select id="blank-doc-veh"><option value="blank-vehicle">— Blanko (Gefier) —</option><option value="blank-trailer">— Blanko (Unhänger) —</option></select></div>
           <div class="blank-docs-rows">
             <div class="blank-docs-row"><strong>Mietvertrag</strong><span class="blank-docs-btns"><button class="btn btn-outline btn-sm" data-blankdoc="contract" data-lang="lb">LB</button><button class="btn btn-outline btn-sm" data-blankdoc="contract" data-lang="de">DE</button><button class="btn btn-outline btn-sm" data-blankdoc="contract" data-lang="fr">FR</button><button class="btn btn-outline btn-sm" data-blankdoc="contract" data-lang="en">EN</button></span></div>
             <div class="blank-docs-row"><strong>Iwwergabprotokoll</strong><span class="blank-docs-btns"><button class="btn btn-outline btn-sm" data-blankdoc="pickup" data-lang="lb">LB</button><button class="btn btn-outline btn-sm" data-blankdoc="pickup" data-lang="de">DE</button><button class="btn btn-outline btn-sm" data-blankdoc="pickup" data-lang="fr">FR</button><button class="btn btn-outline btn-sm" data-blankdoc="pickup" data-lang="en">EN</button></span></div>
@@ -867,6 +868,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=50"></script>
+    <script src="intern.js?v=51"></script>
   </body>
 </html>
