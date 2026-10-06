@@ -35,7 +35,7 @@
         en: "Large van for moving, transport and bulky loads.",
       },
       facts: [
-        { ic: "📦", lb: "Grousse Luedraum (L2H2)", de: "Großer Laderaum (L2H2)", fr: "Grand volume (L2H2)", en: "Large load space (L2H2)" },
+        { ic: "📦", lb: "Grousse zouene Luedraum", de: "Großer geschlossener Laderaum", fr: "Grand espace de chargement fermé", en: "Large enclosed load space" },
         { ic: "⛽", lb: "Diesel", de: "Diesel", fr: "Diesel", en: "Diesel" },
         { ic: "🪑", lb: "3 Sëtzplazen", de: "3 Sitzplätze", fr: "3 places", en: "3 seats" },
         { ic: "⚖️", lb: "bis 3,5 t", de: "bis 3,5 t", fr: "jusqu'à 3,5 t", en: "up to 3.5 t" },
@@ -43,16 +43,16 @@
         { ic: "📅", lb: "Baujoer 2021", de: "Baujahr 2021", fr: "Année 2021", en: "Year 2021" },
       ],
       details: {
-        lb: [["Notzung", "Ëmzuch, Miwwelen a Wueren"], ["Luedraum", "L2H2 · genee Moosse ginn nach ergänzt"], ["Sëtzplazen", "3"], ["Führerschäin", "Kategorie B"], ["Brennstoff", "Diesel · vollgetankt zréck"]],
-        de: [["Einsatz", "Umzug, Möbel und Waren"], ["Laderaum", "L2H2 · genaue Maße folgen"], ["Sitzplätze", "3"], ["Führerschein", "Klasse B"], ["Kraftstoff", "Diesel · vollgetankt zurück"]],
-        fr: [["Usage", "Déménagement, meubles et marchandises"], ["Volume", "L2H2 · dimensions exactes à venir"], ["Places", "3"], ["Permis", "Catégorie B"], ["Carburant", "Diesel · retour avec le plein"]],
-        en: [["Use", "Moving, furniture and goods"], ["Load space", "L2H2 · exact dimensions to follow"], ["Seats", "3"], ["Licence", "Category B"], ["Fuel", "Diesel · return with a full tank"]],
+        lb: [["Notzung", "Ëmzuch, Miwwelen a Wueren"], ["Luedraum", "Grouss an zou; genee Moosse ginn nach ergänzt"], ["Sëtzplazen", "3"], ["Führerschäin", "Kategorie B"], ["Brennstoff", "Diesel · vollgetankt zréck"]],
+        de: [["Einsatz", "Umzug, Möbel und Waren"], ["Laderaum", "Groß und geschlossen; genaue Maße folgen"], ["Sitzplätze", "3"], ["Führerschein", "Klasse B"], ["Kraftstoff", "Diesel · vollgetankt zurück"]],
+        fr: [["Usage", "Déménagement, meubles et marchandises"], ["Volume", "Grand et fermé ; dimensions exactes à venir"], ["Places", "3"], ["Permis", "Catégorie B"], ["Carburant", "Diesel · retour avec le plein"]],
+        en: [["Use", "Moving, furniture and goods"], ["Load space", "Large and enclosed; exact dimensions to follow"], ["Seats", "3"], ["Licence", "Category B"], ["Fuel", "Diesel · return with a full tank"]],
       },
       specs: {
-        lb: ["250 km pro Locatioun abegraff", "0,30 € pro Zousaz-km", "Kautioun: 300 €", "Verspéidung: 20 € / Stonn"],
-        de: ["250 km pro Miete inklusive", "0,30 € je Mehrkilometer", "Kaution: 300 €", "Verspätung: 20 € / Stunde"],
-        fr: ["250 km inclus par location", "0,30 € par km supplémentaire", "Caution : 300 €", "Retard : 20 € / heure"],
-        en: ["250 km included per rental", "€0.30 per extra kilometre", "Deposit: €300", "Late return: €20 / hour"],
+        lb: ["Führerschäin Kategorie B", "Grousse zouene Luedraum", "250 km pro Locatioun abegraff", "0,30 € pro Zousaz-km", "Kautioun: 300 €", "Verspéidung: 20 € / Stonn"],
+        de: ["Führerschein Kategorie B", "Großer geschlossener Laderaum", "250 km pro Miete inklusive", "0,30 € je Mehrkilometer", "Kaution: 300 €", "Verspätung: 20 € / Stunde"],
+        fr: ["Permis de conduire catégorie B", "Grand espace de chargement fermé", "250 km inclus par location", "0,30 € par km supplémentaire", "Caution : 300 €", "Retard : 20 € / heure"],
+        en: ["Category B driving licence", "Large enclosed load space", "250 km included per rental", "€0.30 per extra kilometre", "Deposit: €300", "Late return: €20 / hour"],
       },
     },
   ];
@@ -66,10 +66,10 @@
     var details={lb:rows,de:rows,fr:rows,en:rows}, specs=(v.features||[]).length?v.features:[desc], specMap={lb:specs.slice(),de:specs.slice(),fr:specs.slice(),en:specs.slice()};
     var master=/renault\s+master/i.test(v.name||"");
     if(master){
-      specMap.lb=["250 km pro Locatioun abegraff","0,30 € pro Zousaz-km","Kautioun: 300 €","Verspéidung: 20 € / Stonn"].concat(specs);
-      specMap.de=["250 km pro Miete inklusive","0,30 € je Mehrkilometer","Kaution: 300 €","Verspätung: 20 € / Stunde"].concat(specs);
-      specMap.fr=["250 km inclus par location","0,30 € par km supplémentaire","Caution : 300 €","Retard : 20 € / heure"].concat(specs);
-      specMap.en=["250 km included per rental","€0.30 per extra kilometre","Deposit: €300","Late return: €20 / hour"].concat(specs);
+      specMap.lb=["Führerschäin Kategorie B","Grousse zouene Luedraum","250 km pro Locatioun abegraff","0,30 € pro Zousaz-km","Kautioun: 300 €","Verspéidung: 20 € / Stonn"];
+      specMap.de=["Führerschein Kategorie B","Großer geschlossener Laderaum","250 km pro Miete inklusive","0,30 € je Mehrkilometer","Kaution: 300 €","Verspätung: 20 € / Stunde"];
+      specMap.fr=["Permis de conduire catégorie B","Grand espace de chargement fermé","250 km inclus par location","0,30 € par km supplémentaire","Caution : 300 €","Retard : 20 € / heure"];
+      specMap.en=["Category B driving licence","Large enclosed load space","250 km included per rental","€0.30 per extra kilometre","Deposit: €300","Late return: €20 / hour"];
     }
     return {id:v.id,cat:trailer?"trailer":"vehicle",icon:trailer?"box":(v.type==="car"?"car":"van"),img:v.image||(trailer?"":"assets/rental-renault-master.webp"),priceDay:master?100:Number(v.priceDay||0),name:name,tagline:tagline,facts:facts,details:details,specs:specMap};
   }
