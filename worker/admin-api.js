@@ -183,7 +183,11 @@ async function findConflict(env, veh, from, to, excludeId) {
   const fleet = (await env.DB.prepare("SELECT id,vehicle,asset_type FROM maintenance").all()).results || [];
   const wanted = vehicleDescriptors(veh,fleet);
   const rows = (await env.DB.prepare("SELECT id, veh, from_dt, to_dt FROM bookings WHERE status='confirmed' AND from_dt < ?1 AND to_dt > ?2").bind(to, from).all()).results || [];
-  return rows.find((b) => Number(b.id) !== Number(excludeId || 0) && wanted.some((a) => vehicleDescriptors(b.veh,fleet).some((x) => descriptorOverlap(a,x)))) || null;
+  const hit = rows.find((b) => Number(b.id) !== Number(excludeId || 0) && wanted.some((a) => vehicleDescriptors(b.veh,fleet).some((x) => descriptorOverlap(a,x))));
+  if (hit) return hit;
+  await ensureFleetBlocks(env);
+  const blocks = (await env.DB.prepare("SELECT id, vehicle, from_dt, to_dt FROM fleet_blocks WHERE from_dt < ?1 AND to_dt > ?2").bind(to, from).all()).results || [];
+  return blocks.find((bl) => wanted.some((a) => vehicleDescriptors(bl.vehicle,fleet).some((x) => descriptorOverlap(a,x)))) || null;
 }
 /* ---------- Login brute-force throttle (reuse booking_rate_limits table) ---------- */
 async function loginBucket(request) {
@@ -316,6 +320,10 @@ async function ensureMaint(env) {
 async function ensureBookingSnapshots(env) {
   const cols = [["contract_snapshot","TEXT"],["snapshot_at","TEXT"]];
   for (const c of cols) { try { await env.DB.prepare("ALTER TABLE bookings ADD COLUMN " + c[0] + " " + c[1]).run(); } catch (e) {} }
+}
+async function ensureFleetBlocks(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS fleet_blocks (id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle TEXT NOT NULL, from_dt TEXT NOT NULL, to_dt TEXT NOT NULL, reason TEXT, created_by TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
+  try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_fleet_blocks_veh ON fleet_blocks(vehicle)").run(); } catch (e) {}
 }
 async function snapshotForBooking(env, b) {
   await ensureMaint(env);
@@ -538,7 +546,11 @@ export default {
       if (path === "/availability" && method === "GET") {
         const since = new Date(Date.now() - 86400000).toISOString().slice(0, 16);
         const rows = (await env.DB.prepare("SELECT veh, from_dt, to_dt FROM bookings WHERE status='confirmed' AND to_dt >= ?1 ORDER BY from_dt ASC LIMIT 500").bind(since).all()).results || [];
-        return json(env, { busy: rows.map((r) => ({ veh: r.veh, from: r.from_dt, to: r.to_dt })) });
+        await ensureFleetBlocks(env);
+        const blocks = (await env.DB.prepare("SELECT vehicle, from_dt, to_dt FROM fleet_blocks WHERE to_dt >= ?1 ORDER BY from_dt ASC LIMIT 500").bind(since).all()).results || [];
+        const busy = rows.map((r) => ({ veh: r.veh, from: r.from_dt, to: r.to_dt }))
+          .concat(blocks.map((r) => ({ veh: r.vehicle, from: r.from_dt, to: r.to_dt })));
+        return json(env, { busy });
       }
 
       /* ---- public: aktiv Gefierer aus der interner Flotte ---- */
@@ -847,6 +859,36 @@ export default {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
         await ensureMaint(env);
         await env.DB.prepare("DELETE FROM maintenance WHERE id = ?1").bind(parseInt(m[1], 10)).run();
+        return json(env, { ok: true });
+      }
+
+      /* ---- Flott-Sperren (Gefier fir Deeg blockéieren) ---- */
+      if (path === "/fleet-blocks" && method === "GET") {
+        if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
+        await ensureFleetBlocks(env);
+        const q = url.searchParams.get("vehicle");
+        const rows = q
+          ? (await env.DB.prepare("SELECT * FROM fleet_blocks WHERE vehicle=?1 ORDER BY from_dt ASC").bind(q).all()).results
+          : (await env.DB.prepare("SELECT * FROM fleet_blocks ORDER BY from_dt ASC").all()).results;
+        return json(env, { items: (rows || []).map((r) => ({ id:r.id, vehicle:r.vehicle, from:r.from_dt, to:r.to_dt, fromDate:String(r.from_dt).slice(0,10), toDate:String(r.to_dt).slice(0,10), reason:r.reason||"", createdBy:r.created_by||"", createdAt:r.created_at })) });
+      }
+      if (path === "/fleet-blocks" && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
+        await ensureFleetBlocks(env);
+        const vehicle = clip(bodyData.vehicle, 120).trim();
+        const fromDate = clip(bodyData.from, 20).trim(), toDate = clip(bodyData.to, 20).trim();
+        if (!vehicle || !validDateOnly(fromDate) || !validDateOnly(toDate)) return json(env, { error: "invalid_fields" }, 400);
+        if (toDate < fromDate) return json(env, { error: "invalid_range" }, 400);
+        const fromDt = fromDate + "T00:00", toDt = toDate + "T23:59";
+        const r = await env.DB.prepare("INSERT INTO fleet_blocks (vehicle,from_dt,to_dt,reason,created_by) VALUES (?1,?2,?3,?4,?5)")
+          .bind(vehicle, fromDt, toDt, clip(bodyData.reason, 300), me.username).run();
+        return json(env, { ok: true, id: r.meta.last_row_id });
+      }
+      m = path.match(/^\/fleet-blocks\/(\d+)$/);
+      if (m && method === "DELETE") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
+        await ensureFleetBlocks(env);
+        await env.DB.prepare("DELETE FROM fleet_blocks WHERE id = ?1").bind(parseInt(m[1], 10)).run();
         return json(env, { ok: true });
       }
 

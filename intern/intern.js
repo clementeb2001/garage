@@ -81,6 +81,9 @@
     addMaintenance: function (p) { return api("/maintenance", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true, id: r.body.id } : { error: r.body.error }; }); },
     editMaintenance: function (id, p) { return api("/maintenance/" + id, { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     delMaintenance: function (id) { return api("/maintenance/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
+    listFleetBlocks: function (vehicle) { return api("/fleet-blocks" + (vehicle ? "?vehicle=" + encodeURIComponent(vehicle) : "")).then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.items; }); },
+    addFleetBlock: function (p) { return api("/fleet-blocks", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true, id: r.body.id } : { error: r.body.error }; }); },
+    delFleetBlock: function (id) { return api("/fleet-blocks/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listInspections: function () { return api("/rental-inspections").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.items; }); },
     saveInspection: function (p) { return api("/rental-inspections", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
     uploadFleetImage: function(blob){return uploadImage(blob,"fleet");},
@@ -1227,16 +1230,69 @@
   }
   function fleetPayload() { return { type:$("w-type").value,vehicle:$("w-veh").value.trim(),plate:$("w-plate").value.trim(),status:$("w-status").value,service:$("w-service").value.trim(),dueDate:$("w-due").value,note:$("w-note").value.trim(),description:$("w-description").value.trim(),imageUrl:$("w-image").value.trim(),priceDay:$("w-price").value,deposit:$("w-deposit").value,includedKm:$("w-included-km").value,extraKmRate:$("w-extra-km-rate").value,lateFeeHour:$("w-late-fee").value,year:$("w-year").value.trim(),seats:$("w-seats").value.trim(),fuel:$("w-fuel").value.trim(),transmission:$("w-transmission").value.trim(),licenseClass:$("w-license").value.trim(),loadSpace:$("w-load").value.trim(),grossWeight:$("w-gross").value.trim(),payload:$("w-payload").value.trim(),braked:$("w-braked").checked,features:$("w-features").value.trim(),active:$("w-active").checked }; }
   function fillFleet(m) { $("w-type").value=m.type||"van"; syncFleetType(); $("w-veh").value=m.vehicle||""; $("w-plate").value=m.plate||""; $("w-status").value=m.status||"ready"; $("w-service").value=m.service||""; $("w-due").value=m.dueDate||""; $("w-note").value=m.note||""; $("w-description").value=m.description||""; $("w-image").value=m.imageUrl||""; showFleetPhoto(m.imageUrl||""); $("w-price").value=m.priceDay==null?"":m.priceDay; $("w-deposit").value=m.deposit==null?"":m.deposit; $("w-included-km").value=m.includedKm==null?"":m.includedKm; $("w-extra-km-rate").value=m.extraKmRate==null?"":m.extraKmRate; $("w-late-fee").value=m.lateFeeHour==null?"":m.lateFeeHour; $("w-year").value=m.year||""; $("w-seats").value=m.seats||""; $("w-fuel").value=m.fuel||""; $("w-transmission").value=m.transmission||""; $("w-license").value=m.licenseClass||""; $("w-load").value=m.loadSpace||""; $("w-gross").value=m.grossWeight||""; $("w-payload").value=m.payload||""; $("w-braked").checked=!!m.braked; $("w-features").value=m.features||""; $("w-active").checked=!!m.active; }
+  var blockVehicle = null;
+  function closeFleetForm() {
+    editingMaint = null; blockVehicle = null;
+    var f = $("wartung-form"); if (f) f.reset();
+    syncFleetType(); showFleetPhoto("");
+    $("fleet-form-wrap").hidden = true;
+    $("fleet-block-mgr").hidden = true;
+    $("wartung-form-title").textContent = "Verleihobjet an d'Flotte bäisetzen";
+    $("w-submit").textContent = "Bäisetzen";
+    $("wartung-msg").textContent = "";
+    $("w-image-status").textContent = "D'Bild gëtt virum Eroplueden automatesch verkleinert.";
+  }
+  function openFleetForm(m) {
+    if (!can("bookings.validate")) return;
+    $("fleet-form-wrap").hidden = false;
+    if (m) {
+      editingMaint = m.id; blockVehicle = m.vehicle; fillFleet(m);
+      $("wartung-form-title").textContent = "Gefier änneren";
+      $("w-submit").textContent = "Späicheren";
+      $("wartung-msg").textContent = "";
+      $("fleet-block-mgr").hidden = false;
+      renderFleetBlocks();
+    } else {
+      editingMaint = null; blockVehicle = null; $("wartung-form").reset(); syncFleetType(); showFleetPhoto("");
+      $("wartung-form-title").textContent = "Verleihobjet an d'Flotte bäisetzen";
+      $("w-submit").textContent = "Bäisetzen";
+      $("wartung-msg").textContent = "";
+      $("fleet-block-mgr").hidden = true;
+    }
+    try { $("fleet-form-wrap").scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {}
+    setTimeout(function () { try { $("w-veh").focus(); } catch (e) {} }, 60);
+  }
+  function renderFleetBlocks() {
+    var list = $("fb-list"); if (!list) return;
+    if (!blockVehicle) { list.innerHTML = ""; return; }
+    list.innerHTML = '<p class="muted" style="font-size:0.82rem">Gëtt gelueden …</p>';
+    STORE.listFleetBlocks(blockVehicle).then(function (items) {
+      items = items || [];
+      if (!items.length) { list.innerHTML = '<p class="muted" style="font-size:0.82rem">Keng aktiv Spären fir dëst Gefier.</p>'; return; }
+      list.innerHTML = items.map(function (b) {
+        var span = b.fromDate === b.toDate ? dLabel(b.fromDate) : dLabel(b.fromDate) + " → " + dLabel(b.toDate);
+        return '<div class="blank-docs-row"><span>🚫 <strong>' + esc(span) + '</strong>' + (b.reason ? ' · ' + esc(b.reason) : '') + '</span><button class="btn btn-danger btn-sm" data-fbdel="' + b.id + '" type="button">Läschen</button></div>';
+      }).join("");
+      list.querySelectorAll("[data-fbdel]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var id = parseInt(btn.getAttribute("data-fbdel"), 10);
+          if (!confirm("Dës Spär ophiewen?")) return;
+          STORE.delFleetBlock(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Spär opgehuewen."); renderFleetBlocks(); });
+        });
+      });
+    }).catch(function () { list.innerHTML = '<p class="muted" style="font-size:0.82rem">⚠ Spären net gelueden.</p>'; });
+  }
   function renderWartung() {
     var canEdit = can("bookings.validate");
-    $("wartung-form").style.display = canEdit ? "" : "none";
+    $("fleet-add-toggle").style.display = canEdit ? "" : "none";
+    if (!canEdit) $("fleet-form-wrap").hidden = true;
     STORE.listMaintenance().then(function (items) {
       var body=$("wartung-body"); body.innerHTML="";
       fleetCache = items;
       (function(){ var sel=$("blank-doc-veh"); if(!sel)return; var keep=sel.value; Array.prototype.slice.call(sel.querySelectorAll('option[value^="id:"]')).forEach(function(o){o.remove();}); items.forEach(function(m){ var o=document.createElement("option"); o.value="id:"+m.id; o.textContent=m.vehicle+" ("+fleetTypeLabel(m.type)+")"; sel.appendChild(o); }); try{sel.value=keep;}catch(e){} })();
       if(!items.length){body.innerHTML='<p class="empty">Nach kee Verleihobjet an der Flotte.</p>';return;}
       items.forEach(function(m){var fs=fleetStatus(m.status),card=document.createElement("article"),ic=m.type==="trailer"?"🛻":(m.type==="car"?"🚗":"🚐");card.className="fleet-card";card.innerHTML=(m.imageUrl?'<img src="'+esc(fleetImageSrc(m.imageUrl))+'" alt="'+esc(m.vehicle)+'">':'<div class="stat-ic">'+ic+'</div>')+'<div><h3>'+esc(m.vehicle)+'</h3><span class="fleet-status fleet-'+fs[1]+'">'+fs[0]+'</span> <span class="fleet-private">'+fleetTypeLabel(m.type)+'</span> <span class="'+(m.active?'fleet-public':'fleet-private')+'">'+(m.active?'● Online sichtbar':'○ Intern')+'</span><p>'+esc(m.description||'Keng ëffentlech Beschreiwung')+'</p><p>'+esc(m.service||'Nach Bedarf')+(m.dueDate?' · '+dLabel(m.dueDate):'')+(m.priceDay!==''?' · '+esc(m.priceDay)+' €/Dag':'')+'</p></div><div class="fleet-actions">'+(canEdit?'<button class="btn btn-outline btn-sm" data-medit="'+m.id+'">Änneren</button> <button class="btn btn-danger btn-sm" data-mdel="'+m.id+'">Läschen</button>':'')+'</div>';body.appendChild(card);});
-      body.querySelectorAll("[data-medit]").forEach(function(b){b.addEventListener("click",function(){var id=parseInt(b.getAttribute("data-medit"),10),m=items.filter(function(x){return x.id===id;})[0];editingMaint=id;fillFleet(m);$("wartung-msg").textContent="Gefier gëtt geännert – späichere fir z'iwwerhuelen.";$("w-veh").focus();});});
+      body.querySelectorAll("[data-medit]").forEach(function(b){b.addEventListener("click",function(){var id=parseInt(b.getAttribute("data-medit"),10),m=items.filter(function(x){return x.id===id;})[0];if(m)openFleetForm(m);});});
       body.querySelectorAll("[data-mdel]").forEach(function(b){b.addEventListener("click",function(){var id=parseInt(b.getAttribute("data-mdel"),10);if(!confirm("Dëst Gefier aus der Flotte läschen?"))return;STORE.delMaintenance(id).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Gefier geläscht.");renderWartung();});});});
     }).catch(function () { $("wartung-body").innerHTML = '<p class="empty">⚠ Net gelueden. <button class="btn btn-outline btn-sm" id="retry-wartung">Nei probéieren</button></p>'; var r = $("retry-wartung"); if (r) r.addEventListener("click", renderWartung); });
   }
@@ -1247,13 +1303,28 @@
     $("w-gallery-btn").addEventListener("click",function(){$("w-gallery").click();});
     [$("w-camera"),$("w-gallery")].forEach(function(inp){inp.addEventListener("change",function(){if(inp.files&&inp.files[0])handleFleetPhoto(inp.files[0]);inp.value="";});});
     $("w-image-remove").addEventListener("click",function(){$("w-image").value="";showFleetPhoto("");$("w-image-status").textContent="Bild ewechgeholl – späichere fir z'iwwerhuelen.";});
+    $("fleet-add-toggle").addEventListener("click", function () {
+      if ($("fleet-form-wrap").hidden || editingMaint) openFleetForm(null); else closeFleetForm();
+    });
+    $("fleet-form-close").addEventListener("click", closeFleetForm);
+    $("fb-add").addEventListener("click", function () {
+      if (!can("bookings.validate") || !blockVehicle) return;
+      var from = $("fb-from").value, to = $("fb-to").value || from;
+      if (!from) { $("fb-msg").textContent = "Wiel op mannst den Ufanksdatum."; return; }
+      if (to < from) { $("fb-msg").textContent = "D'Enndatum däerf net virum Ufank leien."; return; }
+      $("fb-msg").textContent = "…";
+      STORE.addFleetBlock({ vehicle: blockVehicle, from: from, to: to, reason: $("fb-reason").value.trim() }).then(function (r) {
+        if (r.error) { $("fb-msg").textContent = errMsg(r.error); return; }
+        $("fb-from").value = ""; $("fb-to").value = ""; $("fb-reason").value = ""; $("fb-msg").textContent = "✓ Gespäichert."; renderFleetBlocks();
+      });
+    });
     f.addEventListener("submit", function (e) {
       e.preventDefault(); if (!can("bookings.validate")) return;
       var data=fleetPayload(); if(!data.vehicle){$("wartung-msg").textContent="Den Numm vum Verleihobjet muss ausgefëllt sinn.";return;}
       $("wartung-msg").textContent = "…";
       var op=editingMaint?STORE.editMaintenance(editingMaint,data):STORE.addMaintenance(data); op.then(function (r) {
         if (r.error) { $("wartung-msg").textContent = errMsg(r.error); return; }
-        editingMaint=null; f.reset(); syncFleetType(); showFleetPhoto(""); $("w-image-status").textContent="D'Bild gëtt virum Eroplueden automatesch verkleinert."; $("wartung-msg").textContent = "✓ Gespäichert."; renderWartung();
+        toast("✓ Gespäichert."); closeFleetForm(); renderWartung();
       });
     });
   })();

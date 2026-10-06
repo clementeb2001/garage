@@ -726,7 +726,11 @@
         <div class="page-head"><h2 class="page-title">Flotte</h2></div>
         <p class="muted" id="wartung-sub" style="margin:2px 0 0;font-size:0.9rem">Disponibilitéit, Zoustand an déi nächst Wartung vun all Gefier an Unhänger op enger Plaz.</p>
         <div id="wartung-body" class="fleet-list"></div>
-        <h3 style="margin:24px 0 2px;font-size:1.05rem">Verleihobjet an d'Flotte bäisetzen</h3>
+        <div class="page-head" style="margin:24px 0 2px;align-items:center">
+          <h3 id="wartung-form-title" style="font-size:1.05rem;margin:0">Verleihobjet an d'Flotte bäisetzen</h3>
+          <button class="btn btn-primary btn-sm" id="fleet-add-toggle" type="button">+ Gefier dobäisetzen</button>
+        </div>
+        <div id="fleet-form-wrap" hidden>
         <form class="add-form fleet-form" id="wartung-form" autocomplete="off">
           <div class="field"><label for="w-type">Typ</label><select id="w-type"><option value="van">Transporter</option><option value="car">Auto</option><option value="trailer">Unhänger</option></select></div>
           <div class="field"><label for="w-veh">Numm / Modell</label><input id="w-veh" type="text" required placeholder="z.B. VW Caddy oder Humbaur HA" /></div>
@@ -770,9 +774,26 @@
           <div class="field"><label for="w-features">Ekipement</label><textarea id="w-features" rows="3" placeholder="Eng Eegenschaft pro Zeil"></textarea></div>
           <label class="protocol-check"><input id="w-active" type="checkbox" /> Op der Verleihsäit weisen</label>
           <label class="protocol-check" id="w-braked-wrap"><input id="w-braked" type="checkbox" /> Gebremsten Unhänger</label>
-          <button class="btn btn-primary" type="submit">Bäisetzen</button>
+          <div class="fleet-form-btns" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="btn btn-primary" type="submit" id="w-submit">Bäisetzen</button>
+            <button class="btn btn-outline" type="button" id="fleet-form-close">Zoumaachen</button>
+          </div>
         </form>
         <p class="muted" id="wartung-msg" style="font-size:0.82rem;margin-top:8px"></p>
+
+        <div class="panel" id="fleet-block-mgr" hidden style="margin-top:14px">
+          <h4 style="margin:0 0 2px;font-size:1rem">🚫 Fir Deeg spären</h4>
+          <p class="muted" style="font-size:0.85rem;margin:2px 0 12px">Blockéier dëst Gefier fir een oder méi Deeg — an där Period kënnen d'Clienten et <strong>net online buchen</strong>.</p>
+          <div class="fleet-block-form" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+            <div class="field" style="margin:0"><label for="fb-from">Vun</label><input id="fb-from" type="date" /></div>
+            <div class="field" style="margin:0"><label for="fb-to">Bis</label><input id="fb-to" type="date" /></div>
+            <div class="field" style="margin:0;flex:1;min-width:140px"><label for="fb-reason">Grond (fräiwëlleg)</label><input id="fb-reason" type="text" placeholder="z.B. Wartung, perséinlech …" /></div>
+            <button class="btn btn-primary btn-sm" type="button" id="fb-add">Spären</button>
+          </div>
+          <p class="muted" id="fb-msg" style="font-size:0.82rem;margin:8px 0 0"></p>
+          <div id="fb-list" style="margin-top:12px"></div>
+        </div>
+        </div>
 
         <div class="panel" id="blank-docs" style="margin-top:18px">
           <h3>📄 Blanko-Dokumenter</h3>
@@ -872,6 +893,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=60"></script>
+    <script src="intern.js?v=61"></script>
   </body>
 </html>
