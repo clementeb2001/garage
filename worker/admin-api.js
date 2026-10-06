@@ -132,9 +132,22 @@ function nullableNumber(v) { if (v === "" || v == null) return null; const n=Num
 function validOptionalNumbers(body, keys) { return keys.every((k) => body[k] === "" || body[k] == null || (Number.isFinite(Number(body[k])) && Number(body[k]) >= 0)); }
 function protocolMediaUrl(s) { const v=clip(s,500).trim(); return /^https:\/\/garage-admin\.autoservicebettenduerf\.lu\/media\/protocol\/[a-z0-9/_-]+\.(?:webp|jpg|png)$/i.test(v) ? v : ""; }
 function protocolMediaList(s) { return String(s||"").split("\n").map(protocolMediaUrl).filter(Boolean).slice(0,24).join("\n"); }
+function protocolMediaKeys(row) {
+  const urls = String(row && row.photo_refs || "").split("\n").concat([row && row.customer_signature, row && row.staff_signature]);
+  return urls.map(protocolMediaUrl).filter(Boolean).map((url) => new URL(url).pathname.replace(/^\/media\//, ""));
+}
+async function deleteProtocolMedia(env, keys) {
+  const unique = [...new Set((keys || []).filter(Boolean))];
+  if (env.MEDIA && unique.length) await env.MEDIA.delete(unique);
+}
 function hasPerm(role, perm) { return (PERMS[role] || []).indexOf(perm) !== -1; }
 function validEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 160; }
 function validDateTime(s) { return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s) && Number.isFinite(Date.parse(s)); }
+function validDateOnly(s) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(s + "T00:00:00Z");
+  return Number.isFinite(d.getTime()) && d.toISOString().slice(0,10) === s;
+}
 function vehicleDescriptors(s, fleet) {
   return String(s || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean).map((raw) => {
     const match = fleet.find((f) => {
@@ -573,14 +586,18 @@ export default {
         if (!validEmail(email)) return json(env, { error: "invalid_fields" }, 400);
         if (!loadedAt || nowMs - loadedAt < 2500 || nowMs - loadedAt > 86400000) return json(env, { error: "invalid_submission" }, 400);
         const kind = bodyData.kind === "inquiry" ? "inquiry" : "appointment";
+        const service = clip(bodyData.service,120).trim(), vehicle = clip(bodyData.vehicle,120).trim(), message = clip(bodyData.msg,2000).trim();
+        const preferredDate = clip(bodyData.prefDate,20).trim(), alternativeDate = clip(bodyData.altDate,20).trim();
+        if (!service || !vehicle || !message || (kind === "inquiry" && !clip(bodyData.phone,60).trim()) || (kind === "appointment" && !preferredDate)) return json(env, { error:"missing_fields" }, 400);
+        if (kind === "appointment" && (!validDateOnly(preferredDate) || (alternativeDate && !validDateOnly(alternativeDate)) || preferredDate < new Date().toISOString().slice(0,10) || (alternativeDate && alternativeDate < new Date().toISOString().slice(0,10)))) return json(env, { error:"invalid_fields" }, 400);
         await ensureAppts(env);
         const r = await env.DB.prepare(
           "INSERT INTO appointments (name, email, phone, service, vehicle, pref_date, alt_date, daytime, vin, msg, lang, kind, status) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,'new')"
-        ).bind(name, email, clip(bodyData.phone, 60), clip(bodyData.service, 120), clip(bodyData.vehicle, 120), clip(bodyData.prefDate, 20), clip(bodyData.altDate, 20), clip(bodyData.daytime, 40), clip(bodyData.vin, 40), clip(bodyData.msg, 2000), ["lb", "de", "fr", "en"].includes(bodyData.lang) ? bodyData.lang : "lb", kind).run();
+        ).bind(name, email, clip(bodyData.phone, 60), service, vehicle, preferredDate, alternativeDate, clip(bodyData.daytime, 40), clip(bodyData.vin, 40), message, ["lb", "de", "fr", "en"].includes(bodyData.lang) ? bodyData.lang : "lb", kind).run();
         const id = r.meta.last_row_id;
         await saveConsent(env, kind, id, bodyData.privacy, false);
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,'Ufro erakomm','System','')").bind(id).run();
-        ctx.waitUntil(sendNewApptNotice(env, id, { name: name, email: email, service: clip(bodyData.service, 120), vehicle: clip(bodyData.vehicle, 120), pref_date: clip(bodyData.prefDate, 20), kind: kind }));
+        ctx.waitUntil(sendNewApptNotice(env, id, { name: name, email: email, service: service, vehicle: vehicle, pref_date: preferredDate, kind: kind }));
         return json(env, { ok: true, id });
       }
 
@@ -730,8 +747,16 @@ export default {
       if (m && method === "DELETE") {
         if (me.role !== "admin") return json(env, { error: "forbidden" }, 403);
         const id = parseInt(m[1], 10);
-        await env.DB.prepare("DELETE FROM booking_events WHERE booking_id = ?1").bind(id).run();
-        await env.DB.prepare("DELETE FROM bookings WHERE id = ?1").bind(id).run();
+        await ensureRentalInspections(env);
+        const inspections = (await env.DB.prepare("SELECT photo_refs, customer_signature, staff_signature FROM rental_inspections WHERE booking_id=?1").bind(id).all()).results || [];
+        const mediaKeys = inspections.flatMap(protocolMediaKeys);
+        await env.DB.batch([
+          env.DB.prepare("DELETE FROM request_consents WHERE request_type='booking' AND request_id=?1").bind(id),
+          env.DB.prepare("DELETE FROM rental_inspections WHERE booking_id=?1").bind(id),
+          env.DB.prepare("DELETE FROM booking_events WHERE booking_id=?1").bind(id),
+          env.DB.prepare("DELETE FROM bookings WHERE id=?1").bind(id),
+        ]);
+        await deleteProtocolMedia(env, mediaKeys);
         return json(env, { ok: true });
       }
 
@@ -768,8 +793,14 @@ export default {
         if (me.role !== "admin") return json(env, { error: "forbidden" }, 403);
         await ensureAppts(env);
         const id = parseInt(m[1], 10);
-        await env.DB.prepare("DELETE FROM appointment_events WHERE appointment_id = ?1").bind(id).run();
-        await env.DB.prepare("DELETE FROM appointments WHERE id = ?1").bind(id).run();
+        const appointment = await env.DB.prepare("SELECT kind FROM appointments WHERE id=?1").bind(id).first();
+        if (!appointment) return json(env, { error: "not_found" }, 404);
+        const requestType = appointment.kind === "inquiry" ? "inquiry" : "appointment";
+        await env.DB.batch([
+          env.DB.prepare("DELETE FROM request_consents WHERE request_type=?1 AND request_id=?2").bind(requestType,id),
+          env.DB.prepare("DELETE FROM appointment_events WHERE appointment_id=?1").bind(id),
+          env.DB.prepare("DELETE FROM appointments WHERE id=?1").bind(id),
+        ]);
         return json(env, { ok: true });
       }
 
@@ -847,9 +878,12 @@ export default {
           v: 2
         })).filter((m) => Number.isFinite(m.x) && Number.isFinite(m.y)) : [];
         const checklist = { keyCount:Number.isFinite(keyCount)&&keyCount>=0&&keyCount<=10?String(keyCount):"", cleanliness:["Propper","Liicht verschmotzt","Staark verschmotzt"].includes(rawChecklist.cleanliness)?rawChecklist.cleanliness:"", documentsChecked:!!rawChecklist.documentsChecked, lightsChecked:!!rawChecklist.lightsChecked, tyresChecked:!!rawChecklist.tyresChecked, jointInspection:!!rawChecklist.jointInspection, damageMarkers };
+        const previous = await env.DB.prepare("SELECT photo_refs, customer_signature, staff_signature FROM rental_inspections WHERE booking_id=?1 AND stage=?2").bind(bookingId,stage).first();
         const vals = [bookingId, stage, inspectedAt, odometer, clip(bodyData.fuelLevel,30), clip(bodyData.conditionNote,1000), clip(bodyData.damageNote,1500), photos, clip(bodyData.accessories,1000), pickup && bodyData.licenseChecked ? 1 : 0, extraKm, extraCosts, signature, staffSignature, staffName, clip(bodyData.note,1500), me.username, JSON.stringify(checklist)];
         await env.DB.prepare("INSERT INTO rental_inspections (booking_id,stage,inspected_at,odometer,fuel_level,condition_note,damage_note,photo_refs,accessories,license_checked,deposit_amount,extra_km,extra_costs,customer_signature,staff_signature,staff_name,note,updated_by,checklist_json) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,NULL,?11,?12,?13,?14,?15,?16,?17,?18) ON CONFLICT(booking_id,stage) DO UPDATE SET inspected_at=?3,odometer=?4,fuel_level=?5,condition_note=?6,damage_note=?7,photo_refs=?8,accessories=?9,license_checked=?10,deposit_amount=NULL,extra_km=?11,extra_costs=?12,customer_signature=?13,staff_signature=?14,staff_name=?15,note=?16,updated_at=CURRENT_TIMESTAMP,updated_by=?17,checklist_json=?18").bind(...vals).run();
         await env.DB.prepare("INSERT INTO booking_events (booking_id,action,by_user,note) VALUES (?1,?2,?3,?4)").bind(bookingId, stage === "pickup" ? "Iwwergabprotokoll gespäichert" : "Retourprotokoll gespäichert", me.username, clip(bodyData.damageNote || bodyData.note,500)).run();
+        const currentKeys = new Set(protocolMediaKeys({ photo_refs:photos, customer_signature:signature, staff_signature:staffSignature }));
+        await deleteProtocolMedia(env, protocolMediaKeys(previous).filter((key) => !currentKeys.has(key)));
         return json(env, { ok:true });
       }
 

@@ -69,10 +69,31 @@ def check_products() -> None:
             fail(f"zero-price product found in {data_file}")
 
 
+def check_admin_integrity() -> None:
+    index = (ROOT / "intern/index.html").read_text(encoding="utf-8")
+    service_worker = (ROOT / "intern/sw.js").read_text(encoding="utf-8")
+    admin_js = (ROOT / "intern/intern.js").read_text(encoding="utf-8")
+    worker = (ROOT / "worker/admin-api.js").read_text(encoding="utf-8")
+    version = re.search(r'intern\.js\?v=(\d+)', index)
+    if not version or f'intern.js?v={version.group(1)}' not in service_worker:
+        fail("admin script version differs between index.html and service worker")
+    if "pickupDone.staffSignature&&returnDone.staffSignature" not in admin_js:
+        fail("combined protocol can be offered without both lessor signatures")
+    for required in (
+        'DELETE FROM rental_inspections WHERE booking_id=?1',
+        "DELETE FROM request_consents WHERE request_type='booking'",
+        "deleteProtocolMedia(env, mediaKeys)",
+        "validDateOnly(preferredDate)",
+    ):
+        if required not in worker:
+            fail(f"booking deletion misses related data cleanup: {required}")
+
+
 def main() -> int:
     check_languages()
     check_sitemap()
     check_products()
+    check_admin_integrity()
     if ERRORS:
         print("Site checks failed:")
         for error in ERRORS:

@@ -312,7 +312,7 @@
   }
   function printCombinedProtocol(b) {
     var pickup=inspectionFor(b.id,"pickup"),returned=inspectionFor(b.id,"return");
-    if(!pickup||!returned||!pickup.customerSignature||!returned.customerSignature){toast("Iwwergab a Retour musse fir d'éischt gespäichert an ënnerschriwwe sinn.");return;}
+    if(!pickup||!returned||!pickup.customerSignature||!returned.customerSignature||!pickup.staffSignature||!returned.staffSignature){toast("Iwwergab a Retour musse fir d'éischt mat béiden Ënnerschrëfte gespäichert sinn.");return;}
     ensureFleetCache().then(function(){
       var f=matchFleet(b.veh)||{},trailer=f.type==="trailer",diagramKind=trailer?"trailer":(f.type==="car"?"car":"van"),ref=refOf(b.id);
       var rateSnap=parseBookingSnapshot(b), protocolKmRate=rateSnap&&rateSnap.items?rateSnap.items.reduce(function(v,i){return v||Number(i.extraKmRate||0);},0):KM_RATE;
@@ -572,7 +572,7 @@
       return el;
     }
 
-    var actions = "", pickupDone=inspectionFor(b.id,"pickup"), returnDone=inspectionFor(b.id,"return"), combinedReady=pickupDone&&returnDone&&pickupDone.customerSignature&&returnDone.customerSignature;
+    var actions = "", pickupDone=inspectionFor(b.id,"pickup"), returnDone=inspectionFor(b.id,"return"), combinedReady=pickupDone&&returnDone&&pickupDone.customerSignature&&returnDone.customerSignature&&pickupDone.staffSignature&&returnDone.staffSignature;
     if (canVal && b.status === "new") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-act="confirmed" data-id="' + b.id + '">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-act="declined" data-id="' + b.id + '">✕ Ofleenen</button>';
     else if (canVal && b.status === "confirmed") actions = '<input class="b-note-input" id="note-' + b.id + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-primary btn-sm" data-protocol="pickup">Iwwergab</button><button class="btn btn-primary btn-sm" data-protocol="return">Retour</button><button class="btn btn-outline btn-sm" data-act="done" data-id="' + b.id + '">Als ofgeschloss markéieren</button>';
     else if (canVal && b.status === "done") actions = '<button class="btn btn-outline btn-sm" data-protocol="pickup">Iwwergab ukucken</button><button class="btn btn-outline btn-sm" data-protocol="return">Retour ukucken</button>';

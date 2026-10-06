@@ -156,6 +156,7 @@
       footer_rights: "All Rechter reservéiert.",
       footer_impressum: "Impressum",
       footer_datenschutz: "Dateschutz",
+      footer_rental_terms: "Locatiounsinformatiounen",
     },
     de: {
       nav_services: "Leistungen",
@@ -307,6 +308,7 @@
       footer_rights: "Alle Rechte vorbehalten.",
       footer_impressum: "Impressum",
       footer_datenschutz: "Datenschutz",
+      footer_rental_terms: "Mietinformationen",
     },
     fr: {
       nav_services: "Prestations",
@@ -456,6 +458,7 @@
       footer_rights: "Tous droits réservés.",
       footer_impressum: "Mentions légales",
       footer_datenschutz: "Confidentialité",
+      footer_rental_terms: "Conditions de location",
     },
     en: {
       nav_services: "Services",
@@ -603,6 +606,7 @@
       footer_rights: "All rights reserved.",
       footer_impressum: "Legal notice",
       footer_datenschutz: "Privacy",
+      footer_rental_terms: "Rental terms",
     },
   };
 
