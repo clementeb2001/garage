@@ -680,7 +680,7 @@
   }
   function updateFlyers() {
     var l = currentLang();
-    document.querySelectorAll(".spezial-media[data-flyer]").forEach(function (button) {
+    document.querySelectorAll("[data-flyer]").forEach(function (button) {
       var key = button.getAttribute("data-flyer");
       var src = "assets/spezial-localized/" + key + "-" + l + ".jpg";
       var img = button.querySelector("img");
@@ -719,7 +719,7 @@
       document.body.style.overflow = "";
       if (opener && opener.focus) opener.focus();
     }
-    document.querySelectorAll(".spezial-media").forEach(function (b) {
+    document.querySelectorAll("[data-flyer]").forEach(function (b) {
       b.addEventListener("click", function () {
         var img = b.querySelector("img");
         open(b.getAttribute("data-zoom"), img ? img.alt : "");

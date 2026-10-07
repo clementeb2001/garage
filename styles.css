@@ -6235,3 +6235,40 @@ html.shop-dev .shop-card-body .shop-price {
   .ns-ticker{-webkit-mask:none;mask:none;}
   .ns-seg:nth-of-type(n+3),.ns-sep:nth-of-type(n+3){display:none;}
 }
+
+/* ============================================================
+   Aktualitéit-Kachel (Saison/News) am Service-Beräich
+   ============================================================ */
+.aktuell{
+  display:grid;grid-template-columns:minmax(0,0.92fr) minmax(0,1.08fr);
+  margin:0 0 42px;border-radius:22px;overflow:hidden;
+  background:#0d1b2a;color:#fff;box-shadow:var(--shadow-md);
+  border:1px solid rgba(255,255,255,.06);
+}
+.aktuell-media{position:relative;min-height:280px;}
+.aktuell-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.aktuell-media::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(115deg, rgba(13,27,42,0) 38%, rgba(13,27,42,.92) 100%),
+             linear-gradient(0deg, rgba(56,110,165,.22), rgba(56,110,165,.04));}
+.aktuell-tag{position:absolute;top:16px;left:16px;z-index:1;display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.4);color:#fff;font-weight:800;font-size:.7rem;letter-spacing:.07em;
+  text-transform:uppercase;padding:6px 12px;border-radius:999px;}
+.aktuell-tag .akt-dot{width:7px;height:7px;border-radius:50%;background:#7fc4ff;box-shadow:0 0 0 0 rgba(127,196,255,.7);animation:ns-pulse 1.9s infinite;}
+.aktuell-body{padding:32px 34px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;}
+.aktuell-body .eyebrow{color:#7fc4ff;margin:0;}
+.aktuell-body h3{font-size:1.75rem;line-height:1.1;margin:0;color:#fff;}
+.aktuell-sub{color:#c6d4e2;font-size:1rem;line-height:1.55;margin:0;max-width:48ch;}
+.aktuell-points{list-style:none;margin:6px 0 12px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;width:100%;}
+.aktuell-points li{display:flex;align-items:center;gap:10px;color:#e6edf4;font-size:.95rem;font-weight:600;}
+.aktuell-points .ap-ic{font-size:1.15rem;line-height:1;flex:none;}
+.aktuell-body .btn-primary{margin-top:2px;}
+@media (max-width:760px){
+  .aktuell{grid-template-columns:1fr;}
+  .aktuell-media{min-height:190px;}
+  .aktuell-body{padding:24px 20px;}
+  .aktuell-points{grid-template-columns:1fr;}
+  .aktuell-body h3{font-size:1.45rem;}
+}
+/* Service-Karten déi e Flyer opmaachen (Button amplaz Link) */
+.cards .card button.card-cover{background:none;border:none;padding:0;width:100%;height:100%;cursor:pointer;}

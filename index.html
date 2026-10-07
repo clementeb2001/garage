@@ -358,81 +358,25 @@
             </p>
           </div>
 
-          <!-- Spezialiséierungen: Extra-Servicer, déi net all Garage ubitt -->
-          <div class="spezial">
-            <div class="spezial-head">
-              <p class="eyebrow spezial-eyebrow" data-i18n="spez_eyebrow">
-                ★ Eis Spezialiséierungen
-              </p>
-              <h3 class="spezial-sub" data-i18n="spez_sub">
-                Zwee Spezial-Servicer, déi mir mat moderner Technik ubidden.
-              </h3>
+          <!-- Aktualitéit: aktuell Saison-Aktioun (hei elo: Wantercheck) -->
+          <div class="aktuell">
+            <div class="aktuell-media">
+              <span class="aktuell-tag"><span class="akt-dot"></span><span data-i18n="akt_tag">Elo aktuell</span></span>
+              <img src="assets/seasons/winter.webp" alt="" aria-hidden="true" loading="lazy" width="1200" height="800" />
             </div>
-            <div class="spezial-grid">
-              <article class="spezial-card">
-                <span class="spezial-ribbon" data-i18n="spez_ribbon"
-                  >Spezialiséierung</span
-                >
-                <button
-                  type="button"
-                  class="spezial-media"
-                  data-flyer="achsvermessung"
-                  data-zoom="assets/spezial-localized/achsvermessung-lb.jpg"
-                  aria-label="Achsvermiessung"
-                >
-                  <img
-                    src="assets/spezial-localized/achsvermessung-lb.jpg"
-                    alt="Achsvermiessung – Autoservice Bettenduerf"
-                    loading="lazy"
-                    width="1434"
-                    height="1097"
-                  />
-                  <span class="spezial-zoom" aria-hidden="true"
-                    >🔍 <span data-i18n="spez_zoom">Vergréisseren</span></span
-                  >
-                </button>
-                <div class="spezial-body">
-                  <h4 data-i18n="spez_axle_t">Achsvermiessung</h4>
-                  <p data-i18n="spez_axle_d">
-                    Fir méi Sécherheet, manner Pneueverschläiss an e riichte Laf.
-                  </p>
-                  <a class="btn btn-primary" href="#kontakt" data-i18n="nav_cta"
-                    >Rendez-vous ufroen</a
-                  >
-                </div>
-              </article>
-              <article class="spezial-card">
-                <span class="spezial-ribbon" data-i18n="spez_ribbon"
-                  >Spezialiséierung</span
-                >
-                <button
-                  type="button"
-                  class="spezial-media"
-                  data-flyer="getriebespuelung"
-                  data-zoom="assets/spezial-localized/getriebespuelung-lb.jpg"
-                  aria-label="Spullung vun der Boîte"
-                >
-                  <img
-                    src="assets/spezial-localized/getriebespuelung-lb.jpg"
-                    alt="Spullung vun der Boîte – Autoservice Bettenduerf"
-                    loading="lazy"
-                    width="1358"
-                    height="1158"
-                  />
-                  <span class="spezial-zoom" aria-hidden="true"
-                    >🔍 <span data-i18n="spez_zoom">Vergréisseren</span></span
-                  >
-                </button>
-                <div class="spezial-body">
-                  <h4 data-i18n="spez_gear_t">Spullung vun der Boîte</h4>
-                  <p data-i18n="spez_gear_d">
-                    Fir datt d’Gäng sanft wiesselen an d’Boîte méi laang hält.
-                  </p>
-                  <a class="btn btn-primary" href="#kontakt" data-i18n="nav_cta"
-                    >Rendez-vous ufroen</a
-                  >
-                </div>
-              </article>
+            <div class="aktuell-body">
+              <p class="eyebrow" data-i18n="akt_eyebrow">Aktualitéit</p>
+              <h3 data-i18n="akt_title">Wantercheck</h3>
+              <p class="aktuell-sub" data-i18n="akt_sub">
+                Maacht Ären Auto fit fir déi kal Saison — mir préiwen déi wichteg Punkten.
+              </p>
+              <ul class="aktuell-points">
+                <li><span class="ap-ic" aria-hidden="true">🛞</span><span data-i18n="akt_p1">Wanterpneue & Profil</span></li>
+                <li><span class="ap-ic" aria-hidden="true">🔋</span><span data-i18n="akt_p2">Batterie-Test</span></li>
+                <li><span class="ap-ic" aria-hidden="true">💡</span><span data-i18n="akt_p3">Beliichtung & Wëscher</span></li>
+                <li><span class="ap-ic" aria-hidden="true">❄️</span><span data-i18n="akt_p4">Frostschutz & Kältecheck</span></li>
+              </ul>
+              <a class="btn btn-primary" href="#kontakt" data-i18n="nav_cta">Rendez-vous ufroen</a>
             </div>
           </div>
 
@@ -547,6 +491,36 @@
                 href="service.html?s=karosserie"
                 aria-label="Karosserie & Lackéierung"
               ></a>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+            <article
+              class="card"
+              data-slug="achsvermessung"
+              style="--img: url(&quot;assets/services/achsvermessung.jpg&quot;)"
+            >
+              <h3 data-i18n="spez_axle_t">Achsvermiessung</h3>
+              <p data-i18n="spez_axle_d"></p>
+              <button
+                class="card-cover"
+                type="button"
+                data-flyer="achsvermessung"
+                aria-label="Achsvermiessung"
+              ></button>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+            <article
+              class="card"
+              data-slug="getriebespuelung"
+              style="--img: url(&quot;assets/services/getriebespuelung.jpg&quot;)"
+            >
+              <h3 data-i18n="spez_gear_t">Spullung vun der Boîte</h3>
+              <p data-i18n="spez_gear_d"></p>
+              <button
+                class="card-cover"
+                type="button"
+                data-flyer="getriebespuelung"
+                aria-label="Spullung vun der Boîte"
+              ></button>
               <span class="card-more" aria-hidden="true"></span>
             </article>
           </div>
