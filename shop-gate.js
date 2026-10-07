@@ -53,7 +53,16 @@
       back: "Back to the home page"
     }
   };
-  document.documentElement.classList.add("shop-dev", "shop-live");
+  // Virschau-Fräischaltung: ?dev=1 späichert de Flag, ?dev=0 läscht en.
+  try {
+    var params = new URLSearchParams(location.search);
+    if (params.get("dev") === "1") localStorage.setItem("gk_shop_preview", "1");
+    else if (params.get("dev") === "0") localStorage.removeItem("gk_shop_preview");
+  } catch (e) {}
+  var shopPreview = false;
+  try { shopPreview = localStorage.getItem("gk_shop_preview") === "1"; } catch (e) {}
+  // Bewosst OUNI "shop-live": de Virschau-Badge soll am Virschau-Modus sichtbar bleiwen.
+  if (shopPreview) document.documentElement.classList.add("shop-dev");
 
   function loadScript(src, done) {
     var script = document.createElement("script");
@@ -88,8 +97,14 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    loadScript("shop-data.js?v=11", function () {
-      loadScript("vehicle-catalog.js?v=4", function () { loadScript("shop.js?v=70"); });
-    });
+    if (shopPreview) {
+      // Virschau: de Katalog lueden.
+      loadScript("shop-data.js?v=11", function () {
+        loadScript("vehicle-catalog.js?v=4", function () { loadScript("shop.js?v=70"); });
+      });
+    } else {
+      // Ëffentlech: "am Aufbau"-Säit weisen, de Katalog NET lueden.
+      applySoonText();
+    }
   });
 })();
