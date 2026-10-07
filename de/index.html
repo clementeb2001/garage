@@ -40,7 +40,7 @@
 
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/autoservice-bettenduerf-logo.png" />
-    <link rel="stylesheet" href="styles.css?v=73" />
+    <link rel="stylesheet" href="styles.css?v=74" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -109,8 +109,8 @@
 
         <div class="header-actions" aria-label="Schnellaktionen" data-i18n-aria="quick_actions">
           <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta">Termin anfragen</a>
-          <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · bald</span></a>
           <a href="location.html" class="nav-rental"><span aria-hidden="true">🔑</span> <span data-i18n="rental_nav">Verleih</span></a>
+          <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · bald</span></a>
         </div>
 
         <button
@@ -130,8 +130,8 @@
           <a href="index.html#faq">FAQ</a>
           <div class="menu-mobile-actions" aria-label="Schnellaktionen" data-i18n-aria="quick_actions">
             <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta">Termin anfragen</a>
-            <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · bald</span></a>
             <a href="location.html" class="nav-rental"><span aria-hidden="true">🔑</span> <span data-i18n="rental_nav">Verleih</span></a>
+            <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · bald</span></a>
           </div>
           <div class="menu-language">
             <span class="menu-language-label">🌐 Sprooch</span>
@@ -321,13 +321,13 @@
             <div class="hero-actions">
               <a href="#kontakt" class="btn btn-primary" data-i18n="nav_cta"
                 >Termin anfragen</a>
-              <a href="shop.html" class="btn btn-shop"
-                ><span aria-hidden="true">🛒</span>
-                <span data-i18n="shop_soon">Shop – bald verfügbar</span></a
-              >
               <a href="location.html" class="btn btn-rental"
                 ><span aria-hidden="true">🔑</span>
                 <span data-i18n="rental_cta">Verleih · bald verfügbar</span></a
+              >
+              <a href="shop.html" class="btn btn-shop"
+                ><span aria-hidden="true">🛒</span>
+                <span data-i18n="shop_soon">Shop – bald verfügbar</span></a
               >
               <a href="#leistungen" class="btn btn-ghost" data-i18n="hero_btn2"
                 >Unsere Leistungen</a>
@@ -347,68 +347,25 @@
           </div>
 
           <!-- Spezialiséierungen: Extra-Servicer, déi net all Garage ubitt -->
-          <div class="spezial">
-            <div class="spezial-head">
-              <p class="eyebrow spezial-eyebrow" data-i18n="spez_eyebrow">★ Unsere Spezialisierungen</p>
-              <h3 class="spezial-sub" data-i18n="spez_sub">Zwei Spezial-Services, die wir mit moderner Technik anbieten.</h3>
+                    <!-- Aktualitéit: aktuell Saison-Aktioun (hei elo: Wantercheck) -->
+          <div class="aktuell">
+            <div class="aktuell-media">
+              <span class="aktuell-tag"><span class="akt-dot"></span><span data-i18n="akt_tag">Jetzt aktuell</span></span>
+              <img src="assets/seasons/winter.webp" alt="" aria-hidden="true" loading="lazy" width="1200" height="800" />
             </div>
-            <div class="spezial-grid">
-              <article class="spezial-card">
-                <span class="spezial-ribbon" data-i18n="spez_ribbon"
-                  >Spezialisierung</span>
-                <button
-                  type="button"
-                  class="spezial-media"
-                  data-flyer="achsvermessung"
-                  data-zoom="assets/spezial-localized/achsvermessung-lb.jpg"
-                  aria-label="Achsvermiessung"
-                >
-                  <img
-                    src="assets/spezial-localized/achsvermessung-lb.jpg"
-                    alt="Achsvermiessung – Autoservice Bettenduerf"
-                    loading="lazy"
-                    width="1434"
-                    height="1097"
-                  />
-                  <span class="spezial-zoom" aria-hidden="true"
-                    >🔍 <span data-i18n="spez_zoom">Vergrößern</span></span
-                  >
-                </button>
-                <div class="spezial-body">
-                  <h4 data-i18n="spez_axle_t">Achsvermessung</h4>
-                  <p data-i18n="spez_axle_d">Für mehr Sicherheit, weniger Reifenverschleiß und geraden Lauf.</p>
-                  <a class="btn btn-primary" href="#kontakt" data-i18n="nav_cta"
-                    >Termin anfragen</a>
-                </div>
-              </article>
-              <article class="spezial-card">
-                <span class="spezial-ribbon" data-i18n="spez_ribbon"
-                  >Spezialisierung</span>
-                <button
-                  type="button"
-                  class="spezial-media"
-                  data-flyer="getriebespuelung"
-                  data-zoom="assets/spezial-localized/getriebespuelung-lb.jpg"
-                  aria-label="Spullung vun der Boîte"
-                >
-                  <img
-                    src="assets/spezial-localized/getriebespuelung-lb.jpg"
-                    alt="Spullung vun der Boîte – Autoservice Bettenduerf"
-                    loading="lazy"
-                    width="1358"
-                    height="1158"
-                  />
-                  <span class="spezial-zoom" aria-hidden="true"
-                    >🔍 <span data-i18n="spez_zoom">Vergrößern</span></span
-                  >
-                </button>
-                <div class="spezial-body">
-                  <h4 data-i18n="spez_gear_t">Getriebespülung</h4>
-                  <p data-i18n="spez_gear_d">Für sanfte Schaltvorgänge und eine längere Lebensdauer des Getriebes.</p>
-                  <a class="btn btn-primary" href="#kontakt" data-i18n="nav_cta"
-                    >Termin anfragen</a>
-                </div>
-              </article>
+            <div class="aktuell-body">
+              <p class="eyebrow" data-i18n="akt_eyebrow">Aktuelles</p>
+              <h3 data-i18n="akt_title">Wintercheck</h3>
+              <p class="aktuell-sub" data-i18n="akt_sub">
+                Machen Sie Ihr Auto fit für die kalte Jahreszeit — wir prüfen die wichtigen Punkte.
+              </p>
+              <ul class="aktuell-points">
+                <li><span class="ap-ic" aria-hidden="true">🛞</span><span data-i18n="akt_p1">Winterreifen & Profil</span></li>
+                <li><span class="ap-ic" aria-hidden="true">🔋</span><span data-i18n="akt_p2">Batterie-Test</span></li>
+                <li><span class="ap-ic" aria-hidden="true">💡</span><span data-i18n="akt_p3">Beleuchtung & Wischer</span></li>
+                <li><span class="ap-ic" aria-hidden="true">❄️</span><span data-i18n="akt_p4">Frostschutz & Kälte-Check</span></li>
+              </ul>
+              <a class="btn btn-primary" href="#kontakt" data-i18n="nav_cta">Rendez-vous ufroen</a>
             </div>
           </div>
 
@@ -523,6 +480,36 @@
                 href="service.html?s=karosserie"
                 aria-label="Karosserie & Lackéierung"
               ></a>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+            <article
+              class="card"
+              data-slug="achsvermessung"
+              style="--img: url(&quot;assets/services/achsvermessung.jpg&quot;)"
+            >
+              <h3 data-i18n="spez_axle_t">Achsvermessung</h3>
+              <p data-i18n="spez_axle_d"></p>
+              <button
+                class="card-cover"
+                type="button"
+                data-flyer="achsvermessung"
+                aria-label="Achsvermessung"
+              ></button>
+              <span class="card-more" aria-hidden="true"></span>
+            </article>
+            <article
+              class="card"
+              data-slug="getriebespuelung"
+              style="--img: url(&quot;assets/services/getriebespuelung.jpg&quot;)"
+            >
+              <h3 data-i18n="spez_gear_t">Getriebespülung</h3>
+              <p data-i18n="spez_gear_d"></p>
+              <button
+                class="card-cover"
+                type="button"
+                data-flyer="getriebespuelung"
+                aria-label="Getriebespülung"
+              ></button>
               <span class="card-more" aria-hidden="true"></span>
             </article>
           </div>
@@ -990,9 +977,9 @@
       <img id="lightbox-img" alt="" />
     </div>
 
-    <script src="script.js?v=23"></script>
+    <script src="script.js?v=24"></script>
     <script src="details.js?v=9"></script>
-    <script src="extras.js?v=14"></script>
+    <script src="extras.js?v=15"></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"
