@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /shop.html
 Disallow: /print-doc.html
 
 Sitemap: https://autoservicebettenduerf.lu/sitemap.xml

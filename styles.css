@@ -3151,6 +3151,10 @@ html.shop-dev .shop-dev-badge {
   font-size: 0.9rem;
   padding: 9px 16px;
 }
+html.shop-live .shop-dev-badge,
+html.shop-live .shop-preview-status {
+  display: none !important;
+}
 html.shop-dev .shop-dev-badge a {
   color: #2a1500;
   text-decoration: underline;

@@ -539,6 +539,10 @@
   Object.assign(T.fr, { compare:"Comparer", compare_add:"Comparer", compare_count:"{n} produits sélectionnés", compare_clear:"Vider" });
   Object.assign(T.en, { compare:"Compare", compare_add:"Compare", compare_count:"{n} products selected", compare_clear:"Clear" });
   T.lb.compare_limit="Dir kënnt maximal 3 Produkter vergläichen."; T.de.compare_limit="Sie können maximal 3 Produkte vergleichen."; T.fr.compare_limit="Vous pouvez comparer au maximum 3 produits."; T.en.compare_limit="You can compare up to 3 products.";
+  Object.assign(T.lb, { cart_checkout:"Passform an Offerte ufroen", cart_note:"Mir kontrolléieren d’Passform, de Präis, d’Liwwerkäschten an d’Liwwerzäit a kontaktéieren Iech. Dëst ass nach keng verbindlech Bestellung.", cart_redirect:"D’Ufro gëtt virbereet …", legal_required:"Bestätegt w.e.g., datt Dir eng onverbindlech Ufro schéckt.", legal_text:"Ech verstinn, datt dëst eng onverbindlech Ufro ass an nach keng Bestellung oder Bezuelung ausléist." });
+  Object.assign(T.de, { cart_checkout:"Passform und Angebot anfragen", cart_note:"Wir prüfen Passform, Preis, Lieferkosten und Lieferzeit und melden uns bei Ihnen. Dies ist noch keine verbindliche Bestellung.", cart_redirect:"Die Anfrage wird vorbereitet …", legal_required:"Bitte bestätigen Sie, dass Sie eine unverbindliche Anfrage senden.", legal_text:"Ich verstehe, dass dies eine unverbindliche Anfrage ist und noch keine Bestellung oder Zahlung auslöst." });
+  Object.assign(T.fr, { cart_checkout:"Demander la compatibilité et une offre", cart_note:"Nous vérifions la compatibilité, le prix, les frais et le délai de livraison avant de vous contacter. Il ne s’agit pas encore d’une commande ferme.", cart_redirect:"Préparation de la demande …", legal_required:"Veuillez confirmer qu’il s’agit d’une demande sans engagement.", legal_text:"Je comprends qu’il s’agit d’une demande sans engagement qui ne déclenche encore ni commande ni paiement." });
+  Object.assign(T.en, { cart_checkout:"Request fitment check and quote", cart_note:"We check fitment, price, delivery costs and lead time before contacting you. This is not yet a binding order.", cart_redirect:"Preparing your request …", legal_required:"Please confirm that you are sending a non-binding request.", legal_text:"I understand that this is a non-binding request and does not yet create an order or payment." });
 
   /* ---------- Helpers ---------- */
   function $(id) { return document.getElementById(id); }
@@ -1257,7 +1261,7 @@
       var row=document.createElement("div"); row.className="fit-product-row";
       var text=document.createElement("span");
       var strong=document.createElement("strong"); strong.textContent=productName(product);
-      var small=document.createElement("small"); small.textContent=tr().artnr+" "+displayRef(product);
+      var small=document.createElement("small"); small.textContent=tr().artnr+" "+displayRef(product)+(product._inquiryQty>1?" · × "+product._inquiryQty:"");
       text.appendChild(strong); text.appendChild(small);
       var remove=document.createElement("button"); remove.type="button"; remove.textContent="×"; remove.setAttribute("aria-label",l.remove+" "+productName(product));
       remove.addEventListener("click",function(){ if(inquiryProducts.length===1)return; inquiryProducts.splice(index,1); renderInquiryProducts(l); });
@@ -1269,7 +1273,12 @@
     var l=inquiryLabels(), els=ensureInquiryModal();
     setTxt("fit-inquiry-title",l.title); setTxt("fit-inquiry-intro",l.intro); setTxt("fit-article-label",l.article); setTxt("fit-name-label",l.name); setTxt("fit-email-label",l.email); setTxt("fit-phone-label",l.phone); setTxt("fit-make-label",l.make); setTxt("fit-model-label",l.model); setTxt("fit-year-label",l.year); setTxt("fit-engine-label",l.engine); setTxt("fit-vin-label",l.vin); setTxt("fit-note-label",l.note); setTxt("fit-privacy-text",l.privacy); setTxt("fit-submit",l.send); setTxt("fit-vehicle-title",lang()==="fr"?"Données du véhicule":lang()==="en"?"Vehicle details":lang()==="lb"?"Gefierdaten":"Fahrzeugdaten");
     els.modal.querySelector(".fit-inquiry-close").setAttribute("aria-label",l.close);
-    if (!inquiryProducts.some(function(product){return product.i===p.i;})) inquiryProducts.push(p);
+    var requestedProducts=Array.isArray(p)?p:[p];
+    requestedProducts.forEach(function(requested){
+      var existing=inquiryProducts.filter(function(product){return product.i===requested.i;})[0];
+      if(existing) existing._inquiryQty=Math.max(existing._inquiryQty||1,requested._inquiryQty||1);
+      else inquiryProducts.push(requested);
+    });
     renderInquiryProducts(l);
     $("fit-inquiry-form").onsubmit=function(e){
       if(e&&e.preventDefault)e.preventDefault();
@@ -1283,7 +1292,7 @@
       var hp=form.querySelector('[name="_honey"]'); if(hp&&hp.value){ if(st){st.className="form-status ok"; st.textContent=l.ok;} return false; }
       var loaded=Number((form.querySelector('[name="_loaded_at"]')||{}).value||0);
       if(loaded&&Date.now()-loaded<2500){ if(st){st.className="form-status err"; st.textContent=l.senderr;} return false; }
-      var articleValue=inquiryProducts.map(function(product){return productName(product)+" | "+displayRef(product);}).join("\n");
+      var articleValue=inquiryProducts.map(function(product){return (product._inquiryQty>1?product._inquiryQty+" × ":"")+productName(product)+" | "+displayRef(product);}).join("\n");
       var service=inquiryProducts.map(function(product){return productName(product);}).join(", ");
       var vehicle=[make,model,year].filter(Boolean).join(" ")+(engine?" · "+engine:"");
       var msg="Artikel:\n"+articleValue+(note?"\n\n"+note:"");
@@ -2009,20 +2018,13 @@
       return;
     }
     if (st) { st.className = "form-status"; st.textContent = t.cart_redirect; }
-    if (btn) btn.disabled = true;
-    fetch(PAYMENT_ENDPOINT + "/create-payment", {
-      method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ items: cart.map(function (l) { return { id: l.id, qty: l.qty }; }), locale: lang() }),
-    })
-      .then(function (r) { if (!r.ok) throw new Error("http"); return r.json(); })
-      .then(function (data) {
-        if (data && data.checkoutUrl) window.location.href = data.checkoutUrl;
-        else throw new Error("no-url");
-      })
-      .catch(function () {
-        if (st) { st.className = "form-status err"; st.textContent = t.cart_err; }
-        if (btn) btn.disabled = false;
-      });
+    var requested=cart.map(function(line){
+      var product=PRODUCTS.filter(function(item){return item.i===line.id;})[0];
+      return product?Object.assign({},product,{_inquiryQty:line.qty}):null;
+    }).filter(Boolean);
+    if(!requested.length)return;
+    closeCart();
+    openInquiry(requested);
   }
 
   /* ---------- Statics ---------- */

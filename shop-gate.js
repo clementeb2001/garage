@@ -1,5 +1,4 @@
-/* Shop-Virschau-Gate — setzt html.shop-dev fir ?dev=1 (CSP-konform, extern,
-   am <head> gelueden, fir keen Opbléizen vun der "geschwënn"-Säit).
+/* Ëffentleche Shop-Loader (CSP-konform, extern am <head> gelueden).
 
    ========================================================================
    ⚠️  CHECKLIST IER DE SHOP ÖFFENTLECH LIVE GEET
@@ -54,20 +53,7 @@
       back: "Back to the home page"
     }
   };
-  var preview = false;
-  try {
-    var p = new URLSearchParams(location.search);
-    // Virschau-Schlëssel: rotéiert (gk_shop_dev → gk_shop_preview), fir al
-    // Virschau-Cookien zréckzesetzen, sou datt de Shop nees op "in Aarbecht"
-    // steet. Al Schlëssel oprëmen, fir datt keng al Virschau hänke bleift.
-    try { localStorage.removeItem("gk_shop_dev"); } catch (e) {}
-    if (p.get("dev") === "1") localStorage.setItem("gk_shop_preview", "1");
-    if (p.get("dev") === "0") localStorage.removeItem("gk_shop_preview");
-    if (localStorage.getItem("gk_shop_preview") === "1") {
-      document.documentElement.classList.add("shop-dev");
-      preview = true;
-    }
-  } catch (e) {}
+  document.documentElement.classList.add("shop-dev", "shop-live");
 
   function loadScript(src, done) {
     var script = document.createElement("script");
@@ -102,38 +88,8 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    if (preview) {
-      /* De schwéiere Katalog gëtt nëmmen am ausdréckleche Virschau-Modus
-         gelueden; déi ëffentlech Baustellesäit bleift liicht a séier. */
-      loadScript("shop-data.js?v=11", function () {
-        loadScript("vehicle-catalog.js?v=4", function () { loadScript("shop.js?v=66"); });
-      });
-      return;
-    }
-    /* De komplette Katalog-Iwwersetzer gëtt ëffentlech bewosst net gelueden.
-       Dofir iwwersetze mir déi liicht Baustellesäit direkt hei. */
-    var storedLang = "";
-    try { storedLang = localStorage.getItem("gk_lang") || ""; } catch (e) {}
-    applySoonText(storedLang);
-    document.querySelectorAll(".lang-select").forEach(function (select) {
-      select.addEventListener("change", function () { applySoonText(select.value); });
+    loadScript("shop-data.js?v=11", function () {
+      loadScript("vehicle-catalog.js?v=4", function () { loadScript("shop.js?v=67"); });
     });
-    /* En ale Shop-Service-Worker hat Scope "/". Bei ëffentleche Visite gëtt
-       en ofgemellt an de Shop-Cache geläscht, sou datt en Homepage a Location
-       net méi mat ale Fichiere beaflosse kann. */
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function (regs) {
-        regs.forEach(function (reg) {
-          var worker = reg.active || reg.waiting || reg.installing;
-          if (worker && /\/shop-sw\.js(?:$|\?)/.test(worker.scriptURL || "")) reg.unregister();
-        });
-      }).catch(function () {});
-    }
-    if (window.caches && caches.keys) {
-      caches.keys().then(function (keys) {
-        keys.filter(function (key) { return /^autoservice-(?:shop|product-images)-/.test(key); })
-          .forEach(function (key) { caches.delete(key); });
-      }).catch(function () {});
-    }
   });
 })();
