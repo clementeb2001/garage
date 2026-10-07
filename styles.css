@@ -4134,10 +4134,12 @@ body.rd-open { overflow: hidden; }
 }
 .rental-calendar-day::after { content:""; position:absolute; left:25%; right:25%; bottom:5px; height:3px; border-radius:3px; background:currentColor; opacity:.8; }
 .rental-calendar-day.is-free { background: rgba(42,157,108,.18); border-color: rgba(73,190,137,.38); color: #8ce0b9; }
+.rental-calendar-day.is-partial { background: linear-gradient(135deg, rgba(42,157,108,.25) 0 50%, rgba(230,57,70,.23) 50% 100%); border-color: rgba(205,143,101,.55); color: #f2f5f7; }
 .rental-calendar-day.is-busy { background: rgba(230,57,70,.17); border-color: rgba(239,88,101,.38); color: #ff9ba4; }
 .rental-calendar-day.is-past,
 .rental-calendar-day.is-unknown { background: rgba(255,255,255,.035); border-color: rgba(255,255,255,.07); color: #667787; }
-.rental-calendar-day.is-free:hover { transform: translateY(-1px); border-color: #8ce0b9; }
+.rental-calendar-day.is-free:hover,
+.rental-calendar-day.is-partial:hover { transform: translateY(-1px); border-color: #e7edf3; }
 .rental-calendar-day:disabled { cursor: not-allowed; }
 .rental-calendar-day.is-chosen { outline: 2px solid #fff; outline-offset: 1px; }
 .rental-calendar-day.is-range { box-shadow: inset 0 0 0 2px rgba(255,255,255,.22); }
@@ -4146,6 +4148,7 @@ body.rd-open { overflow: hidden; }
 .rental-calendar-legend b { font-weight: 650; }
 .rental-calendar-legend i { width: 9px; height: 9px; border-radius: 3px; }
 .rental-calendar-legend .is-free { background: #49be89; }
+.rental-calendar-legend .is-partial { background: linear-gradient(135deg, #49be89 0 50%, #e63946 50% 100%); }
 .rental-calendar-legend .is-busy { background: #e63946; }
 .rental-calendar-legend .is-past { background: #657587; }
 .rental-form .field label,

@@ -252,10 +252,10 @@
   };
 
   var CALENDAR_TEXT = {
-    lb: { kicker:"Live-Disponibilitéit", title:"Fräi Datumer kucken", help:"Tippt op e fräien Dag fir den Ufank an duerno op den Enndag.", free:"Fräi", busy:"Besat", past:"Net buchbar", prev:"Mount virdrun", next:"Nächste Mount", weekdays:["Mé","Dë","Më","Do","Fr","Sa","So"] },
-    de: { kicker:"Live-Verfügbarkeit", title:"Freie Termine ansehen", help:"Tippen Sie auf einen freien Starttag und anschließend auf den Endtag.", free:"Frei", busy:"Belegt", past:"Nicht buchbar", prev:"Vorheriger Monat", next:"Nächster Monat", weekdays:["Mo","Di","Mi","Do","Fr","Sa","So"] },
-    fr: { kicker:"Disponibilité en direct", title:"Voir les dates disponibles", help:"Touchez un jour libre pour le début, puis le jour de fin.", free:"Libre", busy:"Occupé", past:"Non réservable", prev:"Mois précédent", next:"Mois suivant", weekdays:["Lu","Ma","Me","Je","Ve","Sa","Di"] },
-    en: { kicker:"Live availability", title:"See available dates", help:"Tap a free start day, then tap the end day.", free:"Available", busy:"Booked", past:"Unavailable", prev:"Previous month", next:"Next month", weekdays:["Mo","Tu","We","Th","Fr","Sa","Su"] }
+    lb: { kicker:"Live-Disponibilitéit", title:"Fräi Datumer kucken", help:"Tippt op e fräien oder deels fräien Dag fir den Ufank an duerno op den Enndag.", free:"Alles fräi", partial:"Deels fräi – auswielbar", busy:"Alles besat", past:"Net buchbar", prev:"Mount virdrun", next:"Nächste Mount", weekdays:["Mé","Dë","Më","Do","Fr","Sa","So"] },
+    de: { kicker:"Live-Verfügbarkeit", title:"Freie Termine ansehen", help:"Tippen Sie auf einen freien oder teilweise freien Starttag und anschließend auf den Endtag.", free:"Alles frei", partial:"Teilweise frei – auswählbar", busy:"Alles belegt", past:"Nicht buchbar", prev:"Vorheriger Monat", next:"Nächster Monat", weekdays:["Mo","Di","Mi","Do","Fr","Sa","So"] },
+    fr: { kicker:"Disponibilité en direct", title:"Voir les dates disponibles", help:"Touchez un jour libre ou partiellement libre pour le début, puis le jour de fin.", free:"Tout est libre", partial:"Partiellement libre – sélectionnable", busy:"Tout est occupé", past:"Non réservable", prev:"Mois précédent", next:"Mois suivant", weekdays:["Lu","Ma","Me","Je","Ve","Sa","Di"] },
+    en: { kicker:"Live availability", title:"See available dates", help:"Tap an available or partially available start day, then tap the end day.", free:"All available", partial:"Partly available – selectable", busy:"All booked", past:"Unavailable", prev:"Previous month", next:"Next month", weekdays:["Mo","Tu","We","Th","Fr","Sa","Su"] }
   };
 
   function lang() {
@@ -615,8 +615,16 @@
     var start = isoDay(date) + "T00:00";
     var nextDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
     var end = isoDay(nextDate) + "T00:00";
-    var hits = selectedBusyIntervals().filter(function (b) { return b.from < end && b.to > start; });
-    if (!hits.length) return "free";
+    var selectedItems = state.selected.map(function (id) {
+      return CATALOG.find(function (item) { return item.id === id; });
+    }).filter(Boolean);
+    var busyCount = selectedItems.filter(function (item) {
+      return state.busy.some(function (booking) {
+        return itemMatchesBooking(item, booking) && booking.from < end && booking.to > start;
+      });
+    }).length;
+    if (!busyCount) return "free";
+    if (busyCount < selectedItems.length) return "partial";
     return "busy";
   }
 
@@ -628,7 +636,7 @@
     var c = CALENDAR_TEXT[lang()] || CALENDAR_TEXT.lb;
     setTxt("rental-calendar-kicker", c.kicker); setTxt("rental-calendar-title", c.title);
     setTxt("rental-calendar-help", c.help); setTxt("rental-calendar-free", c.free);
-    setTxt("rental-calendar-busy-label", c.busy); setTxt("rental-calendar-past", c.past);
+    setTxt("rental-calendar-partial", c.partial); setTxt("rental-calendar-busy-label", c.busy); setTxt("rental-calendar-past", c.past);
     var prev = $("rental-calendar-prev"), next = $("rental-calendar-next");
     if (prev) prev.setAttribute("aria-label", c.prev); if (next) next.setAttribute("aria-label", c.next);
     weekdays.innerHTML = c.weekdays.map(function (d) { return "<span>" + d + "</span>"; }).join("");
@@ -642,7 +650,7 @@
     for (var day = 1; day <= count; day++) {
       var date = new Date(month.getFullYear(), month.getMonth(), day), iso = isoDay(date), status = calendarDayStatus(date);
       var chosen = iso === fromValue || iso === toValue, inRange = fromValue && toValue && iso > fromValue && iso < toValue;
-      var disabled = status !== "free";
+      var disabled = status === "past" || status === "unknown" || status === "busy";
       var label = iso + " – " + (c[status] || c.past);
       html += '<button type="button" role="gridcell" class="rental-calendar-day is-' + status + (chosen ? " is-chosen" : "") + (inRange ? " is-range" : "") + '" data-date="' + iso + '" aria-label="' + label + '"' + (disabled ? " disabled" : "") + '><span>' + day + '</span></button>';
     }
