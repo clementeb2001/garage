@@ -6207,7 +6207,6 @@ html.shop-dev .shop-card-body .shop-price {
 .ns-track{display:inline-flex;align-items:center;white-space:nowrap;will-change:transform;animation:ns-marquee 20s linear infinite;}
 .ns-seg{display:inline-flex;align-items:center;gap:7px;font-size:1rem;font-weight:600;text-shadow:0 1px 1px rgba(0,0,0,.14);}
 .ns-sep{opacity:.6;padding:0 1.7rem;font-size:.9rem;}
-.news-strip:hover .ns-track{animation-play-state:paused;}
 .ns-cta{
   flex:none;display:inline-flex;align-items:center;gap:7px;
   background:#fff;color:#b14a20;font-weight:800;font-size:.85rem;
@@ -6215,9 +6214,8 @@ html.shop-dev .shop-card-body .shop-price {
   transition:transform .18s ease,box-shadow .18s ease;
 }
 .ns-arrow{display:inline-block;animation:ns-nudge 1.6s ease-in-out infinite;}
-.news-strip:hover{background-position:auto,100% 50%;}
-.news-strip:hover .ns-cta{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.26);}
-.news-strip:hover .ns-arrow{animation:none;transform:translateX(4px);}
+.ns-cta:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.26);}
+.ns-cta:hover .ns-arrow{animation:none;transform:translateX(4px);}
 @keyframes ns-drop{from{transform:translateY(-100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
 @keyframes ns-grad{0%{background-position:0 0,0% 50%;}50%{background-position:0 0,100% 50%;}100%{background-position:0 0,0% 50%;}}
 @keyframes ns-pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.6);}70%{box-shadow:0 0 0 8px rgba(255,255,255,0);}100%{box-shadow:0 0 0 0 rgba(255,255,255,0);}}
