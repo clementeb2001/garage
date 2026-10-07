@@ -341,7 +341,10 @@
     m_terms: "Bestätegung vun de Locatiounsinformatiounen",
     busy_title: "Am gewielten Zäitraum net disponibel:",
     busy_hint: "Wielt w.e.g. aner Datumer – oder frot trotzdem un, mir kucken no.",
-    busy_period: "schonn reservéiert", availability_error: "D’Live-Disponibilitéit konnt net geluede ginn. Dir kënnt d’Ufro trotzdem schécken; mir kontrolléieren den Zäitraum virun der Bestätegung."
+    busy_period: "schonn reservéiert", availability_error: "D’Live-Disponibilitéit konnt net geluede ginn. Dir kënnt d’Ufro trotzdem schécken; mir kontrolléieren den Zäitraum virun der Bestätegung.",
+    availability_summary: "Disponibilitéit vun Ärer Auswiel", availability_free: "fräi am gewielten Zäitraum",
+    availability_busy: "net disponibel", availability_remove: "Aus der Auswiel huelen",
+    availability_continue: "Dir kënnt mat de fräie Gefierer virufueren. Huelt dofir just dat net disponibelt Gefier aus der Auswiel."
   });
   Object.assign(T.de, {
     review_title: "Anfrage überprüfen", review_items: "Auswahl", review_period: "Zeitraum",
@@ -351,7 +354,10 @@
     m_terms: "Bestätigung der Mietinformationen",
     busy_title: "Im gewählten Zeitraum nicht verfügbar:",
     busy_hint: "Bitte wählen Sie andere Daten – oder fragen Sie trotzdem an, wir prüfen es.",
-    busy_period: "bereits reserviert", availability_error: "Die Live-Verfügbarkeit konnte nicht geladen werden. Sie können die Anfrage trotzdem senden; wir prüfen den Zeitraum vor der Bestätigung."
+    busy_period: "bereits reserviert", availability_error: "Die Live-Verfügbarkeit konnte nicht geladen werden. Sie können die Anfrage trotzdem senden; wir prüfen den Zeitraum vor der Bestätigung.",
+    availability_summary: "Verfügbarkeit Ihrer Auswahl", availability_free: "im gewählten Zeitraum frei",
+    availability_busy: "nicht verfügbar", availability_remove: "Aus der Auswahl entfernen",
+    availability_continue: "Sie können mit den verfügbaren Fahrzeugen fortfahren. Entfernen Sie dafür nur das nicht verfügbare Fahrzeug aus Ihrer Auswahl."
   });
   Object.assign(T.fr, {
     review_title: "Vérifier la demande", review_items: "Sélection", review_period: "Période",
@@ -361,7 +367,10 @@
     m_terms: "confirmation des informations de location",
     busy_title: "Indisponible sur la période choisie :",
     busy_hint: "Veuillez choisir d’autres dates – ou envoyez quand même la demande, nous vérifierons.",
-    busy_period: "déjà réservé", availability_error: "La disponibilité en direct n’a pas pu être chargée. Vous pouvez tout de même envoyer la demande; nous vérifierons la période avant confirmation."
+    busy_period: "déjà réservé", availability_error: "La disponibilité en direct n’a pas pu être chargée. Vous pouvez tout de même envoyer la demande; nous vérifierons la période avant confirmation.",
+    availability_summary: "Disponibilité de votre sélection", availability_free: "disponible pour la période choisie",
+    availability_busy: "indisponible", availability_remove: "Retirer de la sélection",
+    availability_continue: "Vous pouvez continuer avec les véhicules disponibles. Retirez simplement le véhicule indisponible de votre sélection."
   });
   Object.assign(T.en, {
     review_title: "Review request", review_items: "Selection", review_period: "Period",
@@ -371,11 +380,15 @@
     m_terms: "confirmation of the rental information",
     busy_title: "Unavailable for the selected period:",
     busy_hint: "Please choose other dates – or send the request anyway, we'll check.",
-    busy_period: "already booked", availability_error: "Live availability could not be loaded. You can still send the request; we will check the period before confirming it."
+    busy_period: "already booked", availability_error: "Live availability could not be loaded. You can still send the request; we will check the period before confirming it.",
+    availability_summary: "Availability of your selection", availability_free: "available for the selected period",
+    availability_busy: "unavailable", availability_remove: "Remove from selection",
+    availability_continue: "You can continue with the available vehicles. Simply remove the unavailable vehicle from your selection."
   });
 
   function $(id) { return document.getElementById(id); }
   function setTxt(id, s) { var el = $(id); if (el) el.textContent = s; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 
   function catLabel(cat) {
     var m = t();
@@ -658,15 +671,26 @@
     updateReview();
   }
 
-  function busyForSelection() {
+  function availabilityForSelection() {
     var from = $("r-from"), to = $("r-to");
     var cFrom = from && from.value, cTo = to && to.value;
     if (!cFrom || !cTo || cTo <= cFrom || !state.selected.length) return [];
+    return state.selected.map(function (id) {
+      var item = CATALOG.find(function (x) { return x.id === id; });
+      if (!item) return null;
+      var periods = state.busy.filter(function (b) {
+        return itemMatchesBooking(item, b) && b.from < cTo && b.to > cFrom;
+      }).map(function (b) { return { from: b.from, to: b.to }; });
+      return { id: id, name: item.name[lang()] || item.name.lb, busy: periods.length > 0, periods: periods };
+    }).filter(Boolean);
+  }
+
+  function busyForSelection() {
     var hits = [];
-    selectedBusyIntervals().forEach(function (b) {
-      if (b.from < cTo && b.to > cFrom) {
-        hits.push({ name: b.item.name[lang()] || b.item.name.lb, from: b.from, to: b.to });
-      }
+    availabilityForSelection().forEach(function (status) {
+      status.periods.forEach(function (period) {
+        hits.push({ id: status.id, name: status.name, from: period.from, to: period.to });
+      });
     });
     return hits;
   }
@@ -676,17 +700,39 @@
     renderCalendar();
     if (!box) return;
     var m = t();
+    box.classList.remove("is-mixed", "is-all-free");
     if (state.availabilityError) {
       box.innerHTML = '<p class="rental-busy-title">⚠ ' + m.availability_error + "</p>";
       box.hidden = false;
       return;
     }
+    var statuses = availabilityForSelection();
+    if (!statuses.length) { box.hidden = true; box.innerHTML = ""; return; }
     var hits = busyForSelection();
+    if (statuses.length > 1) {
+      var rows = statuses.map(function (status) {
+        if (!status.busy) {
+          return '<li class="rental-availability-item is-free"><span><b>✓ ' + esc(status.name) + '</b><small>' + esc(m.availability_free) + '</small></span></li>';
+        }
+        var periods = status.periods.map(function (period) {
+          return formatReviewDate(period.from) + " → " + formatReviewDate(period.to);
+        }).join(" · ");
+        return '<li class="rental-availability-item is-busy"><span><b>✕ ' + esc(status.name) + '</b><small>' + esc(m.availability_busy) + ': ' + esc(periods) + '</small></span><button type="button" class="rental-availability-remove" data-remove-unavailable="' + esc(status.id) + '">' + esc(m.availability_remove) + '</button></li>';
+      }).join("");
+      box.classList.toggle("is-mixed", hits.length > 0 && hits.length < statuses.length);
+      box.classList.toggle("is-all-free", hits.length === 0);
+      box.innerHTML = '<p class="rental-busy-title">' + esc(m.availability_summary) + '</p><ul class="rental-availability-list">' + rows + '</ul>' + (hits.length ? '<p class="rental-busy-hint">' + esc(m.availability_continue) + '</p>' : '');
+      box.querySelectorAll("[data-remove-unavailable]").forEach(function (button) {
+        button.addEventListener("click", function () { toggle(button.getAttribute("data-remove-unavailable")); });
+      });
+      box.hidden = false;
+      return;
+    }
     if (!hits.length) { box.hidden = true; box.innerHTML = ""; return; }
     var items = hits.map(function (h) {
-      return "<li><b>" + h.name + "</b> – " + m.busy_period + ": " + formatReviewDate(h.from) + " → " + formatReviewDate(h.to) + "</li>";
+      return "<li><b>" + esc(h.name) + "</b> – " + esc(m.busy_period) + ": " + esc(formatReviewDate(h.from)) + " → " + esc(formatReviewDate(h.to)) + "</li>";
     }).join("");
-    box.innerHTML = '<p class="rental-busy-title">⚠ ' + m.busy_title + "</p><ul>" + items + '</ul><p class="rental-busy-hint">' + m.busy_hint + "</p>";
+    box.innerHTML = '<p class="rental-busy-title">⚠ ' + esc(m.busy_title) + "</p><ul>" + items + '</ul><p class="rental-busy-hint">' + esc(m.busy_hint) + "</p>";
     box.hidden = false;
   }
 
