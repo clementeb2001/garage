@@ -17,6 +17,7 @@
   var GENS = window.SHOP_GENS || [];
   var IMAGES = window.SHOP_IMAGES || [];
   var REMUS_PARTS = window.REMUS_PARTS || {};
+  var VEHICLE_CATALOG = window.VEHICLE_CATALOG || {};
   var remusPartsRequested = false;
   var remusPartsCallbacks = [];
   var IMGBASE = (window.SHOP_META && window.SHOP_META.imgbase) || "";
@@ -26,7 +27,7 @@
      well DBA spéider nogelueden gëtt an d'Tabellen erweidert. */
   var MAKE_IDX = {};
 
-  var state = { mode: "all", q: "", mf: "all", cat: "all", brand: "", model: "", modelLabel: "", generation: "", year: "", engine: "", axle: "all", approval: "all", sort: "name", favoritesOnly: false };
+  var state = { mode: "all", q: "", mf: "all", cat: "all", brand: "", model: "", modelLabel: "", generation: "", year: "", engine: "", engineHp: 0, engineCc: 0, engineFuel: "", catalogVehicle: false, axle: "all", approval: "all", sort: "name", favoritesOnly: false };
   var favorites = loadJson("gk_shop_favorites", []);
   var compareIds = loadJson("gk_shop_compare", []);
   var activeCompareDialog = null;
@@ -704,9 +705,28 @@
     // Baurei/Motor filteren nëmmen, wann d'Deel dës Donnéeën huet (REMUS).
     // DBA-Bremsen hu keng Baurei/Motor -> net erausfilteren, soss falen se bei
     // der spezifescher Sich eraus, obwuel se op d'Gefier passen.
-    if (state.generation && x[2] > -1 && generationLabel(x) !== state.generation) return false;
+    if (!state.catalogVehicle && state.generation && x[2] > -1 && generationLabel(x) !== state.generation) return false;
     if (state.year && !yearFits(x, state.year)) return false;
-    if (state.engine && x[8] > -1 && engineLabel(x) !== state.engine) return false;
+    if (state.engine && x[8] > -1) {
+      if (state.catalogVehicle) {
+        if (!catalogEngineMatchesFit(x)) return false;
+      } else if (engineLabel(x) !== state.engine) return false;
+    }
+    return true;
+  }
+
+  function catalogEngineMatchesFit(x) {
+    var fit = engineLabel(x).toLowerCase().replace(",", ".");
+    var litres = fit.match(/(\d(?:\.\d)?)\s*l\b/);
+    if (state.engineCc && litres && Math.abs(parseFloat(litres[1]) * 1000 - state.engineCc) > 180) return false;
+    if (state.engineHp && x[4]) {
+      var selectedKw = state.engineHp / 1.35962;
+      if (Math.abs(selectedKw - x[4]) > 8) return false;
+    }
+    var dieselFit = /(diesel|tdi|cdi|hdi|dci|crdi|tdci)/i.test(fit);
+    var petrolFit = /(tfsi|tsi|fsi|gasoline|petrol|multiair|ecoboost)/i.test(fit);
+    if (/diesel/i.test(state.engineFuel) && petrolFit && !dieselFit) return false;
+    if (/(gasoline|petrol)/i.test(state.engineFuel) && dieselFit) return false;
     return true;
   }
   function selectedVehicleLabel() {
@@ -1636,6 +1656,38 @@
     return String(value || "").toUpperCase().replace(/[()\[\],./_-]+/g, " ").replace(/\s+/g, " ").trim();
   }
   function exactModelRecords() {
+    var catalogModels = VEHICLE_CATALOG[state.brand] || [];
+    if (catalogModels.length) {
+      var catalogRecords = [];
+      catalogModels.forEach(function (model) {
+        (model.g || []).forEach(function (generation) {
+          var years = generation.s ? String(generation.s) + "–" + (generation.e || "") : "";
+          var generationName = String(generation.n || model.n).trim();
+          var label = model.n;
+          if (normalizedModelText(generationName) !== normalizedModelText(model.n)) {
+            var escapedModel = model.n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            var generationDisplay = generationName.replace(new RegExp("^" + escapedModel + "\\s*", "i"), "").trim();
+            var modelYear = generationDisplay.match(/^\((\d{4})\)$/);
+            if (modelYear) generationDisplay = "Gen. " + modelYear[1];
+            if (generationDisplay) label += " · " + generationDisplay;
+          }
+          if (years) label += " · " + years;
+          catalogRecords.push({
+            label: label,
+            model: model.n,
+            generation: generationName,
+            start: generation.s || 0,
+            end: generation.e || 0,
+            engines: generation.x || [],
+            catalog: true
+          });
+        });
+      });
+      return catalogRecords.sort(function (a, b) {
+        var byModel = a.model.localeCompare(b.model, undefined, { numeric: true });
+        return byModel || (b.start - a.start) || a.label.localeCompare(b.label, undefined, { numeric: true });
+      });
+    }
     var bi = MAKE_IDX[state.brand], seen = {}, records = [];
     if (bi == null) return records;
     ALL_FITS.forEach(function (x) {
@@ -1668,12 +1720,20 @@
     var generationKey = normalizedModelText(state.generation);
     return ALL_FITS.filter(function (x) {
       if (!state.brand || x[0] !== bi || !state.model || !modelMatch(x[1], state.model)) return false;
-      if (!state.generation) return true;
+      if (!state.generation || state.catalogVehicle) return true;
       if (x[2] > -1) return generationLabel(x) === state.generation;
       return generationKey && normalizedModelText(x[1]).indexOf(generationKey) !== -1;
     });
   }
   function yearOptions() {
+    var selectedRecord = exactModelRecord(state.modelLabel);
+    if (selectedRecord && selectedRecord.catalog) {
+      var catalogYears = [];
+      var first = selectedRecord.start || 1990;
+      var last = selectedRecord.end || new Date().getFullYear();
+      for (var cy = last; cy >= first; cy--) catalogYears.push(String(cy));
+      return catalogYears;
+    }
     var years = [];
     var selectedFits = fitsForExactModel();
     var generationStart = selectedFits.reduce(function (min, x) { return x[5] && (!min || x[5] < min) ? x[5] : min; }, 0);
@@ -1694,7 +1754,14 @@
     return uniqueSorted(years, true);
   }
   function engineOptions() {
+    var selectedRecord = exactModelRecord(state.modelLabel);
+    if (selectedRecord && selectedRecord.catalog) return selectedRecord.engines.map(function (engine) { return engine.l; });
     return uniqueSorted(fitsForExactModel().filter(function (x) { return !state.year || yearFits(x, state.year); }).map(engineLabel)).filter(function (o) { return o !== "—"; });
+  }
+  function selectedCatalogEngine(label) {
+    var selectedRecord = exactModelRecord(state.modelLabel);
+    if (!selectedRecord || !selectedRecord.catalog) return null;
+    return selectedRecord.engines.filter(function (engine) { return engine.l === label; })[0] || null;
   }
   function setVehicleField(id, enabled, clear) {
     var el = $(id);
@@ -1708,9 +1775,9 @@
     if (btn) btn.disabled = !(state.brand && state.model && state.year && (!engines.length || state.engine));
   }
   function resetVehicleAfter(step) {
-    if (step < 1) { state.model = ""; state.modelLabel = ""; state.generation = ""; setVehicleField("veh-model", !!state.brand, true); }
+    if (step < 1) { state.model = ""; state.modelLabel = ""; state.generation = ""; state.catalogVehicle = false; setVehicleField("veh-model", !!state.brand, true); }
     if (step < 2) { state.year = ""; setVehicleField("veh-year", !!state.model, true); }
-    if (step < 3) { state.engine = ""; setVehicleField("veh-engine", !!state.year && engineOptions().length > 0, true); }
+    if (step < 3) { state.engine = ""; state.engineHp = 0; state.engineCc = 0; state.engineFuel = ""; setVehicleField("veh-engine", !!state.year && engineOptions().length > 0, true); }
     updateVehicleButton();
   }
   function initCombos() {
@@ -1727,6 +1794,7 @@
         state.model = record ? record.model : "";
         state.modelLabel = record ? record.label : "";
         state.generation = record ? record.generation : "";
+        state.catalogVehicle = !!(record && record.catalog);
         resetVehicleAfter(1);
       });
     makeCombo("veh-year", "list-year", yearOptions,
@@ -1737,6 +1805,10 @@
     makeCombo("veh-engine", "list-engine", engineOptions,
       function (val) {
         state.engine = engineOptions().indexOf(val) !== -1 ? val : "";
+        var selectedEngine = selectedCatalogEngine(state.engine);
+        state.engineHp = selectedEngine && selectedEngine.h || 0;
+        state.engineCc = selectedEngine && selectedEngine.d || 0;
+        state.engineFuel = selectedEngine && selectedEngine.f || "";
         updateVehicleButton();
       });
     resetVehicleAfter(0);
@@ -2099,7 +2171,7 @@
     var more = $("shop-load-more"); if (more) more.addEventListener("click", function () { visibleCount += PAGE_SIZE; render(); });
     var filterToggle=$("shop-filter-mobile-toggle"); if(filterToggle)filterToggle.addEventListener("click",function(){var open=this.getAttribute("aria-expanded")!=="true";this.setAttribute("aria-expanded",open?"true":"false");$("shop-filterbar").classList.toggle("is-mobile-open",open);});
     var vehicleChange=$("shop-vehicle-change"); if(vehicleChange)vehicleChange.addEventListener("click",function(){switchTab("fahrzeug");$("tab-fahrzeug").scrollIntoView({behavior:"smooth",block:"center"});});
-    var vehicleClear=$("shop-vehicle-clear"); if(vehicleClear)vehicleClear.addEventListener("click",function(){state.mode="all";state.brand="";state.model="";state.modelLabel="";state.generation="";state.year="";state.engine="";["brand","model","year","engine"].forEach(function(k){var e=$("veh-"+k);if(e)e.value="";});visibleCount=PAGE_SIZE;saveState();render();});
+    var vehicleClear=$("shop-vehicle-clear"); if(vehicleClear)vehicleClear.addEventListener("click",function(){state.mode="all";state.brand="";state.model="";state.modelLabel="";state.generation="";state.year="";state.engine="";state.engineHp=0;state.engineCc=0;state.engineFuel="";state.catalogVehicle=false;["brand","model","year","engine"].forEach(function(k){var e=$("veh-"+k);if(e)e.value="";});visibleCount=PAGE_SIZE;saveState();render();});
     var compareOpen=$("shop-compare-open"); if(compareOpen) compareOpen.addEventListener("click",openCompare);
     var compareClear=$("shop-compare-clear"); if(compareClear) compareClear.addEventListener("click",function(){compareIds=[];updateCompareBar();render();});
     var ct = $("cart-toggle"); if (ct) ct.addEventListener("click", openCart);

@@ -5654,6 +5654,16 @@ html.shop-dev .shop-card-body .shop-price {
   color: #aeb9c4;
   font-size: .82rem;
 }
+.vehicle-data-credit {
+  margin: 5px 6px 0;
+  color: #7f8d9c;
+  font-size: .7rem;
+  line-height: 1.45;
+}
+.vehicle-data-credit a {
+  color: #d98555;
+  text-underline-offset: 2px;
+}
 .shop-legal-summary {
   background: #e5eaf0;
 }

@@ -105,7 +105,9 @@
     if (preview) {
       /* De schwéiere Katalog gëtt nëmmen am ausdréckleche Virschau-Modus
          gelueden; déi ëffentlech Baustellesäit bleift liicht a séier. */
-      loadScript("shop-data.js?v=11", function () { loadScript("shop.js?v=63"); });
+      loadScript("shop-data.js?v=11", function () {
+        loadScript("vehicle-catalog.js?v=4", function () { loadScript("shop.js?v=65"); });
+      });
       return;
     }
     /* De komplette Katalog-Iwwersetzer gëtt ëffentlech bewosst net gelueden.
