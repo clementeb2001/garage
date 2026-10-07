@@ -393,7 +393,7 @@ async function runBackup(env) {
 async function sendNewApptNotice(env, apptId, a) {
   const inq = a.kind === "inquiry";
   const ref = (inq ? "P-" : "T-") + (Number(apptId) + 1000);
-  const title = inq ? "Nei Produktufro" : "Neie Rendez-vous";
+  const title = inq ? "Nei Produktufro" : "Nei Rendez-vous-Ufro";
   const subject = title + " " + ref + (a.service ? " – " + a.service : "");
   const rows = [["Numm", a.name], [inq ? "Ufro" : "Service", a.service], ["Gefier", a.vehicle], ["Wonschdatum", a.pref_date], ["E-Mail", a.email]].filter(function (r) { return r[1]; });
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430">' +
@@ -426,10 +426,10 @@ function confirmMail(b) {
   var t = T || { s: "Är Reservatioun ass bestätegt", h: "Reservatioun bestätegt", p: "Mir hunn Är Reservatioun bestätegt:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Merci!" };
   t.ref = { lb: "Réf.", de: "Ref.", fr: "Réf.", en: "Ref." }[L] || "Réf.";
   var masterTerms = /renault\s+master/i.test(b.veh || "") ? ({
-    lb: "Konditiounen: 100 € pro ugefaangene 24 Stonnen, 250 km pro Locatioun abegraff, duerno 0,30 €/km, Kautioun 300 €, verspiet Retour 20 € pro ugefaangener Stonn.",
+    lb: "Konditiounen: 100 € pro ugefaangene 24 Stonnen, 250 km pro Locatioun abegraff, duerno 0,30 €/km, Kautioun 300 €, verspéite Retour 20 € pro ugefaangener Stonn.",
     de: "Konditionen: 100 € pro angefangenen 24 Stunden, 250 km pro Miete inklusive, danach 0,30 €/km, Kaution 300 €, verspätete Rückgabe 20 € pro angefangener Stunde.",
     fr: "Conditions : 100 € par tranche de 24 heures entamée, 250 km par location inclus, puis 0,30 €/km, caution 300 €, retard 20 € par heure entamée.",
-    en: "Terms: €100 per started 24-hour period, 250 km per rental included, then €0.30/km, €300 deposit, late return €20 per started hour."
+    en: "Terms: €100 per 24-hour period or part thereof, 250 km included per rental, then €0.30/km, €300 deposit, late return €20 per hour or part thereof."
   }[L] || "") : "";
   var html =
     '<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1c2430">' +

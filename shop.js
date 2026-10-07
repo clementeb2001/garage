@@ -159,7 +159,7 @@
       note_cta: "Deel ufroen",
       cart_title: "Äre Kuerf", cart_empty: "Äre Kuerf ass eidel.", cart_total: "Total",
       cart_checkout: "Bezuelen", cart_remove: "Ewechhuelen",
-      cart_note: "Sécher bezuelen iwwer Mollie – Kaart, Wero, Revolut oder Iwwerweisung. Präisser inkl. 17% TVA. Eventuell Liwwerkäschte ginn Iech virun der verbindlech Bestellung ugewisen.",
+      cart_note: "Sécher bezuelen iwwer Mollie – Kaart, Wero, Revolut oder Iwwerweisung. Präisser inkl. 17% TVA. Eventuell Liwwerkäschte ginn Iech virun enger verbindlecher Bestellung ugewisen.",
       cart_redirect: "Gëtt op d’Bezuelung weidergeleet …",
       cart_err: "D’Bezuelung ass de Moment net erreechbar. Probéiert w.e.g. méi spéit oder rufft eis un.",
     },
@@ -292,7 +292,7 @@
     cart_empty: "Ären Akafskuerf ass eidel.",
     cart_checkout: "Bezuelungspflichteg bestellen",
     cart_remove: "Ewechhuelen",
-    cart_note: "Sécher iwwer Mollie bezuelen. All Präisser enthalen 17% TVA. Eventuell Liwwerkäschte ginn Iech virun der verbindlech Bestellung ugewisen.",
+    cart_note: "Sécher iwwer Mollie bezuelen. All Präisser enthalen 17% TVA. Eventuell Liwwerkäschte ginn Iech virun enger verbindlecher Bestellung ugewisen.",
     cart_redirect: "Dir gitt op d’Bezuelung weidergeleet …",
     cart_err: "D’Bezuelung ass de Moment net erreechbar. Probéiert w.e.g. méi spéit nach eng Kéier oder rufft eis un.",
     legal_required: "Bestätegt w.e.g. d’Shop- a Verbraucherinformatiounen, ier Dir bestellt.",
@@ -302,7 +302,7 @@
     legal_eyebrow: "Transparent bestellen",
     legal_title: "Wichteg Informatioune virun der Bestellung",
     legal_price_title: "Präisser",
-    legal_price_text: "All ugewise Präisser enthalen 17% TVA. Méiglech Liwwer- oder Ofhuelkäschte ginn Iech virun der verbindlech Bestellung ugewisen.",
+    legal_price_text: "All ugewise Präisser enthalen 17% TVA. Méiglech Liwwer- oder Ofhuelkäschte ginn Iech virun enger verbindlecher Bestellung ugewisen.",
     legal_fit_title: "Passgenauegkeet",
     legal_fit_text: "De Gefierfilter ass eng Sichhëllef. Mir kontrolléieren d’Kompatibilitéit virum Versand nach eng Kéier mat de Gefierdaten.",
     legal_rights_title: "Är Rechter",
@@ -511,7 +511,7 @@
     title:"Autodeeler, déi wierklech passen.", sub:"REMUS Sportauspuffanlagen an DBA-Bremsen – no Gefier gefiltert a virun der Bestellung perséinlech kontrolléiert.",
     proof_kicker:"Kaaft mat Sécherheet", proof_title:"Perséinlech Passformkontroll", proof_text:"Mir kontrolléieren Gefier, Motoriséierung an all néideg Zousatzdeeler virun der definitiver Bestellung.", proof_one:"Keng blann Deelerbestellung", proof_two:"Komplett Bundles amplaz Iwwerraschungen", proof_three:"Berodung aus der eegener Garage",
     finder_step:"SCHRËTT 1", finder_title:"Wéi wëllt Dir Äert Deel fannen?", journey_find:"Fannen", journey_check:"Préiwen", journey_order:"Bestellen",
-    assurance_fit_title:"Passform gepréift", assurance_fit_text:"Mir kontrolléieren all Bestellung mat Äre Gefierdaten.", assurance_bundle_title:"Komplett geduecht", assurance_bundle_text:"Pflicht- an Zousatzdeeler ginn direkt matgewisen.", assurance_garage_title:"Garage-Kompetenz", assurance_garage_text:"Fachlech Hëllef virum Kaf an op Wonsch beim Abau.", assurance_lu_title:"Lokal zu Bettenduerf", assurance_lu_text:"Ee richtegen Uspriechpartner amplaz engem anonyme Shop.",
+    assurance_fit_title:"Passform gepréift", assurance_fit_text:"Mir kontrolléieren all Bestellung mat Äre Gefierdaten.", assurance_bundle_title:"Komplett geduecht", assurance_bundle_text:"Obligatoresch Deeler an Zousazdeeler ginn direkt matgewisen.", assurance_garage_title:"Kompetenz aus der Garage", assurance_garage_text:"Fachlech Hëllef virum Kaf an op Wonsch beim Abau.", assurance_lu_title:"Lokal zu Bettenduerf", assurance_lu_text:"Ee richtegen Uspriechpartner amplaz vun engem anonyme Shop.",
     catalog_eyebrow:"Produkter", catalog_title:"Déi passend Auswiel fir Äert Gefier", catalog_intro:"Start mat der Mark an der Kategorie oder benotzt de Gefier-Finder fir nëmme passend Deeler ze gesinn.", guide_link:"Produktlinne verstoen ↓", brand_label:"1 · Mark wielen", category_label:"2 · Kategorie wielen", personal_check:"✓ Passform virum Versand gepréift"
   });
   Object.assign(T.de, {

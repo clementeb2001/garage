@@ -123,7 +123,7 @@
           <span></span><span></span><span></span>
         </button>
 
-        <nav class="main-nav" id="main-nav" aria-label="Navigatioun">
+        <nav class="main-nav" id="main-nav" aria-label="Navigation">
           <a href="index.html#leistungen" data-i18n="nav_services">Leistungen</a>
           <a href="index.html#ueber-uns" data-i18n="nav_about">Über uns</a>
           <a href="index.html#oeffnungszeiten" data-i18n="nav_hours">Öffnungszeiten</a>
@@ -134,7 +134,7 @@
             <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · bald</span></a>
           </div>
           <div class="menu-language">
-            <span class="menu-language-label">🌐 Sprooch</span>
+            <span class="menu-language-label">🌐 Sprache</span>
             <div class="lang-switch">
               <select class="lang-select" aria-label="Sprooch / Sprache / Langue / Language">
                 <option value="lb">🇱🇺 Lëtzebuergesch</option>
@@ -405,7 +405,7 @@
               <a
                 class="card-cover"
                 href="service.html?s=bremsen"
-                aria-label="Bremsen & Fuerwierk"
+                aria-label="Bremsen & Fahrwerk"
               ></a>
               <span class="card-more" aria-hidden="true"></span>
             </article>
@@ -419,7 +419,7 @@
               <a
                 class="card-cover"
                 href="service.html?s=diagnose"
-                aria-label="Feelerdiagnos"
+                aria-label="Fehlerdiagnose"
               ></a>
               <span class="card-more" aria-hidden="true"></span>
             </article>
@@ -475,7 +475,7 @@
               <a
                 class="card-cover"
                 href="service.html?s=karosserie"
-                aria-label="Karosserie & Lackéierung"
+                aria-label="Karosserie & Lackierung"
               ></a>
               <span class="card-more" aria-hidden="true"></span>
             </article>
@@ -490,7 +490,7 @@
                 class="card-cover"
                 type="button"
                 data-flyer="achsvermessung"
-                aria-label="Achsvermiessung"
+                aria-label="Achsvermessung"
               ></button>
               <span class="card-more" aria-hidden="true"></span>
             </article>
@@ -505,7 +505,7 @@
                 class="card-cover"
                 type="button"
                 data-flyer="getriebespuelung"
-                aria-label="Spullung vun der Boîte"
+                aria-label="Getriebespülung"
               ></button>
               <span class="card-more" aria-hidden="true"></span>
             </article>
@@ -784,14 +784,14 @@
               </select>
             </div>
             <div class="field">
-              <label for="fahrzeug" id="lbl-fahrzeug">Gefier</label>
+              <label for="fahrzeug" id="lbl-fahrzeug">Fahrzeug</label>
               <input
                 type="text"
                 id="fahrzeug"
                 name="Gefier"
                 autocomplete="off"
                 maxlength="120"
-                placeholder="Mark, Modell, Baujoer"
+                placeholder="Marke, Modell, Baujahr"
                 required
               />
             </div>
@@ -808,7 +808,7 @@
             <p class="date-hint" id="date-hint">Das Datum ist ein Wunsch und wird von uns bestätigt.</p>
             <div class="field-row">
               <div class="field">
-                <label for="wtime" id="lbl-wtime">Dageszäit</label>
+                <label for="wtime" id="lbl-wtime">Tageszeit</label>
                 <select id="wtime" name="Tageszeit">
                   <option value="" id="opt-time-any">Egal</option>
                   <option id="opt-time-am">Moies</option>
@@ -828,7 +828,7 @@
                 />
                 <label class="vin-unknown" for="vin-unknown">
                   <input id="vin-unknown" name="Oldtimer / VIN net bekannt" type="checkbox" />
-                  <span id="vin-unknown-text">Oldtimer / VIN net bekannt</span>
+                  <span id="vin-unknown-text">Oldtimer / VIN nicht bekannt</span>
                 </label>
               </div>
             </div>
@@ -847,7 +847,7 @@
             <label class="privacy-confirm" for="privacy-confirm">
               <input id="privacy-confirm" name="Datenschutz bestätigt" type="checkbox" required />
               <span id="privacy-confirm-text"
-                >Ech hunn d'Dateschutzerklärung gelies a sinn averstanen, datt meng Donnéeë fir d'Veraarbechtung vun der Ufro benotzt ginn.</span
+                >Ich habe die Datenschutzerklärung gelesen und bin mit der Verarbeitung meiner Daten für diese Anfrage einverstanden.</span
               >
             </label>
             <button
@@ -963,20 +963,20 @@
       href="#top"
       class="back-to-top"
       id="back-to-top"
-      aria-label="Nach oben / Back to top"
+      aria-label="Nach oben"
       >↑</a
     >
 
     <!-- Lightbox fir d'Spezial-Flyer -->
-    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Bildvergréisserung" hidden>
-      <button class="lightbox-close" id="lightbox-close" aria-label="Zoumaachen">
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Bildvergrößerung" hidden>
+      <button class="lightbox-close" id="lightbox-close" aria-label="Schließen">
         ✕
       </button>
       <img id="lightbox-img" alt="" />
     </div>
 
     <script src="script.js?v=26"></script>
-    <script src="details.js?v=9"></script>
+    <script src="details.js?v=10"></script>
     <script src="extras.js?v=16"></script>
     <!-- Cloudflare Web Analytics -->
     <script

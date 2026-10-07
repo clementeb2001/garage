@@ -94,7 +94,7 @@
   var STORE = liveStore;
   var session = null;
   function can(perm) { return !!(session && ROLES[session.role] && ROLES[session.role].perms.indexOf(perm) !== -1); }
-  var ERR = { invalid_credentials: "Falsche Benotzernumm oder falscht Passwuert.", wrong_current: "Aktuellt Passwuert ass falsch.", weak_password: "Neit Passwuert ze kuerz (op mannst 8 Zeechen).", exists: "Dee Benotzernumm gëtt et schonn.", last_admin: "Et muss op mannst een Admin bleiwen.", self: "Du kanns dech net selwer läschen.", bad_input: "Ongëlteg Agab.", forbidden: "Keng Berechtegung.", rate_limited: "Ze vill Loginversich. Waart w.e.g. eng Stonn oder rufft den Admin un.", booking_conflict: "Dëst Gefier ass an dësem Zäitraum schonn bestätegt – kee Konflikt méiglech.", not_found: "Reservatioun net fonnt.", bad_status: "Ongëltege Status.", missing_fields: "Pflichtfelder feelen (Gefier, Numm, Vun, Bis).", invalid_fields: "Ongëlteg E-Mail oder Datum.", invalid_protocol: "D'Protokoll enthält eng ongëlteg oder feelend Ënnerschrëft beziehungsweise Zuel.", invalid_period: "D'Enddatum muss nom Ufanksdatum leien.", forbidden_origin: "Zougrëff vun dëser Adress blockéiert – benotzt w.e.g. https://autoservicebettenduerf.lu/intern/", server_not_configured: "Server net konfiguréiert." };
+  var ERR = { invalid_credentials: "Falsche Benotzernumm oder falscht Passwuert.", wrong_current: "Dat aktuellt Passwuert ass falsch.", weak_password: "Dat neit Passwuert ass ze kuerz (op d'mannst 8 Zeechen).", exists: "Dee Benotzernumm gëtt et schonn.", last_admin: "Et muss op d'mannst een Admin bleiwen.", self: "Du kanns dech net selwer läschen.", bad_input: "Ongëlteg Donnéeën.", forbidden: "Keng Berechtegung.", rate_limited: "Ze vill Umeldungsversich. Waart w.e.g. eng Stonn oder rufft den Admin un.", booking_conflict: "Dëst Gefier ass an dësem Zäitraum schonn reservéiert. D'Iwwerschneidung kann net bestätegt ginn.", not_found: "Reservatioun net fonnt.", bad_status: "Ongëltege Status.", missing_fields: "Obligatoresch Felder feelen (Gefier, Numm, Vun, Bis).", invalid_fields: "Ongëlteg E-Mail-Adress oder Datum.", invalid_protocol: "De Protokoll enthält eng ongëlteg oder feelend Ënnerschrëft beziehungsweise Zuel.", invalid_period: "Den Enddatum muss nom Ufanksdatum leien.", forbidden_origin: "Zougrëff vun dëser Adress blockéiert – benotzt w.e.g. https://autoservicebettenduerf.lu/intern/", server_not_configured: "Server net konfiguréiert." };
   function errMsg(e) { return ERR[e] || "Feeler – probéiert nach eng Kéier."; }
 
   /* ---------- Views ---------- */
@@ -274,8 +274,8 @@
       if (sigEl && sigEl._signed) { try { sigUrl = sigEl.toDataURL("image/png"); } catch (e) {} }
       try { var staffEx=decodeURIComponent((staffSigEl&&staffSigEl.dataset.existing)||"");if(/^https:/.test(staffEx))staffSigUrl=staffEx; } catch(e) {}
       if(staffSigEl&&staffSigEl._signed){try{staffSigUrl=staffSigEl.toDataURL("image/png");}catch(e){}}
-      var ref = refOf(b.id), title = pickup ? "Iwwergab­protokoll" : "Retour­protokoll";
-      var carRows = ppRow("Verleihobjet", b.veh) + ppRow("Typ", trailer?"Unhänger":(f.type==="car"?"Auto":"Transporter")) + ppRow("Baujoer", f.year) + ppRow("Brennstoff / Undriff", trailer?"":f.fuel) + ppRow(trailer?"Dimensiounen":"Luedraum", f.loadSpace) + ppRow("Führerschäin", f.licenseClass);
+      var ref = refOf(b.id), title = pickup ? "Iwwergabprotokoll" : "Retourprotokoll";
+      var carRows = ppRow("Locatiounsobjet", b.veh) + ppRow("Typ", trailer?"Unhänger":(f.type==="car"?"Auto":"Transporter")) + ppRow("Baujoer", f.year) + ppRow("Brennstoff / Undriff", trailer?"":f.fuel) + ppRow(trailer?"Dimensiounen":"Luedraum", f.loadSpace) + ppRow("Führerschäin", f.licenseClass);
       var stateRows = ppRow("Datum / Zäit", at ? fmt(at) : "") + ppRow("Kilometerstand", km ? km + " km" : "") + ppRow("Brennstoff- / Luedstand", fuel) + ppRow("Schlësselen", keys) + ppRow("Propretéit", cleanliness) + ppRow("Kontrolléiert", checkText) +
         (pickup ? ppRow("Führerschäin & Identitéit kontrolléiert", licenseChecked ? "Jo" : "Nee") : (ppRow("Zousaz-Kilometer", extraKm ? extraKm + " km (" + eurTxt(kmEur(extraKm,protocolKmRate)) + ")" : "") + ppRow("Aner Käschten", extraCosts ? eurTxt(extraCosts) : "") + ppRow("Zousaz total", (kmEur(extraKm,protocolKmRate) + (Number(extraCosts) || 0)) ? eurTxt(kmEur(extraKm,protocolKmRate) + (Number(extraCosts) || 0)) : "")));
       var photoHtml = photos.length ? '<div class="pp-sec"><h3>Fotoen</h3><div class="pp-photos">' + photos.map(function (u) { return '<img src="' + u + '" alt="">'; }).join("") + "</div></div>" : "";
@@ -285,18 +285,18 @@
         '<div class="pp-titlebar"><h1>' + title + '</h1><div class="pp-ref">Réf. ' + esc(ref) + '<br>' + esc(fmt(new Date().toISOString())) + "</div></div>" +
         '<div class="pp-cols">' +
         '<div class="pp-sec"><h3>Client</h3><table class="pp-tbl">' + ppRow("Numm", b.name) + ppRow("E-Mail", b.email) + ppRow("Telefon", b.phone) + "</table></div>" +
-        '<div class="pp-sec"><h3>Verleihobjet</h3><table class="pp-tbl">' + carRows + "</table></div>" +
+        '<div class="pp-sec"><h3>Locatiounsobjet</h3><table class="pp-tbl">' + carRows + "</table></div>" +
         "</div>" +
-        '<div class="pp-sec"><h3>Mietperiod</h3><table class="pp-tbl">' + ppRow("Vun", fmt(b.from)) + ppRow("Bis", fmt(b.to)) + "</table></div>" +
+        '<div class="pp-sec"><h3>Locatiounszäitraum</h3><table class="pp-tbl">' + ppRow("Vun", fmt(b.from)) + ppRow("Bis", fmt(b.to)) + "</table></div>" +
         '<div class="pp-sec"><h3>Zoustand bei der ' + (pickup ? "Iwwergab" : "Retour") + '</h3><table class="pp-tbl">' + stateRows + "</table>" +
         (condition ? '<p><strong>Allgemengen Zoustand:</strong> ' + esc(condition) + "</p>" : "") +
         (damage ? '<p><strong>Schied / Feststellungen:</strong> ' + esc(damage) + "</p>" : "") +
-        (function(){var raw=$(p+'damage-markers'),marks=[];try{marks=damageMarkers(JSON.parse(raw?raw.value:'[]'));}catch(e){}return '<div class="pp-damage"><strong>Visuell Schuedmarkéierungen</strong>'+damageDiagramSvg(marks,diagramKind,false)+(marks.length?'<ol>'+marks.map(function(m){return '<li><b>'+esc(m.type||'Schued')+':</b> '+esc(m.note||'keng Zousaznotiz')+'</li>';}).join('')+'</ol>':'<p class="pp-no-damage">Keng Schued op der Skizz markéiert.</p>')+'</div>';})() +
+        (function(){var raw=$(p+'damage-markers'),marks=[];try{marks=damageMarkers(JSON.parse(raw?raw.value:'[]'));}catch(e){}return '<div class="pp-damage"><strong>Visuell Schuedmarkéierungen</strong>'+damageDiagramSvg(marks,diagramKind,false)+(marks.length?'<ol>'+marks.map(function(m){return '<li><b>'+esc(m.type||'Schued')+':</b> '+esc(m.note||'keng Zousaznotiz')+'</li>';}).join('')+'</ol>':'<p class="pp-no-damage">Kee Schued op der Skizz markéiert.</p>')+'</div>';})() +
         (accessories ? '<p><strong>Schlësselen, Dokumenter an Ekipement:</strong> ' + esc(accessories) + "</p>" : "") +
         "</div>" +
         photoHtml +
         '<div class="pp-sec pp-terms"><h3>Bestätegung</h3><p>Dëse Protokoll dokumentéiert de gemeinsam festgestallten Zoustand beim ' + (pickup?'Ufank':'Enn') + ' vun der Locatioun. D’Ënnerschrëft bestätegt d’Kontroll an déi hei festgehalen Informatiounen.</p></div>' +
-        '<div class="pp-sign"><div><span class="pp-sigbox">' + (sigUrl ? '<img src="' + sigUrl + '" alt="">' : "") + '</span><div class="pp-sigline">Ënnerschrëft Client · ' + esc(b.name) + "</div></div>" +
+        '<div class="pp-sign"><div><span class="pp-sigbox">' + (sigUrl ? '<img src="' + sigUrl + '" alt="">' : "") + '</span><div class="pp-sigline">Ënnerschrëft vum Client · ' + esc(b.name) + "</div></div>" +
         '<div><span class="pp-sigbox">' + (staffSigUrl ? '<img src="' + staffSigUrl + '" alt="">' : "") + '</span><div class="pp-sigline">Autoservice Bettenduerf</div></div></div>' +
         '<footer class="pp-foot">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87 · autoservicebettenduerf.lu</footer>' +
         "</div></div>";
@@ -324,12 +324,12 @@
       function stageHtml(x,pickupStage){
         var c=inspectionChecklist(x),photos=protocolPhotoList(x.photoRefs),checks=[c.documentsChecked?"Dokumenter":"",c.lightsChecked?"Beliichtung":"",c.tyresChecked?"Pneuen/Rieder":"",c.jointInspection?"zesumme mam Client":""].filter(Boolean).join(", ");
         var rows=ppRow("Datum / Zäit",fmt(x.inspectedAt))+ppRow("Kilometerstand",trailer?"":(x.odometer==null?"":x.odometer+" km"))+ppRow("Brennstoff- / Luedstand",trailer?"":x.fuelLevel)+ppRow("Schlësselen",c.keyCount)+ppRow("Propretéit",c.cleanliness)+ppRow("Kontrolléiert",checks)+(pickupStage?ppRow("Führerschäin & Identitéit",yn(x.licenseChecked)):ppRow("Zousaz-Kilometer",x.extraKm==null?"":x.extraKm+" km ("+eurTxt(kmEur(x.extraKm,protocolKmRate))+")")+ppRow("Aner Käschten",x.extraCosts==null?"":eurTxt(x.extraCosts))+ppRow("Zousaz total",(kmEur(x.extraKm,protocolKmRate)+(Number(x.extraCosts)||0))?eurTxt(kmEur(x.extraKm,protocolKmRate)+(Number(x.extraCosts)||0)):""));
-        var marks=damageMarkers(c.damageMarkers),map='<div class="pp-damage"><strong>Visuell Schuedmarkéierungen</strong>'+damageDiagramSvg(marks,diagramKind,false)+(marks.length?'<ol>'+marks.map(function(m){return '<li><b>'+esc(m.type||'Schued')+':</b> '+esc(m.note||'keng Zousaznotiz')+'</li>';}).join('')+'</ol>':'<p class="pp-no-damage">Keng Schued op der Skizz markéiert.</p>')+'</div>';
+        var marks=damageMarkers(c.damageMarkers),map='<div class="pp-damage"><strong>Visuell Schuedmarkéierungen</strong>'+damageDiagramSvg(marks,diagramKind,false)+(marks.length?'<ol>'+marks.map(function(m){return '<li><b>'+esc(m.type||'Schued')+':</b> '+esc(m.note||'keng Zousaznotiz')+'</li>';}).join('')+'</ol>':'<p class="pp-no-damage">Kee Schued op der Skizz markéiert.</p>')+'</div>';
         return '<section class="pp-stage"><div class="pp-stage-title"><span>'+(pickupStage?"1":"2")+'</span><div><small>'+(pickupStage?"UFANK VUN DER LOCATIOUN":"ENN VUN DER LOCATIOUN")+'</small><h2>'+(pickupStage?"Iwwergab":"Retour")+'</h2></div></div><div class="pp-sec"><h3>Zoustand</h3><table class="pp-tbl">'+rows+'</table>'+(x.conditionNote?'<p><strong>Allgemengen Zoustand:</strong> '+esc(x.conditionNote)+'</p>':"")+(x.damageNote?'<p><strong>'+(pickupStage?"Besteeënd":"Nei")+' Schied / Feststellungen:</strong> '+esc(x.damageNote)+'</p>':"")+map+(x.accessories?'<p><strong>Schlësselen, Dokumenter an Ekipement:</strong> '+esc(x.accessories)+'</p>':"")+'</div>'+(photos.length?'<div class="pp-sec"><h3>Fotodokumentatioun · '+photos.length+' Foto(en)</h3><div class="pp-photos">'+photos.map(function(u,i){return '<img src="'+u+'" alt="'+(pickupStage?"Iwwergab":"Retour")+' Foto '+(i+1)+'">';}).join("")+'</div></div>':"")+'<div class="pp-sign pp-sign-single"><div><span class="pp-sigbox">'+(x.customerSignature?'<img src="'+x.customerSignature+'" alt="Ënnerschrëft Client">':'')+'</span><div class="pp-sigline">Ënnerschrëft Client · '+esc(b.name)+'</div></div><div><span class="pp-sigbox">'+(x.staffSignature?'<img src="'+x.staffSignature+'" alt="Ënnerschrëft Verléiner">':'')+'</span><div class="pp-sigline">Autoservice Bettenduerf</div></div></div></section>';
       }
       var distance="";if(!trailer&&pickup.odometer!=null&&returned.odometer!=null&&Number(returned.odometer)>=Number(pickup.odometer))distance=(Number(returned.odometer)-Number(pickup.odometer))+" km";
-      var carRows=ppRow("Verleihobjet",b.veh)+ppRow("Typ",trailer?"Unhänger":(f.type==="car"?"Auto":"Transporter"))+ppRow("Baujoer",f.year)+ppRow("Brennstoff / Undriff",trailer?"":f.fuel)+ppRow(trailer?"Dimensiounen":"Luedraum",f.loadSpace)+ppRow("Führerschäin",f.licenseClass);
-      var html='<div class="pp-doc pp-combined"><div class="pp-head"><img class="pp-logo" src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf"><div class="pp-co"><strong>Autoservice Bettenduerf</strong><br>63, rue de Diekirch-Echternach · L-9355 Bettendorf<br>+352 80 86 87 · Autoservicebettenduerf@outlook.com</div></div><div class="pp-accent"></div><div class="pp-main"><div class="pp-titlebar"><h1>Ofschlossprotokoll</h1><div class="pp-ref">Réf. '+esc(ref)+'<br>'+esc(fmt(new Date().toISOString()))+'</div></div><div class="pp-cols"><div class="pp-sec"><h3>Client</h3><table class="pp-tbl">'+ppRow("Numm",b.name)+ppRow("E-Mail",b.email)+ppRow("Telefon",b.phone)+'</table></div><div class="pp-sec"><h3>Verleihobjet</h3><table class="pp-tbl">'+carRows+'</table></div></div><div class="pp-sec"><h3>Locatioun</h3><table class="pp-tbl">'+ppRow("Vun",fmt(b.from))+ppRow("Bis",fmt(b.to))+ppRow("Gefuer Distanz",distance)+'</table></div>'+stageHtml(pickup,true)+stageHtml(returned,false)+'<div class="pp-sec pp-terms"><h3>Bestätegung</h3><p>Dëst Ofschlossprotokoll vereent d’Iwwergab an d’Retour. Déi zwou Ënnerschrëfte bestätegen déi jeeweils zesumme kontrolléiert an dokumentéiert Zoustänn.</p></div><footer class="pp-foot">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87 · autoservicebettenduerf.lu</footer></div></div>';
+      var carRows=ppRow("Locatiounsobjet",b.veh)+ppRow("Typ",trailer?"Unhänger":(f.type==="car"?"Auto":"Transporter"))+ppRow("Baujoer",f.year)+ppRow("Brennstoff / Undriff",trailer?"":f.fuel)+ppRow(trailer?"Dimensiounen":"Luedraum",f.loadSpace)+ppRow("Führerschäin",f.licenseClass);
+      var html='<div class="pp-doc pp-combined"><div class="pp-head"><img class="pp-logo" src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf"><div class="pp-co"><strong>Autoservice Bettenduerf</strong><br>63, rue de Diekirch-Echternach · L-9355 Bettendorf<br>+352 80 86 87 · Autoservicebettenduerf@outlook.com</div></div><div class="pp-accent"></div><div class="pp-main"><div class="pp-titlebar"><h1>Ofschlossprotokoll</h1><div class="pp-ref">Réf. '+esc(ref)+'<br>'+esc(fmt(new Date().toISOString()))+'</div></div><div class="pp-cols"><div class="pp-sec"><h3>Client</h3><table class="pp-tbl">'+ppRow("Numm",b.name)+ppRow("E-Mail",b.email)+ppRow("Telefon",b.phone)+'</table></div><div class="pp-sec"><h3>Locatiounsobjet</h3><table class="pp-tbl">'+carRows+'</table></div></div><div class="pp-sec"><h3>Locatioun</h3><table class="pp-tbl">'+ppRow("Vun",fmt(b.from))+ppRow("Bis",fmt(b.to))+ppRow("Gefuer Distanz",distance)+'</table></div>'+stageHtml(pickup,true)+stageHtml(returned,false)+'<div class="pp-sec pp-terms"><h3>Bestätegung</h3><p>Dëst Ofschlossprotokoll vereent d’Iwwergab an de Retour. Déi zwou Ënnerschrëfte bestätegen déi jeeweils zesumme kontrolléiert an dokumentéiert Zoustänn.</p></div><footer class="pp-foot">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87 · autoservicebettenduerf.lu</footer></div></div>';
       if (isStandalonePWA()) { openDocStandalone(html); return; }
       var root=$("protocol-print-root");root.innerHTML='<div class="pp-bar pp-noprint"><span class="pp-hint" id="pp-status">Biller gi fir d’PDF virbereet …</span><button type="button" class="btn btn-primary btn-sm" id="pp-print" disabled>🖨️ Drécken / PDF</button><button type="button" class="btn btn-ghost btn-sm" id="pp-close">Zoumaachen</button></div>'+html;root.classList.add("open");document.body.classList.add("protocol-printing");document.body.style.overflow="hidden";
       function close(){root.classList.remove("open");document.body.classList.remove("protocol-printing");document.body.style.overflow="";root.innerHTML="";}$("pp-close").addEventListener("click",close);root.addEventListener("click",function(e){if(e.target===root)close();});
@@ -347,9 +347,9 @@
   var DOC_I18N = {
     lb: { title:"Locatiounsvertrag", ref:"Réf.", secVermieter:"Verléiner", secMieter:"Locataire", secObjet:"Locatiounsobjet", secPeriod:"Locatiounszäitraum", secPrix:"Präis, Kautioun a Bezuelung", secTerms:"Konditiounen",
       firma:"Firma", adr:"Adress", tel:"Telefon", email:"E-Mail", rcs:"RCS / TVA", numm:"Numm", adrMieter:"Adress", dob:"Gebuertsdatum", licNo:"Führerschäin-Nr.", idNo:"Ausweis-Nr.",
-      gefier:"Gefier", plaque:"Immatrikulatioun", typ:"Typ", baujoer:"Baujoer", kraftstoff:"Kraftstoff", fs:"Führerschäin", kmStart:"Kilometerstand bei der Iwwergab",
+      gefier:"Gefier", plaque:"Immatrikulatioun", typ:"Typ", baujoer:"Baujoer", kraftstoff:"Brennstoff", fs:"Führerschäin", kmStart:"Kilometerstand bei der Iwwergab",
       vun:"Vun", bis:"Bis", plaz:"Ofhuel- a Retourplaz", plazVal:"Autoservice Bettenduerf · Bettendorf",
-      dag:"Dagespräis", dauer:"Locatiounsdauer", preis:"Locatiounspräis (viraussiichtlech)", inclKm:"Abegraff Kilometer", inclKmVal:"{included} km pro Locatioun", zKm:"Zousaz-km", perKm:"/ km", kaut:"Kautioun", bez:"Bezuelung", bezVal:"beim Retour vum Gefier", versp:"Verspéidung", verspVal:"{late} pro ugefaangener Stonn", tank:"Tanken", tankVal:"vollgetankt zréck, soss Volltank + 50 €", h24:"× 24 h",
+      dag:"Dagespräis", dauer:"Locatiounsdauer", preis:"Locatiounspräis (viraussiichtlech)", inclKm:"Abegraff Kilometer", inclKmVal:"{included} km pro Locatioun", zKm:"Zousaz-km", perKm:"/ km", kaut:"Kautioun", bez:"Bezuelung", bezVal:"beim Retour vum Gefier", versp:"Verspéidung", verspVal:"{late} pro ugefaangener Stonn", tank:"Tanken", tankVal:"vollgetankt zréckbréngen, soss Tankkäschten + 50 €", h24:"× 24 h",
       typVan:"Transporter", typCar:"Auto", typTrailer:"Unhänger",
       dims:"Dimensiounen", gvw:"Gesamtgewiicht", payload:"Notzlaascht", brake:"Brems", braked:"Gebremst", unbraked:"Ongebremst", retCond:"Retour", retCondVal:"propper a sécher zréckbréngen", clause4Trailer:"<b>Retour & Zoustand.</b> Den Unhänger muss propper a betribsécher zréckkommen; d'Luedung muss uerdnungsgeméiss geséchert ginn. Schied oder feelend Deeler ginn no den tatsächleche Käschte verrechent.",
       place:"Zu Bettendorf, den", signMieter:"Ënnerschrëft vum Locataire", signVermieter:"Ënnerschrëft vum Verléiner",
@@ -360,10 +360,10 @@
       clauses:[
         "<b>Ofschloss vum Vertrag.</b> Mat der Ënnerschrëft gëtt dëse Locatiounsvertrag verbindlech. De Locataire bestätegt, datt hien d'Gefier am Zoustand vum Iwwergabprotokoll iwwerholl huet.",
         "<b>Chauffeur.</b> E gültegt Identitéitsdokument an deen néidege Führerschäin goufe virgeluecht. D'Gefier dierf nëmme vun de Persoune gefouert ginn, déi an dësem Vertrag agedroe sinn.",
-        "<b>Notzung.</b> Suergfälteg a bestëmmungsgeméiss Notzung. Keen Iwwerlueden, keng Weiderverlounung, keng rechtswiddreg Notzung. Fuere mat Unhänger oder am Ausland nëmme mat ausdrécklecher Erlaabnes.",
+        "<b>Notzung.</b> Suergfälteg a bestëmmungsgeméiss Notzung. Keen Iwwerlueden, keng Weiderverlounung, keng rechtswiddreg Notzung. Faarten mat engem Unhänger oder an d'Ausland nëmme mat ausdrécklecher Erlaabnes.",
         "<b>Kilometer & Tanken.</b> {included} km pro Locatioun sinn abegraff; all weidere Kilometer gëtt mat {km} verrechent. D'Gefier muss vollgetankt zréckbruecht ginn, soss ginn d'Tankkäschten + 50 € Pauschal verrechent.",
         "<b>Retour & Verspéidung.</b> Retour zu der vereinbarter Zäit an op der vereinbarter Plaz. Pro ugefaangener Stonn Verspéidung gëtt {late} verrechent.",
-        "<b>Kautioun & Bezuelung.</b> D'Kautioun gëtt virum Ufank festgehalen; d'Bezuelung geschitt bei der Retour vum Gefier.",
+        "<b>Kautioun & Bezuelung.</b> D'Kautioun gëtt virum Ufank festgehalen; d'Bezuelung geschitt beim Retour vum Gefier.",
         "<b>Assurance & Haftung.</b> Bei Accident, Pann, Déifstall oder Schued muss Autoservice Bettenduerf direkt informéiert ginn; keng Reparatur ouni Zoustëmmung. Zwingend gesetzlech Rechter bleiwen onberéiert.",
         "<b>Dateschutz.</b> D'perséinlech Donnéeë ginn eleng fir d'Ofwécklung vun der Locatioun veraarbecht (cf. Dateschutzerklärung op autoservicebettenduerf.lu)."
       ] },
@@ -371,7 +371,7 @@
       firma:"Firma", adr:"Adresse", tel:"Telefon", email:"E-Mail", rcs:"RCS / USt-IdNr.", numm:"Name", adrMieter:"Adresse", dob:"Geburtsdatum", licNo:"Führerschein-Nr.", idNo:"Ausweis-Nr.",
       gefier:"Fahrzeug", plaque:"Kennzeichen", typ:"Typ", baujoer:"Baujahr", kraftstoff:"Kraftstoff", fs:"Führerschein", kmStart:"Kilometerstand bei Übergabe",
       vun:"Von", bis:"Bis", plaz:"Abhol- und Rückgabeort", plazVal:"Autoservice Bettenduerf · Bettendorf",
-      dag:"Tagespreis", dauer:"Mietdauer", preis:"Mietpreis (voraussichtlich)", inclKm:"Inbegriffene Kilometer", inclKmVal:"{included} km pro Miete", zKm:"Mehrkilometer", perKm:"/ km", kaut:"Kaution", bez:"Zahlung", bezVal:"bei Rückgabe des Fahrzeugs", versp:"Verspätung", verspVal:"{late} je angefangene Stunde", tank:"Betankung", tankVal:"vollgetankt zurück, sonst Volltankung + 50 €", h24:"× 24 h",
+      dag:"Tagespreis", dauer:"Mietdauer", preis:"Mietpreis (voraussichtlich)", inclKm:"Enthaltene Kilometer", inclKmVal:"{included} km pro Miete", zKm:"Mehrkilometer", perKm:"/ km", kaut:"Kaution", bez:"Zahlung", bezVal:"bei Rückgabe des Fahrzeugs", versp:"Verspätung", verspVal:"{late} je angefangene Stunde", tank:"Betankung", tankVal:"vollgetankt zurück, sonst Volltankung + 50 €", h24:"× 24 h",
       typVan:"Transporter", typCar:"Auto", typTrailer:"Anhänger",
       dims:"Abmessungen", gvw:"Gesamtgewicht", payload:"Nutzlast", brake:"Bremse", braked:"Gebremst", unbraked:"Ungebremst", retCond:"Rückgabe", retCondVal:"sauber und sicher zurückbringen", clause4Trailer:"<b>Rückgabe & Zustand.</b> Der Anhänger ist sauber und betriebssicher zurückzugeben; die Ladung ist ordnungsgemäß zu sichern. Schäden oder fehlende Teile werden nach Aufwand berechnet.",
       place:"Bettendorf, den", signMieter:"Unterschrift Mieter", signVermieter:"Unterschrift Vermieter",
@@ -395,7 +395,7 @@
       vun:"Du", bis:"Au", plaz:"Lieu d'enlèvement et de retour", plazVal:"Autoservice Bettenduerf · Bettendorf",
       dag:"Tarif journalier", dauer:"Durée", preis:"Prix de location (estimé)", inclKm:"Kilomètres inclus", inclKmVal:"{included} km par location", zKm:"Km supplémentaires", perKm:"/ km", kaut:"Caution", bez:"Paiement", bezVal:"au retour du véhicule", versp:"Retard", verspVal:"{late} par heure entamée", tank:"Carburant", tankVal:"rendu plein, sinon plein + 50 €", h24:"× 24 h",
       typVan:"Utilitaire", typCar:"Voiture", typTrailer:"Remorque",
-      dims:"Dimensions", gvw:"Poids total", payload:"Charge utile", brake:"Frein", braked:"Freinée", unbraked:"Non freinée", retCond:"Retour", retCondVal:"rendre propre et sécurisé", clause4Trailer:"<b>Retour & état.</b> La remorque doit être rendue propre et en bon état de marche ; le chargement doit être correctement arrimé. Les dommages ou pièces manquantes sont facturés selon les frais.",
+      dims:"Dimensions", gvw:"Poids total", payload:"Charge utile", brake:"Frein", braked:"Freinée", unbraked:"Non freinée", retCond:"Retour", retCondVal:"rendre propre et en bon état", clause4Trailer:"<b>Retour & état.</b> La remorque doit être rendue propre et en bon état de marche ; le chargement doit être correctement arrimé. Les dommages ou pièces manquantes sont facturés selon les coûts réels.",
       place:"À Bettendorf, le", signMieter:"Signature locataire", signVermieter:"Signature loueur",
       prep:"Document en préparation …", ready:"Prêt — imprimez ou enregistrez en PDF.", printBtn:"🖨️ Imprimer / PDF", closeBtn:"Fermer",
       pTitlePickup:"Procès-verbal de remise", pTitleReturn:"Procès-verbal de retour", pClient:"Client", pStatePickup:"État à la remise", pStateReturn:"État au retour",
@@ -415,9 +415,9 @@
       firma:"Company", adr:"Address", tel:"Phone", email:"E-mail", rcs:"RCS / VAT", numm:"Name", adrMieter:"Address", dob:"Date of birth", licNo:"Licence no.", idNo:"ID no.",
       gefier:"Vehicle", plaque:"Registration", typ:"Type", baujoer:"Year", kraftstoff:"Fuel", fs:"Licence", kmStart:"Odometer at handover",
       vun:"From", bis:"Until", plaz:"Collection and return location", plazVal:"Autoservice Bettenduerf · Bettendorf",
-      dag:"Daily rate", dauer:"Duration", preis:"Rental price (estimated)", inclKm:"Included kilometres", inclKmVal:"{included} km per rental", zKm:"Extra km", perKm:"/ km", kaut:"Deposit", bez:"Payment", bezVal:"on return of the vehicle", versp:"Late return", verspVal:"{late} per started hour", tank:"Fuel", tankVal:"return full, otherwise full tank + €50", h24:"× 24 h",
+      dag:"Daily rate", dauer:"Duration", preis:"Rental price (estimated)", inclKm:"Included kilometres", inclKmVal:"{included} km per rental", zKm:"Extra km", perKm:"/ km", kaut:"Deposit", bez:"Payment", bezVal:"on return of the vehicle", versp:"Late return", verspVal:"{late} per hour or part thereof", tank:"Fuel", tankVal:"return with a full tank; otherwise, fuel costs + €50", h24:"× 24 h",
       typVan:"Van", typCar:"Car", typTrailer:"Trailer",
-      dims:"Dimensions", gvw:"Gross weight", payload:"Payload", brake:"Brake", braked:"Braked", unbraked:"Unbraked", retCond:"Return", retCondVal:"return clean and secured", clause4Trailer:"<b>Return & condition.</b> The trailer must be returned clean and roadworthy; the load must be properly secured. Damage or missing parts are charged according to cost.",
+      dims:"Dimensions", gvw:"Gross weight", payload:"Payload", brake:"Brake", braked:"Braked", unbraked:"Unbraked", retCond:"Return", retCondVal:"return clean and safe", clause4Trailer:"<b>Return & condition.</b> The trailer must be returned clean and roadworthy; the load must be properly secured. Damage or missing parts are charged at actual cost.",
       place:"Bettendorf, on", signMieter:"Renter signature", signVermieter:"Lessor signature",
       prep:"Preparing document …", ready:"Ready — print or save as PDF.", printBtn:"🖨️ Print / PDF", closeBtn:"Close",
       pTitlePickup:"Handover protocol", pTitleReturn:"Return protocol", pClient:"Customer", pStatePickup:"Condition at handover", pStateReturn:"Condition at return",
@@ -660,7 +660,7 @@
     if (!can("bookings.validate")) return;
     var patch = { veh: $("eb-veh").value.trim(), from: $("eb-from").value, to: $("eb-to").value, name: $("eb-name").value.trim(), email: $("eb-email").value.trim(), phone: $("eb-phone").value.trim(), msg: $("eb-msg").value.trim() };
     if (!patch.veh || !patch.name || !patch.from || !patch.to) { toast("Gefier, Numm, Vun a Bis mussen ausgefëllt sinn."); return; }
-    if (patch.to <= patch.from) { toast("D'Enddatum muss nom Ufanksdatum leien."); return; }
+    if (patch.to <= patch.from) { toast("Den Enddatum muss nom Ufanksdatum leien."); return; }
     STORE.editBooking(id, patch).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } editingBooking = null; toast("Reservatioun " + refOf(id) + " geännert."); renderBookings(); });
   }
   function matchQuery(b) { if (!bookingQuery) return true; var q = bookingQuery.toLowerCase(); return (refOf(b.id) + " " + (b.veh || "") + " " + (b.name || "") + " " + (b.email || "") + " " + (b.phone || "")).toLowerCase().indexOf(q) !== -1; }
@@ -1237,7 +1237,7 @@
     syncFleetType(); showFleetPhoto("");
     $("fleet-overlay").hidden = true;
     $("fleet-block-mgr").hidden = true;
-    $("wartung-form-title").textContent = "Verleihobjet an d'Flotte bäisetzen";
+    $("wartung-form-title").textContent = "Locatiounsobjet an d'Flotte bäisetzen";
     $("w-submit").textContent = "Bäisetzen";
     $("wartung-msg").textContent = "";
     $("w-image-status").textContent = "D'Bild gëtt virum Eroplueden automatesch verkleinert.";
@@ -1291,7 +1291,7 @@
       var body=$("wartung-body"); body.innerHTML="";
       fleetCache = items;
       (function(){ var sel=$("blank-doc-veh"); if(!sel)return; var keep=sel.value; Array.prototype.slice.call(sel.querySelectorAll('option[value^="id:"]')).forEach(function(o){o.remove();}); items.forEach(function(m){ var o=document.createElement("option"); o.value="id:"+m.id; o.textContent=m.vehicle+" ("+fleetTypeLabel(m.type)+")"; sel.appendChild(o); }); try{sel.value=keep;}catch(e){} })();
-      if(!items.length){body.innerHTML='<p class="empty">Nach kee Verleihobjet an der Flotte.</p>';return;}
+      if(!items.length){body.innerHTML='<p class="empty">Nach kee Locatiounsobjet an der Flotte.</p>';return;}
       items.forEach(function(m){var fs=fleetStatus(m.status),card=document.createElement("article"),ic=m.type==="trailer"?"🛻":(m.type==="car"?"🚗":"🚐");card.className="fleet-card";if(canEdit){card.setAttribute("data-mopen",m.id);card.setAttribute("role","button");card.setAttribute("tabindex","0");card.setAttribute("aria-label",m.vehicle+" – Detailer opmaachen");}card.innerHTML=(m.imageUrl?'<img src="'+esc(fleetImageSrc(m.imageUrl))+'" alt="'+esc(m.vehicle)+'">':'<div class="stat-ic">'+ic+'</div>')+'<div><h3>'+esc(m.vehicle)+'</h3><span class="fleet-status fleet-'+fs[1]+'">'+fs[0]+'</span> <span class="fleet-private">'+fleetTypeLabel(m.type)+'</span> <span class="'+(m.active?'fleet-public':'fleet-private')+'">'+(m.active?'● Online sichtbar':'○ Intern')+'</span><p>'+esc(m.description||'Keng ëffentlech Beschreiwung')+'</p><p>'+esc(m.service||'Nach Bedarf')+(m.dueDate?' · '+dLabel(m.dueDate):'')+(m.priceDay!==''?' · '+esc(m.priceDay)+' €/Dag':'')+'</p></div><div class="fleet-actions">'+(canEdit?'<span class="fleet-open-hint">Detailer ›</span> <button class="btn btn-danger btn-sm" data-mdel="'+m.id+'">Läschen</button>':'')+'</div>';body.appendChild(card);});
       function openCard(el){var id=parseInt(el.getAttribute("data-mopen"),10),m=items.filter(function(x){return x.id===id;})[0];if(m)openFleetForm(m);}
       body.querySelectorAll("[data-mopen]").forEach(function(c){c.addEventListener("click",function(){openCard(c);});c.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openCard(c);}});});
@@ -1313,7 +1313,7 @@
     $("fb-add").addEventListener("click", function () {
       if (!can("bookings.validate") || !blockVehicle) return;
       var from = $("fb-from").value, to = $("fb-to").value || from;
-      if (!from) { $("fb-msg").textContent = "Wiel op mannst den Ufanksdatum."; return; }
+      if (!from) { $("fb-msg").textContent = "Wiel op d'mannst den Ufanksdatum."; return; }
       if (to < from) { $("fb-msg").textContent = "D'Enndatum däerf net virum Ufank leien."; return; }
       $("fb-msg").textContent = "…";
       STORE.addFleetBlock({ vehicle: blockVehicle, from: from, to: to, reason: $("fb-reason").value.trim() }).then(function (r) {
@@ -1323,7 +1323,7 @@
     });
     f.addEventListener("submit", function (e) {
       e.preventDefault(); if (!can("bookings.validate")) return;
-      var data=fleetPayload(); if(!data.vehicle){$("wartung-msg").textContent="Den Numm vum Verleihobjet muss ausgefëllt sinn.";return;}
+      var data=fleetPayload(); if(!data.vehicle){$("wartung-msg").textContent="Den Numm vum Locatiounsobjet muss ausgefëllt sinn.";return;}
       $("wartung-msg").textContent = "…";
       var op=editingMaint?STORE.editMaintenance(editingMaint,data):STORE.addMaintenance(data); op.then(function (r) {
         if (r.error) { $("wartung-msg").textContent = errMsg(r.error); return; }
@@ -1471,7 +1471,7 @@
     e.preventDefault();
     if (!can("members.manage")) return;
     var username = $("m-user").value.trim().toLowerCase(), name = $("m-name").value.trim(), role = $("m-role").value;
-    if (!/^[a-z0-9._-]{3,}$/.test(username)) { $("add-msg").textContent = "Benotzernumm: op mannst 3 Zeechen (Klengbuschtawen, Zuelen, . _ -)."; return; }
+    if (!/^[a-z0-9._-]{3,}$/.test(username)) { $("add-msg").textContent = "Benotzernumm: op d'mannst 3 Zeechen (Klengbuschtawen, Zuelen, . _ -)."; return; }
     $("add-msg").textContent = "…";
     STORE.addMember(username, name, role).then(function (r) {
       if (r.error) { $("add-msg").textContent = errMsg(r.error); return; }

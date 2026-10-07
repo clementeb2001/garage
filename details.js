@@ -1,4 +1,4 @@
-/* Autoservice Bettenduerf – Service-Detailer (mehrsprocheg) */
+/* Autoservice Bettenduerf – Service-Detailer (méissproocheg) */
 (function () {
   var DLAB = {
     lb: {
@@ -88,7 +88,7 @@
       controle: {
         title: "Contrôle technique",
         intro:
-          "Mir preparéieren Äre Won optimal op de Contrôle technique vir – a begleeden Iech bei de Rendez-vous.",
+          "Mir preparéieren Äre Won optimal op de Contrôle technique vir – a begleeden Iech op de Rendez-vous.",
         points: [
           "Kontroll vun alle relevante Punkten am Viraus",
           "Behiewe vu klenge Mängel virum Contrôle",

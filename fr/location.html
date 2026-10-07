@@ -30,7 +30,7 @@
     <meta property="og:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Autoservice Bettenduerf – Werkstatt und Firmenlogo" />
+    <meta property="og:image:alt" content="Autoservice Bettenduerf – atelier et logo de l’entreprise" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://autoservicebettenduerf.lu/assets/social-preview.jpg" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
@@ -71,14 +71,14 @@
         <button
           class="nav-toggle"
           id="nav-toggle"
-          aria-label="Menü"
+          aria-label="Menu"
           aria-expanded="false"
           aria-controls="main-nav"
         >
           <span></span><span></span><span></span>
         </button>
 
-        <nav class="main-nav" id="main-nav" aria-label="Navigatioun">
+        <nav class="main-nav" id="main-nav" aria-label="Navigation">
           <a href="index.html#leistungen" data-i18n="nav_services">Prestations</a>
           <a href="index.html#ueber-uns" data-i18n="nav_about">À propos</a>
           <a href="index.html#oeffnungszeiten" data-i18n="nav_hours">Horaires</a>
@@ -89,7 +89,7 @@
             <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · bientôt</span></a>
           </div>
           <div class="menu-language">
-            <span class="menu-language-label">🌐 Sprooch</span>
+            <span class="menu-language-label">🌐 Langue</span>
             <div class="lang-switch">
               <select class="lang-select" aria-label="Sprooch / Sprache / Langue / Language">
                 <option value="lb">🇱🇺 Lëtzebuergesch</option>
@@ -108,15 +108,15 @@
       <section class="rental-hero">
         <div class="rental-hero-bg" aria-hidden="true"></div>
         <div class="container">
-          <p class="eyebrow light" id="rental-eyebrow">Location · Verlee</p>
+          <p class="eyebrow light" id="rental-eyebrow">Location</p>
           <h1 id="rental-title">Louer des véhicules et remorques</h1>
           <p class="rental-sub" id="rental-sub">
-            Wielt Ären Unhänger oder Äert Gefier aus, gitt Äre Reservéierungszäitraum un – mir bestätegen Iech Är Ufro.
+            Choisissez votre véhicule ou votre remorque et indiquez la période de location – nous confirmerons personnellement votre demande.
           </p>
-          <div class="rental-filter" id="rental-filter" role="group" aria-label="Kategorie" hidden>
-            <button type="button" class="rental-chip active" data-cat="all" aria-pressed="true"><span data-i18n="rental_cat_all">Alles</span></button>
-            <button type="button" class="rental-chip" data-cat="vehicle" aria-pressed="false"><span data-i18n="rental_cat_vehicle">Gefierer</span></button>
-            <button type="button" class="rental-chip" data-cat="trailer" aria-pressed="false"><span data-i18n="rental_cat_trailer">Unhänger</span></button>
+          <div class="rental-filter" id="rental-filter" role="group" aria-label="Catégorie" hidden>
+            <button type="button" class="rental-chip active" data-cat="all" aria-pressed="true"><span data-i18n="rental_cat_all">Tout</span></button>
+            <button type="button" class="rental-chip" data-cat="vehicle" aria-pressed="false"><span data-i18n="rental_cat_vehicle">Véhicules</span></button>
+            <button type="button" class="rental-chip" data-cat="trailer" aria-pressed="false"><span data-i18n="rental_cat_trailer">Remorques</span></button>
           </div>
         </div>
       </section>
@@ -132,38 +132,38 @@
       <section class="rental-reserve" id="reserve">
         <div class="container rental-reserve-inner">
           <div class="rental-summary">
-            <p class="rental-step" id="rental-step-1">Schrëtt 1 vun 3 · Auswiel an Zäitraum</p>
-            <h2 id="rental-sel-h">Är Auswiel</h2>
-            <p class="rental-empty" id="rental-empty">Nach näischt ausgewielt. Wielt uewen Äert Material aus.</p>
-            <p class="rental-availability-note" id="rental-availability-note">De Live-Kalenner weist déi aktuell Beleeung. Mir bestätegen all Ufro nach eemol perséinlech.</p>
+            <p class="rental-step" id="rental-step-1">Étape 1 sur 3 · Sélection et période</p>
+            <h2 id="rental-sel-h">Votre sélection</h2>
+            <p class="rental-empty" id="rental-empty">Rien de sélectionné. Choisissez votre matériel ci-dessus.</p>
+            <p class="rental-availability-note" id="rental-availability-note">Le calendrier en direct indique les disponibilités actuelles. Nous confirmons personnellement chaque demande.</p>
             <ul class="rental-sel-list" id="rental-sel-list"></ul>
             <section class="rental-calendar" id="rental-calendar" aria-labelledby="rental-calendar-title" hidden>
               <div class="rental-calendar-head">
                 <div>
-                  <p class="rental-calendar-kicker" id="rental-calendar-kicker">Live-Disponibilitéit</p>
-                  <h3 id="rental-calendar-title">Fräi Datumer kucken</h3>
+                  <p class="rental-calendar-kicker" id="rental-calendar-kicker">Disponibilité en direct</p>
+                  <h3 id="rental-calendar-title">Voir les dates disponibles</h3>
                 </div>
                 <div class="rental-calendar-nav">
-                  <button type="button" id="rental-calendar-prev" aria-label="Mount virdrun">‹</button>
+                  <button type="button" id="rental-calendar-prev" aria-label="Mois précédent">‹</button>
                   <strong id="rental-calendar-month" aria-live="polite"></strong>
-                  <button type="button" id="rental-calendar-next" aria-label="Nächste Mount">›</button>
+                  <button type="button" id="rental-calendar-next" aria-label="Mois suivant">›</button>
                 </div>
               </div>
-              <p class="rental-calendar-help" id="rental-calendar-help">Wielt fir d’éischt den Ufanksdag an duerno den Enndag.</p>
+              <p class="rental-calendar-help" id="rental-calendar-help">Sélectionnez d’abord le jour de début, puis le jour de fin.</p>
               <div class="rental-calendar-weekdays" id="rental-calendar-weekdays" aria-hidden="true"></div>
               <div class="rental-calendar-grid" id="rental-calendar-grid" role="grid"></div>
               <div class="rental-calendar-legend" id="rental-calendar-legend">
-                <span><i class="is-free"></i><b id="rental-calendar-free">Fräi</b></span>
+                <span><i class="is-free"></i><b id="rental-calendar-free">Libre</b></span>
                 <span><i class="is-partial"></i><b id="rental-calendar-partial">Deels fräi – auswielbar</b></span>
-                <span><i class="is-busy"></i><b id="rental-calendar-busy-label">Besat</b></span>
+                <span><i class="is-busy"></i><b id="rental-calendar-busy-label">Occupé</b></span>
                 <span><i class="is-past"></i><b id="rental-calendar-past">Net buchbar</b></span>
               </div>
             </section>
             <div class="rental-price-summary" id="rental-price-summary" aria-live="polite">
-              <div><span id="rental-price-days-label">Berechent Locatiounsdauer</span><strong id="rental-price-days">—</strong></div>
-              <div><span id="rental-price-rate-label">Dagespräis</span><strong id="rental-price-rate">—</strong></div>
-              <div class="rental-price-total"><span id="rental-price-total-label">Viraussiichtleche Locatiounspräis</span><strong id="rental-price-total">—</strong></div>
-              <p id="rental-price-disclaimer">D’Endkonditioune ginn Iech virun der verbindlecher Bestätegung matgedeelt.</p>
+              <div><span id="rental-price-days-label">Durée de location calculée</span><strong id="rental-price-days">—</strong></div>
+              <div><span id="rental-price-rate-label">Tarif journalier</span><strong id="rental-price-rate">—</strong></div>
+              <div class="rental-price-total"><span id="rental-price-total-label">Prix de location estimé</span><strong id="rental-price-total">—</strong></div>
+              <p id="rental-price-disclaimer">Les conditions définitives vous seront communiquées avant la confirmation ferme.</p>
             </div>
           </div>
 
@@ -175,8 +175,8 @@
             <input type="hidden" name="_loaded_at" value="" />
             <input type="text" name="_honey" tabindex="-1" autocomplete="off" class="sr-only" aria-hidden="true" />
 
-            <p class="rental-step" id="rental-step-2">Schrëtt 2 vun 3 · Är Donnéeën</p>
-            <h2 id="rental-form-h">Reservéieren</h2>
+            <p class="rental-step" id="rental-step-2">Étape 2 sur 3 · Vos coordonnées</p>
+            <h2 id="rental-form-h">Réserver</h2>
 
             <div class="field-row">
               <div class="field">
@@ -184,7 +184,7 @@
                 <input type="hidden" id="r-from" name="Vun (Datum an Auerzäit)" required />
                 <div class="rental-datetime" data-for="r-from">
                   <input type="date" id="r-from-date" aria-labelledby="lbl-r-from" required />
-                  <select id="r-from-time" aria-label="Auerzäit vun" required></select>
+                  <select id="r-from-time" aria-label="Heure de début" required></select>
                 </div>
               </div>
               <div class="field">
@@ -192,7 +192,7 @@
                 <input type="hidden" id="r-to" name="Bis (Datum an Auerzäit)" required />
                 <div class="rental-datetime" data-for="r-to">
                   <input type="date" id="r-to-date" aria-labelledby="lbl-r-to" required />
-                  <select id="r-to-time" aria-label="Auerzäit bis" required></select>
+                  <select id="r-to-time" aria-label="Heure de fin" required></select>
                 </div>
               </div>
             </div>
@@ -200,7 +200,7 @@
             <div class="rental-busy" id="rental-busy" role="status" aria-live="polite" hidden></div>
 
             <div class="field">
-              <label for="r-name" id="lbl-r-name">Numm</label>
+              <label for="r-name" id="lbl-r-name">Nom</label>
               <input type="text" id="r-name" name="Numm" autocomplete="name" maxlength="120" />
             </div>
             <div class="field-row">
@@ -214,34 +214,34 @@
               </div>
             </div>
             <div class="field">
-              <label for="r-message" id="lbl-r-message">Noriicht</label>
+              <label for="r-message" id="lbl-r-message">Message</label>
               <textarea id="r-message" name="Noriicht" maxlength="2000" rows="3"></textarea>
             </div>
 
 
             <section class="rental-review" aria-labelledby="rental-review-title">
-              <p class="rental-step" id="rental-step-3">Schrëtt 3 vun 3 · Kontrolléieren</p>
-              <h3 id="rental-review-title">Ufro iwwerpréiwen</h3>
+              <p class="rental-step" id="rental-step-3">Étape 3 sur 3 · Vérification</p>
+              <h3 id="rental-review-title">Vérifier la demande</h3>
               <dl class="rental-review-list">
-                <div><dt id="rental-review-items-label">Auswiel</dt><dd id="rental-review-items">Nach näischt ausgewielt</dd></div>
-                <div><dt id="rental-review-period-label">Zäitraum</dt><dd id="rental-review-period">Nach net uginn</dd></div>
-                <div><dt id="rental-review-contact-label">Kontakt</dt><dd id="rental-review-contact">Nach net uginn</dd></div>
+                <div><dt id="rental-review-items-label">Sélection</dt><dd id="rental-review-items">Rien de sélectionné</dd></div>
+                <div><dt id="rental-review-period-label">Période</dt><dd id="rental-review-period">Pas encore indiquée</dd></div>
+                <div><dt id="rental-review-contact-label">Contact</dt><dd id="rental-review-contact">Pas encore indiqué</dd></div>
               </dl>
-              <p id="rental-review-hint">Kontrolléiert dës Donnéeën, ier Dir d’Ufro schéckt.</p>
+              <p id="rental-review-hint">Vérifiez ces informations avant d’envoyer votre demande.</p>
             </section>
 
             <label class="privacy-confirm terms-confirm" for="r-terms">
               <input id="r-terms" name="Mietinformationen gelesen" type="checkbox" />
-              <span id="r-terms-text">Ech hunn d’<a href="mietbedingungen.html" target="_blank" rel="noopener">Locatiouns- a Reservatiounsinformatiounen</a> gelies.</span>
+              <span id="r-terms-text">J’ai lu les <a href="mietbedingungen.html" target="_blank" rel="noopener">informations de location et de réservation</a>.</span>
             </label>
 
             <label class="privacy-confirm" for="r-privacy">
               <input id="r-privacy" name="Datenschutz bestätigt" type="checkbox" />
-              <span id="r-privacy-text">Ech hunn d'Dateschutzerklärung gelies a sinn averstanen, datt meng Donnéeë fir d'Veraarbechtung vun der Ufro benotzt ginn.</span>
+              <span id="r-privacy-text">J’ai lu la politique de confidentialité et j’accepte le traitement de mes données pour cette demande.</span>
             </label>
 
-            <p class="rental-note" id="rental-note">D'Reservéierung ass eng Ufro a gëtt vun eis bestätegt.</p>
-            <button type="submit" class="btn btn-primary btn-block" id="rental-submit">Reservéierung ufroen</button>
+            <p class="rental-note" id="rental-note">La réservation reste une demande jusqu’à notre confirmation.</p>
+            <button type="submit" class="btn btn-primary btn-block" id="rental-submit">Demander la réservation</button>
             <p class="form-status" id="rental-status" role="status" aria-live="polite"></p>
           </form>
         </div>
@@ -249,8 +249,8 @@
 
       <section class="rental-faq" aria-labelledby="rental-faq-title">
         <div class="container">
-          <p class="eyebrow" id="rental-faq-eyebrow">Gutt ze wëssen</p>
-          <h2 id="rental-faq-title">Heefeg Froen zum Verlee</h2>
+          <p class="eyebrow" id="rental-faq-eyebrow">Bon à savoir</p>
+          <h2 id="rental-faq-title">Questions fréquentes sur la location</h2>
           <div class="rental-faq-list" id="rental-faq-list"></div>
         </div>
       </section>
@@ -258,8 +258,8 @@
 
     <!-- Gefier-Detailansicht (Pop-up) -->
     <div class="rental-detail-overlay" id="rental-detail-overlay" hidden>
-      <div class="rental-detail-modal" role="dialog" aria-modal="true" aria-label="Detailer">
-        <button class="rental-detail-close" id="rental-detail-close" type="button" aria-label="Zoumaachen">✕</button>
+      <div class="rental-detail-modal" role="dialog" aria-modal="true" aria-label="Détails">
+        <button class="rental-detail-close" id="rental-detail-close" type="button" aria-label="Fermer">✕</button>
         <div id="rental-detail"></div>
       </div>
     </div>
@@ -304,10 +304,10 @@
       </div>
     </footer>
 
-    <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
+    <a href="#top" class="back-to-top" id="back-to-top" aria-label="Retour en haut">↑</a>
 
     <script src="script.js?v=26"></script>
-    <script src="location.js?v=38"></script>
+    <script src="location.js?v=39"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->
