@@ -450,26 +450,26 @@
       var card = document.createElement("article");
       card.className = "rental-card" + (picked ? " is-selected" : "");
       var specs = keyPoints(it, L)
-        .map(function (s) { return '<li><span class="rk-ic" aria-hidden="true">' + s.k + "</span>" + s.v + "</li>"; })
+        .map(function (s) { return '<li><span class="rk-ic" aria-hidden="true">' + esc(s.k) + "</span>" + esc(s.v) + "</li>"; })
         .join("");
       var media = it.img
-        ? '<img class="rental-photo" src="' + it.img + '" alt="' + (it.name[L] || it.name.lb) + '" loading="lazy" decoding="async" />'
+        ? '<img class="rental-photo" src="' + esc(it.img) + '" alt="' + esc(it.name[L] || it.name.lb) + '" loading="lazy" decoding="async" />'
         : '<span class="rental-ic">' + ICONS[it.icon] + "</span>";
       var priceHtml = it.priceDay
-        ? '<span class="rental-price is-day">' + it.priceDay + ' €<span class="unit"> / ' + m.perDay + "</span></span>"
+        ? '<span class="rental-price is-day">' + esc(it.priceDay) + ' €<span class="unit"> / ' + esc(m.perDay) + "</span></span>"
         : '<span class="rental-price">' + m.price + "</span>";
       var ribbon = it.cat === "trailer" ? "" : '<span class="rental-ribbon">' + catLabel(it.cat) + "</span>";
       card.innerHTML =
         '<div class="rental-media">' + ribbon + media + "</div>" +
         '<div class="rental-body">' +
-        "<h3>" + (it.name[L] || it.name.lb) + "</h3>" +
+        "<h3>" + esc(it.name[L] || it.name.lb) + "</h3>" +
         '<ul class="rental-specs rental-specs-key">' + specs + "</ul>" +
-        '<button type="button" class="rental-more" data-detail="' + it.id + '">' + (DETAIL_L[L] || DETAIL_L.lb).more + " ›</button>" +
-        (it.priceDay ? '<p class="rental-paynote">' + (it.cat==="trailer"?m.payOnReturnTrailer:m.payOnReturn) + "</p>" : "") +
+        '<button type="button" class="rental-more" data-detail="' + esc(it.id) + '">' + esc((DETAIL_L[L] || DETAIL_L.lb).more) + " ›</button>" +
+        (it.priceDay ? '<p class="rental-paynote">' + esc(it.cat==="trailer"?m.payOnReturnTrailer:m.payOnReturn) + "</p>" : "") +
         '<div class="rental-cardfoot">' +
         priceHtml +
-        '<button type="button" class="btn rental-select" data-id="' + it.id + '">' +
-        (picked ? "✓ " + m.selected : m.select) +
+        '<button type="button" class="btn rental-select" data-id="' + esc(it.id) + '">' +
+        esc(picked ? "✓ " + m.selected : m.select) +
         "</button></div></div>";
       grid.appendChild(card);
     });
@@ -491,8 +491,8 @@
         li.className = "rental-sel-item";
         li.innerHTML =
           '<span class="rental-sel-ic">' + ICONS[it.icon] + "</span>" +
-          '<span class="rental-sel-name">' + (it.name[lang()] || it.name.lb) + "</span>" +
-          '<button type="button" class="rental-sel-x" data-id="' + id + '" aria-label="' + m.remove + '">✕</button>';
+          '<span class="rental-sel-name">' + esc(it.name[lang()] || it.name.lb) + "</span>" +
+          '<button type="button" class="rental-sel-x" data-id="' + esc(id) + '" aria-label="' + esc(m.remove) + '">✕</button>';
         list.appendChild(li);
       });
     }

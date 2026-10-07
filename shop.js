@@ -2052,9 +2052,9 @@
   }
 
   function init() {
-    if ("serviceWorker" in navigator && location.protocol === "https:") {
-      navigator.serviceWorker.register("shop-sw.js", { scope: "/" }).catch(function () {});
-    }
+    /* De Shop-Service-Worker bleift bis zum ëffentleche Shop-Start aus.
+       E Scope op "/" kéint soss och Homepage a Location mat ale Fichiere
+       kontrolléieren. */
     cart = loadCart();
     restoreState();
     applyStatics();

@@ -6,8 +6,8 @@ var MAX_IMAGES = 160;
 var CORE = [
   "/shop.html",
   "/styles.css?v=74",
-  "/script.js?v=25",
-  "/shop.js?v=58",
+  "/script.js?v=26",
+  "/shop.js?v=59",
   "/shop-data.js?v=11",
 ];
 

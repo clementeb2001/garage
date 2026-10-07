@@ -28,7 +28,7 @@
       akt_p2: "Batterie-Test",
       akt_p3: "Beliichtung & Wëscher",
       akt_p4: "Frostschutz & Kältecheck",
-      rental_cta: "Location · geschwënn",
+      rental_cta: "Location reservéieren",
       skip: "Direkt bei den Inhalt",
       quick_actions: "Schnellaktiounen",
       quick_contact: "Schnellkontakt",
@@ -100,8 +100,8 @@
       svc10_d:
         "Karosserieaarbechten, Spoiler, Verbreederungen a propper Lackéierung.",
       about_eyebrow: "Iwwer Autoservice Bettenduerf",
-      about_photo_note: "Symbolbild · Eng eege Foto kënnt nach",
-      about_photo_alt: "Symbolescht Werkstattfoto – eng eege Foto kënnt nach",
+      about_photo_note: "Autoservice Bettenduerf · Atelier",
+      about_photo_alt: "Illustratioun vun enger moderner Autosgarage",
       about_title: "E Familljebetrib, deem Dir vertraue kënnt",
       about_p1:
         "Zu Bettenduerf si mir déi zouverlässeg Adress, wann et ëm d’Wuel vun Ärem Won geet. Bei eis schaffen erfuere Mechaniker, déi hiert Handwierk verstinn – an Iech éierlech soen, wat wierklech néideg ass.",
@@ -192,7 +192,7 @@
       akt_p2: "Batterie-Test",
       akt_p3: "Beleuchtung & Wischer",
       akt_p4: "Frostschutz & Kälte-Check",
-      rental_cta: "Verleih · bald verfügbar",
+      rental_cta: "Verleih reservieren",
       skip: "Zum Inhalt springen",
       quick_actions: "Schnellaktionen",
       quick_contact: "Schnellkontakt",
@@ -264,8 +264,8 @@
       svc10_d:
         "Karosseriearbeiten, Spoiler, Verbreiterungen und saubere Lackierung.",
       about_eyebrow: "Über Autoservice Bettenduerf",
-      about_photo_note: "Symbolbild · Eigenes Foto folgt",
-      about_photo_alt: "Symbolisches Werkstattfoto – eigenes Foto folgt",
+      about_photo_note: "Autoservice Bettenduerf · Werkstatt",
+      about_photo_alt: "Illustration einer modernen Autowerkstatt",
       about_title: "Ein Familienbetrieb, dem Sie vertrauen können",
       about_p1:
         "In Bettendorf sind wir die verlässliche Adresse, wenn es um das Wohl Ihres Fahrzeugs geht. Bei uns arbeiten erfahrene Mechaniker, die ihr Handwerk verstehen – und Ihnen ehrlich sagen, was wirklich nötig ist.",
@@ -356,7 +356,7 @@
       akt_p2: "Test de batterie",
       akt_p3: "Éclairage & essuie-glaces",
       akt_p4: "Antigel & contrôle grand froid",
-      rental_cta: "Location · bientôt",
+      rental_cta: "Réserver une location",
       skip: "Aller au contenu",
       quick_actions: "Actions rapides",
       quick_contact: "Contact rapide",
@@ -428,8 +428,8 @@
       svc10_d:
         "Travaux de carrosserie, ailerons, élargisseurs et peinture soignée.",
       about_eyebrow: "À propos d’Autoservice Bettenduerf",
-      about_photo_note: "Photo d’illustration · Photo personnelle à venir",
-      about_photo_alt: "Photo d’illustration d’un atelier – photo personnelle à venir",
+      about_photo_note: "Autoservice Bettenduerf · Atelier",
+      about_photo_alt: "Illustration d’un garage automobile moderne",
       about_title: "Une entreprise familiale de confiance",
       about_p1:
         "À Bettendorf, nous sommes l’adresse de confiance pour le bien-être de votre véhicule. Des mécaniciens expérimentés qui maîtrisent leur métier – et vous disent honnêtement ce qui est vraiment nécessaire.",
@@ -518,7 +518,7 @@
       akt_p2: "Battery test",
       akt_p3: "Lights & wipers",
       akt_p4: "Antifreeze & cold check",
-      rental_cta: "Rental · soon",
+      rental_cta: "Book a rental",
       skip: "Skip to content",
       quick_actions: "Quick actions",
       quick_contact: "Quick contact",
@@ -589,8 +589,8 @@
       svc10_t: "Bodywork & paint",
       svc10_d: "Bodywork, spoilers, widenings and clean paintwork.",
       about_eyebrow: "About Autoservice Bettenduerf",
-      about_photo_note: "Stock image · Original photo coming soon",
-      about_photo_alt: "Illustrative workshop photo – original photo coming soon",
+      about_photo_note: "Autoservice Bettenduerf · Workshop",
+      about_photo_alt: "Illustration of a modern car workshop",
       about_title: "A family business you can trust",
       about_p1:
         "In Bettendorf we are the reliable address when it comes to the wellbeing of your vehicle. Experienced mechanics who know their craft – and tell you honestly what really needs doing.",
@@ -688,6 +688,12 @@
       locale: "en_LU",
     },
   };
+  var LOCATION_SEO = {
+    lb: { title: "Gefierer an Unhänger lounen – Autoservice Bettenduerf", description: "Gefierer an Unhänger zu Bettendorf lounen. Disponibilitéit online kucken an direkt eng Reservatiounsufro schécken.", locale: "lb_LU" },
+    de: { title: "Fahrzeuge und Anhänger mieten – Autoservice Bettenduerf", description: "Fahrzeuge und Anhänger in Bettendorf mieten. Verfügbarkeit online prüfen und direkt eine Reservierungsanfrage senden.", locale: "de_LU" },
+    fr: { title: "Location de véhicules et remorques – Autoservice Bettenduerf", description: "Louez des véhicules et remorques à Bettendorf. Consultez les disponibilités et envoyez directement votre demande de réservation.", locale: "fr_LU" },
+    en: { title: "Vehicle and trailer rental – Autoservice Bettenduerf", description: "Rent vehicles and trailers in Bettendorf. Check availability online and send your reservation request directly.", locale: "en_LU" },
+  };
 
   function setMeta(selector, value) {
     var el = document.querySelector(selector);
@@ -696,12 +702,13 @@
 
   function isSeoPage() {
     return /(^|\/)index\.html$/.test(location.pathname) ||
-      /\/$/.test(location.pathname) || /(^|\/)service\.html$/.test(location.pathname);
+      /\/$/.test(location.pathname) || /(^|\/)(?:service|location)\.html$/.test(location.pathname);
   }
 
   function cleanLanguageUrl(lang) {
     var servicePage = /(^|\/)service\.html$/.test(location.pathname);
-    var target = "/" + lang + "/" + (servicePage ? "service.html" : "");
+    var locationPage = /(^|\/)location\.html$/.test(location.pathname);
+    var target = "/" + lang + "/" + (servicePage ? "service.html" : (locationPage ? "location.html" : ""));
     var params = new URLSearchParams(location.search);
     params.delete("lang");
     return target + (params.toString() ? "?" + params.toString() : "") + location.hash;
@@ -717,6 +724,8 @@
         link.setAttribute("href", "/" + lang + "/" + (/service\.html$/.test(location.pathname) ? "service.html" : "") + raw);
       } else if (/^(?:\.\/)?service\.html/.test(raw)) {
         link.setAttribute("href", "/" + lang + "/" + raw.replace(/^\.\//, ""));
+      } else if (/^(?:\.\/)?location\.html/.test(raw)) {
+        link.setAttribute("href", "/" + lang + "/location.html" + (raw.indexOf("#") >= 0 ? raw.slice(raw.indexOf("#")) : ""));
       } else if (/^(?:\.\/)?index\.html/.test(raw)) {
         link.setAttribute("href", "/" + lang + "/" + raw.replace(/^(?:\.\/)?index\.html/, ""));
       }
@@ -724,19 +733,20 @@
   }
 
   function updateSeo(lang) {
-    var seo = SEO[lang] || SEO.lb;
+    var isLocation = /(^|\/)location\.html$/.test(location.pathname);
+    var seo = isLocation ? (LOCATION_SEO[lang] || LOCATION_SEO.lb) : (SEO[lang] || SEO.lb);
     var isHome = /(^|\/)index\.html$/.test(location.pathname) || /\/$/.test(location.pathname);
-    if (isHome) document.title = seo.title;
+    if (isHome || isLocation) document.title = seo.title;
     setMeta('meta[name="description"]', seo.description);
     setMeta('meta[property="og:description"]', seo.description);
     setMeta('meta[property="og:locale"]', seo.locale);
-    if (isHome) setMeta('meta[property="og:title"]', seo.title);
+    if (isHome || isLocation) setMeta('meta[property="og:title"]', seo.title);
 
     var canonicalUrl = new URL(cleanLanguageUrl(lang), location.origin);
     canonicalUrl.hash = "";
     var canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) canonical.href = canonicalUrl.href;
-    if (isHome) setMeta('meta[property="og:url"]', canonicalUrl.href);
+    if (isHome || isLocation) setMeta('meta[property="og:url"]', canonicalUrl.href);
     LANGS.forEach(function (code) {
       var alternate = document.querySelector('link[rel="alternate"][hreflang="' + code + '"]');
       if (!alternate) {

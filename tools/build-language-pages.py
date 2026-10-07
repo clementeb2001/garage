@@ -9,7 +9,7 @@ from datetime import date
 
 ROOT = Path(__file__).resolve().parent.parent
 LANGUAGES = ("lb", "de", "fr", "en")
-PAGES = ("index.html", "service.html")
+PAGES = ("index.html", "service.html", "location.html")
 SITE = "https://autoservicebettenduerf.lu"
 SERVICE_IDS = (
     "wartung", "reifen", "bremsen", "diagnose", "klima", "controle",
@@ -38,6 +38,13 @@ SEO = {
         "description": "Car garage in Bettendorf and official 1·2·3 AutoService partner. Maintenance, repairs, tyres, technical inspection and tuning.",
         "locale": "en_LU",
     },
+}
+
+LOCATION_SEO = {
+    "lb": {"title": "Gefierer an Unhänger lounen – Autoservice Bettenduerf", "heading": "Material a Gefierer lounen", "description": "Gefierer an Unhänger zu Bettendorf lounen. Disponibilitéit online kucken an direkt eng Reservatiounsufro schécken."},
+    "de": {"title": "Fahrzeuge und Anhänger mieten – Autoservice Bettenduerf", "heading": "Fahrzeuge &amp; Anhänger mieten", "description": "Fahrzeuge und Anhänger in Bettendorf mieten. Verfügbarkeit online prüfen und direkt eine Reservierungsanfrage senden."},
+    "fr": {"title": "Location de véhicules et remorques – Autoservice Bettenduerf", "heading": "Louer des véhicules et remorques", "description": "Louez des véhicules et remorques à Bettendorf. Consultez les disponibilités et envoyez directement votre demande de réservation."},
+    "en": {"title": "Vehicle and trailer rental – Autoservice Bettenduerf", "heading": "Rent vehicles &amp; trailers", "description": "Rent vehicles and trailers in Bettendorf. Check availability online and send your reservation request directly."},
 }
 
 
@@ -88,7 +95,9 @@ def replace_attribute_values(html: str, marker: str, target: str, values: dict[s
 
 
 def language_path(language: str, page: str) -> str:
-    return f"/{language}/" if page == "index.html" else f"/{language}/service.html"
+    if page == "index.html":
+        return f"/{language}/"
+    return f"/{language}/{page}"
 
 
 def build_page(language: str, page: str, dictionary: dict[str, str]) -> str:
@@ -104,11 +113,12 @@ def build_page(language: str, page: str, dictionary: dict[str, str]) -> str:
         flags=re.S,
     )
     seo = SEO[language]
+    page_description = seo["description"]
     if page == "index.html":
         html = re.sub(r"<title>.*?</title>", f'<title>{seo["title"]}</title>', html, count=1, flags=re.S)
         html = re.sub(r'(<meta\s+name="description"\s+content=")[^"]*(")', rf'\g<1>{seo["description"]}\2', html, count=1)
         html = re.sub(r'(<meta\s+property="og:title"\s+content=")[^"]*(")', rf'\g<1>{seo["title"]}\2', html, count=1)
-    else:
+    elif page == "service.html":
         service_titles = {
             "lb": "Service am Detail – Autoservice Bettenduerf",
             "de": "Leistung im Detail – Autoservice Bettenduerf",
@@ -117,13 +127,28 @@ def build_page(language: str, page: str, dictionary: dict[str, str]) -> str:
         }
         html = re.sub(r"<title>.*?</title>", f"<title>{service_titles[language]}</title>", html, count=1, flags=re.S)
         html = re.sub(r'(<meta\s+property="og:title"\s+content=")[^"]*(")', rf'\g<1>{service_titles[language]}\2', html, count=1)
-    html = re.sub(r'(<meta\s+property="og:description"\s+content=")[^"]*(")', rf'\g<1>{seo["description"]}\2', html, count=1)
+    else:
+        rental = LOCATION_SEO[language]
+        page_description = rental["description"]
+        html = re.sub(r"<title>.*?</title>", f'<title>{rental["title"]}</title>', html, count=1, flags=re.S)
+        html = re.sub(r'(<meta\s+name="description"\s+content=")[^"]*(")', rf'\g<1>{rental["description"]}\2', html, count=1)
+        html = re.sub(r'(<meta\s+property="og:title"\s+content=")[^"]*(")', rf'\g<1>{rental["title"]}\2', html, count=1)
+        html = re.sub(r'(<meta\s+property="og:description"\s+content=")[^"]*(")', rf'\g<1>{rental["description"]}\2', html, count=1)
+        html = re.sub(r'<h1 id="rental-title">.*?</h1>', f'<h1 id="rental-title">{rental["heading"]}</h1>', html, count=1, flags=re.S)
+        html = re.sub(r'\s*<link\s+rel="alternate"\s+hreflang="[^"]+"\s+href="[^"]+"\s*/>', "", html)
+        alternates = "\n".join(
+            f'    <link rel="alternate" hreflang="{alt}" href="{SITE + language_path(alt, page)}" />'
+            for alt in LANGUAGES
+        ) + f'\n    <link rel="alternate" hreflang="x-default" href="{SITE + language_path("lb", page)}" />'
+        html = html.replace(f'<link rel="canonical" href="{clean}" />', f'<link rel="canonical" href="{clean}" />\n{alternates}', 1)
+    html = re.sub(r'(<meta\s+property="og:description"\s+content=")[^"]*(")', rf'\g<1>{page_description}\2', html, count=1)
     html = re.sub(r'(<meta\s+property="og:locale"\s+content=")[^"]*(")', rf'\g<1>{seo["locale"]}\2', html, count=1)
     html = re.sub(r'(<meta\s+property="og:url"\s+content=")[^"]*(")', rf'\g<1>{clean}\2', html, count=1)
     html = replace_tag_contents(html, "data-i18n", dictionary)
     html = replace_attribute_values(html, "data-i18n-ph", "placeholder", dictionary)
     html = replace_attribute_values(html, "data-i18n-alt", "alt", dictionary)
     html = replace_attribute_values(html, "data-i18n-aria", "aria-label", dictionary)
+    html = html.replace('href="location.html"', f'href="/{language}/location.html"')
     return html
 
 
@@ -132,13 +157,13 @@ def sitemap() -> str:
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
             '        xmlns:xhtml="http://www.w3.org/1999/xhtml">']
     today = date.today().isoformat()
-    for page, service_id in [("index.html", None)] + [("service.html", sid) for sid in SERVICE_IDS]:
+    for page, service_id in [("index.html", None), ("location.html", None)] + [("service.html", sid) for sid in SERVICE_IDS]:
         for language in LANGUAGES:
             suffix = f"?s={service_id}" if service_id else ""
             url = SITE + language_path(language, page) + suffix
             rows.extend(["  <url>", f"    <loc>{url}</loc>", f"    <lastmod>{today}</lastmod>",
                          "    <changefreq>monthly</changefreq>",
-                         f"    <priority>{'1.0' if not service_id else '0.7'}</priority>"])
+                         f"    <priority>{'1.0' if page == 'index.html' else ('0.8' if page == 'location.html' else '0.7')}</priority>"])
             for alt in LANGUAGES:
                 alt_url = SITE + language_path(alt, page) + suffix.replace("&", "&amp;")
                 rows.append(f'    <xhtml:link rel="alternate" hreflang="{alt}" href="{alt_url}" />')

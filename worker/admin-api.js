@@ -113,7 +113,7 @@ function cors(env, extra) {
     "Access-Control-Allow-Origin": env.RESPONSE_ORIGIN || env.ALLOW_ORIGIN || "https://autoservicebettenduerf.lu",
     "Access-Control-Allow-Credentials": "true",
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
   }, extra || {});
@@ -125,7 +125,7 @@ function imageType(bytes) {
   return null;
 }
 function json(env, body, status, extraHeaders) {
-  return new Response(JSON.stringify(body), { status: status || 200, headers: cors(env, Object.assign({ "Content-Type": "application/json; charset=utf-8" }, extraHeaders || {})) });
+  return new Response(JSON.stringify(body), { status: status || 200, headers: cors(env, Object.assign({ "Content-Type": "application/json; charset=utf-8", "Cache-Control": "private, no-store" }, extraHeaders || {})) });
 }
 function clip(s, n) { return String(s == null ? "" : s).slice(0, n); }
 function nullableNumber(v) { if (v === "" || v == null) return null; const n=Number(v); return Number.isFinite(n) && n >= 0 ? n : null; }
@@ -477,13 +477,9 @@ function declineMail(b) {
   return { subject: t.s, html: html, text: mailText(t, b) };
 }
 async function authUser(request, env) {
-  // Sessiouns-Token: fir d'éischt iwwer den Authorization-Header (robust, Cross-
-  // Subdomain- a Cookie-onofhängeg), soss iwwer de Cookie.
-  let token = "";
-  const h = request.headers.get("Authorization") || "";
-  const m = h.match(/^Bearer\s+(.+)$/i);
-  if (m) token = m[1];
-  if (!token) token = cookieValue(request, SESSION_COOKIE);
+  // Nëmmen den HttpOnly-Cookie akzeptéieren. Esou ass de Sessiounsgeheimnis
+  // fir JavaScript an och bei enger méiglecher XSS net ausliesbar.
+  const token = cookieValue(request, SESSION_COOKIE);
   if (!token) return null;
   await ensureSessions(env);
   const tokenHash = await hashText(token);
@@ -615,6 +611,7 @@ export default {
 
       /* ---- login (mat Brute-Force-Schutz: max 10 falsch Versich/Stonn/IP) ---- */
       if (path === "/auth/login" && method === "POST") {
+        if (!isAllowedOrigin(request, env)) return json(env, { error: "forbidden_origin" }, 403);
         const username = clip(bodyData.username, 60).trim().toLowerCase();
         const password = String(bodyData.password || "");
         const lbk = await loginBucket(request);
@@ -634,12 +631,12 @@ export default {
           await env.DB.prepare("UPDATE users SET pw = ?1 WHERE username = ?2").bind(await hashPw(password), row.username).run();
         }
         const token = await createSession(env, row.username);
-        // Token am Body (fir Authorization-Header) + Cookie (SameSite=Strict) als Zousaz.
-        return json(env, { ok: true, token, user: { username: row.username, name: row.name, role: row.role, mustChange: !!row.must_change } }, 200, { "Set-Cookie": sessionCookie(token) });
+        return json(env, { ok: true, user: { username: row.username, name: row.name, role: row.role, mustChange: !!row.must_change } }, 200, { "Set-Cookie": sessionCookie(token) });
       }
 
       /* ---- all routes below need auth ---- */
       const me = await authUser(request, env);
+      if (method !== "GET" && !isAllowedOrigin(request, env)) return json(env, { error: "forbidden_origin" }, 403);
       if (path === "/auth/me") {
         if (!me) return json(env, { error: "unauthorized" }, 401, { "Set-Cookie": clearSessionCookie() });
         return json(env, { user: { username: me.username, name: me.name, role: me.role, mustChange: !!me.must_change } });
@@ -676,7 +673,7 @@ export default {
         await ensureSessions(env);
         await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(me.username).run();
         const token = await createSession(env, me.username);
-        return json(env, { ok: true, token }, 200, { "Set-Cookie": sessionCookie(token) });
+        return json(env, { ok: true }, 200, { "Set-Cookie": sessionCookie(token) });
       }
 
       /* ---- bookings list ---- */

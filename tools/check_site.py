@@ -18,7 +18,7 @@ def fail(message: str) -> None:
 
 def check_languages() -> None:
     for language in ("lb", "de", "fr", "en"):
-        for page in ("index.html", "service.html"):
+        for page in ("index.html", "service.html", "location.html"):
             path = ROOT / language / page
             if not path.exists():
                 fail(f"missing language page: {path.relative_to(ROOT)}")
@@ -41,6 +41,9 @@ def check_sitemap() -> None:
         expected = f"https://autoservicebettenduerf.lu/{language}/"
         if expected not in locations:
             fail(f"sitemap misses {expected}")
+        rental = f"https://autoservicebettenduerf.lu/{language}/location.html"
+        if rental not in locations:
+            fail(f"sitemap misses {rental}")
 
 
 def decode_array(source: str, marker: str):
@@ -81,6 +84,12 @@ def check_admin_integrity() -> None:
         fail("combined protocol is not available after both signed stages")
     if 'return /^assets\\//.test(value)?"/"+value:value;' not in admin_js:
         fail("relative fleet image paths are not normalized for the admin PWA")
+    if "localStorage.getItem(TOKEN_KEY)" in admin_js or "headers.Authorization" in admin_js:
+        fail("admin session token must not be readable through localStorage/JavaScript")
+    location = (ROOT / "location.js").read_text(encoding="utf-8")
+    for unsafe in ('+ s.v +', '+ it.img +', '+ (it.name[L] || it.name.lb) +'):
+        if unsafe in location:
+            fail(f"unescaped public fleet value: {unsafe}")
     for required in (
         'DELETE FROM rental_inspections WHERE booking_id=?1',
         "DELETE FROM request_consents WHERE request_type='booking'",

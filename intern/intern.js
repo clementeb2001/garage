@@ -30,13 +30,15 @@
   /* ======================================================================
      LIVE-STORE (Cloudflare-Worker)
      ====================================================================== */
+  /* D'Sessioun leeft ausschliisslech iwwer den HttpOnly-Cookie vum Worker.
+     Al Bearer-Tokens aus fréiere Versioune ginn aktiv geläscht. */
   var TOKEN_KEY = "gk_intern_token";
-  var token = null; try { token = localStorage.getItem(TOKEN_KEY); } catch (e) {}
-  function setToken(t) { token = t || null; try { if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+  var token = null;
+  try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+  function setToken() { token = null; try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
   function onAuthLost() { setToken(null); if (!session) return; session = null; showLogin(); toast("Sessioun ofgelaf – logg dech w.e.g. nei an."); }
   function api(path, opts) {
-    opts = opts || {}; var headers = {}; var hadSession = !!session || !!token;
-    if (token) headers.Authorization = "Bearer " + token;
+    opts = opts || {}; var headers = {}; var hadSession = !!session;
     var init = { method: opts.method || "GET", headers: headers, credentials: "include" };
     if (opts.body) { headers["Content-Type"] = "application/json"; init.body = JSON.stringify(opts.body); }
     return fetch(API_BASE + path, init).then(function (r) {
@@ -48,7 +50,6 @@
   }
   function uploadImage(blob, scope) {
     var headers = { "Content-Type": blob.type || "image/webp" };
-    if (token) headers.Authorization = "Bearer " + token;
     return fetch(API_BASE + "/media/" + (scope === "protocol" ? "protocol" : "fleet"), { method:"POST", headers:headers, credentials:"include", body:blob }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) {
         if (r.status === 401) setTimeout(onAuthLost, 0);
@@ -58,10 +59,10 @@
   }
   var liveStore = {
     mode: "live",
-    login: function (u, p) { return api("/auth/login", { method: "POST", body: { username: u, password: p } }).then(function (r) { if (r.status === 200) { if (r.body.token) setToken(r.body.token); return { ok: true, user: r.body.user }; } return { error: r.body.error || "invalid_credentials" }; }); },
+    login: function (u, p) { return api("/auth/login", { method: "POST", body: { username: u, password: p } }).then(function (r) { if (r.status === 200) { setToken(); return { ok: true, user: r.body.user }; } return { error: r.body.error || "invalid_credentials" }; }); },
     me: function () { return api("/auth/me").then(function (r) { return r.status === 200 ? r.body.user : null; }); },
     logout: function () { return api("/auth/logout", { method: "POST" }).then(function (r) { setToken(null); return r; }); },
-    changePassword: function (cur, next) { return api("/auth/password", { method: "POST", body: { current: cur, next: next } }).then(function (r) { if (r.status === 200) { if (r.body.token) setToken(r.body.token); return { ok: true }; } return { error: r.body.error || "error" }; }); },
+    changePassword: function (cur, next) { return api("/auth/password", { method: "POST", body: { current: cur, next: next } }).then(function (r) { if (r.status === 200) { setToken(); return { ok: true }; } return { error: r.body.error || "error" }; }); },
     listBookings: function () { return api("/bookings").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.bookings; }); },
     setStatus: function (id, status, note) { return api("/bookings/" + id + "/status", { method: "POST", body: { status: status, note: note || "" } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listMembers: function () { return api("/members").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.members; }); },
@@ -445,8 +446,7 @@
   // Säit opgeet — esou ass d'Dokument self-contained an d'Biller sinn och um Handy do.
   function imageToDataUrl(url, maxPx) {
     return new Promise(function (resolve) {
-      var headers = {}; if (token) headers.Authorization = "Bearer " + token;
-      fetch(url, { headers: headers, credentials: "include" }).then(function (r) { return r.ok ? r.blob() : null; }).then(function (blob) {
+      fetch(url, { credentials: "include" }).then(function (r) { return r.ok ? r.blob() : null; }).then(function (blob) {
         if (!blob) { resolve(null); return; }
         var reader = new FileReader();
         reader.onload = function () {
@@ -1196,10 +1196,10 @@
         var img=new Image();
         img.onerror=function(){reject(new Error("invalid_image"));};
         img.onload=function(){
-          var max=1600,scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.max(1,Math.round(img.naturalWidth*scale)),h=Math.max(1,Math.round(img.naturalHeight*scale));
+          var max=1400,scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.max(1,Math.round(img.naturalWidth*scale)),h=Math.max(1,Math.round(img.naturalHeight*scale));
           var canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
           var ctx=canvas.getContext("2d");ctx.drawImage(img,0,0,w,h);
-          canvas.toBlob(function(blob){if(blob)resolve(blob);else reject(new Error("compress_failed"));},"image/webp",.82);
+          canvas.toBlob(function(blob){if(blob)resolve(blob);else reject(new Error("compress_failed"));},"image/webp",.78);
         };
         img.src=reader.result;
       };
