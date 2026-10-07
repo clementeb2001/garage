@@ -736,3 +736,15 @@
   if (document.readyState !== "loading") init();
   else document.addEventListener("DOMContentLoaded", init);
 })();
+
+/* Service am Kontaktformulaire virbeleeën (z.B. Wintercheck-CTA) */
+(function () {
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("[data-prefill-service]");
+    if (!a) return;
+    var sel = document.getElementById("service");
+    if (!sel) return;
+    var opt = sel.querySelector('option[data-key="' + a.getAttribute("data-prefill-service") + '"]');
+    if (opt) { opt.selected = true; sel.dispatchEvent(new Event("change", { bubbles: true })); }
+  });
+})();
