@@ -22,9 +22,13 @@
 (function () {
   try {
     var p = new URLSearchParams(location.search);
-    if (p.get("dev") === "1") localStorage.setItem("gk_shop_dev", "1");
-    if (p.get("dev") === "0") localStorage.removeItem("gk_shop_dev");
-    if (localStorage.getItem("gk_shop_dev") === "1") {
+    // Virschau-Schlëssel: rotéiert (gk_shop_dev → gk_shop_preview), fir al
+    // Virschau-Cookien zréckzesetzen, sou datt de Shop nees op "in Aarbecht"
+    // steet. Al Schlëssel oprëmen, fir datt keng al Virschau hänke bleift.
+    try { localStorage.removeItem("gk_shop_dev"); } catch (e) {}
+    if (p.get("dev") === "1") localStorage.setItem("gk_shop_preview", "1");
+    if (p.get("dev") === "0") localStorage.removeItem("gk_shop_preview");
+    if (localStorage.getItem("gk_shop_preview") === "1") {
       document.documentElement.classList.add("shop-dev");
     }
   } catch (e) {}
