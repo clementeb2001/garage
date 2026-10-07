@@ -34,7 +34,7 @@
     <link rel="dns-prefetch" href="//cdn.sanity.io" />
     <link rel="preconnect" href="https://3cerp.eu" crossorigin />
     <link rel="dns-prefetch" href="//3cerp.eu" />
-    <link rel="stylesheet" href="styles.css?v=74" />
+    <link rel="stylesheet" href="styles.css?v=79" />
     <script src="shop-gate.js?v=4"></script>
   </head>
   <body class="shop-page">
@@ -155,19 +155,44 @@
       <!-- Shop-Hero + Sich -->
       <section class="shop-hero">
         <div class="shop-hero-bg" aria-hidden="true"></div>
-        <div class="container">
-          <p class="eyebrow light" id="shop-eyebrow">Onlineshop</p>
-          <h2 id="shop-title">Autodeeler-Shop</h2>
-          <p class="shop-sub" id="shop-sub">
-            REMUS Sportauspuffanlagen mat Bild, Präis a Lagerstatus. Wiel däi Won oder sich en Artikel – DBA-Bremsen kommen nach.
-          </p>
-          <div class="shop-preview-status">
-            <span aria-hidden="true">🔒</span>
-            <strong id="shop-preview-title">Intern Virschau</strong>
-            <span id="shop-preview-text">Dëse Beräich ass nëmme mam Virschau-Link sichtbar.</span>
+        <div class="container shop-hero-inner">
+          <div class="shop-hero-top">
+            <div class="shop-hero-copy">
+              <p class="eyebrow light" id="shop-eyebrow">Onlineshop</p>
+              <h1 id="shop-title">Autodeeler, déi wierklech passen.</h1>
+              <p class="shop-sub" id="shop-sub">
+                REMUS Sportauspuffanlagen an DBA-Bremsen – no Gefier gefiltert a virun der Bestellung perséinlech kontrolléiert.
+              </p>
+              <div class="shop-preview-status">
+                <span aria-hidden="true">●</span>
+                <strong id="shop-preview-title">Intern Virschau</strong>
+                <span id="shop-preview-text">Dëse Beräich ass nëmme mam Virschau-Link sichtbar.</span>
+              </div>
+            </div>
+            <aside class="shop-hero-proof" aria-label="Shop Virdeeler" id="shop-hero-proof">
+              <p class="shop-proof-kicker" id="shop-proof-kicker">Kaaft mat Sécherheet</p>
+              <strong id="shop-proof-title">Perséinlech Passformkontroll</strong>
+              <p id="shop-proof-text">Mir kontrolléieren Gefier, Motoriséierung an all néideg Zousatzdeeler virun der definitiver Bestellung.</p>
+              <ul>
+                <li><span aria-hidden="true">✓</span><span id="shop-proof-one">Keng blann Deelerbestellung</span></li>
+                <li><span aria-hidden="true">✓</span><span id="shop-proof-two">Komplett Bundles amplaz Iwwerraschungen</span></li>
+                <li><span aria-hidden="true">✓</span><span id="shop-proof-three">Berodung aus der eegener Garage</span></li>
+              </ul>
+            </aside>
           </div>
 
-          <div class="shop-search">
+          <div class="shop-search" aria-labelledby="shop-finder-title">
+            <div class="shop-finder-head">
+              <div>
+                <span class="shop-finder-step" id="shop-finder-step">SCHRËTT 1</span>
+                <strong id="shop-finder-title">Wéi wëllt Dir Äert Deel fannen?</strong>
+              </div>
+              <ol class="shop-journey" aria-label="Bestellprozess">
+                <li class="is-active"><span>1</span><b id="shop-journey-find">Fannen</b></li>
+                <li><span>2</span><b id="shop-journey-check">Préiwen</b></li>
+                <li><span>3</span><b id="shop-journey-order">Bestellen</b></li>
+              </ol>
+            </div>
             <div class="shop-tabs" role="tablist">
               <button
                 class="shop-tab active"
@@ -211,27 +236,22 @@
             <div class="shop-panel" id="panel-fahrzeug" role="tabpanel" hidden>
               <div class="veh-row">
                 <div class="veh-field combo">
-                  <label class="sr-only" for="veh-brand" id="label-veh-brand">Mark</label>
+                  <label for="veh-brand"><span>1</span><b id="label-veh-brand">Mark</b></label>
                   <input id="veh-brand" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-brand" placeholder="Mark wielen oder aginn" />
                   <ul class="combo-list" id="list-brand" role="listbox" hidden></ul>
                 </div>
                 <div class="veh-field combo">
-                  <label class="sr-only" for="veh-model" id="label-veh-model">Modell</label>
+                  <label for="veh-model"><span>2</span><b id="label-veh-model">Geneeë Modell / Baurei</b></label>
                   <input id="veh-model" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-model" placeholder="Modell wielen oder aginn" disabled />
                   <ul class="combo-list" id="list-model" role="listbox" hidden></ul>
                 </div>
                 <div class="veh-field combo">
-                  <label class="sr-only" for="veh-generation" id="label-veh-generation">Baurei</label>
-                  <input id="veh-generation" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-generation" placeholder="Baurei wielen" disabled />
-                  <ul class="combo-list" id="list-generation" role="listbox" hidden></ul>
-                </div>
-                <div class="veh-field combo">
-                  <label class="sr-only" for="veh-year" id="label-veh-year">Baujoer</label>
+                  <label for="veh-year"><span>3</span><b id="label-veh-year">Baujoer</b></label>
                   <input id="veh-year" class="combo-input" type="text" inputmode="numeric" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-year" placeholder="Baujoer wielen" disabled />
                   <ul class="combo-list" id="list-year" role="listbox" hidden></ul>
                 </div>
                 <div class="veh-field combo">
-                  <label class="sr-only" for="veh-engine" id="label-veh-engine">Motoriséierung</label>
+                  <label for="veh-engine"><span>4</span><b id="label-veh-engine">Motoriséierung</b></label>
                   <input id="veh-engine" class="combo-input" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-engine" placeholder="Motoriséierung wielen" disabled />
                   <ul class="combo-list" id="list-engine" role="listbox" hidden></ul>
                 </div>
@@ -239,21 +259,36 @@
                   <span id="lbl-btn-veh">Passend Deeler fannen</span>
                 </button>
               </div>
-              <p class="veh-filter-note" id="veh-filter-note">Wielt all Felder aus, fir nëmme passend Deeler fir Äert Gefier ze gesinn.</p>
+              <p class="veh-filter-note" id="veh-filter-note">D’Baujoeren an d’Motoriséierunge ginn eréischt nom exakt gewielte Modell ugewisen.</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section class="shop-assurance" aria-label="Virdeeler vum Autoservice Bettenduerf Shop">
+        <div class="container shop-assurance-grid">
+          <article><span aria-hidden="true">⌖</span><div><strong id="assurance-fit-title">Passform gepréift</strong><p id="assurance-fit-text">Mir kontrolléieren all Bestellung mat Äre Gefierdaten.</p></div></article>
+          <article><span aria-hidden="true">◫</span><div><strong id="assurance-bundle-title">Komplett geduecht</strong><p id="assurance-bundle-text">Pflicht- an Zousatzdeeler ginn direkt matgewisen.</p></div></article>
+          <article><span aria-hidden="true">⚙</span><div><strong id="assurance-garage-title">Garage-Kompetenz</strong><p id="assurance-garage-text">Fachlech Hëllef virum Kaf an op Wonsch beim Abau.</p></div></article>
+          <article><span aria-hidden="true">↗</span><div><strong id="assurance-lu-title">Lokal zu Bettenduerf</strong><p id="assurance-lu-text">Ee richtegen Uspriechpartner amplaz engem anonyme Shop.</p></div></article>
         </div>
       </section>
 
       <!-- Katalog -->
       <section class="section" id="shop-catalog">
         <div class="container">
+          <div class="shop-catalog-head">
+            <div><p class="eyebrow" id="shop-catalog-eyebrow">Produkter</p><h2 id="shop-catalog-title">Déi passend Auswiel fir Äert Gefier</h2><p id="shop-catalog-intro">Start mat der Mark an der Kategorie oder benotzt de Gefier-Finder fir nëmme passend Deeler ze gesinn.</p></div>
+            <a href="#shop-guide" class="shop-guide-link" id="shop-guide-link">Produktlinne verstoen <span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="shop-filter-section-label" id="shop-brand-label">1 · Mark wielen</div>
           <div
             class="mf-chips"
             id="mf-chips"
             role="group"
             aria-label="Marque"
           ></div>
+          <div class="shop-filter-section-label" id="shop-category-label">2 · Kategorie wielen</div>
           <div
             class="cat-chips"
             id="cat-chips"
@@ -269,8 +304,7 @@
             <button class="shop-filter-reset" id="filter-reset" type="button">Filter zurücksetzen</button>
             <button class="shop-favorites-toggle" id="favorites-toggle" type="button" aria-pressed="false">♡ Merkliste</button>
           </div>
-          <p class="shop-result-info" id="shop-result-info"></p>
-          <p class="shop-vat-note" id="shop-vat-note"></p>
+          <div class="shop-results-head"><div><p class="shop-result-info" id="shop-result-info"></p><p class="shop-vat-note" id="shop-vat-note"></p></div><span class="shop-personal-check" id="shop-personal-check">✓ Passform virum Versand gepréift</span></div>
           <div class="shop-grid" id="shop-grid"></div>
           <p class="shop-empty" id="shop-empty" hidden>Keng Artikelen fonnt.</p>
           <div class="shop-load-wrap"><button class="btn btn-outline" id="shop-load-more" type="button" hidden>Mehr anzeigen</button></div>
@@ -281,9 +315,9 @@
         <div class="container">
           <div class="section-head"><p class="eyebrow" id="shop-guide-eyebrow">Orientierung</p><h2 id="shop-guide-title">Welche Produktlinie passt zu mir?</h2></div>
           <div class="shop-guide-grid">
-            <article><strong>DBA Street Series</strong><p id="guide-dba-street">Für Alltag und sportliche Straßennutzung.</p></article>
-            <article><strong>DBA 4000 / 5000 Series</strong><p id="guide-dba-race">Für hohe thermische Belastung, Trackdays und Motorsport – Zulassung individuell prüfen.</p></article>
-            <article><strong>REMUS Sportauspuff</strong><p id="guide-remus">Vom zugelassenen Straßensystem bis zur Motorsport-Komponente. Die Kennzeichnung am Produkt ist entscheidend.</p></article>
+            <article><span class="shop-guide-number">01</span><span class="shop-guide-tag">DAILY</span><strong>DBA Street Series</strong><p id="guide-dba-street">Für Alltag und sportliche Straßennutzung.</p></article>
+            <article><span class="shop-guide-number">02</span><span class="shop-guide-tag">PERFORMANCE</span><strong>DBA 4000 / 5000 Series</strong><p id="guide-dba-race">Für hohe thermische Belastung, Trackdays und Motorsport – Zulassung individuell prüfen.</p></article>
+            <article><span class="shop-guide-number">03</span><span class="shop-guide-tag">SOUND</span><strong>REMUS Sportauspuff</strong><p id="guide-remus">Vom zugelassenen Straßensystem bis zur Motorsport-Komponente. Die Kennzeichnung am Produkt ist entscheidend.</p></article>
           </div>
         </div>
       </section>

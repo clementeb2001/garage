@@ -26,7 +26,7 @@
      well DBA spéider nogelueden gëtt an d'Tabellen erweidert. */
   var MAKE_IDX = {};
 
-  var state = { mode: "all", q: "", mf: "all", cat: "all", brand: "", model: "", generation: "", year: "", engine: "", axle: "all", approval: "all", sort: "name", favoritesOnly: false };
+  var state = { mode: "all", q: "", mf: "all", cat: "all", brand: "", model: "", modelLabel: "", generation: "", year: "", engine: "", axle: "all", approval: "all", sort: "name", favoritesOnly: false };
   var favorites = loadJson("gk_shop_favorites", []);
   var compareIds = loadJson("gk_shop_compare", []);
   var activeCompareDialog = null;
@@ -268,12 +268,12 @@
     tab_fahrzeug: "Gefier",
     ph_text: "Bezeechnung oder Artikelnummer …",
     ph_brand: "Mark wielen oder aginn",
-    ph_model: "Modell wielen oder aginn",
+    ph_model: "Geneeë Modell / Baurei wielen",
     ph_generation: "Baurei wielen",
     ph_year: "Baujoer wielen",
     ph_engine: "Motoriséierung wielen",
     btn_veh: "Passend Deeler fannen",
-    veh_note: "Wielt all Felder aus, fir nëmme passend Deeler fir Äert Gefier ze gesinn.",
+    veh_note: "D’Baujoeren an d’Motoriséierunge ginn eréischt nom exakt gewielte Modell ugewisen.",
     info_all: "{n} Produkter",
     info_more: "{n} Produkter (déi éischt {c} ginn ugewisen – wielt Äert Gefier oder verfeinert Är Sich)",
     info_search: "{n} Resultater fir „{q}“",
@@ -309,8 +309,8 @@
     legal_more: "Vollstänneg Shop- a Verbraucherinformatioune liesen →"
   });
   Object.assign(T.de, {
-    ph_generation: "Baureihe wählen", ph_year: "Baujahr wählen", ph_engine: "Motorisierung wählen",
-    veh_note: "Wählen Sie alle Felder aus, damit nur passende Teile für Ihr Fahrzeug angezeigt werden.",
+    ph_model: "Genaues Modell / Baureihe wählen", ph_generation: "Baureihe wählen", ph_year: "Baujahr wählen", ph_engine: "Motorisierung wählen",
+    veh_note: "Baujahre und Motorisierungen werden erst nach Auswahl des genauen Modells angezeigt.",
     cart_checkout: "Zahlungspflichtig bestellen",
     legal_required: "Bitte bestätigen Sie die Shop- und Verbraucherinformationen, bevor Sie bestellen.",
     legal_text: "Ich habe die Shop- und Verbraucherinformationen gelesen und bestätige die zahlungspflichtige Bestellung.",
@@ -322,8 +322,8 @@
     legal_more: "Vollständige Shop- und Verbraucherinformationen lesen →"
   });
   Object.assign(T.fr, {
-    ph_generation: "Choisir la génération", ph_year: "Choisir l’année", ph_engine: "Choisir la motorisation",
-    veh_note: "Sélectionnez tous les champs afin de n’afficher que les pièces adaptées à votre véhicule.",
+    ph_model: "Choisir le modèle / la génération exacte", ph_generation: "Choisir la génération", ph_year: "Choisir l’année", ph_engine: "Choisir la motorisation",
+    veh_note: "Les années et motorisations apparaissent après la sélection du modèle exact.",
     cart_checkout: "Commander avec obligation de paiement",
     legal_required: "Veuillez confirmer les informations de vente et de consommation avant de commander.",
     legal_text: "J’ai lu les informations de vente et de consommation et je confirme la commande avec obligation de paiement.",
@@ -335,8 +335,8 @@
     legal_more: "Lire toutes les informations de vente et de consommation →"
   });
   Object.assign(T.en, {
-    ph_generation: "Choose generation", ph_year: "Choose model year", ph_engine: "Choose engine",
-    veh_note: "Select every field to show only parts suitable for your vehicle.",
+    ph_model: "Choose exact model / generation", ph_generation: "Choose generation", ph_year: "Choose model year", ph_engine: "Choose engine",
+    veh_note: "Model years and engines appear after you select the exact model.",
     cart_checkout: "Place order with obligation to pay",
     legal_required: "Please confirm the shop and consumer information before ordering.",
     legal_text: "I have read the shop and consumer information and confirm that the order carries an obligation to pay.",
@@ -471,7 +471,7 @@
   Object.assign(T.lb, { mf_all: "All Marquen", axle_f: "Viischt Achs", axle_r: "Hënnescht Achs",
     sub: "REMUS-Sportauspuffanlagen an DBA-Bremsen – mat Bild a Präis. Wielt d’Marque oder Äert Gefier, oder sicht no engem Artikel.",
     preview_title: "Intern Virschau", preview_text: "Dëse Beräich ass nëmme mam Virschau-Link sichtbar.",
-    label_brand: "Mark", label_model: "Modell", label_generation: "Baurei", label_year: "Baujoer", label_engine: "Motoriséierung", search_label: "Artikel sichen", mf_label: "Marque", cat_label: "Kategorien", close_label: "Zoumaachen",
+    label_brand: "Mark", label_model: "Geneeë Modell / Baurei", label_generation: "Baurei", label_year: "Baujoer", label_engine: "Motoriséierung", search_label: "Artikel sichen", mf_label: "Marque", cat_label: "Kategorien", close_label: "Zoumaachen",
     compat_review: "Passform iwwerpréiwen", compat_review_title: "D’DBA-Zouuerdnung baséiert deelweis nëmmen op Modell a Baujoer. Mir kontrolléieren d’Passform virum Versand mat de komplette Gefierdaten.",
     no_road_title: "Net fir den ëffentleche Stroosseverkéier zougelooss. Nëmme fir Motorsport oder zougeloossen Asaz benotzen.",
     info_veh: "{n} méiglecherweis passend Produkter fir {v}",
@@ -479,7 +479,7 @@
   Object.assign(T.de, { mf_all: "Alle Marken", axle_f: "Vorderachse", axle_r: "Hinterachse",
     sub: "REMUS-Sportauspuffanlagen und DBA-Bremsen – mit Bild und Preis. Marke oder Fahrzeug wählen oder Artikel suchen.",
     preview_title: "Interne Vorschau", preview_text: "Dieser Bereich ist nur über den Vorschau-Link sichtbar.",
-    label_brand: "Marke", label_model: "Modell", label_generation: "Baureihe", label_year: "Baujahr", label_engine: "Motorisierung", search_label: "Artikel suchen", mf_label: "Hersteller", cat_label: "Kategorien", close_label: "Schließen",
+    label_brand: "Marke", label_model: "Genaues Modell / Baureihe", label_generation: "Baureihe", label_year: "Baujahr", label_engine: "Motorisierung", search_label: "Artikel suchen", mf_label: "Hersteller", cat_label: "Kategorien", close_label: "Schließen",
     compat_review: "Passform prüfen", compat_review_title: "Die DBA-Zuordnung basiert teilweise nur auf Modell und Baujahr. Wir prüfen die Passform vor dem Versand anhand der vollständigen Fahrzeugdaten.",
     no_road_title: "Nicht für den öffentlichen Straßenverkehr zugelassen. Nur im Motorsport oder in einem zulässigen Einsatzbereich verwenden.",
     info_veh: "{n} möglicherweise passende Produkte für {v}",
@@ -487,7 +487,7 @@
   Object.assign(T.fr, { mf_all: "Toutes marques", axle_f: "Essieu avant", axle_r: "Essieu arrière",
     sub: "Échappements sport REMUS et freins DBA – avec photo et prix. Choisissez la marque ou votre véhicule, ou cherchez un article.",
     preview_title: "Aperçu interne", preview_text: "Cette zone est uniquement visible via le lien d’aperçu.",
-    label_brand: "Marque", label_model: "Modèle", label_generation: "Génération", label_year: "Année", label_engine: "Motorisation", search_label: "Rechercher un article", mf_label: "Fabricants", cat_label: "Catégories", close_label: "Fermer",
+    label_brand: "Marque", label_model: "Modèle / génération exacte", label_generation: "Génération", label_year: "Année", label_engine: "Motorisation", search_label: "Rechercher un article", mf_label: "Fabricants", cat_label: "Catégories", close_label: "Fermer",
     compat_review: "Vérifier l’affectation", compat_review_title: "L’affectation DBA repose parfois uniquement sur le modèle et l’année. Nous vérifions la compatibilité avant l’expédition avec les données complètes du véhicule.",
     no_road_title: "Non homologué pour la voie publique. À utiliser uniquement en compétition ou dans un cadre autorisé.",
     info_veh: "{n} produits potentiellement compatibles pour {v}",
@@ -495,7 +495,7 @@
   Object.assign(T.en, { mf_all: "All brands", axle_f: "Front axle", axle_r: "Rear axle",
     sub: "REMUS sport exhausts and DBA brakes – with photo and price. Pick the brand or your vehicle, or search an article.",
     preview_title: "Internal preview", preview_text: "This area is only visible through the preview link.",
-    label_brand: "Make", label_model: "Model", label_generation: "Generation", label_year: "Model year", label_engine: "Engine", search_label: "Search products", mf_label: "Manufacturers", cat_label: "Categories", close_label: "Close",
+    label_brand: "Make", label_model: "Exact model / generation", label_generation: "Generation", label_year: "Model year", label_engine: "Engine", search_label: "Search products", mf_label: "Manufacturers", cat_label: "Categories", close_label: "Close",
     compat_review: "Verify fitment", compat_review_title: "Some DBA fitments are based only on model and year. We verify compatibility against the complete vehicle data before dispatch.",
     no_road_title: "Not approved for public-road use. Use only in motorsport or another permitted setting.",
     info_veh: "{n} potentially compatible products for {v}",
@@ -505,6 +505,35 @@
   Object.assign(T.de, { filter_axle:"Achse", filter_axle_all:"Alle Achsen", filter_approval:"Zulassung", filter_approval_all:"Alle Zulassungen", filter_road:"Straßenzulassung", filter_race:"Ohne Straßenzulassung", filter_sort:"Sortierung", sort_name:"Name A–Z", sort_price_asc:"Preis aufsteigend", sort_price_desc:"Preis absteigend", filter_reset:"Filter zurücksetzen", favorites:"Merkliste", load_more:"Mehr anzeigen ({n} weitere)", inquiry:"Passform prüfen lassen", favorite_add:"Auf die Merkliste", favorite_remove:"Von der Merkliste entfernen", compare:"Vergleichen", compare_add:"Zum Vergleich", compare_count:"{n} Produkte ausgewählt", compare_clear:"Leeren", guide_eyebrow:"Orientierung", guide_title:"Welche Produktlinie passt zu mir?", guide_dba_street:"Für Alltag und sportliche Straßennutzung.", guide_dba_race:"Für hohe thermische Belastung, Trackdays und Motorsport – Zulassung individuell prüfen.", guide_remus:"Vom zugelassenen Straßensystem bis zur Motorsport-Komponente. Die Kennzeichnung am Produkt ist entscheidend.", trust_title:"Unsicher bei der Passform?", trust_text:"Wir prüfen Artikelnummer, Fahrzeugdaten und benötigte Zusatzteile vor der Bestellung persönlich.", trust_cta:"Beratung anfragen" });
   Object.assign(T.fr, { filter_axle:"Essieu", filter_axle_all:"Tous les essieux", filter_approval:"Homologation", filter_approval_all:"Toutes homologations", filter_road:"Homologué route", filter_race:"Sans homologation route", filter_sort:"Tri", sort_name:"Nom A–Z", sort_price_asc:"Prix croissant", sort_price_desc:"Prix décroissant", filter_reset:"Réinitialiser", favorites:"Favoris", load_more:"Afficher plus ({n} restants)", inquiry:"Faire vérifier l’affectation", favorite_add:"Ajouter aux favoris", favorite_remove:"Retirer des favoris", guide_eyebrow:"Orientation", guide_title:"Quelle gamme me convient?", guide_dba_street:"Pour le quotidien et la conduite sportive sur route.", guide_dba_race:"Pour fortes contraintes thermiques, journées circuit et compétition – homologation à vérifier.", guide_remus:"Du système routier homologué à la pièce compétition. Le marquage du produit fait foi.", trust_title:"Un doute sur la compatibilité?", trust_text:"Nous vérifions personnellement la référence, les données du véhicule et les pièces complémentaires nécessaires.", trust_cta:"Demander conseil" });
   Object.assign(T.en, { filter_axle:"Axle", filter_axle_all:"All axles", filter_approval:"Approval", filter_approval_all:"All approvals", filter_road:"Road approved", filter_race:"No road approval", filter_sort:"Sort", sort_name:"Name A–Z", sort_price_asc:"Price low to high", sort_price_desc:"Price high to low", filter_reset:"Reset filters", favorites:"Favourites", load_more:"Show more ({n} remaining)", inquiry:"Request fitment check", favorite_add:"Add to favourites", favorite_remove:"Remove from favourites", guide_eyebrow:"Guidance", guide_title:"Which product line is right for me?", guide_dba_street:"For everyday and sporty road use.", guide_dba_race:"For high thermal loads, track days and motorsport – check approval individually.", guide_remus:"From road-approved systems to motorsport components. The product marking is decisive.", trust_title:"Unsure about fitment?", trust_text:"We personally verify the part number, vehicle details and required additional parts before ordering.", trust_cta:"Ask for advice" });
+
+  Object.assign(T.lb, {
+    title:"Autodeeler, déi wierklech passen.", sub:"REMUS Sportauspuffanlagen an DBA-Bremsen – no Gefier gefiltert a virun der Bestellung perséinlech kontrolléiert.",
+    proof_kicker:"Kaaft mat Sécherheet", proof_title:"Perséinlech Passformkontroll", proof_text:"Mir kontrolléieren Gefier, Motoriséierung an all néideg Zousatzdeeler virun der definitiver Bestellung.", proof_one:"Keng blann Deelerbestellung", proof_two:"Komplett Bundles amplaz Iwwerraschungen", proof_three:"Berodung aus der eegener Garage",
+    finder_step:"SCHRËTT 1", finder_title:"Wéi wëllt Dir Äert Deel fannen?", journey_find:"Fannen", journey_check:"Préiwen", journey_order:"Bestellen",
+    assurance_fit_title:"Passform gepréift", assurance_fit_text:"Mir kontrolléieren all Bestellung mat Äre Gefierdaten.", assurance_bundle_title:"Komplett geduecht", assurance_bundle_text:"Pflicht- an Zousatzdeeler ginn direkt matgewisen.", assurance_garage_title:"Garage-Kompetenz", assurance_garage_text:"Fachlech Hëllef virum Kaf an op Wonsch beim Abau.", assurance_lu_title:"Lokal zu Bettenduerf", assurance_lu_text:"Ee richtegen Uspriechpartner amplaz engem anonyme Shop.",
+    catalog_eyebrow:"Produkter", catalog_title:"Déi passend Auswiel fir Äert Gefier", catalog_intro:"Start mat der Mark an der Kategorie oder benotzt de Gefier-Finder fir nëmme passend Deeler ze gesinn.", guide_link:"Produktlinne verstoen ↓", brand_label:"1 · Mark wielen", category_label:"2 · Kategorie wielen", personal_check:"✓ Passform virum Versand gepréift"
+  });
+  Object.assign(T.de, {
+    title:"Autoteile, die wirklich passen.", sub:"REMUS-Sportauspuffanlagen und DBA-Bremsen – nach Fahrzeug gefiltert und vor der Bestellung persönlich geprüft.",
+    proof_kicker:"Mit Sicherheit kaufen", proof_title:"Persönliche Passformprüfung", proof_text:"Wir prüfen Fahrzeug, Motorisierung und alle benötigten Zusatzteile vor der endgültigen Bestellung.", proof_one:"Keine blinde Teilebestellung", proof_two:"Komplette Bundles statt Überraschungen", proof_three:"Beratung aus der eigenen Werkstatt",
+    finder_step:"SCHRITT 1", finder_title:"Wie möchten Sie Ihr Teil finden?", journey_find:"Finden", journey_check:"Prüfen", journey_order:"Bestellen",
+    assurance_fit_title:"Passform geprüft", assurance_fit_text:"Wir prüfen jede Bestellung anhand Ihrer Fahrzeugdaten.", assurance_bundle_title:"Vollständig gedacht", assurance_bundle_text:"Pflicht- und Zusatzteile werden direkt angezeigt.", assurance_garage_title:"Werkstatt-Kompetenz", assurance_garage_text:"Fachliche Hilfe vor dem Kauf und auf Wunsch beim Einbau.", assurance_lu_title:"Lokal in Bettendorf", assurance_lu_text:"Ein echter Ansprechpartner statt eines anonymen Shops.",
+    catalog_eyebrow:"Produkte", catalog_title:"Die passende Auswahl für Ihr Fahrzeug", catalog_intro:"Starten Sie mit Marke und Kategorie oder nutzen Sie den Fahrzeug-Finder, um nur passende Teile zu sehen.", guide_link:"Produktlinien verstehen ↓", brand_label:"1 · Marke wählen", category_label:"2 · Kategorie wählen", personal_check:"✓ Passform vor Versand geprüft"
+  });
+  Object.assign(T.fr, {
+    title:"Des pièces vraiment adaptées.", sub:"Échappements sport REMUS et freins DBA – filtrés par véhicule et contrôlés personnellement avant la commande.",
+    proof_kicker:"Achetez en toute confiance", proof_title:"Vérification personnalisée", proof_text:"Nous vérifions le véhicule, la motorisation et toutes les pièces complémentaires nécessaires avant la commande définitive.", proof_one:"Aucune commande à l’aveugle", proof_two:"Des ensembles complets, sans surprise", proof_three:"Les conseils de notre propre garage",
+    finder_step:"ÉTAPE 1", finder_title:"Comment souhaitez-vous trouver votre pièce ?", journey_find:"Trouver", journey_check:"Vérifier", journey_order:"Commander",
+    assurance_fit_title:"Compatibilité vérifiée", assurance_fit_text:"Chaque commande est contrôlée avec les données du véhicule.", assurance_bundle_title:"Ensembles complets", assurance_bundle_text:"Les pièces obligatoires et complémentaires sont indiquées.", assurance_garage_title:"Expertise garage", assurance_garage_text:"Conseils avant l’achat et montage possible sur demande.", assurance_lu_title:"Local à Bettendorf", assurance_lu_text:"Un véritable interlocuteur plutôt qu’une boutique anonyme.",
+    catalog_eyebrow:"Produits", catalog_title:"La sélection adaptée à votre véhicule", catalog_intro:"Commencez par la marque et la catégorie ou utilisez la recherche par véhicule pour n’afficher que les pièces compatibles.", guide_link:"Comprendre les gammes ↓", brand_label:"1 · Choisir la marque", category_label:"2 · Choisir la catégorie", personal_check:"✓ Compatibilité vérifiée avant expédition"
+  });
+  Object.assign(T.en, {
+    title:"Car parts that actually fit.", sub:"REMUS sports exhausts and DBA brakes – filtered by vehicle and personally checked before ordering.",
+    proof_kicker:"Buy with confidence", proof_title:"Personal fitment check", proof_text:"We verify the vehicle, engine and every required additional part before the final order.", proof_one:"No blind parts ordering", proof_two:"Complete bundles with no surprises", proof_three:"Advice from our own workshop",
+    finder_step:"STEP 1", finder_title:"How would you like to find your part?", journey_find:"Find", journey_check:"Verify", journey_order:"Order",
+    assurance_fit_title:"Fitment checked", assurance_fit_text:"We verify every order against your vehicle details.", assurance_bundle_title:"Complete by design", assurance_bundle_text:"Required and additional parts are shown directly.", assurance_garage_title:"Workshop expertise", assurance_garage_text:"Expert help before purchase and installation on request.", assurance_lu_title:"Local in Bettendorf", assurance_lu_text:"A real contact person instead of an anonymous shop.",
+    catalog_eyebrow:"Products", catalog_title:"The right selection for your vehicle", catalog_intro:"Start with make and category or use the vehicle finder to display compatible parts only.", guide_link:"Understand product ranges ↓", brand_label:"1 · Choose make", category_label:"2 · Choose category", personal_check:"✓ Fitment checked before dispatch"
+  });
   Object.assign(T.lb, { compare:"Vergläichen", compare_add:"Vergläichen", compare_count:"{n} Produkter ausgewielt", compare_clear:"Eidel maachen" });
   Object.assign(T.fr, { compare:"Comparer", compare_add:"Comparer", compare_count:"{n} produits sélectionnés", compare_clear:"Vider" });
   Object.assign(T.en, { compare:"Compare", compare_add:"Compare", compare_count:"{n} products selected", compare_clear:"Clear" });
@@ -681,7 +710,7 @@
     return true;
   }
   function selectedVehicleLabel() {
-    return [state.brand, state.model, state.generation !== "—" ? state.generation : "", state.year, state.engine !== "—" ? state.engine : ""]
+    return [state.brand, state.modelLabel || state.model, state.year, state.engine !== "—" ? state.engine : ""]
       .filter(Boolean).join(" · ");
   }
 
@@ -1597,26 +1626,75 @@
     var bi = MAKE_IDX[state.brand];
     return ALL_FITS.filter(function (x) {
       if (!state.brand || x[0] !== bi) return false;
-      if (level > 0 && state.model && x[1] !== state.model) return false;
-      if (level > 1 && state.generation && generationLabel(x) !== state.generation) return false;
-      if (level > 2 && state.year && !yearFits(x, state.year)) return false;
+      if (level > 0 && state.model && !modelMatch(x[1], state.model)) return false;
+      if (level > 0 && state.generation && x[2] > -1 && generationLabel(x) !== state.generation) return false;
+      if (level > 1 && state.year && !yearFits(x, state.year)) return false;
       return true;
     });
   }
-  function generationOptions() {
-    return uniqueSorted(fitsForSelection(1).map(generationLabel)).filter(function (o) { return o !== "—"; });
+  function normalizedModelText(value) {
+    return String(value || "").toUpperCase().replace(/[()\[\],./_-]+/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function exactModelRecords() {
+    var bi = MAKE_IDX[state.brand], seen = {}, records = [];
+    if (bi == null) return records;
+    ALL_FITS.forEach(function (x) {
+      if (x[0] !== bi || !x[1]) return;
+      var rawModel = String(x[1]).trim();
+      var model = rawModel.replace(/\s+fzj\d+(?:-\d+)?$/i, "").trim();
+      var generation = generationLabel(x);
+      var hasGeneration = generation !== "—";
+      var modelKey = normalizedModelText(model);
+      var generationKey = normalizedModelText(generation);
+      var label = model;
+      if (hasGeneration && generationKey && modelKey.indexOf(generationKey) === -1) label += " · " + generation;
+      var key = normalizedModelText(label);
+      if (!seen[key]) {
+        seen[key] = { label: label, model: rawModel, generation: hasGeneration ? generation : "" };
+        records.push(seen[key]);
+      }
+    });
+    return records.sort(function (a, b) { return a.label.localeCompare(b.label, undefined, { numeric: true }); });
+  }
+  function exactModelOptions() {
+    return exactModelRecords().map(function (record) { return record.label; });
+  }
+  function exactModelRecord(label) {
+    var key = normalizedModelText(label);
+    return exactModelRecords().filter(function (record) { return normalizedModelText(record.label) === key; })[0] || null;
+  }
+  function fitsForExactModel() {
+    var bi = MAKE_IDX[state.brand];
+    var generationKey = normalizedModelText(state.generation);
+    return ALL_FITS.filter(function (x) {
+      if (!state.brand || x[0] !== bi || !state.model || !modelMatch(x[1], state.model)) return false;
+      if (!state.generation) return true;
+      if (x[2] > -1) return generationLabel(x) === state.generation;
+      return generationKey && normalizedModelText(x[1]).indexOf(generationKey) !== -1;
+    });
   }
   function yearOptions() {
     var years = [];
-    fitsForSelection(2).forEach(function (x) {
+    var selectedFits = fitsForExactModel();
+    var generationStart = selectedFits.reduce(function (min, x) { return x[5] && (!min || x[5] < min) ? x[5] : min; }, 0);
+    var inferredEnd = 0;
+    if (state.generation && generationStart) {
+      var bi = MAKE_IDX[state.brand];
+      ALL_FITS.forEach(function (x) {
+        if (x[0] !== bi || !modelMatch(x[1], state.model) || x[2] < 0 || generationLabel(x) === state.generation || !x[5]) return;
+        if (x[5] > generationStart && (!inferredEnd || x[5] - 1 < inferredEnd)) inferredEnd = x[5] - 1;
+      });
+    }
+    selectedFits.forEach(function (x) {
       var from = x[5] || 1990;
       var to = x[6] || new Date().getFullYear();
+      if (inferredEnd && to > inferredEnd) to = inferredEnd;
       for (var y = to; y >= from; y--) years.push(String(y));
     });
     return uniqueSorted(years, true);
   }
   function engineOptions() {
-    return uniqueSorted(fitsForSelection(3).map(engineLabel)).filter(function (o) { return o !== "—"; });
+    return uniqueSorted(fitsForExactModel().filter(function (x) { return !state.year || yearFits(x, state.year); }).map(engineLabel)).filter(function (o) { return o !== "—"; });
   }
   function setVehicleField(id, enabled, clear) {
     var el = $(id);
@@ -1626,14 +1704,13 @@
   }
   function updateVehicleButton() {
     var btn = $("btn-veh-search");
-    // Mark + Modell duergeet fir ze sichen; Baurei/Baujoer/Motor si fräiwëlleg fir d'verfeinerung
-    if (btn) btn.disabled = !(state.brand && state.model);
+    var engines = state.year ? engineOptions() : [];
+    if (btn) btn.disabled = !(state.brand && state.model && state.year && (!engines.length || state.engine));
   }
   function resetVehicleAfter(step) {
-    if (step < 1) { state.model = ""; setVehicleField("veh-model", !!state.brand, true); }
-    if (step < 2) { state.generation = ""; setVehicleField("veh-generation", !!state.model, true); }
-    if (step < 3) { state.year = ""; setVehicleField("veh-year", !!state.generation, true); }
-    if (step < 4) { state.engine = ""; setVehicleField("veh-engine", !!state.year, true); }
+    if (step < 1) { state.model = ""; state.modelLabel = ""; state.generation = ""; setVehicleField("veh-model", !!state.brand, true); }
+    if (step < 2) { state.year = ""; setVehicleField("veh-year", !!state.model, true); }
+    if (step < 3) { state.engine = ""; setVehicleField("veh-engine", !!state.year && engineOptions().length > 0, true); }
     updateVehicleButton();
   }
   function initCombos() {
@@ -1644,21 +1721,18 @@
         resetVehicleAfter(0);
       });
     makeCombo("veh-model", "list-model",
-      function () { return state.brand && BRANDS[state.brand] ? BRANDS[state.brand] : []; },
+      exactModelOptions,
       function (val) {
-        var ms = state.brand && BRANDS[state.brand] ? BRANDS[state.brand] : [];
-        state.model = ms.indexOf(val) !== -1 ? val : "";
+        var record = exactModelRecord(val);
+        state.model = record ? record.model : "";
+        state.modelLabel = record ? record.label : "";
+        state.generation = record ? record.generation : "";
         resetVehicleAfter(1);
-      });
-    makeCombo("veh-generation", "list-generation", generationOptions,
-      function (val) {
-        state.generation = generationOptions().indexOf(val) !== -1 ? val : "";
-        resetVehicleAfter(2);
       });
     makeCombo("veh-year", "list-year", yearOptions,
       function (val) {
         state.year = yearOptions().indexOf(val) !== -1 ? val : "";
-        resetVehicleAfter(3);
+        resetVehicleAfter(2);
       });
     makeCombo("veh-engine", "list-engine", engineOptions,
       function (val) {
@@ -1891,6 +1965,32 @@
     setTxt("veh-filter-note", t.veh_note);
     setTxt("shop-preview-title", t.preview_title);
     setTxt("shop-preview-text", t.preview_text);
+    setTxt("shop-proof-kicker", t.proof_kicker);
+    setTxt("shop-proof-title", t.proof_title);
+    setTxt("shop-proof-text", t.proof_text);
+    setTxt("shop-proof-one", t.proof_one);
+    setTxt("shop-proof-two", t.proof_two);
+    setTxt("shop-proof-three", t.proof_three);
+    setTxt("shop-finder-step", t.finder_step);
+    setTxt("shop-finder-title", t.finder_title);
+    setTxt("shop-journey-find", t.journey_find);
+    setTxt("shop-journey-check", t.journey_check);
+    setTxt("shop-journey-order", t.journey_order);
+    setTxt("assurance-fit-title", t.assurance_fit_title);
+    setTxt("assurance-fit-text", t.assurance_fit_text);
+    setTxt("assurance-bundle-title", t.assurance_bundle_title);
+    setTxt("assurance-bundle-text", t.assurance_bundle_text);
+    setTxt("assurance-garage-title", t.assurance_garage_title);
+    setTxt("assurance-garage-text", t.assurance_garage_text);
+    setTxt("assurance-lu-title", t.assurance_lu_title);
+    setTxt("assurance-lu-text", t.assurance_lu_text);
+    setTxt("shop-catalog-eyebrow", t.catalog_eyebrow);
+    setTxt("shop-catalog-title", t.catalog_title);
+    setTxt("shop-catalog-intro", t.catalog_intro);
+    setTxt("shop-guide-link", t.guide_link);
+    setTxt("shop-brand-label", t.brand_label);
+    setTxt("shop-category-label", t.category_label);
+    setTxt("shop-personal-check", t.personal_check);
     setTxt("label-veh-brand", t.label_brand);
     setTxt("label-veh-model", t.label_model);
     setTxt("label-veh-generation", t.label_generation);
@@ -1963,6 +2063,7 @@
     $("tab-fahrzeug").setAttribute("aria-selected", !isArt);
     $("panel-artikel").hidden = !isArt;
     $("panel-fahrzeug").hidden = isArt;
+    if (!isArt) ensureDba();
   }
   function doTextSearch() {
     state.mode = "search"; state.q = ($("q-text").value || "").trim(); state.cat = "all";
@@ -1970,7 +2071,7 @@
     render(); scrollToCatalog();
   }
   function doVehSearch() {
-    if (!(state.brand && state.model)) return; // Mark + Modell duergeet
+    if (!(state.brand && state.model && state.year)) return;
     state.mode = "vehicle"; state.cat = "all";
     ensureDba(function () { if (state.mode === "vehicle") render(); });
     render(); scrollToCatalog();
@@ -1998,7 +2099,7 @@
     var more = $("shop-load-more"); if (more) more.addEventListener("click", function () { visibleCount += PAGE_SIZE; render(); });
     var filterToggle=$("shop-filter-mobile-toggle"); if(filterToggle)filterToggle.addEventListener("click",function(){var open=this.getAttribute("aria-expanded")!=="true";this.setAttribute("aria-expanded",open?"true":"false");$("shop-filterbar").classList.toggle("is-mobile-open",open);});
     var vehicleChange=$("shop-vehicle-change"); if(vehicleChange)vehicleChange.addEventListener("click",function(){switchTab("fahrzeug");$("tab-fahrzeug").scrollIntoView({behavior:"smooth",block:"center"});});
-    var vehicleClear=$("shop-vehicle-clear"); if(vehicleClear)vehicleClear.addEventListener("click",function(){state.mode="all";state.brand="";state.model="";state.generation="";state.year="";state.engine="";["brand","model","generation","year","engine"].forEach(function(k){var e=$("veh-"+k);if(e)e.value="";});visibleCount=PAGE_SIZE;saveState();render();});
+    var vehicleClear=$("shop-vehicle-clear"); if(vehicleClear)vehicleClear.addEventListener("click",function(){state.mode="all";state.brand="";state.model="";state.modelLabel="";state.generation="";state.year="";state.engine="";["brand","model","year","engine"].forEach(function(k){var e=$("veh-"+k);if(e)e.value="";});visibleCount=PAGE_SIZE;saveState();render();});
     var compareOpen=$("shop-compare-open"); if(compareOpen) compareOpen.addEventListener("click",openCompare);
     var compareClear=$("shop-compare-clear"); if(compareClear) compareClear.addEventListener("click",function(){compareIds=[];updateCompareBar();render();});
     var ct = $("cart-toggle"); if (ct) ct.addEventListener("click", openCart);
@@ -2059,7 +2160,8 @@
     restoreState();
     applyStatics();
     initCombos();
-    ["brand","model","generation","year","engine"].forEach(function (key) { var el=$("veh-"+key); if (el) el.value=state[key] || ""; });
+    ["brand","year","engine"].forEach(function (key) { var el=$("veh-"+key); if (el) el.value=state[key] || ""; });
+    var restoredModel=$("veh-model"); if(restoredModel) restoredModel.value=state.modelLabel || state.model || "";
     updateVehicleButton();
     bind();
     render();
