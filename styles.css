@@ -3214,7 +3214,7 @@ html.shop-dev .shop-dev-badge a {
   margin: 0;
   padding: 4px;
   list-style: none;
-  max-height: min(440px, 52vh);
+  max-height: min(520px, calc(100vh - 210px));
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
@@ -3250,7 +3250,17 @@ html.shop-dev .shop-dev-badge a {
   color: var(--text, #1d2733);
   font-size: 0.95rem;
   font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  white-space: normal;
   cursor: pointer;
+}
+@media (min-width: 561px) {
+  .veh-field:last-of-type .combo-list {
+    right: 0;
+    left: auto;
+    width: min(540px, calc(100vw - 40px));
+  }
 }
 .combo-opt:hover,
 .combo-opt.active {
@@ -6245,7 +6255,7 @@ html.shop-dev .shop-card-body .shop-price {
    ============================================================ */
 html.shop-dev .shop-hero {
   padding: 74px 0 0;
-  overflow: hidden;
+  overflow: visible;
   background: #080d13;
 }
 html.shop-dev .shop-hero-bg {
@@ -6347,15 +6357,6 @@ html.shop-dev .shop-tab.active { box-shadow: 0 7px 20px rgba(0,0,0,.22); }
 html.shop-dev .search-row input[type="search"], html.shop-dev .veh-row input { height: 54px; border: 1px solid #e0e5e9; border-radius: 11px; background: #fff; }
 html.shop-dev .search-row .btn, html.shop-dev .veh-row .btn { min-height: 54px; border-radius: 11px; padding-inline: 24px; box-shadow: none; }
 
-.shop-assurance { padding: 0; border-bottom: 1px solid #dfe4e9; background: #fff; }
-.shop-assurance-grid { display: grid; grid-template-columns: repeat(4,1fr); }
-.shop-assurance article { display: flex; gap: 13px; min-width: 0; padding: 25px 18px; border-right: 1px solid #e2e6ea; }
-.shop-assurance article:first-child { padding-left: 0; }
-.shop-assurance article:last-child { border-right: 0; padding-right: 0; }
-.shop-assurance article > span { display: grid; flex: 0 0 38px; height: 38px; place-items: center; border-radius: 11px; background: #fff0f1; color: #cf1424; font-size: 1.05rem; font-weight: 900; }
-.shop-assurance article strong { display: block; margin: 1px 0 4px; color: #111c28; font-size: .85rem; }
-.shop-assurance article p { margin: 0; color: #667481; font-size: .75rem; line-height: 1.45; }
-
 html.shop-dev #shop-catalog { padding-top: 64px; background: #f2f4f6; }
 .shop-catalog-head { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 32px; }
 .shop-catalog-head h2 { margin: 4px 0 9px; color: #101b27; font-size: clamp(1.7rem,3vw,2.5rem); letter-spacing: -.025em; }
@@ -6394,10 +6395,6 @@ html.shop-dev .shop-add { min-height: 47px; border-width: 1px; border-radius: 11
 @media (max-width: 980px) {
   .shop-hero-top { grid-template-columns: 1fr; }
   .shop-hero-proof { display: none; }
-  .shop-assurance-grid { grid-template-columns: 1fr 1fr; }
-  .shop-assurance article:nth-child(2) { border-right: 0; }
-  .shop-assurance article:nth-child(-n+2) { border-bottom: 1px solid #e2e6ea; }
-  .shop-assurance article:first-child, .shop-assurance article:nth-child(3) { padding-left: 0; }
   .shop-catalog-head { align-items: flex-start; flex-direction: column; }
 }
 @media (max-width: 700px) {
@@ -6410,9 +6407,6 @@ html.shop-dev .shop-add { min-height: 47px; border-width: 1px; border-radius: 11
   .shop-journey li:not(:last-child)::after { width: 14px; margin-inline: 6px; }
   .shop-journey b { display: none; }
   html.shop-dev .shop-tabs { max-width: none; }
-  .shop-assurance-grid { grid-template-columns: 1fr; }
-  .shop-assurance article, .shop-assurance article:first-child, .shop-assurance article:nth-child(3), .shop-assurance article:last-child { padding: 18px 0; border-right: 0; border-bottom: 1px solid #e2e6ea; }
-  .shop-assurance article:last-child { border-bottom: 0; }
   html.shop-dev #shop-catalog { padding-top: 44px; }
   .shop-catalog-head { margin-bottom: 24px; }
   html.shop-dev .mf-chips, html.shop-dev .cat-chips { flex-wrap: nowrap; margin-inline: -18px; padding: 0 18px 7px; overflow-x: auto; scrollbar-width: none; }
