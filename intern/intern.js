@@ -360,11 +360,11 @@
       clauses:[
         "<b>Ofschloss vum Vertrag.</b> Mat der Ënnerschrëft gëtt dëse Locatiounsvertrag verbindlech. De Locataire bestätegt, datt hien d'Gefier am Zoustand vum Iwwergabprotokoll iwwerholl huet.",
         "<b>Chauffeur.</b> E gültegt Identitéitsdokument an deen néidege Führerschäin goufe virgeluecht. D'Gefier dierf nëmme vun de Persoune gefouert ginn, déi an dësem Vertrag agedroe sinn.",
-        "<b>Notzung.</b> Suergfälteg a bestëmmungsgeméiss Notzung. Keen Iwwerlueden, keng Weiderverlounung, keng rechtswiddreg Notzung. Faarten mat engem Unhänger oder an d'Ausland nëmme mat ausdrécklecher Erlaabnes.",
+        "<b>Notzung.</b> Suergfälteg a bestëmmungsgeméiss Notzung. Keen Iwwerlueden, keng Weiderverlounung, keng gesetzeswiddreg Notzung. Faarten mat engem Unhänger oder an d'Ausland nëmme mat ausdrécklecher Erlaabnes.",
         "<b>Kilometer & Tanken.</b> {included} km pro Locatioun sinn abegraff; all weidere Kilometer gëtt mat {km} verrechent. D'Gefier muss vollgetankt zréckbruecht ginn, soss ginn d'Tankkäschten + 50 € Pauschal verrechent.",
-        "<b>Retour & Verspéidung.</b> Retour zu der vereinbarter Zäit an op der vereinbarter Plaz. Pro ugefaangener Stonn Verspéidung gëtt {late} verrechent.",
+        "<b>Retour & Verspéidung.</b> Retour zu där Zäit an op där Plaz, déi ofgemaach goufen. Pro ugefaangener Stonn Verspéidung gëtt {late} verrechent.",
         "<b>Kautioun & Bezuelung.</b> D'Kautioun gëtt virum Ufank festgehalen; d'Bezuelung geschitt beim Retour vum Gefier.",
-        "<b>Assurance & Haftung.</b> Bei Accident, Pann, Déifstall oder Schued muss Autoservice Bettenduerf direkt informéiert ginn; keng Reparatur ouni Zoustëmmung. Zwingend gesetzlech Rechter bleiwen onberéiert.",
+        "<b>Assurance & Haftung.</b> Bei Accident, Pann, Déifstall oder Schued muss Autoservice Bettenduerf direkt informéiert ginn; keng Reparatur ouni Zoustëmmung. Obligatoresch gesetzlech Rechter bleiwen onberéiert.",
         "<b>Dateschutz.</b> D'perséinlech Donnéeë ginn eleng fir d'Ofwécklung vun der Locatioun veraarbecht (cf. Dateschutzerklärung op autoservicebettenduerf.lu)."
       ] },
     de: { title:"Mietvertrag", ref:"Ref.", secVermieter:"Vermieter", secMieter:"Mieter", secObjet:"Mietobjekt", secPeriod:"Mietzeitraum", secPrix:"Preis, Kaution und Zahlung", secTerms:"Bedingungen",
@@ -1062,7 +1062,7 @@
       var kpis = [
         { cls: "", n: rec.length, l: "Reservatiounen (90d)", ic: "📈" },
         { cls: "accent", n: recAp.length, l: "Rendez-vous (90d)", ic: "🔧" },
-        { cls: "", n: (avgDur ? avgDur.toFixed(1).replace(".", ",") : "0"), l: "Ø Deeg / Verleih", ic: "⏱️" },
+        { cls: "", n: (avgDur ? avgDur.toFixed(1).replace(".", ",") : "0"), l: "Ø Deeg / Locatioun", ic: "⏱️" },
         { cls: "", n: noShow + "%", l: "Ofgeleent-Quote", ic: "🚫" },
         { cls: "ok", n: bk.length, l: "Ufroen insgesamt", ic: "📊" },
       ];
@@ -1116,7 +1116,7 @@
       var revKpis = [
         { cls: "ok", n: fmtEur(realizedTot), l: "Ëmsaz realiséiert", ic: "💰" },
         { cls: "accent", n: fmtEur(expectedTot), l: "Erwaart (confirméiert)", ic: "📅" },
-        { cls: "", n: doneCount, l: "Ofgeschloss Verleiher", ic: "✅" },
+        { cls: "", n: doneCount, l: "Ofgeschloss Locatiounen", ic: "✅" },
       ];
       $("an-rev-kpis").innerHTML = revKpis.map(function (t) { return '<div class="stat ' + t.cls + '"><div class="stat-ic">' + t.ic + '</div><div><div class="n" style="white-space:nowrap">' + t.n + '</div><div class="l">' + t.l + "</div></div></div>"; }).join("");
       var revNames = {}; Object.keys(realized).forEach(function (k) { revNames[k] = 1; }); Object.keys(expected).forEach(function (k) { revNames[k] = 1; });
@@ -1131,8 +1131,8 @@
           '<div style="flex:1;height:12px;background:var(--line,#e6e9ee);border-radius:6px;overflow:hidden"><div style="height:100%;width:' + w + '%;background:' + rpal[i % rpal.length] + '"></div></div>' +
           '<span style="flex:0 0 auto;text-align:right;font-weight:800;white-space:nowrap">' + fmtEur(x.r) + exp + '</span>' +
           '</div>';
-      }).join("") : '<p class="muted" style="font-size:0.85rem">Nach kee realiséierten oder confirméierten Verleih.</p>';
-      $("an-rev-note").textContent = "Basis: Verleih-Deeg × de bei der Bestätegung gespäicherte Präis, plus Zousaz-km an aner Käschten aus dem Retourprotokoll." + ((kmCostTot || otherTot) ? " Dovunner " + fmtEur(kmCostTot) + " aus " + kmTot.toLocaleString("de-DE") + " Zousaz-km an " + fmtEur(otherTot) + " aner Käschten." : "") + " D'Kautioun zielt net als Ëmsaz." + (unpriced ? " Puer Gefierer ouni hannerluechte Präis goufen iwwersprongen." : "");
+      }).join("") : '<p class="muted" style="font-size:0.85rem">Nach keng realiséiert oder confirméiert Locatioun.</p>';
+      $("an-rev-note").textContent = "Basis: Locatiounsdeeg × de bei der Bestätegung gespäicherte Präis, plus Zousaz-km an aner Käschten aus dem Retourprotokoll." + ((kmCostTot || otherTot) ? " Dovunner " + fmtEur(kmCostTot) + " aus " + kmTot.toLocaleString("de-DE") + " Zousaz-km an " + fmtEur(otherTot) + " aner Käschten." : "") + " D'Kautioun zielt net als Ëmsaz." + (unpriced ? " Puer Gefierer ouni hannerluechte Präis goufen iwwersprongen." : "");
 
       // utilization per vehicle (count of rental-days in last 90d)
       var byVeh = {};

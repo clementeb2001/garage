@@ -1,4 +1,4 @@
-/* Autoservice Bettenduerf – Service-Detailer (méissproocheg) */
+/* Autoservice Bettenduerf – Service-Detailer (méisproocheg) */
 (function () {
   var DLAB = {
     lb: {
@@ -43,11 +43,11 @@
       reifen: {
         title: "Pneueservice",
         intro:
-          "Vum saisonale Wiessel bis zur Alagerung – alles ronderëm Är Pneuen aus enger Hand.",
+          "Vum saisonale Wiessel bis zur Lagerung – alles ronderëm Är Pneuen aus enger Hand.",
         points: [
           "Pneuen op- an ofmontéieren an ausbalancéieren",
           "Summer-, Wanter- a Ganzjorespneuen",
-          "Alagerung vun de Pneuen",
+          "Lagerung vun de Pneuen",
           "Kontroll vum Profil a vum Pneuendrock",
         ],
       },

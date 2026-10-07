@@ -1,4 +1,4 @@
-/* Autoservice Bettenduerf — Location / Verlee (méisproocheg)
+/* Autoservice Bettenduerf — Locatioun / Verlee (méisproocheg)
    Katalog, Auswiel a Reservéierung iwwer den eegene Cloudflare-Worker. */
 (function () {
   "use strict";
@@ -96,15 +96,15 @@
   /* ---- Iwwersetzungen (Säit-Strings) ---- */
   var T = {
     lb: {
-      eyebrow: "Location · Verlee",
+      eyebrow: "Locatioun",
       title: "Gefierer & Unhänger lounen",
       sub: "Wielt Äert Gefier, gitt Äre Reservéierungszäitraum un – mir bestätegen Iech Är Ufro perséinlech.",
-      nav: "Location",
-      soon_eyebrow: "Location · Verlee",
+      nav: "Locatioun",
+      soon_eyebrow: "Locatioun",
       soon_title: "Eise Verlee ass an der Aarbecht",
-      soon_text: "Mir sinn amgaang, eise Verleih vun Unhänger a Gefierer opzebauen. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
+      soon_text: "Mir bauen de Moment eis Locatioun vun Unhänger a Gefierer op. Kuckt geschwënn erëm laanscht – oder kontaktéiert eis direkt.",
       soon_cta: "Ufro schécken", soon_back: "Zréck op d’Startsäit",
-      dev_badge: "Virschau-Modus – Location ëffentlech nach „an der Aarbecht“",
+      dev_badge: "Virschau-Modus – d'Locatioun ass ëffentlech nach „an der Aarbecht“",
       cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",
       cat_trailer_lbl: "Unhänger", cat_vehicle_lbl: "Gefier",
       price: "Präis op Ufro",
@@ -118,7 +118,7 @@
       submit: "Reservéierung ufroen",
       note: "D'Reservéierung ass eng Ufro a gëtt vun eis bestätegt.", period: "Zäitraum", day: "Dag", days: "Deeg", privacy_link: "Dateschutzerklärung",
       sending: "Gëtt geschéckt …",
-      ok: "Merci! Är Location-Ufro ass ukomm. Mir mellen eis séier.",
+      ok: "Merci! Är Ufro fir eng Locatioun ass ukomm. Mir mellen eis séier.",
       senderr: "Ups, dat huet net geklappt. Rufft eis w.e.g. un oder probéiert et méi spéit nach eng Kéier.",
       unavailable: "Dat ausgewielte Gefier oder Material ass an dësem Zäitraum leider net disponibel.",
       rate: "Ze vill Ufroen a kuerzer Zäit. Probéiert et w.e.g. méi spéit nach eng Kéier.",
@@ -229,7 +229,7 @@
       step1: "Schrëtt 1 vun 3 · Auswiel an Zäitraum", step2: "Schrëtt 2 vun 3 · Är Donnéeën", step3: "Schrëtt 3 vun 3 · Kontrolléieren",
       daysLabel: "Berechent Locatiounsdauer", rateLabel: "Dagespräis", totalLabel: "Viraussiichtleche Locatiounspräis", priceHint: "De Präis riicht sech nom gewielten Objet. Déi abegraff Kilometer, Zousaz-km, d’Kautioun an all weider Konditioune ginn pro Objet ugewisen a virun der verbindlecher Bestätegung matgedeelt.",
       trustEye: "Lokal · transparent · perséinlech", trustTitle: "Äre Transporter, direkt bei Ärer Garage", trust: [["An der eegener Garage betreit", "D’Gefier gëtt vun eis kontrolléiert a reegelméisseg ënnerhalen."], ["Lokal Ofhuelung", "Perséinlech Iwwergab beim Autoservice Bettenduerf zu Bettendorf."], ["Eng richteg Kontaktpersoun", "Mir kontrolléieren all Ufro a klären oppe Froen direkt mat Iech."]],
-      faqEye: "Gutt ze wëssen", faqTitle: "Heefeg Froen zur Locatioun", faq: [["Ass meng Online-Ufro direkt verbindlech?", "Nee. Mir kontrolléieren d’Disponibilitéit an d’Konditiounen a schécken Iech duerno eng perséinlech Bestätegung."], ["Wéi ee Führerschäin brauch ech?", "Déi néideg Kategorie steet beim jeeweilege Gefier oder Unhänger. Si hänkt vum gelounte Material, dem Zuchgefier an den zougeloossene Gesamtmassen of a gëtt virun der Iwwergab kontrolléiert."], ["Wat muss ech bei der Ofhuelung matbréngen?", "Eng gülteg Identitéitskaart oder e Pass, de passende gültege Führerschäin an Är Reservatiounsbestätegung. Dat gëllt och fir all zousätzlech Persoun, déi fuere soll."], ["Däerf eng aner Persoun fueren?", "Nëmme Persounen, déi virun der Iwwergab ugemellt, kontrolléiert an am Locatiounsvertrag agedroe goufen, däerfen d’Gefier oder d’Gespan féieren."], ["Wéi gëtt de Präis berechent?", "Dagespräis, abegraff Kilometer, Zousazkilometer, Kautioun an eventuell Verspéidungskäschte stinn direkt beim jeeweilege Gefier oder Material an an Ärer Bestätegung."], ["Kann ech d’Reservatioun änneren, annuléieren oder verlängeren?", "Kontaktéiert eis esou fréi wéi méiglech. Eng Verlängerung ass nëmme mat eiser Bestätegung a wann d’Material disponibel ass méiglech. Eventuell Käschte ginn Iech virun der Ännerung matgedeelt."], ["Wou sinn d’Ofhuelung an de Retour?", "Beim Autoservice Bettenduerf, 63, rue de Diekirch-Echternach, L-9355 Bettendorf, zu der bestätegter Zäit."], ["Wéi muss d’Material zréckkommen?", "Zu der vereinbarter Zäit, propper an am vereinbarte Brennstoff- oder Luedzoustand. Déi genee Reegelen hänke vum gelounte Gefier oder Material of. Kontaktéiert eis bei enger Verspéidung direkt."], ["Wat maachen ech bei engem Accident, enger Pann oder engem Schued?", "Sécher d’Plaz of, alarméiert wann néideg d’Rettungsdéngschter oder d’Police, dokumentéiert alles mat Fotoen a kontaktéiert eis direkt. Maacht keng Reparatur ouni eis Zoustëmmung."], ["Däerf ech an d’Ausland fueren?", "Gitt geplangten Auslandsfaarte bei der Ufro un. Mir bestätegen Iech virun der Locatioun, ob a wéi eng Länner erlaabt sinn."]]
+      faqEye: "Gutt ze wëssen", faqTitle: "Heefeg Froen zur Locatioun", faq: [["Ass meng Online-Ufro direkt verbindlech?", "Nee. Mir kontrolléieren d’Disponibilitéit an d’Konditiounen a schécken Iech duerno eng perséinlech Bestätegung."], ["Wéi ee Führerschäin brauch ech?", "Déi néideg Kategorie steet beim jeeweilege Gefier oder Unhänger. Si hänkt vum gelounte Material, dem Zuchgefier an den zougeloossene Gesamtmassen of a gëtt virun der Iwwergab kontrolléiert."], ["Wat muss ech bei der Ofhuelung matbréngen?", "Eng gülteg Identitéitskaart oder e Pass, de passende gültege Führerschäin an Är Reservatiounsbestätegung. Dat gëllt och fir all zousätzlech Persoun, déi fuere soll."], ["Däerf eng aner Persoun fueren?", "Nëmme Persounen, déi virun der Iwwergab ugemellt, kontrolléiert an am Locatiounsvertrag agedroe goufen, däerfen d’Gefier oder d’Gespan féieren."], ["Wéi gëtt de Präis berechent?", "Dagespräis, abegraff Kilometer, Zousazkilometer, Kautioun an eventuell Verspéidungskäschte stinn direkt beim jeeweilege Gefier oder Material an an Ärer Bestätegung."], ["Kann ech d’Reservatioun änneren, annuléieren oder verlängeren?", "Kontaktéiert eis esou fréi wéi méiglech. Eng Verlängerung ass nëmme mat eiser Bestätegung a wann d’Material disponibel ass méiglech. Eventuell Käschte ginn Iech virun der Ännerung matgedeelt."], ["Wou sinn d’Ofhuelung an de Retour?", "Beim Autoservice Bettenduerf, 63, rue de Diekirch-Echternach, L-9355 Bettendorf, zu der bestätegter Zäit."], ["Wéi muss d’Material zréckkommen?", "Zu där Zäit, déi ofgemaach gouf, propper a mam ofgemaachte Brennstoff- oder Luedzoustand. Déi genee Reegelen hänke vum gelounte Gefier oder Material of. Kontaktéiert eis bei enger Verspéidung direkt."], ["Wat maachen ech bei engem Accident, enger Pann oder engem Schued?", "Sécher d’Plaz of, alarméiert wann néideg d’Rettungsdéngschter oder d’Police, dokumentéiert alles mat Fotoen a kontaktéiert eis direkt. Maacht keng Reparatur ouni eis Zoustëmmung."], ["Däerf ech an d’Ausland fueren?", "Gitt geplangten Auslandsfaarte bei der Ufro un. Mir bestätegen Iech virun der Locatioun, ob a wéi eng Länner erlaabt sinn."]]
     },
     de: {
       step1: "Schritt 1 von 3 · Auswahl und Zeitraum", step2: "Schritt 2 von 3 · Ihre Daten", step3: "Schritt 3 von 3 · Prüfen",
@@ -252,7 +252,7 @@
   };
 
   var CALENDAR_TEXT = {
-    lb: { kicker:"Live-Disponibilitéit", title:"Fräi Datumer kucken", help:"Tippt op e fräien oder deels fräien Dag fir den Ufank an duerno op den Enndag.", free:"Alles fräi", partial:"Deels fräi – auswielbar", busy:"Alles besat", past:"Net buchbar", prev:"Mount virdrun", next:"Nächste Mount", weekdays:["Mé","Dë","Më","Do","Fr","Sa","So"] },
+    lb: { kicker:"Live-Disponibilitéit", title:"Fräi Datumer kucken", help:"Tippt op e fräien oder deels fräien Dag fir den Ufank an duerno op den Enndag.", free:"Alles fräi", partial:"Deels fräi – wielbar", busy:"Alles besat", past:"Net wielbar", prev:"Mount virdrun", next:"Nächste Mount", weekdays:["Mé","Dë","Më","Do","Fr","Sa","So"] },
     de: { kicker:"Live-Verfügbarkeit", title:"Freie Termine ansehen", help:"Tippen Sie auf einen freien oder teilweise freien Starttag und anschließend auf den Endtag.", free:"Alles frei", partial:"Teilweise frei – auswählbar", busy:"Alles belegt", past:"Nicht buchbar", prev:"Vorheriger Monat", next:"Nächster Monat", weekdays:["Mo","Di","Mi","Do","Fr","Sa","So"] },
     fr: { kicker:"Disponibilité en direct", title:"Voir les dates disponibles", help:"Touchez un jour libre ou partiellement libre pour le début, puis le jour de fin.", free:"Tout est libre", partial:"Partiellement libre – sélectionnable", busy:"Tout est occupé", past:"Non réservable", prev:"Mois précédent", next:"Mois suivant", weekdays:["Lu","Ma","Me","Je","Ve","Sa","Di"] },
     en: { kicker:"Live availability", title:"See available dates", help:"Tap an available or partially available start day, then tap the end day.", free:"All available", partial:"Partly available – selectable", busy:"All booked", past:"Unavailable", prev:"Previous month", next:"Next month", weekdays:["Mo","Tu","We","Th","Fr","Sa","Su"] }
@@ -270,7 +270,7 @@
   function t() { return T[lang()] || T.lb; }
   Object.assign(T.lb, {
     from: "Vun (Datum an Auerzäit)", to: "Bis (Datum an Auerzäit)",
-    m_from: "Ufanksdatum an -auerzäit", m_to: "Enndatum an -auerzäit",
+    m_from: "Datum an Auerzäit vum Ufank", m_to: "Datum an Auerzäit vum Enn",
     m_daterange: "eng Ennzäit no der Ufankszäit",
     info_eyebrow: "Virun der Ufro",
     info_title: "Esou leeft d’Reservatioun",

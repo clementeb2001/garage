@@ -257,13 +257,13 @@ async function sendDecline(env, bookingId, booking) {
     .bind(bookingId, result.ok ? "Ofsomail geschéckt" : "Ofsomail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
 async function sendNewBookingNotice(env, bookingId, booking) {
-  const subject = "Nei Location-Ufro AB-L-" + String(bookingId).padStart(5, "0");
+  const subject = "Nei Ufro fir eng Locatioun AB-L-" + String(bookingId).padStart(5, "0");
   const html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430">' +
-    '<h2 style="color:#c81420">Nei Location-Ufro</h2>' +
+    '<h2 style="color:#c81420">Nei Ufro fir eng Locatioun</h2>' +
     '<p><b>' + esc(booking.cust_name) + '</b> freet <b>' + esc(booking.veh) + '</b> un.</p>' +
     '<p><b>Vun:</b> ' + esc(booking.from_dt.replace("T", " ")) + '<br><b>Bis:</b> ' + esc(booking.to_dt.replace("T", " ")) + '<br><b>E-Mail:</b> ' + esc(booking.cust_email) + '</p>' +
     '<p><a href="https://autoservicebettenduerf.lu/intern/" style="display:inline-block;background:#c81420;color:#fff;text-decoration:none;padding:11px 16px;border-radius:8px;font-weight:700">An der Verwaltung opmaachen</a></p></div>';
-  const text = "Nei Location-Ufro\n\n" + booking.cust_name + " freet " + booking.veh + " un.\n" +
+  const text = "Nei Ufro fir eng Locatioun\n\n" + booking.cust_name + " freet " + booking.veh + " un.\n" +
     "Vun: " + booking.from_dt.replace("T", " ") + "\nBis: " + booking.to_dt.replace("T", " ") + "\nE-Mail: " + booking.cust_email +
     "\n\nAn der Verwaltung opmaachen: https://autoservicebettenduerf.lu/intern/";
   const result = await sendEmail(env, env.MAIL_TO || "Autoservicebettenduerf@outlook.com", subject, html, text);
@@ -274,7 +274,7 @@ async function sendBookingReceipt(env, bookingId, booking) {
   const L = ["lb", "de", "fr", "en"].includes(booking.lang) ? booking.lang : "lb";
   const ref = "AB-L-" + String(bookingId).padStart(5, "0");
   const copy = {
-    lb: { subject: "Mir hunn Är Verleih-Ufro kritt – " + ref, title: "Är Ufro ass ukomm", intro: "Mir kontrolléieren elo d’Disponibilitéit an d’Konditiounen. Dëst ass nach keng verbindlech Buchung.", vehicle: "Gefier", from: "Vun", to: "Bis", next: "Mir mellen eis mat enger perséinlecher Bestätegung oder enger Alternativ." },
+    lb: { subject: "Mir hunn Är Ufro fir eng Locatioun kritt – " + ref, title: "Är Ufro ass ukomm", intro: "Mir kontrolléieren elo d’Disponibilitéit an d’Konditiounen. Dëst ass nach keng verbindlech Buchung.", vehicle: "Gefier", from: "Vun", to: "Bis", next: "Mir mellen eis mat enger perséinlecher Bestätegung oder enger Alternativ." },
     de: { subject: "Wir haben Ihre Verleih-Anfrage erhalten – " + ref, title: "Ihre Anfrage ist eingegangen", intro: "Wir prüfen nun Verfügbarkeit und Bedingungen. Dies ist noch keine verbindliche Buchung.", vehicle: "Fahrzeug", from: "Von", to: "Bis", next: "Wir melden uns mit einer persönlichen Bestätigung oder einer Alternative." },
     fr: { subject: "Nous avons reçu votre demande de location – " + ref, title: "Votre demande est bien arrivée", intro: "Nous vérifions maintenant la disponibilité et les conditions. Il ne s’agit pas encore d’une réservation ferme.", vehicle: "Véhicule", from: "Du", to: "Au", next: "Nous vous recontactons avec une confirmation personnelle ou une alternative." },
     en: { subject: "We received your rental request – " + ref, title: "Your request has arrived", intro: "We are now checking availability and conditions. This is not yet a binding booking.", vehicle: "Vehicle", from: "From", to: "Until", next: "We will contact you with a personal confirmation or an alternative." }
@@ -313,7 +313,7 @@ async function ensureMaint(env) {
   // Präiskorrektur Oktober 2026: nëmmen den ale Renault-Master-Tarif vun 80 € migréieren.
   try { await env.DB.prepare("UPDATE maintenance SET price_day=100 WHERE lower(vehicle)='renault master' AND (price_day IS NULL OR price_day=80)").run(); } catch (e) {}
   const master = await env.DB.prepare("SELECT id FROM maintenance WHERE lower(vehicle)='renault master' LIMIT 1").first();
-  if (!master) await env.DB.prepare("INSERT INTO maintenance (vehicle,service,note,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,plate,updated_by) VALUES ('Renault Master','Nach Bedarf','Automatesch aus dem bestehende Verleih iwwerholl','ready','Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.','assets/rental-renault-master.webp',100,'2021','3','Diesel','','B','L2H2','Grousse Luedraum (L2H2)\nBis 3,5 t\nVollgetankt zréckbréngen',1,0,'GK 0106','System')").run();
+  if (!master) await env.DB.prepare("INSERT INTO maintenance (vehicle,service,note,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,plate,updated_by) VALUES ('Renault Master','No Bedarf','Automatesch aus der bestoender Locatioun iwwerholl','ready','Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.','assets/rental-renault-master.webp',100,'2021','3','Diesel','','B','L2H2','Grousse Luedraum (L2H2)\nBis 3,5 t\nVollgetankt zréckbréngen',1,0,'GK 0106','System')").run();
   try { await env.DB.prepare("UPDATE maintenance SET plate='GK 0106' WHERE lower(vehicle)='renault master' AND (plate IS NULL OR plate='')").run(); } catch (e) {}
   try { await env.DB.prepare("UPDATE maintenance SET deposit=COALESCE(deposit,300), included_km=COALESCE(included_km,250), extra_km_rate=COALESCE(extra_km_rate,0.30), late_fee_hour=COALESCE(late_fee_hour,20) WHERE lower(vehicle)='renault master' AND (deposit IS NULL OR included_km IS NULL OR extra_km_rate IS NULL OR late_fee_hour IS NULL)").run(); } catch (e) {}
 }
@@ -452,12 +452,12 @@ function confirmMail(b) {
 function declineMail(b) {
   var L = (b.lang || "lb").slice(0, 2);
   var T = {
-    lb: { s: "Är Verleih-Ufro – leider net méiglech", h: "Et deet eis leed", p: "Villmools Merci fir Är Ufro. Leider ass dat gewënschte Material an dësem Zäitraum net disponibel:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Rufft eis gären un – vläicht fanne mir zesumme en anere Moment oder eng Alternativ. Mir soen Iech Merci fir d'Versteesdemech." },
+    lb: { s: "Är Ufro fir eng Locatioun – leider net méiglech", h: "Et deet eis leed", p: "Villmools Merci fir Är Ufro. Leider ass dat gewënschte Material an dësem Zäitraum net disponibel:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Rufft eis gären un – vläicht fanne mir zesumme en anere Moment oder eng Alternativ. Mir soen Iech Merci fir d'Versteesdemech." },
     de: { s: "Ihre Verleih-Anfrage – leider nicht möglich", h: "Es tut uns leid", p: "Vielen Dank für Ihre Anfrage. Leider ist das gewünschte Material in diesem Zeitraum nicht verfügbar:", veh: "Fahrzeug", from: "Von", to: "Bis", foot: "Rufen Sie uns gerne an – vielleicht finden wir gemeinsam einen anderen Termin oder eine Alternative. Danke für Ihr Verständnis." },
     fr: { s: "Votre demande de location – malheureusement impossible", h: "Nous sommes désolés", p: "Merci beaucoup pour votre demande. Malheureusement, le matériel souhaité n'est pas disponible sur cette période :", veh: "Véhicule", from: "Du", to: "Au", foot: "N'hésitez pas à nous appeler – nous trouverons peut-être ensemble une autre date ou une alternative. Merci de votre compréhension." },
     en: { s: "Your rental request – unfortunately not possible", h: "We're sorry", p: "Thank you very much for your request. Unfortunately the requested item is not available for this period:", veh: "Vehicle", from: "From", to: "To", foot: "Feel free to call us – perhaps we can find another date or an alternative together. Thank you for your understanding." },
   }[L] || null;
-  var t = T || { s: "Är Verleih-Ufro – leider net méiglech", h: "Et deet eis leed", p: "Leider ass dat gewënschte Material an dësem Zäitraum net disponibel:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Rufft eis gären un. Merci fir d'Versteesdemech." };
+  var t = T || { s: "Är Ufro fir eng Locatioun – leider net méiglech", h: "Et deet eis leed", p: "Leider ass dat gewënschte Material an dësem Zäitraum net disponibel:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Rufft eis gären un. Merci fir d'Versteesdemech." };
   t.ref = { lb: "Réf.", de: "Ref.", fr: "Réf.", en: "Ref." }[L] || "Réf.";
   var html =
     '<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1c2430">' +
@@ -509,7 +509,7 @@ export default {
     }
 
     try {
-      /* ---- public: neng Reservatiounsufro (vum Location-Formulaire) ---- */
+      /* ---- ëffentlech: nei Reservatiounsufro (vum Locatiounsformulaire) ---- */
       if (path === "/bookings" && method === "POST") {
         if (!isAllowedOrigin(request, env)) return json(env, { error: "forbidden_origin" }, 403);
         if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
