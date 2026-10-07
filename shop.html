@@ -34,7 +34,7 @@
     <link rel="preconnect" href="https://3cerp.eu" crossorigin />
     <link rel="dns-prefetch" href="//3cerp.eu" />
     <link rel="stylesheet" href="styles.css?v=84" />
-    <script src="shop-gate.js?v=7"></script>
+    <script src="shop-gate.js?v=8"></script>
   </head>
   <body class="shop-page">
     <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
@@ -194,26 +194,26 @@
             </div>
             <div class="shop-tabs" role="tablist">
               <button
-                class="shop-tab active"
+                class="shop-tab"
                 id="tab-artikel"
                 data-tab="artikel"
                 role="tab"
-                aria-selected="true"
+                aria-selected="false"
               >
                 🔎 <span id="lbl-tab-artikel">Artikel</span>
               </button>
               <button
-                class="shop-tab"
+                class="shop-tab active"
                 id="tab-fahrzeug"
                 data-tab="fahrzeug"
                 role="tab"
-                aria-selected="false"
+                aria-selected="true"
               >
                 🚗 <span id="lbl-tab-fahrzeug">Won</span>
               </button>
             </div>
 
-            <div class="shop-panel" id="panel-artikel" role="tabpanel">
+            <div class="shop-panel" id="panel-artikel" role="tabpanel" hidden>
               <div class="search-row">
                 <input
                   type="search"
@@ -232,7 +232,7 @@
               </div>
             </div>
 
-            <div class="shop-panel" id="panel-fahrzeug" role="tabpanel" hidden>
+            <div class="shop-panel" id="panel-fahrzeug" role="tabpanel">
               <div class="veh-row">
                 <div class="veh-field combo">
                   <label for="veh-brand"><span>1</span><b id="label-veh-brand">Mark</b></label>

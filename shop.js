@@ -935,7 +935,16 @@
       if (index < 4) img.setAttribute("fetchpriority", "high");
       img.width = 600; img.height = 360;
       img.alt = p.n;
+      // Falls d'Bild hänkt (lues/instabil Netz, externe CDN net erreechbar),
+      // weise mir nom Timeout de Markë-Platzhalter amplaz permanent ze lueden.
+      var imgTimer = setTimeout(function () {
+        if (img.classList.contains("is-loaded")) return;
+        media.classList.remove("is-loading");
+        media.classList.add("no-img");
+        img.remove();
+      }, 12000);
       img.addEventListener("load", function () {
+        clearTimeout(imgTimer);
         media.classList.remove("is-loading");
         img.classList.add("is-loaded");
       });
@@ -944,12 +953,14 @@
           useFallbackImage(img, p, 600, 360, function () {});
           return;
         }
+        clearTimeout(imgTimer);
         media.classList.remove("is-loading");
         media.classList.add("no-img");
         img.remove();
       });
       img.src = url;
       if (img.complete && img.naturalWidth) {
+        clearTimeout(imgTimer);
         media.classList.remove("is-loading");
         img.classList.add("is-loaded");
       }
@@ -1469,9 +1480,14 @@
     if (url) {
       var img = document.createElement("img");
       img.loading = "lazy"; img.alt = p.n; img.src = url;
+      var pdTimer = setTimeout(function () {
+        if (img.isConnected && (!img.complete || !img.naturalWidth)) { media.classList.add("no-img"); img.remove(); }
+      }, 12000);
+      img.addEventListener("load", function () { clearTimeout(pdTimer); });
       img.addEventListener("error", function () {
-        useFallbackImage(img, p, 900, 540, function () { media.classList.add("no-img"); img.remove(); });
+        useFallbackImage(img, p, 900, 540, function () { clearTimeout(pdTimer); media.classList.add("no-img"); img.remove(); });
       });
+      if (img.complete && img.naturalWidth) clearTimeout(pdTimer);
       media.appendChild(img);
     } else { media.classList.add("no-img"); }
     media.appendChild(mfBadge(p));
