@@ -59,10 +59,10 @@
   function money(n){return Number(n||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";}
   /* Etikette fir d'Kaartepunkten an d'Detailansicht (4 Sproochen) */
   var DETAIL_L = {
-    lb: { licence:"Führerschäin", deposit:"Kautioun", gross:"Max. zoul. Gewiicht", kmIncl:"km abegraff", dims:"Dimensiounen", loadSpace:"Luedraum", payload:"Notzlaascht", braked:"Brems", seats:"Sëtzplazen", fuel:"Brennstoff / Undriff", box:"Boîte", year:"Baujoer", braked_yes:"Gebremst", braked_no:"Ongebremst", secCond:"Konditiounen", secTech:"Technesch Detailer", more:"All Detailer", close:"Zoumaachen", extrakm:"pro Zousaz-km", late:"Verspéidung", perHour:"/ Stonn", kmInclFull:"km pro Locatioun abegraff" },
-    de: { licence:"Führerschein", deposit:"Kaution", gross:"Max. zul. Gewicht", kmIncl:"km inklusive", dims:"Abmessungen", loadSpace:"Laderaum", payload:"Nutzlast", braked:"Bremse", seats:"Sitzplätze", fuel:"Kraftstoff / Antrieb", box:"Getriebe", year:"Baujahr", braked_yes:"Gebremst", braked_no:"Ungebremst", secCond:"Konditionen", secTech:"Technische Details", more:"Alle Details", close:"Schließen", extrakm:"je Mehrkilometer", late:"Verspätung", perHour:"/ Stunde", kmInclFull:"km pro Miete inklusive" },
-    fr: { licence:"Permis", deposit:"Caution", gross:"PTAC max.", kmIncl:"km inclus", dims:"Dimensions", loadSpace:"Volume", payload:"Charge utile", braked:"Freinage", seats:"Places", fuel:"Carburant / Motorisation", box:"Boîte", year:"Année", braked_yes:"Freiné", braked_no:"Non freiné", secCond:"Conditions", secTech:"Détails techniques", more:"Tous les détails", close:"Fermer", extrakm:"par km supplémentaire", late:"Retard", perHour:"/ heure", kmInclFull:"km inclus par location" },
-    en: { licence:"Licence", deposit:"Deposit", gross:"Max. gross weight", kmIncl:"km included", dims:"Dimensions", loadSpace:"Load space", payload:"Payload", braked:"Braking", seats:"Seats", fuel:"Fuel / drive", box:"Transmission", year:"Year", braked_yes:"Braked", braked_no:"Unbraked", secCond:"Conditions", secTech:"Technical details", more:"All details", close:"Close", extrakm:"per extra kilometre", late:"Late return", perHour:"/ hour", kmInclFull:"km included per rental" }
+    lb: { licence:"Führerschäin", deposit:"Kautioun", gross:"Max. zoul. Gewiicht", kmIncl:"km abegraff", dims:"Dimensiounen", loadSpace:"Luedraum", payload:"Notzlaascht", braked:"Brems", seats:"Sëtzplazen", fuel:"Brennstoff / Undriff", box:"Boîte", year:"Baujoer", feature:"Equipement", largeClosed:"Grouss, zou, laang an héich", braked_yes:"Gebremst", braked_no:"Ongebremst", secCond:"Konditiounen", secTech:"Detailer & Equipement", more:"All Detailer", close:"Zoumaachen", extrakm:"pro Zousaz-km", late:"Verspéidung", perHour:"/ Stonn", kmInclFull:"km pro Locatioun abegraff" },
+    de: { licence:"Führerschein", deposit:"Kaution", gross:"Max. zul. Gewicht", kmIncl:"km inklusive", dims:"Abmessungen", loadSpace:"Laderaum", payload:"Nutzlast", braked:"Bremse", seats:"Sitzplätze", fuel:"Kraftstoff / Antrieb", box:"Getriebe", year:"Baujahr", feature:"Ausstattung", largeClosed:"Groß, geschlossen, lang und hoch", braked_yes:"Gebremst", braked_no:"Ungebremst", secCond:"Konditionen", secTech:"Details & Ausstattung", more:"Alle Details", close:"Schließen", extrakm:"je Mehrkilometer", late:"Verspätung", perHour:"/ Stunde", kmInclFull:"km pro Miete inklusive" },
+    fr: { licence:"Permis", deposit:"Caution", gross:"PTAC max.", kmIncl:"km inclus", dims:"Dimensions", loadSpace:"Volume", payload:"Charge utile", braked:"Freinage", seats:"Places", fuel:"Carburant / Motorisation", box:"Boîte", year:"Année", feature:"Équipement", largeClosed:"Grand, fermé, long et haut", braked_yes:"Freiné", braked_no:"Non freiné", secCond:"Conditions", secTech:"Détails & équipement", more:"Tous les détails", close:"Fermer", extrakm:"par km supplémentaire", late:"Retard", perHour:"/ heure", kmInclFull:"km inclus par location" },
+    en: { licence:"Licence", deposit:"Deposit", gross:"Max. gross weight", kmIncl:"km included", dims:"Dimensions", loadSpace:"Load space", payload:"Payload", braked:"Braking", seats:"Seats", fuel:"Fuel / drive", box:"Transmission", year:"Year", feature:"Equipment", largeClosed:"Large, enclosed, long and high", braked_yes:"Braked", braked_no:"Unbraked", secCond:"Conditions", secTech:"Details & equipment", more:"All details", close:"Close", extrakm:"per extra kilometre", late:"Late return", perHour:"/ hour", kmInclFull:"km included per rental" }
   };
   function fleetItem(v) {
     var name={lb:v.name,de:v.name,fr:v.name,en:v.name}, desc=v.description||"", tagline={lb:desc,de:desc,fr:desc,en:desc};
@@ -252,10 +252,10 @@
   };
 
   var CALENDAR_TEXT = {
-    lb: { kicker:"Live-Disponibilitéit", title:"Fräi Datumer kucken", help:"Tippt op e fräien Dag fir den Ufank an duerno op den Enndag.", free:"Fräi", busy:"Besat", past:"Net buchbar", prev:"Mount virdrun", next:"Nächste Mount", weekdays:["Mé","Dë","Më","Do","Fr","Sa","So"] },
-    de: { kicker:"Live-Verfügbarkeit", title:"Freie Termine ansehen", help:"Tippen Sie auf einen freien Starttag und anschließend auf den Endtag.", free:"Frei", busy:"Belegt", past:"Nicht buchbar", prev:"Vorheriger Monat", next:"Nächster Monat", weekdays:["Mo","Di","Mi","Do","Fr","Sa","So"] },
-    fr: { kicker:"Disponibilité en direct", title:"Voir les dates disponibles", help:"Touchez un jour libre pour le début, puis le jour de fin.", free:"Libre", busy:"Occupé", past:"Non réservable", prev:"Mois précédent", next:"Mois suivant", weekdays:["Lu","Ma","Me","Je","Ve","Sa","Di"] },
-    en: { kicker:"Live availability", title:"See available dates", help:"Tap a free start day, then tap the end day.", free:"Available", busy:"Booked", past:"Unavailable", prev:"Previous month", next:"Next month", weekdays:["Mo","Tu","We","Th","Fr","Sa","Su"] }
+    lb: { kicker:"Live-Disponibilitéit", title:"Fräi Datumer kucken", help:"Tippt op e fräien oder deels fräien Dag fir den Ufank an duerno op den Enndag.", free:"Alles fräi", partial:"Deels fräi – auswielbar", busy:"Alles besat", past:"Net buchbar", prev:"Mount virdrun", next:"Nächste Mount", weekdays:["Mé","Dë","Më","Do","Fr","Sa","So"] },
+    de: { kicker:"Live-Verfügbarkeit", title:"Freie Termine ansehen", help:"Tippen Sie auf einen freien oder teilweise freien Starttag und anschließend auf den Endtag.", free:"Alles frei", partial:"Teilweise frei – auswählbar", busy:"Alles belegt", past:"Nicht buchbar", prev:"Vorheriger Monat", next:"Nächster Monat", weekdays:["Mo","Di","Mi","Do","Fr","Sa","So"] },
+    fr: { kicker:"Disponibilité en direct", title:"Voir les dates disponibles", help:"Touchez un jour libre ou partiellement libre pour le début, puis le jour de fin.", free:"Tout est libre", partial:"Partiellement libre – sélectionnable", busy:"Tout est occupé", past:"Non réservable", prev:"Mois précédent", next:"Mois suivant", weekdays:["Lu","Ma","Me","Je","Ve","Sa","Di"] },
+    en: { kicker:"Live availability", title:"See available dates", help:"Tap an available or partially available start day, then tap the end day.", free:"All available", partial:"Partly available – selectable", busy:"All booked", past:"Unavailable", prev:"Previous month", next:"Next month", weekdays:["Mo","Tu","We","Th","Fr","Sa","Su"] }
   };
 
   function lang() {
@@ -397,20 +397,37 @@
 
   /* ---- Professionell Detailansicht (Pop-up) ---- */
   function techLabel(key, L) { var d = DETAIL_L[L] || DETAIL_L.lb; return d[key] || key; }
-  function techValue(val, L) { var d = DETAIL_L[L] || DETAIL_L.lb; if (val === "__yes__") return d.braked_yes; if (val === "__no__") return d.braked_no; return val; }
+  function techValue(val, L, key) { var d = DETAIL_L[L] || DETAIL_L.lb; if (val === "__yes__") return d.braked_yes; if (val === "__no__") return d.braked_no; if (key === "loadSpace" && /^L\d+H\d+$/i.test(String(val || "").trim())) return d.largeClosed; return val; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function isRentalCondition(value) {
+    return /kautioun|kaution|caution|deposit|versp[eé]idung|verspätung|retard|late return|zousaz[- ]?km|mehrkilometer|kilom[eè]tre suppl|extra kilomet|km pro locatioun|km pro miete|km inclus|km included|vollgetankt|plein fait|full tank|zréckbr[eé]ngen|zurückbringen|retour|return|propper|sauber|propre|clean|konditioun|bedingung|condition/i.test(String(value || ""));
+  }
+  function featureRow(value, techRows, L) {
+    var text = String(value || ""), lower = text.toLowerCase(), d = DETAIL_L[L] || DETAIL_L.lb;
+    if (/luedraum|laderaum|volume|load space/.test(lower) && techRows.some(function (r) { return r[0] === "loadSpace"; })) return "";
+    if (/\b(?:bis|jusqu|up to)\b/.test(lower) && /\d[\d,.]*\s*t\b/.test(lower)) {
+      if (techRows.some(function (r) { return r[0] === "gross"; })) return "";
+      var weight = text.match(/\d[\d,.]*\s*t\b/i);
+      return '<div class="rd-row"><dt>' + esc(d.gross) + "</dt><dd>" + esc(weight ? weight[0] : text) + "</dd></div>";
+    }
+    return '<div class="rd-row"><dt>' + esc(d.feature) + "</dt><dd>" + esc(text.replace(/\s*\(L\d+H\d+\)\s*/i, " ").trim()) + "</dd></div>";
+  }
   function detailInner(it) {
     var L = lang(), m = t(), d = DETAIL_L[L] || DETAIL_L.lb;
     var nm = esc(it.name[L] || it.name.lb);
     var price = it.priceDay ? '<span class="rd-price">' + it.priceDay + ' €<span> / ' + m.perDay + "</span></span>" : "";
     var media = it.img ? '<img src="' + esc(it.img) + '" alt="' + nm + '" />' : '<span class="rental-ic">' + ICONS[it.icon] + "</span>";
-    var cond = (it.specs[L] || it.specs.lb).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("");
-    var tech = it.tech.map(function (r) { return '<div class="rd-row"><dt>' + esc(techLabel(r[0], L)) + "</dt><dd>" + esc(techValue(r[1], L)) + "</dd></div>"; }).join("");
+    var allSpecs = it.specs[L] || it.specs.lb || [];
+    var rawTech = it.tech || [];
+    var detailSpecs = allSpecs.filter(function (s) { return !isRentalCondition(s); }).map(function (s) { return featureRow(s, rawTech, L); }).join("");
+    var cond = allSpecs.filter(isRentalCondition).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("");
+    var tech = rawTech.map(function (r) { return '<div class="rd-row"><dt>' + esc(techLabel(r[0], L)) + "</dt><dd>" + esc(techValue(r[1], L, r[0])) + "</dd></div>"; }).join("");
+    var category = it.cat === "trailer" ? "" : '<span class="rd-cat">' + catLabel(it.cat) + "</span>";
     return '<div class="rd-media">' + media + "</div>" +
-      '<div class="rd-head"><div><span class="rd-cat">' + catLabel(it.cat) + "</span><h3>" + nm + "</h3></div>" + price + "</div>" +
+      '<div class="rd-head"><div>' + category + "<h3>" + nm + "</h3></div>" + price + "</div>" +
       (it.tagline[L] ? '<p class="rd-tagline">' + esc(it.tagline[L]) + "</p>" : "") +
-      (cond ? "<h4>" + d.secCond + '</h4><ul class="rental-specs">' + cond + "</ul>" : "") +
-      (tech ? "<h4>" + d.secTech + '</h4><dl class="rd-tech">' + tech + "</dl>" : "");
+      (detailSpecs || tech ? "<h4>" + d.secTech + '</h4><dl class="rd-tech">' + detailSpecs + tech + "</dl>" : "") +
+      (cond ? "<h4>" + d.secCond + '</h4><ul class="rental-specs">' + cond + "</ul>" : "");
   }
   function openDetail(id) {
     var it = CATALOG.filter(function (x) { return x.id === id; })[0]; if (!it) return;
@@ -441,8 +458,9 @@
       var priceHtml = it.priceDay
         ? '<span class="rental-price is-day">' + it.priceDay + ' €<span class="unit"> / ' + m.perDay + "</span></span>"
         : '<span class="rental-price">' + m.price + "</span>";
+      var ribbon = it.cat === "trailer" ? "" : '<span class="rental-ribbon">' + catLabel(it.cat) + "</span>";
       card.innerHTML =
-        '<div class="rental-media"><span class="rental-ribbon">' + catLabel(it.cat) + "</span>" + media + "</div>" +
+        '<div class="rental-media">' + ribbon + media + "</div>" +
         '<div class="rental-body">' +
         "<h3>" + (it.name[L] || it.name.lb) + "</h3>" +
         '<ul class="rental-specs rental-specs-key">' + specs + "</ul>" +
@@ -615,8 +633,16 @@
     var start = isoDay(date) + "T00:00";
     var nextDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
     var end = isoDay(nextDate) + "T00:00";
-    var hits = selectedBusyIntervals().filter(function (b) { return b.from < end && b.to > start; });
-    if (!hits.length) return "free";
+    var selectedItems = state.selected.map(function (id) {
+      return CATALOG.find(function (item) { return item.id === id; });
+    }).filter(Boolean);
+    var busyCount = selectedItems.filter(function (item) {
+      return state.busy.some(function (booking) {
+        return itemMatchesBooking(item, booking) && booking.from < end && booking.to > start;
+      });
+    }).length;
+    if (!busyCount) return "free";
+    if (busyCount < selectedItems.length) return "partial";
     return "busy";
   }
 
@@ -628,7 +654,7 @@
     var c = CALENDAR_TEXT[lang()] || CALENDAR_TEXT.lb;
     setTxt("rental-calendar-kicker", c.kicker); setTxt("rental-calendar-title", c.title);
     setTxt("rental-calendar-help", c.help); setTxt("rental-calendar-free", c.free);
-    setTxt("rental-calendar-busy-label", c.busy); setTxt("rental-calendar-past", c.past);
+    setTxt("rental-calendar-partial", c.partial); setTxt("rental-calendar-busy-label", c.busy); setTxt("rental-calendar-past", c.past);
     var prev = $("rental-calendar-prev"), next = $("rental-calendar-next");
     if (prev) prev.setAttribute("aria-label", c.prev); if (next) next.setAttribute("aria-label", c.next);
     weekdays.innerHTML = c.weekdays.map(function (d) { return "<span>" + d + "</span>"; }).join("");
@@ -642,7 +668,7 @@
     for (var day = 1; day <= count; day++) {
       var date = new Date(month.getFullYear(), month.getMonth(), day), iso = isoDay(date), status = calendarDayStatus(date);
       var chosen = iso === fromValue || iso === toValue, inRange = fromValue && toValue && iso > fromValue && iso < toValue;
-      var disabled = status !== "free";
+      var disabled = status === "past" || status === "unknown" || status === "busy";
       var label = iso + " – " + (c[status] || c.past);
       html += '<button type="button" role="gridcell" class="rental-calendar-day is-' + status + (chosen ? " is-chosen" : "") + (inRange ? " is-range" : "") + '" data-date="' + iso + '" aria-label="' + label + '"' + (disabled ? " disabled" : "") + '><span>' + day + '</span></button>';
     }

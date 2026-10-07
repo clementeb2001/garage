@@ -110,6 +110,7 @@
           <div class="rental-filter" id="rental-filter" role="group" aria-label="Kategorie" hidden>
             <button type="button" class="rental-chip active" data-cat="all" aria-pressed="true"><span data-i18n="rental_cat_all">Alles</span></button>
             <button type="button" class="rental-chip" data-cat="vehicle" aria-pressed="false"><span data-i18n="rental_cat_vehicle">Gefierer</span></button>
+            <button type="button" class="rental-chip" data-cat="trailer" aria-pressed="false"><span data-i18n="rental_cat_trailer">Unhänger</span></button>
           </div>
         </div>
       </section>
@@ -147,6 +148,7 @@
               <div class="rental-calendar-grid" id="rental-calendar-grid" role="grid"></div>
               <div class="rental-calendar-legend" id="rental-calendar-legend">
                 <span><i class="is-free"></i><b id="rental-calendar-free">Fräi</b></span>
+                <span><i class="is-partial"></i><b id="rental-calendar-partial">Deels fräi – auswielbar</b></span>
                 <span><i class="is-busy"></i><b id="rental-calendar-busy-label">Besat</b></span>
                 <span><i class="is-past"></i><b id="rental-calendar-past">Net buchbar</b></span>
               </div>
@@ -299,7 +301,7 @@
     <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
 
     <script src="script.js?v=22"></script>
-    <script src="location.js?v=34"></script>
+    <script src="location.js?v=37"></script>
     <!-- Cloudflare Web Analytics -->
     <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"5f6efd874eea4ec580d2e74e9e49dd62"}'></script>
     <!-- End Cloudflare Web Analytics -->
