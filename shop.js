@@ -1676,32 +1676,24 @@
     if (catalogModels.length) {
       var catalogRecords = [];
       catalogModels.forEach(function (model) {
-        (model.g || []).forEach(function (generation) {
-          var years = generation.s ? String(generation.s) + "–" + (generation.e || "") : "";
-          var generationName = String(generation.n || model.n).trim();
-          var label = model.n;
-          if (normalizedModelText(generationName) !== normalizedModelText(model.n)) {
-            var escapedModel = model.n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-            var generationDisplay = generationName.replace(new RegExp("^" + escapedModel + "\\s*", "i"), "").trim();
-            var modelYear = generationDisplay.match(/^\((\d{4})\)$/);
-            if (modelYear) generationDisplay = "Gen. " + modelYear[1];
-            if (generationDisplay) label += " · " + generationDisplay;
-          }
-          if (years) label += " · " + years;
-          catalogRecords.push({
-            label: label,
-            model: model.n,
-            generation: generationName,
+        var generations = (model.g || []).map(function (generation) {
+          return {
+            name: String(generation.n || model.n).trim(),
             start: generation.s || 0,
             end: generation.e || 0,
-            engines: generation.x || [],
-            catalog: true
-          });
+            engines: generation.x || []
+          };
+        });
+        catalogRecords.push({
+          label: model.n,
+          model: model.n,
+          generation: "",
+          generations: generations,
+          catalog: true
         });
       });
       return catalogRecords.sort(function (a, b) {
-        var byModel = a.model.localeCompare(b.model, undefined, { numeric: true });
-        return byModel || (b.start - a.start) || a.label.localeCompare(b.label, undefined, { numeric: true });
+        return a.model.localeCompare(b.model, undefined, { numeric: true });
       });
     }
     var bi = MAKE_IDX[state.brand], seen = {}, records = [];
@@ -1745,10 +1737,12 @@
     var selectedRecord = exactModelRecord(state.modelLabel);
     if (selectedRecord && selectedRecord.catalog) {
       var catalogYears = [];
-      var first = selectedRecord.start || 1990;
-      var last = selectedRecord.end || new Date().getFullYear();
-      for (var cy = last; cy >= first; cy--) catalogYears.push(String(cy));
-      return catalogYears;
+      (selectedRecord.generations || []).forEach(function (generation) {
+        var first = generation.start || 1990;
+        var last = generation.end || new Date().getFullYear();
+        for (var cy = last; cy >= first; cy--) catalogYears.push(String(cy));
+      });
+      return uniqueSorted(catalogYears, true);
     }
     var years = [];
     var selectedFits = fitsForExactModel();
@@ -1771,13 +1765,29 @@
   }
   function engineOptions() {
     var selectedRecord = exactModelRecord(state.modelLabel);
-    if (selectedRecord && selectedRecord.catalog) return selectedRecord.engines.map(function (engine) { return engine.l; });
+    if (selectedRecord && selectedRecord.catalog) {
+      var selectedYear = Number(state.year);
+      var engines = [];
+      (selectedRecord.generations || []).forEach(function (generation) {
+        var last = generation.end || new Date().getFullYear();
+        if (selectedYear && (selectedYear < (generation.start || 1990) || selectedYear > last)) return;
+        engines = engines.concat(generation.engines || []);
+      });
+      return uniqueSorted(engines.map(function (engine) { return engine.l; }));
+    }
     return uniqueSorted(fitsForExactModel().filter(function (x) { return !state.year || yearFits(x, state.year); }).map(engineLabel)).filter(function (o) { return o !== "—"; });
   }
   function selectedCatalogEngine(label) {
     var selectedRecord = exactModelRecord(state.modelLabel);
     if (!selectedRecord || !selectedRecord.catalog) return null;
-    return selectedRecord.engines.filter(function (engine) { return engine.l === label; })[0] || null;
+    var selectedYear = Number(state.year), match = null;
+    (selectedRecord.generations || []).some(function (generation) {
+      var last = generation.end || new Date().getFullYear();
+      if (selectedYear && (selectedYear < (generation.start || 1990) || selectedYear > last)) return false;
+      match = (generation.engines || []).filter(function (engine) { return engine.l === label; })[0] || null;
+      return !!match;
+    });
+    return match;
   }
   function setVehicleField(id, enabled, clear) {
     var el = $(id);
