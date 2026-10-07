@@ -1604,7 +1604,14 @@
       var q = input.value.trim().toLowerCase();
       opts = getOptions().filter(function (o) { return !q || o.toLowerCase().indexOf(q) !== -1; });
       listEl.innerHTML = "";
-      opts.slice(0, 200).forEach(function (o) {
+      if (opts.length > 30) {
+        var hint = document.createElement("li");
+        hint.className = "combo-list-hint";
+        hint.setAttribute("role", "presentation");
+        hint.textContent = opts.length + (lang() === "fr" ? " options · Saisissez pour filtrer" : lang() === "en" ? " options · Type to filter" : lang() === "de" ? " Optionen · Zum Filtern tippen" : " Optiounen · Tippt fir ze filteren");
+        listEl.appendChild(hint);
+      }
+      opts.forEach(function (o) {
         var li = document.createElement("li");
         li.className = "combo-opt";
         li.setAttribute("role", "option");
@@ -1621,7 +1628,7 @@
     input.addEventListener("input", function () { onChoose(input.value); paint(); });
     input.addEventListener("keydown", function (e) {
       if (listEl.hidden) return;
-      var items = listEl.querySelectorAll("li");
+      var items = listEl.querySelectorAll(".combo-opt");
       if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(active + 1, items.length - 1); }
       else if (e.key === "ArrowUp") { e.preventDefault(); active = Math.max(active - 1, 0); }
       else if (e.key === "Enter") { e.preventDefault(); if (items[active]) { input.value = items[active].textContent; onChoose(input.value); close(); } return; }

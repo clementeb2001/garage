@@ -3210,14 +3210,32 @@ html.shop-dev .shop-dev-badge a {
   margin: 0;
   padding: 4px;
   list-style: none;
-  max-height: 240px;
+  max-height: min(440px, 52vh);
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   background: #fff;
   border: 1px solid #dbe0e5;
   border-radius: 12px;
   box-shadow: 0 18px 40px rgba(8, 15, 24, 0.28);
   z-index: 40;
   -webkit-overflow-scrolling: touch;
+}
+.combo-list::-webkit-scrollbar { width: 11px; }
+.combo-list::-webkit-scrollbar-track { background: #eef1f4; border-radius: 999px; }
+.combo-list::-webkit-scrollbar-thumb { background: #a9b3bd; border: 3px solid #eef1f4; border-radius: 999px; }
+.combo-list-hint {
+  position: sticky;
+  top: -4px;
+  z-index: 2;
+  margin: -4px -4px 4px;
+  padding: 9px 12px;
+  border-bottom: 1px solid #e1e6ea;
+  background: #f5f7f9;
+  color: #667481;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .01em;
 }
 .combo-list[hidden] {
   display: none;
@@ -3234,6 +3252,35 @@ html.shop-dev .shop-dev-badge a {
 .combo-opt.active {
   background: var(--accent, #e63946);
   color: #fff;
+}
+@media (max-width: 560px) {
+  body:has(.combo-list:not([hidden])) .cart-toggle,
+  body:has(.combo-list:not([hidden])) .back-to-top {
+    opacity: 0;
+    pointer-events: none;
+  }
+  html.shop-dev .shop-search {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  html.shop-dev .shop-search:has(.combo-list:not([hidden])) {
+    z-index: 230;
+  }
+  .combo-list {
+    position: fixed;
+    top: auto;
+    right: 10px;
+    bottom: calc(46px + env(safe-area-inset-bottom));
+    left: 10px;
+    max-height: min(62vh, 520px);
+    padding: 6px;
+    border-top: 4px solid var(--shop-copper, #d9692d);
+    border-radius: 18px;
+    box-shadow: 0 24px 70px rgba(3, 10, 18, .48);
+    z-index: 220;
+  }
+  .combo-list-hint { top: -6px; margin: -6px -6px 5px; padding: 12px 14px; }
+  .combo-opt { padding: 13px 14px; }
 }
 
 /* ============================================================
