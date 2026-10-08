@@ -1,25 +1,24 @@
 name: Deploy admin worker
 
-# Deployéiert de Reservatiouns-Worker automatesch op Cloudflare,
-# soubal am worker/ eppes geännert gëtt (oder manuell iwwer "Run workflow").
-# Eemoleg néideg: GitHub-Secret CLOUDFLARE_API_TOKEN (+ optional
-# CLOUDFLARE_ACCOUNT_ID). Uleedung: worker/admin-README.md.
-
 on:
   push:
     branches: [main]
     paths:
       - "worker/admin-api.js"
       - "worker/admin-wrangler.toml"
-      - "worker/catalog-schema.sql"
-      - "tools/build_catalog_d1.js"
-      - "shop-data.js"
-      - "shop-data-dba.js"
+      - "worker/admin-schema.json"
+      - "tools/prepare_admin_schema.js"
+      - "tools/d1_cli.js"
       - ".github/workflows/deploy-worker.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+# Serialize schema changes with catalog imports; never cancel an active import.
+concurrency:
+  group: garage-d1-production
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -30,23 +29,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Build and validate catalog import
-        run: node tools/build_catalog_d1.js worker/catalog-seed.sql
-      - name: Apply catalog schema
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: d1 execute garage-admin --remote -c worker/admin-wrangler.toml --file worker/catalog-schema.sql
-      - name: Import catalog and atomically activate it
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: d1 execute garage-admin --remote -c worker/admin-wrangler.toml --file worker/catalog-seed.sql
-      - name: Deploy to Cloudflare
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy -c worker/admin-wrangler.toml
+      - run: npm install --no-save --package-lock=false wrangler@4.149.0
+      - name: Apply only missing admin schema definitions
+        run: node tools/prepare_admin_schema.js
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Deploy worker without catalog import
+        run: node node_modules/wrangler/bin/wrangler.js deploy -c worker/admin-wrangler.toml
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

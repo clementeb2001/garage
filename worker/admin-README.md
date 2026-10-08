@@ -7,11 +7,15 @@ leien an enger Cloudflare-D1-Datebank.
 ## Shop-Katalog an D1
 
 De selwechten D1-Worker liwwert de Shop-Katalog iwwer `/catalog/meta` an
-`/catalog/products`. Bei enger Ännerung un `shop-data.js` oder
-`shop-data-dba.js` validéiert d'GitHub Action all Artikel a Präis, importéiert
-eng nei Versioun nieft déi aktiv Versioun a schalt se eréischt no engem
-kompletten Import ëm. `catalog_products.price_cents` ass déi eenzeg
-verbindlech Präisquell fir Shop a Bezuel-Worker.
+`/catalog/products`. De Workflow **Import changed shop catalog** leeft separat
+vum Worker-Deploy a kontrolléiert als éischt, ob d'Versioun scho komplett
+besteet. Onverännert Kataloge ginn net nei geschriwwen. Nei Versioune ginn
+nëmmen no enger Vollstännegkeetskontroll aktivéiert; al Versioune bleiwen
+fir e Rollback erhalen. `catalog_products.price_cents` bleift déi verbindlech
+Präisquell fir Shop a Bezuel-Worker.
+
+Detailer zu D1-Schreiflimiten, Schema-Preparatioun an Tester:
+[D1-OPERATIONS.md](D1-OPERATIONS.md).
 
 > **Schonn erleedegt (vun Claude):**
 > - D1-Datebank **`garage-admin`** ugeluecht (id `14fccce6-50bf-4dd7-9d76-e8576c47ce2a`).
@@ -22,8 +26,12 @@ verbindlech Präisquell fir Shop a Bezuel-Worker.
 ## Fir et live ze maachen
 
 ```bash
-# 1. Worker deployen (am Repo-Root)
-wrangler deploy -c worker/admin-wrangler.toml
+# 1. Nëmme feelend Schema-Definitioune preparéieren (keng Seed-Donnéeën)
+npm install --no-save --package-lock=false wrangler@4.149.0
+node tools/prepare_admin_schema.js
+
+# 2. Worker deployen (native Rate-Limit-Bindings stinn am TOML)
+node node_modules/wrangler/bin/wrangler.js deploy -c worker/admin-wrangler.toml
 
 # 2. (Cloudflare Dashboard) de Worker op d'Custom-Domain routen:
 #    garage-admin.autoservicebettenduerf.lu
@@ -133,3 +141,4 @@ Eemoleg néideg:
 
 D'Binding `MEDIA` ass schonn an `worker/admin-wrangler.toml` definéiert an
 gëtt beim nächsten Worker-Deploy automatesch verbonnen.
+
