@@ -1018,8 +1018,11 @@
       var dayAppts = appts.filter(function (a) { var d = apptDay(a); return d && d.getTime() === cur.getTime(); });
       var total = dayEvents.length + dayAppts.length;
       var dkey = cur.getFullYear() + "-" + pad(cur.getMonth() + 1) + "-" + pad(cur.getDate());
-      var amB = isSlotBlocked(dkey, "am"), pmB = isSlotBlocked(dkey, "pm");
-      var blkHtml = (amB && pmB) ? '<div class="cal-ev blocked" title="Ganzen Dag gespaart">⛔ Ganzen Dag</div>' : amB ? '<div class="cal-ev blocked" title="Moies gespaart">⛔ Moies</div>' : pmB ? '<div class="cal-ev blocked" title="Nomëtteg gespaart">⛔ Nomëtteg</div>' : "";
+      var amB = isSlotBlocked(dkey, "am"), pmB = isSlotBlocked(dkey, "pm"), closedB = isSlotBlocked(dkey, "closed");
+      var blkHtml = closedB ? '<div class="cal-ev closed-ev" title="Zou / Feiertag">🚫 Zou</div>'
+        : (amB && pmB) ? '<div class="cal-ev blocked" title="Ganzen Dag gespaart">⛔ Ganzen Dag</div>'
+        : amB ? '<div class="cal-ev blocked" title="Moies gespaart">⛔ Moies</div>'
+        : pmB ? '<div class="cal-ev blocked" title="Nomëtteg gespaart">⛔ Nomëtteg</div>' : "";
       var evHtml = blkHtml + dayEvents.slice(0, 3).map(function (b) { return '<div class="cal-ev' + (b.status === "new" ? " tentative" : "") + '" style="background:' + cmap[b.veh || "?"] + '" title="' + esc(b.veh) + " – " + esc(b.name) + " (" + (b.status === "new" ? "nei" : b.status === "confirmed" ? "bestätegt" : "ofgeschloss") + ')">' + esc(vehName(b.veh)) + "</div>"; }).join("");
       var remain = 3 - dayEvents.length;
       if (remain > 0) evHtml += dayAppts.slice(0, remain).map(function (a) { return '<div class="cal-ev appt' + (a.status === "new" ? " tentative" : "") + '" title="Rendez-vous: ' + esc(a.service || "") + (a.vehicle ? " – " + esc(a.vehicle) : "") + " – " + esc(a.name) + " (" + (a.status === "new" ? "nei" : "bestätegt") + ')">🔧 ' + esc(vehName(a.service || "RDV")) + "</div>"; }).join("");
@@ -1032,6 +1035,7 @@
     var leg = vehs.map(function (v) { return '<span><i style="background:' + cmap[v] + '"></i>' + esc(vehName(v)) + "</span>"; }).join("");
     if (appts.length) leg += '<span><i style="background:' + APPT_COLOR + '"></i>🔧 Rendez-vous</span>';
     leg += '<span><i style="background:#b4232a"></i>⛔ Gespaart (Hallefdag)</span>';
+    leg += '<span><i style="background:#64727f"></i>🚫 Zou / Feiertag</span>';
     $("cal-legend").innerHTML = leg;
     $("calendar").querySelectorAll(".cal-cell[data-day]").forEach(function (c) {
       function open() { openDay(c.getAttribute("data-day")); }
@@ -1054,13 +1058,18 @@
     var body = $("day-body");
     var eventsHtml = evs.length ? evs.map(function (e) { return '<div class="devent"><span class="dd" style="background:' + e.color + '"></span><div style="min-width:0"><div class="dt">' + e.t + '</div><div class="ds">' + e.s + "</div></div></div>"; }).join("") : '<p class="muted" style="font-size:0.88rem">Keng Termäiner op dësem Dag.</p>';
     var canVal = can("bookings.validate");
-    var amB = isSlotBlocked(dkey, "am"), pmB = isSlotBlocked(dkey, "pm");
+    var amB = isSlotBlocked(dkey, "am"), pmB = isSlotBlocked(dkey, "pm"), closedB = isSlotBlocked(dkey, "closed");
     function slotBtn(slot, label, blocked) {
       var cls = "slotbtn " + (blocked ? "is-blocked" : "is-free");
       if (!canVal) return '<span class="' + cls + '">' + label + " · " + (blocked ? "Gespaart" : "Fräi") + "</span>";
       return '<button type="button" class="' + cls + '" data-block-slot="' + slot + '" data-block-now="' + (blocked ? "1" : "0") + '">' + label + " · " + (blocked ? "Gespaart ✕" : "Blockéieren") + "</button>";
     }
-    var blockHtml = '<div class="day-block"><div class="day-block-h">Verfügbarkeet blockéieren</div><div class="day-block-row">' + slotBtn("am", "☀️ Moies", amB) + slotBtn("pm", "🌙 Nomëtteg", pmB) + "</div></div>";
+    function closedBtn(blocked) {
+      var cls = "slotbtn " + (blocked ? "is-closed" : "is-free");
+      if (!canVal) return '<span class="' + cls + '">🚫 ' + (blocked ? "Zou / Feiertag" : "Op") + "</span>";
+      return '<button type="button" class="' + cls + '" data-block-slot="closed" data-block-now="' + (blocked ? "1" : "0") + '">' + (blocked ? "🚫 Zou (Feiertag) ✕" : "🚫 Als Feiertag / zou") + "</button>";
+    }
+    var blockHtml = '<div class="day-block"><div class="day-block-h">Verfügbarkeet blockéieren</div><div class="day-block-row">' + slotBtn("am", "☀️ Moies", amB) + slotBtn("pm", "🌙 Nomëtteg", pmB) + '</div><div class="day-block-row" style="margin-top:8px">' + closedBtn(closedB) + "</div></div>";
     body.innerHTML = blockHtml + eventsHtml;
     body.querySelectorAll("[data-block-slot]").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -1070,7 +1079,7 @@
           if (r.error) { toast(errMsg(r.error)); btn.disabled = false; return; }
           if (!now) { if (!isSlotBlocked(dkey, slot)) dashBlocks.push({ date: dkey, slot: slot, note: "" }); }
           else { dashBlocks = dashBlocks.filter(function (b) { return !(b.date === dkey && b.slot === slot); }); }
-          toast((slot === "am" ? "Moies" : "Nomëtteg") + " " + (!now ? "gespaart" : "erëm fräi") + ".");
+          toast((slot === "am" ? "Moies" : slot === "pm" ? "Nomëtteg" : "Feiertag/zou") + " " + (!now ? "gespaart" : "erëm fräi") + ".");
           renderCalendar(dashActive, dashAppts);
           openDay(dkey);
         });

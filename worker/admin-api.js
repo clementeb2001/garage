@@ -1035,7 +1035,7 @@ export default {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
         await ensureApptBlocks(env);
         const date = clip(bodyData.date, 20).trim();
-        const slot = bodyData.slot === "pm" ? "pm" : bodyData.slot === "am" ? "am" : "";
+        const slot = ["am", "pm", "closed"].includes(bodyData.slot) ? bodyData.slot : "";
         if (!validDateOnly(date) || !slot) return json(env, { error: "invalid_fields" }, 400);
         if (bodyData.blocked) {
           await env.DB.prepare("INSERT OR REPLACE INTO appointment_blocks (date, slot, note, created_by) VALUES (?1,?2,?3,?4)").bind(date, slot, clip(bodyData.note, 200), me.username).run();
