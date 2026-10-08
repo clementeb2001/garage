@@ -15,6 +15,12 @@ CREATE TABLE IF NOT EXISTS catalog_products (
   PRIMARY KEY (version, sku)
 );
 CREATE INDEX IF NOT EXISTS idx_catalog_products_source ON catalog_products(version, manufacturer, sku);
+CREATE TABLE IF NOT EXISTS catalog_metadata (
+  version TEXT NOT NULL,
+  meta_key TEXT NOT NULL,
+  value_json TEXT NOT NULL,
+  PRIMARY KEY (version, meta_key)
+);
 CREATE TABLE IF NOT EXISTS catalog_settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL,

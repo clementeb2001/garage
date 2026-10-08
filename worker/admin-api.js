@@ -515,7 +515,10 @@ export default {
         if (!active) return json(env, { error:"catalog_not_ready" }, 503);
         const current = await env.DB.prepare("SELECT product_count,remus_count,dba_count,meta_json FROM catalog_versions WHERE version=?1").bind(active.value).first();
         if (!current) return json(env, { error:"catalog_not_ready" }, 503);
-        return json(env, { version:active.value, counts:{ product_count:current.product_count, remus_count:current.remus_count, dba_count:current.dba_count }, catalog:JSON.parse(current.meta_json) }, 200, { "Cache-Control":"public, max-age=300, stale-while-revalidate=3600" });
+        const rows = (await env.DB.prepare("SELECT meta_key,value_json FROM catalog_metadata WHERE version=?1 ORDER BY meta_key").bind(active.value).all()).results || [];
+        const catalog = { meta:JSON.parse(current.meta_json), images:[] };
+        rows.forEach((row) => { const value=JSON.parse(row.value_json); if(row.meta_key.startsWith("images:")) catalog.images.push(...value); else catalog[row.meta_key]=value; });
+        return json(env, { version:active.value, counts:{ product_count:current.product_count, remus_count:current.remus_count, dba_count:current.dba_count }, catalog }, 200, { "Cache-Control":"public, max-age=300, stale-while-revalidate=3600" });
       }
       if (path === "/catalog/products" && method === "GET") {
         const manufacturer = String(url.searchParams.get("manufacturer") || "").toUpperCase();

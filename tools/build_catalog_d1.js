@@ -13,14 +13,23 @@ for(const product of products){
 const remus=products.filter(p=>p.mf!=="DBA").length,dba=products.filter(p=>p.mf==="DBA").length;
 const version=`catalog-${crypto.createHash("sha256").update(JSON.stringify(products)).digest("hex").slice(0,16)}`;
 const sql=value=>`'${String(value).replace(/'/g,"''")}'`;
-const meta={meta:Object.assign({},w.SHOP_META,{count:products.length,priceSource:"D1",version}),makes:w.SHOP_MAKES||[],brands:w.SHOP_BRANDS||{},engines:w.SHOP_ENGINES||[],variants:w.SHOP_VARIANTS||[],generations:w.SHOP_GENS||[],images:w.SHOP_IMAGES||[]};
-const lines=[`INSERT OR REPLACE INTO catalog_versions(version,product_count,remus_count,dba_count,meta_json) VALUES(${sql(version)},${products.length},${remus},${dba},${sql(JSON.stringify(meta))});`];
+const basicMeta=Object.assign({},w.SHOP_META,{count:products.length,priceSource:"D1",version});
+const lines=[`INSERT OR REPLACE INTO catalog_versions(version,product_count,remus_count,dba_count,meta_json) VALUES(${sql(version)},${products.length},${remus},${dba},${sql(JSON.stringify(basicMeta))});`];
+const metadata={makes:w.SHOP_MAKES||[],brands:w.SHOP_BRANDS||{},engines:w.SHOP_ENGINES||[],variants:w.SHOP_VARIANTS||[],generations:w.SHOP_GENS||[]};
+for(const [key,value] of Object.entries(metadata)) lines.push(`INSERT OR REPLACE INTO catalog_metadata(version,meta_key,value_json) VALUES(${sql(version)},${sql(key)},${sql(JSON.stringify(value))});`);
+for(let start=0;start<(w.SHOP_IMAGES||[]).length;start+=300){
+  const key=`images:${String(start/300).padStart(4,"0")}`;
+  lines.push(`INSERT OR REPLACE INTO catalog_metadata(version,meta_key,value_json) VALUES(${sql(version)},${sql(key)},${sql(JSON.stringify(w.SHOP_IMAGES.slice(start,start+300)))});`);
+}
 for(let start=0;start<products.length;start+=40){
   const values=products.slice(start,start+40).map(source=>{const payload=Object.assign({},source);delete payload.p;return `(${sql(version)},${sql(source.i)},${sql(source.mf||"REMUS")},${source.p},${sql(JSON.stringify(payload))})`;});
   lines.push("INSERT OR REPLACE INTO catalog_products(version,sku,manufacturer,price_cents,payload_json) VALUES\n"+values.join(",\n")+";");
 }
 lines.push(`INSERT OR REPLACE INTO catalog_settings(key,value,updated_at) VALUES('active_catalog_version',${sql(version)},CURRENT_TIMESTAMP);`);
 lines.push(`DELETE FROM catalog_products WHERE version <> ${sql(version)};`);
+lines.push(`DELETE FROM catalog_metadata WHERE version <> ${sql(version)};`);
 lines.push(`DELETE FROM catalog_versions WHERE version <> ${sql(version)};`);
+const tooLong=lines.find(line=>Buffer.byteLength(line,"utf8")>95000);
+if(tooLong)throw new Error(`D1 statement exceeds safe 95 KB limit (${Buffer.byteLength(tooLong,"utf8")} bytes)`);
 fs.writeFileSync(out,lines.join("\n")+"\n");
 console.log(JSON.stringify({version,products:products.length,remus,dba,output:out}));
