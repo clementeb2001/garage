@@ -152,8 +152,9 @@
       ph_brand: "Marke wielen oder aginn", ph_model: "Modell wielen oder aginn",
       btn_veh: "Passend Deeler fannen",
       cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohren", adapter: "Adapter", disc: "Bremsscheiwen", pads: "Bremsbeläg", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraaftverstärker", park: "Handbrems", drum: "Bremstrommel", shoes: "Bremsschong", other: "Anerer" },
-      info_all: "{n} Produiten", info_more: "{n} Produiten (déi éischt {c} gewisen – wiel däi Won oder verfeinert d’Sich)",
+      info_all: "{n} Produiten", info_more: "{n} Produiten (déi éischt {c} Produktkaarte gewisen – wiel däi Won oder verfeinert d’Sich)",
       info_search: "{n} Resultater fir „{q}“", info_veh: "{n} Produiten fir {v}",
+      info_grouped: "{g} Produktgruppen, inklusiv allen auswielbare REMUS-Konfiguratiounen",
       info_cat: "{n} · {c}",
       empty: "Keng Produiten fonnt. Rufft eis un – mir fannen dat richtegt Deel.",
       fits: "Passt:", artnr: "Réf.", add: "An de Kuerf", fits_on: "Passt op:", related: "Dobäibestellen", related_sub: "Passend Deeler fir Äert Gefier – fir e komplett System", rel_none: "Keng passend Zousatzdeeler fonnt.", pd_add: "+ derbäi", pd_close: "Zoumaachen", roles: { system: "Komplett-System", catback: "Cat-Back", axleback: "Axle-Back", slipon: "Slip-On", rear: "Endschalldämpfer", mid: "Mëttelrouer", front: "Front-Schalldämpfer", downpipe: "Downpipe", header: "Krümmer", tail: "Endrohren", sound: "Sound Controller", adapter: "Adapter / Verbindung" },
@@ -178,8 +179,9 @@
       ph_brand: "Marke wählen oder eingeben", ph_model: "Modell wählen oder eingeben",
       btn_veh: "Passende Teile finden",
       cats: { all: "Alle", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohre", adapter: "Adapter", disc: "Bremsscheiben", pads: "Bremsbeläge", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraftverstärker", park: "Handbremse", drum: "Bremstrommeln", shoes: "Bremsbacken", other: "Sonstige" },
-      info_all: "{n} Produkte", info_more: "{n} Produkte (erste {c} angezeigt – Fahrzeug wählen oder Suche verfeinern)",
+      info_all: "{n} Produkte", info_more: "{n} Produkte (erste {c} Produktkarten angezeigt – Fahrzeug wählen oder Suche verfeinern)",
       info_search: "{n} Ergebnisse für „{q}“", info_veh: "{n} Produkte für {v}",
+      info_grouped: "{g} Produktgruppen einschließlich aller wählbaren REMUS-Konfigurationen",
       info_cat: "{n} · {c}",
       empty: "Keine Produkte gefunden. Rufen Sie uns an – wir finden das richtige Teil.",
       fits: "Passt:", artnr: "Ref.", add: "In den Warenkorb", fits_on: "Passt auf:", related: "Dazu bestellen", related_sub: "Passende Teile für Ihr Fahrzeug – für eine komplette Anlage", rel_none: "Kein passendes Zubehör gefunden.", pd_add: "+ dazu", pd_close: "Schließen", roles: { system: "Komplettanlage", catback: "Cat-Back", axleback: "Axle-Back", slipon: "Slip-On", rear: "Endschalldämpfer", mid: "Mittelrohr", front: "Vorschalldämpfer", downpipe: "Downpipe", header: "Krümmer", tail: "Endrohre", sound: "Sound Controller", adapter: "Adapter / Verbindung" },
@@ -204,8 +206,9 @@
       ph_brand: "Choisir ou saisir la marque", ph_model: "Choisir ou saisir le modèle",
       btn_veh: "Trouver les pièces",
       cats: { all: "Tout", system: "Lignes d’échappement", sound: "Sound Controller", tail: "Sorties", adapter: "Adaptateurs", disc: "Disques de frein", pads: "Plaquettes", caliper: "Étriers", bbk: "Big Brake Kits", booster: "Servofrein", park: "Frein à main", drum: "Tambours", shoes: "Mâchoires", other: "Autres" },
-      info_all: "{n} produits", info_more: "{n} produits ({c} premiers affichés – choisissez votre véhicule ou affinez)",
+      info_all: "{n} produits", info_more: "{n} produits ({c} premières fiches affichées – choisissez votre véhicule ou affinez)",
       info_search: "{n} résultats pour « {q} »", info_veh: "{n} produits pour {v}",
+      info_grouped: "{g} groupes de produits, toutes les configurations REMUS disponibles comprises",
       info_cat: "{n} · {c}",
       empty: "Aucun produit trouvé. Appelez-nous – nous trouvons la bonne pièce.",
       fits: "Compatible :", artnr: "Réf.", add: "Au panier", fits_on: "Compatible avec :", related: "À commander avec", related_sub: "Pièces compatibles pour votre véhicule – pour une ligne complète", rel_none: "Aucun accessoire compatible trouvé.", pd_add: "+ ajouter", pd_close: "Fermer", roles: { system: "Ligne complète", catback: "Cat-Back", axleback: "Axle-Back", slipon: "Slip-On", rear: "Silencieux arrière", mid: "Tube intermédiaire", front: "Silencieux avant", downpipe: "Downpipe", header: "Collecteur", tail: "Sorties", sound: "Sound Controller", adapter: "Adaptateur / raccord" },
@@ -230,8 +233,9 @@
       ph_brand: "Choose or type make", ph_model: "Choose or type model",
       btn_veh: "Find matching parts",
       cats: { all: "All", system: "Exhaust systems", sound: "Sound Controller", tail: "Tail pipes", adapter: "Adapters", disc: "Brake discs", pads: "Brake pads", caliper: "Calipers", bbk: "Big Brake Kits", booster: "Brake booster", park: "Park brake", drum: "Brake drums", shoes: "Brake shoes", other: "Other" },
-      info_all: "{n} products", info_more: "{n} products (first {c} shown – pick your vehicle or refine)",
+      info_all: "{n} products", info_more: "{n} products (first {c} product cards shown – pick your vehicle or refine)",
       info_search: "{n} results for “{q}”", info_veh: "{n} products for {v}",
+      info_grouped: "{g} product groups, including every selectable REMUS configuration",
       info_cat: "{n} · {c}",
       empty: "No products found. Call us – we’ll find the right part.",
       fits: "Fits:", artnr: "Ref.", add: "Add to cart", fits_on: "Fits:", related: "Order together", related_sub: "Matching parts for your vehicle – to complete the system", rel_none: "No matching accessories found.", pd_add: "+ add", pd_close: "Close", roles: { system: "Full system", catback: "Cat-Back", axleback: "Axle-Back", slipon: "Slip-On", rear: "Rear silencer", mid: "Mid pipe", front: "Front silencer", downpipe: "Downpipe", header: "Header", tail: "Tail pipes", sound: "Sound Controller", adapter: "Adapter / link" },
@@ -872,7 +876,7 @@
     catsFor(state.mf).forEach(function (c) {
       var previousCategory = state.cat;
       state.cat = c;
-      var count = collapseCatalog(PRODUCTS.filter(matches)).length;
+      var count = PRODUCTS.filter(matches).length;
       state.cat = previousCategory;
       var b = document.createElement("button");
       b.type = "button";
@@ -891,23 +895,31 @@
       return a.n < b.n ? -1 : a.n > b.n ? 1 : 0;
     });
   }
+  function formattedCount(value) {
+    var locale = lang() === "lb" ? "de-LU" : lang() === "de" ? "de-DE" : lang() === "fr" ? "fr-FR" : "en-GB";
+    try { return new Intl.NumberFormat(locale).format(value); }
+    catch (e) { return String(value); }
+  }
   function render() {
     var t = tr(), grid = $("shop-grid"), info = $("shop-result-info"), empty = $("shop-empty");
     if (!grid) return;
     renderChips();
-    var list = sortList(collapseCatalog(PRODUCTS.filter(matches)));
+    var matchingProducts = PRODUCTS.filter(matches);
+    var list = sortList(collapseCatalog(matchingProducts));
     var n = list.length;
+    var productCount = matchingProducts.length;
     var shown = list.slice(0, visibleCount);
     grid.innerHTML = "";
     shown.forEach(function (p, index) {
       grid.appendChild(card(p, t, index));
     });
     var txt;
-    if (state.mode === "search" && state.q) txt = t.info_search.replace("{n}", n).replace("{q}", state.q);
+    if (state.mode === "search" && state.q) txt = t.info_search.replace("{n}", formattedCount(productCount)).replace("{q}", state.q);
     else if (state.mode === "vehicle" && state.brand)
-      txt = t.info_veh.replace("{n}", n).replace("{v}", selectedVehicleLabel());
-    else if (n > visibleCount) txt = t.info_more.replace("{n}", n).replace("{c}", visibleCount);
-    else txt = t.info_all.replace("{n}", n);
+      txt = t.info_veh.replace("{n}", formattedCount(productCount)).replace("{v}", selectedVehicleLabel());
+    else if (n > visibleCount) txt = t.info_more.replace("{n}", formattedCount(productCount)).replace("{c}", formattedCount(visibleCount));
+    else txt = t.info_all.replace("{n}", formattedCount(productCount));
+    if (productCount !== n) txt += " · " + t.info_grouped.replace("{g}", formattedCount(n));
     if (state.cat !== "all") txt = t.info_cat.replace("{n}", txt).replace("{c}", t.cats[state.cat]);
     if (info) info.textContent = txt;
     if (empty) {

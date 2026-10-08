@@ -7,7 +7,7 @@ var CORE = [
   "/shop.html",
   "/styles.css?v=84",
   "/script.js?v=27",
-  "/shop.js?v=72",
+  "/shop.js?v=73",
   "/shop-catalog-api.js?v=1",
   "/vehicle-catalog.js?v=4",
 ];
