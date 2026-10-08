@@ -363,6 +363,8 @@
   Object.assign(T.lb, {
     configure: "Upassen",
     config_title: "Är REMUS-Konfiguratioun",
+    config_intro: "Wielt d’Ausféierung Schrëtt fir Schrëtt. All Wiel féiert ëmmer zu engem kompletten, valabele REMUS-Bundle.",
+    config_without: "ouni Zousazoptioun",
     config_system: "Grondanlag / Systemëmfang",
     config_variant: "Ausféierung / Endréier wielen *",
     config_required: "Pflichtëmfang am komplette REMUS-Bundle abegraff",
@@ -375,11 +377,14 @@
     config_adapter_parts: "Adapter",
     config_without_sound: "ouni Sound Controller",
     config_none: "Ouni Auswiel",
-    config_component_choice: "Anlagekomponent {n}",
+    config_component_choice: "Systemkomponent {n}",
     config_single: "Dës Variant huet keng weider wielbar Bundle-Ausféierung.",
     config_component: "Eenzelkomponent: déi néideg Haaptanlag gëtt separat gebraucht.",
     config_check: "Mir kontrolléieren d’Stécklëscht an d’Passform nach eng Kéier mat Äre komplette Gefierdaten virun der Bestellung.",
     config_total: "Bundle-Präis",
+    config_total_short: "Total",
+    config_show_all: "All {n} Optioune weisen",
+    config_show_less: "Manner Optioune weisen",
     config_matrix: "{n} offiziell REMUS-Konfiguratioune fir dës Produktfamill",
     config_exact: "Aktuell Auswiel: komplett a valabel",
     config_required_mark: "Pflichtauswiel",
@@ -391,6 +396,8 @@
   Object.assign(T.de, {
     configure: "Konfigurieren",
     config_title: "Ihre REMUS-Konfiguration",
+    config_intro: "Wählen Sie die Ausführung Schritt für Schritt. Jede Auswahl führt immer zu einem vollständigen, gültigen REMUS-Bundle.",
+    config_without: "ohne Zusatzoption",
     config_system: "Grundsystem / Lieferumfang",
     config_variant: "Ausführung / Endrohr wählen *",
     config_required: "Pflichtumfang im vollständigen REMUS-Bundle enthalten",
@@ -408,6 +415,9 @@
     config_component: "Einzelkomponente: Die erforderliche Hauptanlage wird separat benötigt.",
     config_check: "Wir prüfen Stückliste und Passform vor der Bestellung noch einmal anhand Ihrer vollständigen Fahrzeugdaten.",
     config_total: "Bundle-Preis",
+    config_total_short: "Gesamt",
+    config_show_all: "Alle {n} Optionen anzeigen",
+    config_show_less: "Weniger Optionen anzeigen",
     config_matrix: "{n} offizielle REMUS-Konfigurationen für diese Produktfamilie",
     config_exact: "Aktuelle Auswahl: vollständig und gültig",
     config_required_mark: "Pflichtauswahl",
@@ -419,6 +429,8 @@
   Object.assign(T.fr, {
     configure: "Configurer",
     config_title: "Votre configuration REMUS",
+    config_intro: "Choisissez la version étape par étape. Chaque sélection correspond toujours à un bundle REMUS complet et valide.",
+    config_without: "sans option supplémentaire",
     config_system: "Système de base / contenu",
     config_variant: "Choisir la finition / les sorties *",
     config_required: "Éléments obligatoires inclus dans le bundle REMUS complet",
@@ -436,6 +448,9 @@
     config_component: "Composant individuel: le système principal requis doit être choisi séparément.",
     config_check: "Avant la commande, nous vérifions à nouveau la nomenclature et la compatibilité à partir des données complètes du véhicule.",
     config_total: "Prix du bundle",
+    config_total_short: "Total",
+    config_show_all: "Afficher les {n} options",
+    config_show_less: "Afficher moins d’options",
     config_matrix: "{n} configurations REMUS officielles pour cette famille de produits",
     config_exact: "Sélection actuelle : complète et valide",
     config_required_mark: "Choix obligatoire",
@@ -447,6 +462,8 @@
   Object.assign(T.en, {
     configure: "Configure",
     config_title: "Your REMUS configuration",
+    config_intro: "Choose the specification step by step. Every selection always results in a complete, valid REMUS bundle.",
+    config_without: "without additional option",
     config_system: "Base system / bundle contents",
     config_variant: "Choose finish / tail pipes *",
     config_required: "Required scope included in the complete REMUS bundle",
@@ -464,6 +481,9 @@
     config_component: "Individual component: the required main system must be selected separately.",
     config_check: "Before ordering, we verify the bill of materials and fitment again using the complete vehicle details.",
     config_total: "Bundle price",
+    config_total_short: "Total",
+    config_show_all: "Show all {n} options",
+    config_show_less: "Show fewer options",
     config_matrix: "{n} official REMUS configurations for this product family",
     config_exact: "Current selection: complete and valid",
     config_required_mark: "Required selection",
@@ -1364,10 +1384,23 @@
     if (!wrap) return;
     wrap.innerHTML = "";
 
+    var variants = remusConfigVariants(p);
+    var titleRow = document.createElement("div");
+    titleRow.className = "pd-config-head";
     var title = document.createElement("h3");
     title.className = "pd-config-title";
     title.textContent = t.config_title;
-    wrap.appendChild(title);
+    var matrixInfo = document.createElement("span");
+    matrixInfo.className = "pd-config-matrix";
+    matrixInfo.textContent = t.config_matrix.replace("{n}", formattedCount(variants.length));
+    titleRow.appendChild(title);
+    titleRow.appendChild(matrixInfo);
+    wrap.appendChild(titleRow);
+
+    var intro = document.createElement("p");
+    intro.className = "pd-config-intro";
+    intro.textContent = t.config_intro;
+    wrap.appendChild(intro);
 
     var systemLabel = document.createElement("span");
     systemLabel.className = "pd-config-label";
@@ -1385,55 +1418,20 @@
     wrap.appendChild(status);
 
     var bundleRef = document.createElement("p");
-    bundleRef.className = "pd-config-single";
+    bundleRef.className = "pd-config-ref";
     bundleRef.textContent = t.config_bundle_ref.replace("{sku}", p.i);
     wrap.appendChild(bundleRef);
 
-    if (p.ps && p.ps.length) {
-      var partsLabel = document.createElement("span");
-      partsLabel.className = "pd-config-label pd-parts-label";
-      partsLabel.textContent = t.config_parts;
-      wrap.appendChild(partsLabel);
-
-      [["system", t.config_main_parts], ["tail", t.config_tail_parts],
-       ["sound", t.config_sound_parts], ["adapter", t.config_adapter_parts]]
-        .forEach(function (group) {
-          var values = remusPartsOf(p, group[0]);
-          if (!values.length) return;
-          var box = document.createElement("div");
-          box.className = "pd-part-group pd-part-group-" + group[0];
-          var groupName = document.createElement("strong");
-          groupName.textContent = group[1];
-          box.appendChild(groupName);
-          var parts = document.createElement("ul");
-          parts.className = "pd-parts";
-          values.forEach(function (sku) {
-            var item = document.createElement("li");
-            item.textContent = sku;
-            parts.appendChild(item);
-          });
-          box.appendChild(parts);
-          wrap.appendChild(box);
-        });
-
-      var partsNote = document.createElement("p");
-      partsNote.className = "pd-parts-note";
-      partsNote.textContent = t.config_parts_note;
-      wrap.appendChild(partsNote);
-    }
-
-    var variants = remusConfigVariants(p);
-    var matrixInfo = document.createElement("p");
-    matrixInfo.className = "pd-config-matrix";
-    matrixInfo.textContent = t.config_matrix.replace("{n}", formattedCount(variants.length));
-    wrap.appendChild(matrixInfo);
     if (variants.length > 1) {
-      var configLabel = document.createElement("span");
-      configLabel.className = "pd-config-label";
-      configLabel.textContent = t.config_valid;
-      wrap.appendChild(configLabel);
-
       var slotDefs = remusSlotDefs(variants);
+      var selectableDefs = slotDefs.filter(function (def) {
+        var values = [];
+        variants.forEach(function (variant) {
+          var value = remusSlotValue(variant, def);
+          if (values.indexOf(value) === -1) values.push(value);
+        });
+        return values.length > 1;
+      });
       slotDefs.forEach(function (def, slotIndex) {
         var values = [];
         variants.forEach(function (variant) {
@@ -1442,43 +1440,38 @@
         });
         if (values.length < 2) return;
 
-        var field = document.createElement("div");
+        var field = document.createElement("fieldset");
         field.className = "pd-option-field pd-option-" + def.type;
-        var id = "pd-option-" + slotIndex;
-        var label = document.createElement("label");
+        var label = document.createElement("legend");
         label.className = "pd-option-label";
-        label.setAttribute("for", id);
-        if (def.type === "system") label.textContent = t.config_component_choice.replace("{n}", def.index + 1);
-        else if (def.type === "tail") label.textContent = t.config_tail_parts + (def.index ? " " + (def.index + 1) : "");
-        else if (def.type === "sound") label.textContent = t.config_sound_parts;
-        else label.textContent = t.config_adapter_parts + (def.index ? " " + (def.index + 1) : "");
+        var step = document.createElement("span");
+        step.className = "pd-option-step";
+        step.textContent = String(selectableDefs.indexOf(def) + 1);
+        label.appendChild(step);
+        var labelText = document.createElement("span");
+        if (def.type === "tail") labelText.textContent = t.config_tail_parts + (def.index ? " " + (def.index + 1) : "");
+        else if (def.type === "sound") labelText.textContent = t.config_sound_parts;
+        else labelText.textContent = t.config_adapter_parts + (def.index ? " " + (def.index + 1) : "");
+        if (def.type === "system") labelText.textContent = t.config_component_choice.replace("{n}", def.index + 1);
+        label.appendChild(labelText);
         var required = document.createElement("span");
         required.className = "pd-option-required";
         required.textContent = t.config_required_mark;
         label.appendChild(required);
         field.appendChild(label);
 
-        var select = document.createElement("select");
-        select.className = "pd-variant pd-option-select";
-        select.id = id;
-        select.required = true;
-        select.setAttribute("aria-required", "true");
-        values.sort().forEach(function (value) {
-          var option = document.createElement("option");
-          option.value = value;
-          option.selected = value === remusSlotValue(p, def);
-          var example = variants.filter(function (variant) { return remusSlotValue(variant, def) === value; })[0];
-          var description = "";
-          if (value && example && def.type === "tail") description = bundleVariantName(example);
-          else if (value && example && def.type === "system") description = bundleBaseName(example);
-          else if (value && def.type === "sound") description = t.config_sound_parts;
-          else if (value && def.type === "adapter") description = t.config_adapter_parts;
-          option.textContent = value ? ((description && description !== value ? description + " · " : "") + value) : t.config_none;
-          select.appendChild(option);
-        });
-        select.addEventListener("change", function () {
+        var options = document.createElement("div");
+        options.className = "pd-option-cards";
+        options.setAttribute("role", "radiogroup");
+        options.setAttribute("aria-label", labelText.textContent);
+        var currentValue = remusSlotValue(p, def);
+        values.sort(function (a, b) {
+          if (a === currentValue) return -1;
+          if (b === currentValue) return 1;
+          return a.localeCompare(b, undefined, { numeric: true });
+        }).forEach(function (value) {
           var candidates = variants.filter(function (variant) {
-            return remusSlotValue(variant, def) === select.value;
+            return remusSlotValue(variant, def) === value;
           });
           candidates.sort(function (a, b) {
             function score(variant) {
@@ -1489,16 +1482,91 @@
             }
             return score(b) - score(a) || a.p - b.p;
           });
-          if (candidates[0]) openProduct(candidates[0]);
+          var example = candidates[0];
+          var description = "";
+          if (value && example && def.type === "tail") description = bundleVariantName(example);
+          else if (value && example && def.type === "system") description = bundleBaseName(example);
+          else if (value && def.type === "sound") description = t.config_sound_parts;
+          else if (value && def.type === "adapter") description = t.config_adapter_parts;
+          var option = document.createElement("button");
+          option.type = "button";
+          option.className = "pd-option-card" + (value === remusSlotValue(p, def) ? " is-selected" : "");
+          option.setAttribute("role", "radio");
+          option.setAttribute("aria-checked", value === remusSlotValue(p, def) ? "true" : "false");
+          var optionName = document.createElement("strong");
+          optionName.textContent = value ? (def.type === "system" ? labelText.textContent : (description || value)) : t.config_none;
+          var optionMeta = document.createElement("span");
+          optionMeta.className = "pd-option-meta";
+          optionMeta.textContent = value || t.config_without;
+          var optionPrice = document.createElement("b");
+          optionPrice.className = "pd-option-price";
+          optionPrice.textContent = example && example.p ? t.config_total_short + " " + priceStr(example.p) : "—";
+          option.appendChild(optionName);
+          option.appendChild(optionMeta);
+          option.appendChild(optionPrice);
+          option.addEventListener("click", function () {
+            if (example && example.i !== p.i) openProduct(example);
+          });
+          options.appendChild(option);
         });
-        field.appendChild(select);
+        field.appendChild(options);
+        if (values.length > 6) {
+          options.classList.add("is-collapsed");
+          var reveal = document.createElement("button");
+          reveal.type = "button";
+          reveal.className = "pd-option-reveal";
+          reveal.textContent = t.config_show_all.replace("{n}", values.length);
+          reveal.setAttribute("aria-expanded", "false");
+          reveal.addEventListener("click", function () {
+            var expanded = options.classList.toggle("is-expanded");
+            reveal.setAttribute("aria-expanded", expanded ? "true" : "false");
+            reveal.textContent = expanded ? t.config_show_less : t.config_show_all.replace("{n}", values.length);
+          });
+          field.appendChild(reveal);
+        }
         wrap.appendChild(field);
       });
     } else {
       var single = document.createElement("p");
-      single.className = "pd-config-single";
+      single.className = "pd-config-single pd-config-single-variant";
       single.textContent = t.config_single;
       wrap.appendChild(single);
+    }
+
+    if (p.ps && p.ps.length) {
+      var details = document.createElement("details");
+      details.className = "pd-parts-details";
+      var summary = document.createElement("summary");
+      summary.textContent = t.config_parts + " (" + p.ps.length + ")";
+      details.appendChild(summary);
+      var partsGrid = document.createElement("div");
+      partsGrid.className = "pd-parts-grid";
+      [["system", t.config_main_parts], ["tail", t.config_tail_parts],
+       ["sound", t.config_sound_parts], ["adapter", t.config_adapter_parts]]
+        .forEach(function (group) {
+          var partValues = remusPartsOf(p, group[0]);
+          if (!partValues.length) return;
+          var box = document.createElement("div");
+          box.className = "pd-part-group pd-part-group-" + group[0];
+          var groupName = document.createElement("strong");
+          groupName.textContent = group[1];
+          box.appendChild(groupName);
+          var parts = document.createElement("ul");
+          parts.className = "pd-parts";
+          partValues.forEach(function (sku) {
+            var item = document.createElement("li");
+            item.textContent = sku;
+            parts.appendChild(item);
+          });
+          box.appendChild(parts);
+          partsGrid.appendChild(box);
+        });
+      details.appendChild(partsGrid);
+      var partsNote = document.createElement("p");
+      partsNote.className = "pd-parts-note";
+      partsNote.textContent = t.config_parts_note;
+      details.appendChild(partsNote);
+      wrap.appendChild(details);
     }
 
     var total = document.createElement("div");
