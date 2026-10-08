@@ -1,6 +1,6 @@
 "use strict";
 
-var CACHE = "autoservice-shop-v11";
+var CACHE = "autoservice-shop-v12";
 var IMAGE_CACHE = "autoservice-product-images-v1";
 var MAX_IMAGES = 160;
 var CORE = [
@@ -8,7 +8,7 @@ var CORE = [
   "/styles.css?v=84",
   "/script.js?v=27",
   "/shop.js?v=73",
-  "/shop-catalog-api.js?v=2",
+  "/shop-catalog-api.js?v=3",
   "/vehicle-catalog.js?v=4",
 ];
 

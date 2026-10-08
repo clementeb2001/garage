@@ -99,7 +99,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     if (shopPreview) {
       // Virschau: Katalog a Präisser aus der verbindlech D1-Quell lueden.
-      loadScript("shop-catalog-api.js?v=2", function () {
+      loadScript("shop-catalog-api.js?v=3", function () {
         window.GARAGE_CATALOG.init().then(function () {
           loadScript("vehicle-catalog.js?v=4", function () { loadScript("shop.js?v=73"); });
         }).catch(function () {
