@@ -18,6 +18,8 @@
   function fmt(iso) { if (!iso) return ""; var p = iso.split("-"); return p[2] + "." + p[1] + "." + p[0]; }
 
   var blocks = {}, month = (function () { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
+  var availability = "loading", pendingFetch = null;
+  var STATUS = {lb:{loading:"Verfügbarkeet gëtt gelueden…",error:"Verfügbarkeet net disponibel. Probéiert nach eng Kéier.",retry:"Nach eng Kéier",changed:"Déi gewielten Datumer sinn net méi fräi. Wielt nei."},de:{loading:"Verfügbarkeit wird geladen…",error:"Verfügbarkeit nicht erreichbar. Bitte erneut versuchen.",retry:"Erneut versuchen",changed:"Die gewählten Termine sind nicht mehr frei. Bitte neu wählen."},fr:{loading:"Chargement des disponibilités…",error:"Disponibilités indisponibles. Veuillez réessayer.",retry:"Réessayer",changed:"Les dates choisies ne sont plus libres. Choisissez à nouveau."},en:{loading:"Loading availability…",error:"Availability could not be loaded. Please retry.",retry:"Retry",changed:"The selected dates are no longer available. Please choose again."}};
   var prefIso = "", altIso = "", active = "pref";
   var root, dateInput, altInput, wtime, amOpt, pmOpt, gridEl, monthEl, wkEl, titleEl, helpEl, legEl, hintEl, targetsEl;
 
@@ -27,7 +29,7 @@
     var iso = isoDay(date);
     var past = date < today, sunday = date.getDay() === 0, closed = isB(iso, "closed");
     var am = isB(iso, "am"), pm = isB(iso, "pm");
-    var grey = past || sunday || closed;
+    var grey = availability !== "ready" || past || sunday || closed;
     var busy = !grey && am && pm;
     return { iso: iso, past: past, sunday: sunday, closed: closed, am: am, pm: pm, grey: grey, busy: busy, selectable: !grey && !busy };
   }
@@ -70,13 +72,14 @@
     root.innerHTML =
       '<div class="rental-calendar-head" style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div><p class="rental-calendar-kicker">📅</p><h3 class="appt-cal-title"></h3></div>' +
       '<div class="rental-calendar-nav appt-cal-nav" style="display:flex;align-items:center;gap:6px"><button type="button" class="appt-cal-prev">‹</button><strong class="appt-cal-month" aria-live="polite"></strong><button type="button" class="appt-cal-next">›</button></div></div>' +
-      '<p class="appt-cal-help"></p>' +
+      '<p class="appt-cal-help"></p><p class="appt-cal-status" role="status" aria-live="polite"></p><button type="button" class="appt-cal-retry" hidden></button>' +
       '<div class="appt-cal-targets"></div>' +
       '<div class="appt-cal-wk2" aria-hidden="true"></div>' +
       '<div class="appt-cal-grid2" role="grid"></div>' +
       '<div class="appt-cal-leg2"></div>' +
       '<p class="appt-cal-hint" role="status" aria-live="polite" hidden></p>';
     before.parentNode.insertBefore(root, before);
+    root.querySelector(".appt-cal-retry").addEventListener("click", fetchBlocks);
     gridEl = root.querySelector(".appt-cal-grid2"); monthEl = root.querySelector(".appt-cal-month");
     wkEl = root.querySelector(".appt-cal-wk2"); titleEl = root.querySelector(".appt-cal-title");
     helpEl = root.querySelector(".appt-cal-help"); legEl = root.querySelector(".appt-cal-leg2");
@@ -103,6 +106,9 @@
 
   function render() {
     var t = TXT[lng()] || TXT.lb;
+    var status = STATUS[lng()] || STATUS.lb;
+    root.querySelector(".appt-cal-status").textContent = availability === "ready" ? "" : status[availability];
+    var retry = root.querySelector(".appt-cal-retry"); retry.hidden = availability !== "error"; retry.textContent = status.retry;
     titleEl.textContent = t.title; helpEl.textContent = t.help;
     root.querySelector(".appt-cal-prev").setAttribute("aria-label", t.prev);
     root.querySelector(".appt-cal-next").setAttribute("aria-label", t.next);
@@ -148,7 +154,7 @@
     if (altInput) altInput.value = altIso;
   }
   function updateSlots() {
-    var am = prefIso ? isB(prefIso, "am") : false, pm = prefIso ? isB(prefIso, "pm") : false;
+    var am = availability !== "ready" || (prefIso ? isB(prefIso, "am") : false), pm = availability !== "ready" || (prefIso ? isB(prefIso, "pm") : false);
     if (amOpt) amOpt.disabled = am; if (pmOpt) pmOpt.disabled = pm;
     if (wtime) {
       var sel = wtime.options[wtime.selectedIndex];
@@ -158,7 +164,9 @@
     }
   }
   function clearTarget(key) { if (key === "pref") prefIso = ""; else altIso = ""; active = key; setNative(); updateSlots(); render(); }
+  function selectable(iso) { return !!iso && dayInfo(new Date(iso + "T00:00:00")).selectable; }
   function selectDay(iso) {
+    if (!selectable(iso)) return;
     if (iso === prefIso) { prefIso = ""; active = "pref"; setNative(); updateSlots(); render(); return; }
     if (iso === altIso) { altIso = ""; active = "alt"; setNative(); render(); return; }
     if (active === "alt") { altIso = iso; active = "pref"; }
@@ -166,12 +174,42 @@
     setNative(); updateSlots(); render();
   }
 
-  function fetchBlocks() {
-    fetch(API + "/appointment-availability", { mode: "cors", credentials: "omit" })
-      .then(function (r) { return r.ok ? r.json() : { blocks: [] }; })
-      .then(function (d) { (d.blocks || []).forEach(function (b) { blocks[b.date + "|" + b.slot] = true; }); render(); updateSlots(); })
-      .catch(function () {});
+  function revalidate() {
+    if (prefIso && !selectable(prefIso)) prefIso = "";
+    if (altIso && !selectable(altIso)) altIso = "";
+    setNative(); updateSlots(); render();
   }
+  function fetchBlocks() {
+    if (pendingFetch) return pendingFetch;
+    availability = "loading"; render(); updateSlots();
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, 10000);
+    pendingFetch = fetch(API + "/appointment-availability", { mode: "cors", credentials: "omit", cache: "no-store", signal: controller.signal })
+      .then(function (r) { if (!r.ok) throw new Error("availability"); return r.json(); })
+      .then(function (d) {
+        if (!Array.isArray(d.blocks)) throw new Error("availability");
+        var next = {};
+        d.blocks.forEach(function (b) {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date) || ["am", "pm", "closed"].indexOf(b.slot) < 0) throw new Error("availability");
+          next[b.date + "|" + b.slot] = true;
+        });
+        blocks = next; availability = "ready"; revalidate();
+      })
+      .catch(function () { availability = "error"; revalidate(); })
+      .finally(function () { clearTimeout(timer); pendingFetch = null; });
+    return pendingFetch;
+  }
+  window.appointmentCalendar = {
+    validate: function () {
+      revalidate();
+      var slot = wtime && wtime.options[wtime.selectedIndex];
+      var part = slot && slot.getAttribute("data-slot");
+      var blocked = [prefIso, altIso].filter(Boolean).some(function (iso) { return part && isB(iso, part); });
+      return availability === "ready" && selectable(prefIso) && !blocked;
+    },
+    message: function () { var t = STATUS[lng()] || STATUS.lb; return availability === "ready" ? t.changed : t[availability]; },
+    refresh: fetchBlocks
+  };
 
   function init() {
     dateInput = document.getElementById("preferred-date");
@@ -192,3 +230,4 @@
   if (document.readyState !== "loading") init();
   else document.addEventListener("DOMContentLoaded", init);
 })();
+

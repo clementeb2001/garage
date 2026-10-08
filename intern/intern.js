@@ -798,7 +798,7 @@
   var dashBk = [], dashAp = [], dashMaint = [];
   var VEH_COLORS = ["#2f6df6", "#e63946", "#2e7d5b", "#b7791f", "#7c4dff", "#0ea5a5", "#d6457f", "#546e7a"];
   var APPT_COLOR = "#334155"; // Rendez-vousen (Service) — donkel, onofhängeg vun de Gefier-Faarwen
-  function apptDay(a) { return parseDay(a.prefDate) || parseDay(a.altDate); }
+  function apptDay(a) { return (a.status === "confirmed" && parseDay(a.confirmedDate)) || parseDay(a.prefDate) || parseDay(a.altDate); }
   function dLabel(s) { var d = parseDay(s); if (!d) return esc(s || ""); function p(n) { return (n < 10 ? "0" : "") + n; } return p(d.getDate()) + "." + p(d.getMonth() + 1) + "." + d.getFullYear(); }
   function timeStr(s) { if (!s) return ""; var d = new Date(s); if (isNaN(d)) return ""; return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
   function vehColorMap(bookings) { var map = {}, i = 0; bookings.forEach(function (b) { var v = b.veh || "?"; if (map[v] == null) { map[v] = VEH_COLORS[i % VEH_COLORS.length]; i++; } }); return map; }

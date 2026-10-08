@@ -543,6 +543,11 @@
       if (firstBad && firstBad.focus) firstBad.focus();
       return;
     }
+    if (window.appointmentCalendar && !window.appointmentCalendar.validate()) {
+      st.className = "form-status err";
+      st.textContent = window.appointmentCalendar.message();
+      return;
+    }
     var hp = f.querySelector('[name="_honey"]');
     if (hp && hp.value) {
       st.className = "form-status ok";
@@ -564,6 +569,7 @@
       name: name, email: email, phone: v("phone"),
       service: service, vehicle: vehicle,
       prefDate: preferredDate, altDate: v("alternative-date"),
+      timeSlot: (f.querySelector("#wtime option:checked") || {getAttribute:function(){return "";}}).getAttribute("data-slot") || "",
       daytime: (f.querySelector("#wtime") || {}).value || "",
       vin: vinUnknown ? "" : vinClean,
       msg: message, lang: lang(),
@@ -588,6 +594,11 @@
       })
       .catch(function (err) {
         st.className = "form-status err";
+        if (err && err.code === "appointment_unavailable" && window.appointmentCalendar) {
+          st.textContent = window.appointmentCalendar.message();
+          window.appointmentCalendar.refresh();
+          return;
+        }
         st.textContent = (err && err.code === "rate_limited" && m.form.rate) ? m.form.rate : m.form.senderr;
       })
       .then(function () {
@@ -748,3 +759,4 @@
     if (opt) { opt.selected = true; sel.dispatchEvent(new Event("change", { bubbles: true })); }
   });
 })();
+

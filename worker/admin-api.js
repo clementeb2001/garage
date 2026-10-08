@@ -667,6 +667,20 @@ export default {
         const preferredDate = clip(bodyData.prefDate,20).trim(), alternativeDate = clip(bodyData.altDate,20).trim();
         if (!service || !vehicle || !message || (kind === "inquiry" && !clip(bodyData.phone,60).trim()) || (kind === "appointment" && !preferredDate)) return json(env, { error:"missing_fields" }, 400);
         if (kind === "appointment" && (!validDateOnly(preferredDate) || (alternativeDate && !validDateOnly(alternativeDate)) || preferredDate < new Date().toISOString().slice(0,10) || (alternativeDate && alternativeDate < new Date().toISOString().slice(0,10)))) return json(env, { error:"invalid_fields" }, 400);
+        if (kind === "appointment") {
+          // Check before the persistent rate counter or any appointment writes.
+          const legacySlots = { moies:"am", vormittags:"am", matin:"am", morning:"am", "nomëtteg":"pm", nachmittags:"pm", "après-midi":"pm", afternoon:"pm" };
+          const slot = bodyData.timeSlot || legacySlots[clip(bodyData.daytime,40).trim().toLowerCase()] || "";
+          if (!["", "am", "pm"].includes(slot)) return json(env, { error:"invalid_fields" }, 400);
+          const days = [preferredDate, alternativeDate].filter(Boolean);
+          if (days.some(day => new Date(day + "T00:00:00Z").getUTCDay() === 0)) return json(env, { error:"appointment_unavailable" }, 409);
+          const result = await env.DB.prepare("SELECT date, slot FROM appointment_blocks WHERE date IN (?1, ?2)").bind(preferredDate, alternativeDate || preferredDate).all();
+          const blocks = result.results || [];
+          if (days.some(day => {
+            const blocked = part => blocks.some(block => block.date === day && block.slot === part);
+            return blocked("closed") || (slot ? blocked(slot) : blocked("am") && blocked("pm"));
+          })) return json(env, { error:"appointment_unavailable" }, 409);
+        }
         if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
         const r = await env.DB.prepare(
           "INSERT INTO appointments (name, email, phone, service, vehicle, pref_date, alt_date, daytime, vin, msg, lang, kind, status) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,'new')"
