@@ -450,6 +450,38 @@ async function sendApptConfirmation(env, apptId, a) {
   await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(apptId, result.ok ? "Bestätegungsmail geschéckt" : "Bestätegungsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
+/* Empfangsbestätegung un de Client beim Androen vun enger Ufro (nach keng Bestätegung). */
+function apptReceiptMail(a) {
+  var L = ["lb", "de", "fr", "en"].includes(a.lang) ? a.lang : "lb";
+  var inq = a.kind === "inquiry";
+  var dateLabel = apptDateLabel(a.pref_date, L);
+  var C = {
+    lb: { sA: "Mir hunn Är Rendez-vous-Ufro kritt", sI: "Mir hunn Är Ufro kritt", h: "Är Ufro ass ukomm", pA: "Villmools Merci! Mir hunn Är Rendez-vous-Ufro kritt. Dëst ass nach keng definitiv Bestätegung – mir mellen eis geschwënn mat engem Termin.", pI: "Villmools Merci! Mir hunn Är Ufro kritt a mellen eis geschwënn mat de Präisser an der Disponibilitéit.", service: "Service", ufro: "Ufro", veh: "Gefier", date: "Wonschdatum", foot: "Bei Froen äntwert einfach op dës E-Mail oder rufft eis un. Villmools Merci!" },
+    de: { sA: "Wir haben Ihre Terminanfrage erhalten", sI: "Wir haben Ihre Anfrage erhalten", h: "Ihre Anfrage ist eingegangen", pA: "Vielen Dank! Wir haben Ihre Terminanfrage erhalten. Dies ist noch keine verbindliche Bestätigung – wir melden uns in Kürze mit einem Termin.", pI: "Vielen Dank! Wir haben Ihre Anfrage erhalten und melden uns in Kürze mit Preisen und Verfügbarkeit.", service: "Leistung", ufro: "Anfrage", veh: "Fahrzeug", date: "Wunschdatum", foot: "Bei Fragen antworten Sie einfach auf diese E-Mail oder rufen Sie uns an. Vielen Dank!" },
+    fr: { sA: "Nous avons reçu votre demande de rendez-vous", sI: "Nous avons reçu votre demande", h: "Votre demande est bien arrivée", pA: "Merci beaucoup ! Nous avons reçu votre demande de rendez-vous. Il ne s'agit pas encore d'une confirmation ferme – nous revenons vers vous avec un horaire.", pI: "Merci beaucoup ! Nous avons bien reçu votre demande et revenons vers vous rapidement avec les prix et la disponibilité.", service: "Prestation", ufro: "Demande", veh: "Véhicule", date: "Date souhaitée", foot: "Pour toute question, répondez à cet e-mail ou appelez-nous. Merci !" },
+    en: { sA: "We received your appointment request", sI: "We received your request", h: "Your request has arrived", pA: "Thank you! We have received your appointment request. This is not yet a firm confirmation – we will get back to you with a time.", pI: "Thank you! We have received your request and will get back to you soon with prices and availability.", service: "Service", ufro: "Request", veh: "Vehicle", date: "Preferred date", foot: "If you have any questions, just reply to this e-mail or call us. Thank you!" }
+  }[L];
+  var subject = inq ? C.sI : C.sA, intro = inq ? C.pI : C.pA;
+  var rows = [[inq ? C.ufro : C.service, a.service], [C.veh, a.vehicle]];
+  if (!inq) rows.push([C.date, dateLabel + (a.daytime ? " · " + a.daytime : "")]);
+  rows = rows.filter(function (r) { return r[1]; });
+  var detail = rows.map(function (r) { return "<b>" + esc(r[0]) + ":</b> " + esc(r[1]); }).join("<br>");
+  var html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430">' +
+    '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +
+    '<div style="border:1px solid #e6e9ee;border-top:0;border-radius:0 0 10px 10px;padding:20px">' +
+    '<h2 style="margin:0 0 8px;color:#2e7d5b">✓ ' + esc(C.h) + "</h2><p>" + esc(intro) + "</p>" +
+    "<p>" + detail + "</p><p>" + esc(C.foot) + "</p>" +
+    '<p style="color:#8a96a2;font-size:12px">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87</p></div></div>';
+  var text = C.h + "\n\n" + intro + "\n\n" + rows.map(function (r) { return r[0] + ": " + r[1]; }).join("\n") + "\n\n" + C.foot +
+    "\n\nAutoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87";
+  return { subject: subject, html: html, text: text };
+}
+async function sendApptReceipt(env, apptId, a) {
+  const mail = apptReceiptMail(a);
+  const result = await sendEmail(env, a.email, mail.subject, mail.html, mail.text);
+  await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
+    .bind(apptId, result.ok ? "Empfangsmail geschéckt" : "Empfangsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
+}
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function mailText(t, b) {
   var lines = [t.h, "", t.p, ""];
@@ -674,7 +706,11 @@ export default {
         const id = r.meta.last_row_id;
         await saveConsent(env, kind, id, bodyData.privacy, false);
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,'Ufro erakomm','System','')").bind(id).run();
-        ctx.waitUntil(sendNewApptNotice(env, id, { name: name, email: email, service: service, vehicle: vehicle, pref_date: preferredDate, kind: kind }));
+        const apptLang = ["lb", "de", "fr", "en"].includes(bodyData.lang) ? bodyData.lang : "lb";
+        ctx.waitUntil(Promise.all([
+          sendNewApptNotice(env, id, { name: name, email: email, service: service, vehicle: vehicle, pref_date: preferredDate, kind: kind }),
+          sendApptReceipt(env, id, { name: name, email: email, service: service, vehicle: vehicle, pref_date: preferredDate, daytime: clip(bodyData.daytime, 40).trim(), lang: apptLang, kind: kind })
+        ]));
         return json(env, { ok: true, id });
       }
 
