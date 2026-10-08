@@ -654,6 +654,14 @@ export default {
         return json(env, { busy });
       }
 
+      /* ---- public: gespaart Termin-Hallefdeeg (nëmmen Datum + Slot, keng perséinlech Donnéeën) ---- */
+      if (path === "/appointment-availability" && method === "GET") {
+        await ensureApptBlocks(env);
+        const sinceDay = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+        const rows = (await env.DB.prepare("SELECT date, slot FROM appointment_blocks WHERE date >= ?1 ORDER BY date ASC LIMIT 1000").bind(sinceDay).all()).results || [];
+        return json(env, { blocks: rows.map((r) => ({ date: r.date, slot: r.slot })) }, 200, { "Cache-Control": "public, max-age=120" });
+      }
+
       /* ---- public: aktiv Gefierer aus der interner Flotte ---- */
       if (path === "/fleet/public" && method === "GET") {
         await ensureMaint(env);

@@ -809,8 +809,8 @@
                 <label for="wtime" id="lbl-wtime">Time of day</label>
                 <select id="wtime" name="Tageszeit">
                   <option value="" id="opt-time-any">Egal</option>
-                  <option id="opt-time-am">Moies</option>
-                  <option id="opt-time-pm">Nomëtteg</option>
+                  <option id="opt-time-am" data-slot="am">Moies</option>
+                  <option id="opt-time-pm" data-slot="pm">Nomëtteg</option>
                 </select>
               </div>
               <div class="field">
@@ -976,6 +976,7 @@
     <script src="script.js?v=27"></script>
     <script src="details.js?v=10"></script>
     <script src="extras.js?v=16"></script>
+    <script src="appt-calendar.js?v=1" defer></script>
     <!-- Cloudflare Web Analytics -->
     <script
       type="module"
