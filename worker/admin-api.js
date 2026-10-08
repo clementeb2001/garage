@@ -296,6 +296,9 @@ async function ensureAppts(env) {
   try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_appt_events_aid ON appointment_events(appointment_id)").run(); } catch (e) {}
   // Defensiv: Spalt "kind" bei enger aler Tabell derbäisetzen (ignoréiert wann se scho besteet).
   try { await env.DB.prepare("ALTER TABLE appointments ADD COLUMN kind TEXT NOT NULL DEFAULT 'appointment'").run(); } catch (e) {}
+  // Bestätegt Datum + Auerzäit (Lëtzebuerger Zäit) fir d'Rendez-vous-Bestätegung.
+  try { await env.DB.prepare("ALTER TABLE appointments ADD COLUMN confirmed_date TEXT").run(); } catch (e) {}
+  try { await env.DB.prepare("ALTER TABLE appointments ADD COLUMN confirmed_time TEXT").run(); } catch (e) {}
 }
 async function ensureMaint(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS maintenance (id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle TEXT NOT NULL, service TEXT NOT NULL, due_date TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT)").run();
@@ -404,6 +407,48 @@ async function sendNewApptNotice(env, apptId, a) {
   const result = await sendEmail(env, env.MAIL_TO || "Autoservicebettenduerf@outlook.com", subject, html, text);
   await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(apptId, result.ok ? "Intern Notifikatioun geschéckt" : "Intern Notifikatioun feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
+}
+/* Datum (YYYY-MM-DD) a fir d'Sprooch formatéieren, ëmmer an der Lëtzebuerger Zäitzon. */
+function apptDateLabel(dateStr, lang) {
+  if (!dateStr) return "";
+  var d = new Date(String(dateStr).slice(0, 10) + "T12:00:00Z");
+  if (isNaN(d.getTime())) return String(dateStr);
+  if (lang === "lb") {
+    var days = ["Sonndeg", "Méindeg", "Dënschdeg", "Mëttwoch", "Donneschdeg", "Freideg", "Samschdeg"];
+    var months = ["Januar", "Februar", "Mäerz", "Abrëll", "Mee", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+    return days[d.getUTCDay()] + ", " + d.getUTCDate() + ". " + months[d.getUTCMonth()] + " " + d.getUTCFullYear();
+  }
+  var loc = { de: "de-DE", fr: "fr-FR", en: "en-GB" }[lang] || "de-DE";
+  try { return new Intl.DateTimeFormat(loc, { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Luxembourg" }).format(d); }
+  catch (e) { return String(dateStr).slice(0, 10); }
+}
+function apptConfirmMail(a) {
+  var L = ["lb", "de", "fr", "en"].includes(a.lang) ? a.lang : "lb";
+  var dateLabel = apptDateLabel(a.confirmed_date || a.pref_date, L);
+  var time = a.confirmed_time || "";
+  var T = {
+    lb: { s: "Äre Rendez-vous ass bestätegt", h: "Rendez-vous bestätegt", p: "Mir hunn Äre Rendez-vous bestätegt:", service: "Service", date: "Datum", time: "Auerzäit", tz: "(Lëtzebuerger Zäit)", veh: "Gefier", foot: "Bei Froen äntwert einfach op dës E-Mail oder rufft eis un. Mir freeën eis op Iech!" },
+    de: { s: "Ihr Termin ist bestätigt", h: "Termin bestätigt", p: "Wir haben Ihren Termin bestätigt:", service: "Leistung", date: "Datum", time: "Uhrzeit", tz: "(Luxemburger Zeit)", veh: "Fahrzeug", foot: "Bei Fragen antworten Sie einfach auf diese E-Mail oder rufen Sie uns an. Wir freuen uns auf Sie!" },
+    fr: { s: "Votre rendez-vous est confirmé", h: "Rendez-vous confirmé", p: "Nous avons confirmé votre rendez-vous :", service: "Prestation", date: "Date", time: "Heure", tz: "(heure du Luxembourg)", veh: "Véhicule", foot: "Pour toute question, répondez simplement à cet e-mail ou appelez-nous. À bientôt !" },
+    en: { s: "Your appointment is confirmed", h: "Appointment confirmed", p: "We have confirmed your appointment:", service: "Service", date: "Date", time: "Time", tz: "(Luxembourg time)", veh: "Vehicle", foot: "If you have any questions, just reply to this e-mail or call us. We look forward to seeing you!" }
+  }[L];
+  var rows = [[T.service, a.service], [T.veh, a.vehicle], [T.date, dateLabel], [T.time, time ? time + " " + T.tz : ""]].filter(function (r) { return r[1]; });
+  var detailHtml = rows.map(function (r) { return "<b>" + esc(r[0]) + ":</b> " + esc(r[1]); }).join("<br>");
+  var html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430">' +
+    '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +
+    '<div style="border:1px solid #e6e9ee;border-top:0;border-radius:0 0 10px 10px;padding:20px">' +
+    '<h2 style="margin:0 0 8px;color:#2e7d5b">✓ ' + esc(T.h) + "</h2><p>" + esc(T.p) + "</p>" +
+    "<p>" + detailHtml + "</p><p>" + esc(T.foot) + "</p>" +
+    '<p style="color:#8a96a2;font-size:12px">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87</p></div></div>';
+  var text = T.h + "\n\n" + T.p + "\n\n" + rows.map(function (r) { return r[0] + ": " + r[1]; }).join("\n") + "\n\n" + T.foot +
+    "\n\nAutoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87";
+  return { subject: T.s, html: html, text: text };
+}
+async function sendApptConfirmation(env, apptId, a) {
+  const mail = apptConfirmMail(a);
+  const result = await sendEmail(env, a.email, mail.subject, mail.html, mail.text);
+  await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
+    .bind(apptId, result.ok ? "Bestätegungsmail geschéckt" : "Bestätegungsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function mailText(t, b) {
@@ -801,7 +846,7 @@ export default {
         const evs = (await env.DB.prepare("SELECT appointment_id, action, by_user, note, at FROM appointment_events ORDER BY id ASC").all()).results || [];
         const byId = {};
         evs.forEach((e) => { (byId[e.appointment_id] = byId[e.appointment_id] || []).push({ action: e.action, by: e.by_user, at: e.at, note: e.note || "" }); });
-        return json(env, { appointments: as.map((a) => ({ id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, events: byId[a.id] || [] })) });
+        return json(env, { appointments: as.map((a) => ({ id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, confirmedDate: a.confirmed_date || "", confirmedTime: a.confirmed_time || "", vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, events: byId[a.id] || [] })) });
       }
 
       /* ---- Rendez-vous Status änneren (validator+) ---- */
@@ -813,11 +858,28 @@ export default {
         const status = clip(bodyData.status, 20);
         const labels = { confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss", new: "Zrécksetzen" };
         if (!labels[status]) return json(env, { error: "bad_status" }, 400);
-        const ex = await env.DB.prepare("SELECT id FROM appointments WHERE id = ?1").bind(id).first();
-        if (!ex) return json(env, { error: "not_found" }, 404);
-        await env.DB.prepare("UPDATE appointments SET status = ?1 WHERE id = ?2").bind(status, id).run();
+        const appt = await env.DB.prepare("SELECT * FROM appointments WHERE id = ?1").bind(id).first();
+        if (!appt) return json(env, { error: "not_found" }, 404);
+        const isAppt = (appt.kind || "appointment") === "appointment";
+        let confDate = appt.confirmed_date || appt.pref_date || "";
+        let confTime = appt.confirmed_time || "";
+        if (status === "confirmed" && isAppt) {
+          // Admin setzt d'Auerzäit (Lëtzebuerger Zäit) + optional en ugepasst Datum.
+          const d = clip(bodyData.date, 20).trim(), tm = clip(bodyData.time, 10).trim();
+          if (d && !validDateOnly(d)) return json(env, { error: "invalid_date" }, 400);
+          if (tm && !/^([01]\d|2[0-3]):[0-5]\d$/.test(tm)) return json(env, { error: "invalid_time" }, 400);
+          if (d) confDate = d;
+          if (tm) confTime = tm;
+          await env.DB.prepare("UPDATE appointments SET status = ?1, confirmed_date = ?2, confirmed_time = ?3 WHERE id = ?4").bind(status, confDate, confTime, id).run();
+        } else {
+          await env.DB.prepare("UPDATE appointments SET status = ?1 WHERE id = ?2").bind(status, id).run();
+        }
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,?3,?4)").bind(id, labels[status], me.username, clip(bodyData.note, 500)).run();
-        return json(env, { ok: true });
+        // Bestätegungsmail un de Client (nëmme fir Rendez-vous mat enger E-Mail).
+        if (status === "confirmed" && isAppt && appt.email) {
+          ctx.waitUntil(sendApptConfirmation(env, id, Object.assign({}, appt, { confirmed_date: confDate, confirmed_time: confTime })));
+        }
+        return json(env, { ok: true, confirmedDate: confDate, confirmedTime: confTime });
       }
 
       /* ---- Rendez-vous läschen (admin) ---- */

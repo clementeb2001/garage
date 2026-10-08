@@ -75,7 +75,7 @@
     delBooking: function (id) { return api("/bookings/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     editBooking: function (id, patch) { return api("/bookings/" + id + "/edit", { method: "POST", body: patch }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listAppointments: function () { return api("/appointments").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.appointments; }); },
-    setApptStatus: function (id, status, note) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "" } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
+    setApptStatus: function (id, status, note, date, time) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime } : { error: r.body.error }; }); },
     delAppt: function (id) { return api("/appointments/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listMemberEvents: function () { return api("/member-events").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.events; }); },
     listMaintenance: function () { return api("/maintenance").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.items; }); },
@@ -682,18 +682,42 @@
     wrap.innerHTML = "";
     defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (reqState[kind].filter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { reqState[kind].filter = d[0]; renderReq(kind); }); wrap.appendChild(b); });
   }
-  function doReqAct(kind, id, status) { if (!can("bookings.validate")) return; var noteEl = $("rnote-" + kind + "-" + id), note = noteEl ? noteEl.value.trim() : ""; STORE.setApptStatus(id, status, note).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast(REQCFG[kind].noun + " " + reqRef(kind, id) + ": " + (STATUS[status] || status).toLowerCase() + "."); renderReq(kind); }); }
+  function doReqAct(kind, id, status) {
+    if (!can("bookings.validate")) return;
+    var noteEl = $("rnote-" + kind + "-" + id), note = noteEl ? noteEl.value.trim() : "";
+    var date = "", time = "";
+    if (kind === "appointment" && status === "confirmed") {
+      var dEl = $("rdate-" + id), tEl = $("rtime-" + id);
+      date = dEl ? dEl.value : ""; time = tEl ? tEl.value : "";
+      if (!time) { toast("Gitt w.e.g. eng Auerzäit un ier Dir de Rendez-vous bestätegt."); if (tEl) tEl.focus(); return; }
+    }
+    STORE.setApptStatus(id, status, note, date, time).then(function (r) {
+      if (r.error) { toast(errMsg(r.error)); return; }
+      var extra = (status === "confirmed" && r.confirmedTime) ? " (" + (r.confirmedDate || "") + " · " + r.confirmedTime + ")" : "";
+      toast(REQCFG[kind].noun + " " + reqRef(kind, id) + ": " + (STATUS[status] || status).toLowerCase() + extra + ".");
+      renderReq(kind);
+    });
+  }
   function doDelReq(kind, id) { if (!can("members.manage")) return; if (!confirm(REQCFG[kind].noun + " " + reqRef(kind, id) + " endgülteg läschen?")) return; STORE.delAppt(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast(REQCFG[kind].noun + " " + reqRef(kind, id) + " geläscht."); renderReq(kind); }); }
   function reqCard(kind, a) {
     var el = document.createElement("div"); el.className = "booking" + (a.status === "new" ? " is-new" : "");
     var canVal = can("bookings.validate"), isAdmin = can("members.manage"), actions = "", nid = "rnote-" + kind + "-" + a.id;
-    if (canVal && a.status === "new") actions = '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-ract="confirmed">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-ract="declined">✕ Ofleenen</button>';
+    if (canVal && a.status === "new") {
+      var sched = kind === "appointment"
+        ? '<div class="appt-sched" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'
+          + '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.88em">📅 <input class="b-note-input" id="rdate-' + a.id + '" type="date" value="' + esc(a.prefDate || "") + '" style="width:auto"></label>'
+          + '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.88em">🕒 <input class="b-note-input" id="rtime-' + a.id + '" type="time" step="300" style="width:auto"></label>'
+          + '<span style="font-size:.78em;opacity:.7">Lëtzebuerger Zäit</span></div>'
+        : "";
+      actions = sched + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-ract="confirmed">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-ract="declined">✕ Ofleenen</button>';
+    }
     else if (canVal && a.status === "confirmed") actions = '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button>';
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-delr="1">Läschen</button>';
     var audit = (a.events || []).map(function (ev) { return '<div class="ev">• ' + esc(ev.action) + ' vum <b>' + esc(ev.by) + "</b>, " + fmt(ev.at) + (ev.note ? ' – „' + esc(ev.note) + "“" : "") + "</div>"; }).join("");
     var meta = [];
     if (a.vehicle) meta.push("🚗 " + esc(a.vehicle));
     if (a.prefDate) meta.push("📅 " + esc(a.prefDate) + (a.altDate ? " / " + esc(a.altDate) : "") + (a.daytime ? " · " + esc(a.daytime) : ""));
+    if (a.confirmedTime) meta.push("✅ " + esc(a.confirmedDate || a.prefDate || "") + " · " + esc(a.confirmedTime) + " Auer");
     if (a.vin) meta.push("VIN " + esc(a.vin));
     el.innerHTML =
       '<div class="b-top"><div><div class="b-veh">' + esc(a.service || REQCFG[kind].titleFb) + '</div><div class="b-id">Réf. ' + reqRef(kind, a.id) + "</div></div><span class=\"status status-" + a.status + '">' + esc(STATUS[a.status]) + "</span></div>" +
