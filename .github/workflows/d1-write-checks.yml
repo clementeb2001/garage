@@ -28,6 +28,7 @@ jobs:
         run: |
           node tests/d1-write-budget.test.js
           node tests/calendar.test.js
+          node tests/appointment-mail.test.js
           python3 tests/d1-sql.test.py
       - name: Validate all JavaScript syntax
         run: |

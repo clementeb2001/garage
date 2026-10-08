@@ -81,7 +81,8 @@
     delBooking: function (id) { return api("/bookings/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     editBooking: function (id, patch) { return api("/bookings/" + id + "/edit", { method: "POST", body: patch }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listAppointments: function () { return api("/appointments").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.appointments; }); },
-    setApptStatus: function (id, status, note, date, time) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime } : { error: r.body.error }; }); },
+    setApptStatus: function (id, status, note, date, time) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime, unchanged: r.body.unchanged, mailQueued: r.body.mailQueued } : { error: r.body.error }; }); },
+    resendApptConfirmation: function (id, date, time) { return api("/appointments/" + id + "/confirmation-email", { method: "POST", body: { date: date, time: time } }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
     delAppt: function (id) { return api("/appointments/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listApptBlocks: function () { return api("/appointment-blocks", { method: "GET" }).then(function (r) { return r.status === 200 ? (r.body.blocks || []) : []; }); },
     setApptBlock: function (date, slot, blocked) { return api("/appointment-blocks", { method: "POST", body: { date: date, slot: slot, blocked: !!blocked } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
@@ -104,6 +105,11 @@
   var session = null;
   function can(perm) { return !!(session && ROLES[session.role] && ROLES[session.role].perms.indexOf(perm) !== -1); }
   var ERR = { invalid_credentials: "Falsche Benotzernumm oder falscht Passwuert.", wrong_current: "Dat aktuellt Passwuert ass falsch.", weak_password: "Dat neit Passwuert ass ze kuerz (op d'mannst 8 Zeechen).", exists: "Dee Benotzernumm gëtt et schonn.", last_admin: "Et muss op d'mannst een Admin bleiwen.", self: "Du kanns dech net selwer läschen.", bad_input: "Ongëlteg Donnéeën.", forbidden: "Keng Berechtegung.", rate_limited: "Ze vill Umeldungsversich. Waart w.e.g. eng Stonn oder rufft den Admin un.", booking_conflict: "Dëst Gefier ass an dësem Zäitraum schonn reservéiert. D'Iwwerschneidung kann net bestätegt ginn.", not_found: "Reservatioun net fonnt.", bad_status: "Ongëltege Status.", missing_fields: "Obligatoresch Felder feelen (Gefier, Numm, Vun, Bis).", invalid_fields: "Ongëlteg E-Mail-Adress oder Datum.", invalid_protocol: "De Protokoll enthält eng ongëlteg oder feelend Ënnerschrëft beziehungsweise Zuel.", invalid_period: "Den Enddatum muss nom Ufanksdatum leien.", forbidden_origin: "Zougrëff vun dëser Adress blockéiert – benotzt w.e.g. https://autoservicebettenduerf.lu/intern/", stale_status: "De Status gouf mëttlerweil geännert. Luet d’Lëscht nei.", server_not_configured: "Server net konfiguréiert." };
+  ERR.appointment_not_confirmed = "De Rendez-vous muss fir d'éischt bestätegt ginn.";
+  ERR.missing_email = "Keng gëlteg E-Mail-Adress.";
+  ERR.missing_confirmation_time = "Gitt en Datum an eng Auerzäit un.";
+  ERR.mail_rate_limited = "Ze vill Mailversich. Waart w.e.g. eng Minutt.";
+  ERR.mail_failed = "Mail konnt net geschéckt ginn. Probéiert nach eng Kéier.";
   function errMsg(e) { return ERR[e] || "Feeler – probéiert nach eng Kéier."; }
 
   /* ---------- Views ---------- */
@@ -700,7 +706,33 @@
     wrap.innerHTML = "";
     defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (reqState[kind].filter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { reqState[kind].filter = d[0]; renderReq(kind, true); }); wrap.appendChild(b); });
   }
-  function doReqAct(kind, id, status) {
+  var pendingReqActions = new Map();
+  function runReqAction(kind, id, card, task) {
+    var key = kind + ":" + id;
+    if (pendingReqActions.has(key)) return pendingReqActions.get(key);
+    var controls = card ? Array.from(card.querySelectorAll("button,input")) : [];
+    var disabled = controls.map(function (control) { return control.disabled; });
+    controls.forEach(function (control) { control.disabled = true; });
+    var promise = Promise.resolve().then(task).catch(function () { toast("Feeler – probéiert nach eng Kéier."); }).finally(function () {
+      pendingReqActions.delete(key);
+      controls.forEach(function (control, i) { control.disabled = disabled[i]; });
+    });
+    pendingReqActions.set(key, promise);
+    return promise;
+  }
+  function doResendAppt(a, card) {
+    if (!can("bookings.validate") || a.status !== "confirmed") return;
+    var date = $("rdate-" + a.id), time = $("rtime-" + a.id), note = $("rnote-appointment-" + a.id);
+    if (!date || !time || date.value !== a.confirmedDate || time.value !== a.confirmedTime || (note && note.value.trim())) { toast("Späichert d'Ännerunge fir d'éischt."); return; }
+    return runReqAction("appointment", a.id, card, function () {
+      return STORE.resendApptConfirmation(a.id, a.confirmedDate, a.confirmedTime).then(function (r) {
+        if (r.error) { toast(errMsg(r.error)); return; }
+        toast("Bestätegungsmail nach eng Kéier geschéckt.");
+        renderReq("appointment");
+      });
+    });
+  }
+  function doReqAct(kind, id, status, card) {
     if (!can("bookings.validate")) return;
     var noteEl = $("rnote-" + kind + "-" + id), note = noteEl ? noteEl.value.trim() : "";
     var date = "", time = "";
@@ -709,12 +741,14 @@
       date = dEl ? dEl.value : ""; time = tEl ? tEl.value : "";
       if (!time) { toast("Gitt w.e.g. eng Auerzäit un ier Dir de Rendez-vous bestätegt."); if (tEl) tEl.focus(); return; }
     }
-    STORE.setApptStatus(id, status, note, date, time).then(function (r) {
+    return runReqAction(kind, id, card, function () { return STORE.setApptStatus(id, status, note, date, time).then(function (r) {
       if (r.error) { toast(errMsg(r.error)); return; }
       var extra = (status === "confirmed" && r.confirmedTime) ? " (" + (r.confirmedDate || "") + " · " + r.confirmedTime + ")" : "";
-      toast(REQCFG[kind].noun + " " + reqRef(kind, id) + ": " + (STATUS[status] || status).toLowerCase() + extra + ".");
+      if (kind === "appointment" && status === "confirmed") {
+        toast(r.unchanged ? "Keng Ännerungen – keng nei Mail." : "Rendez-vous gespäichert" + extra + (r.mailQueued ? ". Bestätegungsmail gëtt geschéckt." : ". Keng nei Mail."));
+      } else toast(REQCFG[kind].noun + " " + reqRef(kind, id) + ": " + (STATUS[status] || status).toLowerCase() + extra + ".");
       renderReq(kind);
-    });
+    }); });
   }
   function doDelReq(kind, id) { if (!can("members.manage")) return; if (!confirm(REQCFG[kind].noun + " " + reqRef(kind, id) + " endgülteg läschen?")) return; STORE.delAppt(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast(REQCFG[kind].noun + " " + reqRef(kind, id) + " geläscht."); renderReq(kind); }); }
   function reqCard(kind, a) {
@@ -731,7 +765,8 @@
       actions = apptSched(false) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-ract="confirmed">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-ract="declined">✕ Ofleenen</button>';
     }
     else if (canVal && a.status === "confirmed") {
-      var resend = kind === "appointment" ? '<button class="btn btn-ok btn-sm" data-ract="confirmed">🕒 Zäit setzen &amp; Mail schécken</button>' : '';
+      var resend = '<button class="btn btn-ok btn-sm" data-ract="confirmed">Späicheren</button>';
+      if (kind === "appointment") resend += '<button class="btn btn-outline btn-sm" data-resend-appt="1">Bestätegung nach eng Kéier schécken</button><span style="font-size:.85em">Datum oder Auerzäit geännert: Mail beim Späicheren. Nëmmen Notiz: keng Mail.</span>';
       actions = apptSched(true) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" />' + resend + '<button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button>';
     }
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-delr="1">Läschen</button>';
@@ -748,7 +783,19 @@
       (a.msg ? '<p class="b-msg">' + esc(a.msg) + "</p>" : "") +
       (actions ? '<div class="b-actions">' + actions + "</div>" : "") +
       '<div class="b-audit">' + audit + "</div>";
-    el.querySelectorAll("[data-ract]").forEach(function (btn) { btn.addEventListener("click", function () { doReqAct(kind, a.id, btn.getAttribute("data-ract")); }); });
+    el.querySelectorAll("[data-ract]").forEach(function (btn) { btn.addEventListener("click", function () { doReqAct(kind, a.id, btn.getAttribute("data-ract"), el); }); });
+    var resendButton = el.querySelector("[data-resend-appt]");
+    if (resendButton) {
+      function updateResend() {
+        var d = el.querySelector("#rdate-" + a.id), t = el.querySelector("#rtime-" + a.id), note = el.querySelector("#" + nid);
+        var unsaved = d.value !== a.confirmedDate || t.value !== a.confirmedTime || !!note.value.trim();
+        resendButton.disabled = unsaved || !a.email || !a.confirmedDate || !a.confirmedTime || pendingReqActions.has(kind + ":" + a.id);
+        resendButton.title = unsaved ? "Späichert d'Ännerunge fir d'éischt." : (!a.email ? "Keng E-Mail-Adress." : "Déi gespäichert Bestätegung nach eng Kéier schécken.");
+      }
+      el.querySelectorAll("input").forEach(function (input) { input.addEventListener("input", updateResend); input.addEventListener("change", updateResend); });
+      resendButton.addEventListener("click", function () { doResendAppt(a, el); });
+      updateResend();
+    }
     el.querySelectorAll("[data-delr]").forEach(function (btn) { btn.addEventListener("click", function () { doDelReq(kind, a.id); }); });
     return el;
   }

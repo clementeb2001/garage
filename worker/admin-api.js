@@ -408,11 +408,12 @@ function apptConfirmMail(a) {
     "\n\nAutoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87";
   return { subject: T.s, html: html, text: text };
 }
-async function sendApptConfirmation(env, apptId, a) {
+async function sendApptConfirmation(env, apptId, a, byUser = "System") {
   const mail = apptConfirmMail(a);
   const result = await sendEmail(env, a.email, mail.subject, mail.html, mail.text);
-  await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
-    .bind(apptId, result.ok ? "Bestätegungsmail geschéckt" : "Bestätegungsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
+  await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,?3,?4)")
+    .bind(apptId, result.ok ? "Bestätegungsmail geschéckt" : "Bestätegungsmail feelgeschloen", byUser, clip(result.ok ? result.id : result.error, 500)).run();
+  return result;
 }
 /* Empfangsbestätegung un de Client beim Androen vun enger Ufro (nach keng Bestätegung). */
 function apptReceiptMail(a) {
@@ -868,6 +869,25 @@ export default {
         return json(env, { appointments: as.map((a) => ({ id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, confirmedDate: a.confirmed_date || "", confirmedTime: a.confirmed_time || "", vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, events: byId[a.id] || [] })) });
       }
 
+      /* ---- Bestätegung bewosst nei schécken, nëmme fir bestätegt Rendez-vous ---- */
+      m = path.match(/^\/appointments\/(\d+)\/confirmation-email$/);
+      if (m && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env, { error:"forbidden" }, 403);
+        const id = parseInt(m[1], 10);
+        const appt = await env.DB.prepare("SELECT * FROM appointments WHERE id = ?1").bind(id).first();
+        if (!appt) return json(env, { error:"not_found" }, 404);
+        if ((appt.kind || "appointment") !== "appointment" || appt.status !== "confirmed") return json(env, { error:"appointment_not_confirmed" }, 409);
+        if (!validEmail(appt.email || "")) return json(env, { error:"missing_email" }, 400);
+        if (!validDateOnly(appt.confirmed_date || "") || !/^([01]\d|2[0-3]):[0-5]\d$/.test(appt.confirmed_time || "")) return json(env, { error:"missing_confirmation_time" }, 400);
+        // Never send an older schedule from a stale or unsaved appointment card.
+        if (bodyData.date !== appt.confirmed_date || bodyData.time !== appt.confirmed_time) return json(env, { error:"stale_status" }, 409);
+        if (!env.PUBLIC_REQUEST_LIMITER) return json(env, { error:"server_not_configured" }, 503);
+        if (!(await env.PUBLIC_REQUEST_LIMITER.limit({ key:"appointment-mail:" + id })).success) return json(env, { error:"mail_rate_limited" }, 429);
+        const result = await sendApptConfirmation(env, id, appt, me.username);
+        if (!result.ok) return json(env, { error:"mail_failed" }, 502);
+        return json(env, { ok:true, mailSent:true });
+      }
+
       /* ---- Rendez-vous Status änneren (validator+) ---- */
       m = path.match(/^\/appointments\/(\d+)\/status$/);
       if (m && method === "POST") {
@@ -888,13 +908,14 @@ export default {
           if (tm && !/^([01]\d|2[0-3]):[0-5]\d$/.test(tm)) return json(env, { error: "invalid_time" }, 400);
           if (d) confDate = d;
           if (tm) confTime = tm;
+          if (!validDateOnly(confDate) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(confTime)) return json(env, { error:"missing_confirmation_time" }, 400);
         }
         const changesConfirmation = status === "confirmed" && isAppt;
         const sameState = appt.status === status && (!changesConfirmation || ((appt.confirmed_date || "") === confDate && (appt.confirmed_time || "") === confTime));
         const note = clip(bodyData.note,500).trim();
         if (sameState) {
           if (note) await env.DB.prepare("INSERT INTO appointment_events (appointment_id,action,by_user,note) VALUES (?1,'Notiz',?2,?3)").bind(id,me.username,note).run();
-          return json(env, { ok:true, unchanged:!note, confirmedDate:confDate, confirmedTime:confTime });
+          return json(env, { ok:true, unchanged:!note, confirmedDate:confDate, confirmedTime:confTime, mailQueued:false });
         }
         const changed = changesConfirmation
           ? await env.DB.prepare("UPDATE appointments SET status=?1,confirmed_date=?2,confirmed_time=?3 WHERE id=?4 AND status=?5 AND confirmed_date IS ?6 AND confirmed_time IS ?7").bind(status,confDate,confTime,id,appt.status,appt.confirmed_date ?? null,appt.confirmed_time ?? null).run()
@@ -902,10 +923,11 @@ export default {
         if (!changed.meta.changes) return json(env, { error:"stale_status" }, 409);
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,?3,?4)").bind(id, labels[status], me.username, clip(bodyData.note, 500)).run();
         // Bestätegungsmail un de Client (nëmme fir Rendez-vous mat enger E-Mail).
-        if (status === "confirmed" && isAppt && appt.email) {
+        const mailQueued = status === "confirmed" && isAppt && !!appt.email;
+        if (mailQueued) {
           ctx.waitUntil(sendApptConfirmation(env, id, Object.assign({}, appt, { confirmed_date: confDate, confirmed_time: confTime })));
         }
-        return json(env, { ok: true, confirmedDate: confDate, confirmedTime: confTime });
+        return json(env, { ok: true, confirmedDate: confDate, confirmedTime: confTime, mailQueued });
       }
 
       /* ---- Rendez-vous läschen (admin) ---- */
