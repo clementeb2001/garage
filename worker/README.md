@@ -22,7 +22,7 @@ Mat der [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/):
 npm install -g wrangler
 wrangler login
 # dëse Repo-Dossier "worker/" als Projet:
-wrangler deploy worker/mollie-payment.js --name mollie-pay
+wrangler deploy -c worker/mollie-wrangler.toml
 ```
 
 Dann de Mollie-Schlëssel als **Secret** setzen (ni am Code!):
@@ -44,12 +44,11 @@ schonn a folgende Plaze steet:
 Wann Der eng aner URL benotzt, béid Plaze uganss upassen.
 
 ## 4. Präisser
-D'Präisser kommen aus der REMUS-Präislëscht 2026 a sinn **scho agedroen**:
-
-1. **`shop-data.js`** — de ganze Katalog (Artikel, Präis a Cent, Passform). Auto-generéiert aus der Excel-Lëscht.
-2. **`worker/mollie-payment.js`** — d'`PRICES`-Lëscht (Artikelnummer → Cent). Dëst ass d'Autoritéit fir de Betrag; feelt en Artikel hei, gëtt en refuséiert.
-
-> ⚠️ D'Präisser sinn **exkl. TVA** (RRP 2026). Wann Der incl. TVA verkafe wëllt, musse béid Plazen (Katalog + Worker) mat de Bruttopräisser aktualiséiert ginn — soss stëmmt de Betrag net iwwereneen. Bei enger neier REMUS-Lëscht: nei `shop-data.js` generéieren an d'`PRICES` am Worker upassen.
+D1 (`catalog_products.price_cents`) ass déi **eenzeg verbindlech Präisquell** fir
+de Katalog an d'Bezuelung. De Browser schéckt nëmmen Artikelnummer a Quantitéit;
+de Worker liest de Präis server-säiteg aus der aktiver, validéierter
+Katalogversioun. D'Präisser sinn netto an 17% TVA gëtt identesch am Shop an am
+Bezuel-Worker berechent.
 
 ## 5. Testen
 Mat engem `test_…`-Schlëssel eng Bestellung duerchspillen — Mollie huet en

@@ -4,6 +4,15 @@ Dëse Worker ass dat Backend fir d'**Interne Verwaltung** (`/intern/`):
 Login, Reservatiounen bestätegen/ofleenen a Member-Verwaltung. D'Donnéeë
 leien an enger Cloudflare-D1-Datebank.
 
+## Shop-Katalog an D1
+
+De selwechten D1-Worker liwwert de Shop-Katalog iwwer `/catalog/meta` an
+`/catalog/products`. Bei enger Ännerung un `shop-data.js` oder
+`shop-data-dba.js` validéiert d'GitHub Action all Artikel a Präis, importéiert
+eng nei Versioun nieft déi aktiv Versioun a schalt se eréischt no engem
+kompletten Import ëm. `catalog_products.price_cents` ass déi eenzeg
+verbindlech Präisquell fir Shop a Bezuel-Worker.
+
 > **Schonn erleedegt (vun Claude):**
 > - D1-Datebank **`garage-admin`** ugeluecht (id `14fccce6-50bf-4dd7-9d76-e8576c47ce2a`).
 > - Schema (Tabellen `users`, `bookings`, `booking_events`, `member_events`) ugeluecht.

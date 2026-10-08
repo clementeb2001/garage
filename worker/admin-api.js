@@ -509,6 +509,27 @@ export default {
     }
 
     try {
+      /* ---- ëffentlech: Shop-Katalog aus D1 (verbindlech Präisquell) ---- */
+      if (path === "/catalog/meta" && method === "GET") {
+        const active = await env.DB.prepare("SELECT value FROM catalog_settings WHERE key='active_catalog_version'").first();
+        if (!active) return json(env, { error:"catalog_not_ready" }, 503);
+        const current = await env.DB.prepare("SELECT product_count,remus_count,dba_count,meta_json FROM catalog_versions WHERE version=?1").bind(active.value).first();
+        if (!current) return json(env, { error:"catalog_not_ready" }, 503);
+        return json(env, { version:active.value, counts:{ product_count:current.product_count, remus_count:current.remus_count, dba_count:current.dba_count }, catalog:JSON.parse(current.meta_json) }, 200, { "Cache-Control":"public, max-age=300, stale-while-revalidate=3600" });
+      }
+      if (path === "/catalog/products" && method === "GET") {
+        const manufacturer = String(url.searchParams.get("manufacturer") || "").toUpperCase();
+        if (!["REMUS","DBA"].includes(manufacturer)) return json(env, { error:"invalid_manufacturer" }, 400);
+        const limit = Math.max(1, Math.min(1000, Number(url.searchParams.get("limit")) || 500));
+        const cursor = clip(url.searchParams.get("cursor"), 120);
+        const active = await env.DB.prepare("SELECT value FROM catalog_settings WHERE key='active_catalog_version'").first();
+        if (!active) return json(env, { error:"catalog_not_ready" }, 503);
+        const rows = (await env.DB.prepare("SELECT sku,price_cents,payload_json FROM catalog_products WHERE version=?1 AND manufacturer=?2 AND sku>?3 ORDER BY sku LIMIT ?4").bind(active.value,manufacturer,cursor,limit+1).all()).results || [];
+        const hasMore = rows.length > limit, page = hasMore ? rows.slice(0,limit) : rows;
+        const items = page.map((row) => Object.assign(JSON.parse(row.payload_json), { p:Number(row.price_cents) }));
+        return json(env, { version:active.value, items, nextCursor:hasMore ? page[page.length-1].sku : null }, 200, { "Cache-Control":"public, max-age=300, stale-while-revalidate=3600" });
+      }
+
       /* ---- ëffentlech: nei Reservatiounsufro (vum Locatiounsformulaire) ---- */
       if (path === "/bookings" && method === "POST") {
         if (!isAllowedOrigin(request, env)) return json(env, { error: "forbidden_origin" }, 403);

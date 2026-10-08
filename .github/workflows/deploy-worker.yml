@@ -11,6 +11,10 @@ on:
     paths:
       - "worker/admin-api.js"
       - "worker/admin-wrangler.toml"
+      - "worker/catalog-schema.sql"
+      - "tools/build_catalog_d1.js"
+      - "shop-data.js"
+      - "shop-data-dba.js"
       - ".github/workflows/deploy-worker.yml"
   workflow_dispatch:
 
@@ -23,6 +27,23 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build and validate catalog import
+        run: node tools/build_catalog_d1.js worker/catalog-seed.sql
+      - name: Apply catalog schema
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 execute garage-admin --remote -c worker/admin-wrangler.toml --file worker/catalog-schema.sql
+      - name: Import catalog and atomically activate it
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 execute garage-admin --remote -c worker/admin-wrangler.toml --file worker/catalog-seed.sql
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:

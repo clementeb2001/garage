@@ -1,0 +1,12 @@
+name = "mollie-pay"
+main = "mollie-payment.js"
+compatibility_date = "2025-09-01"
+
+routes = [
+  { pattern = "mollie-pay.autoservicebettenduerf.lu", custom_domain = true }
+]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "garage-admin"
+database_id = "14fccce6-50bf-4dd7-9d76-e8576c47ce2a"

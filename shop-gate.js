@@ -98,9 +98,14 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     if (shopPreview) {
-      // Virschau: de Katalog lueden.
-      loadScript("shop-data.js?v=11", function () {
-        loadScript("vehicle-catalog.js?v=4", function () { loadScript("shop.js?v=70"); });
+      // Virschau: Katalog a Präisser aus der verbindlech D1-Quell lueden.
+      loadScript("shop-catalog-api.js?v=1", function () {
+        window.GARAGE_CATALOG.init().then(function () {
+          loadScript("vehicle-catalog.js?v=4", function () { loadScript("shop.js?v=71"); });
+        }).catch(function () {
+          var status = document.getElementById("shop-preview-text");
+          if (status) status.textContent = "De Katalog ass momentan net disponibel. Probéiert et w.e.g. méi spéit nach eng Kéier.";
+        });
       });
     } else {
       // Ëffentlech: "am Aufbau"-Säit weisen, de Katalog NET lueden.

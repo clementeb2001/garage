@@ -2247,11 +2247,10 @@
     if (cb) dbaCallbacks.push(cb);
     if (dbaRequested) return;
     dbaRequested = true;
-    var s = document.createElement("script");
-    s.src = "shop-data-dba.js?v=4";
-    s.async = true;
-    s.onerror = function () { dbaRequested = false; };
-    document.head.appendChild(s);
+    if (!window.GARAGE_CATALOG) { dbaRequested = false; return; }
+    window.GARAGE_CATALOG.loadManufacturer("DBA").then(function () {
+      if (typeof window.__onDbaLoaded === "function") window.__onDbaLoaded();
+    }).catch(function () { dbaRequested = false; });
   }
   function scheduleDbaPreload() {
     var go = function () { ensureDba(); };

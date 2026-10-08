@@ -70,6 +70,18 @@ def check_products() -> None:
         text = (ROOT / data_file).read_text(encoding="utf-8")
         if re.search(r'"p":0(?:\D|$)', text):
             fail(f"zero-price product found in {data_file}")
+    loader = (ROOT / "shop-catalog-api.js").read_text(encoding="utf-8")
+    gate = (ROOT / "shop-gate.js").read_text(encoding="utf-8")
+    payment = (ROOT / "worker/mollie-payment.js").read_text(encoding="utf-8")
+    worker = (ROOT / "worker/admin-api.js").read_text(encoding="utf-8")
+    if 'garage-admin.autoservicebettenduerf.lu/catalog' not in loader:
+        fail("shop does not load the D1 catalog API")
+    if 'shop-data.js?v=' in gate:
+        fail("shop gate still loads the static price catalog")
+    if "const PRICES =" in payment or "PRICES[it.id]" in payment:
+        fail("payment worker still contains a second price source")
+    if "catalog_products" not in payment or '/catalog/products' not in worker:
+        fail("D1 catalog is not shared by shop and payment worker")
 
 
 def check_admin_integrity() -> None:
