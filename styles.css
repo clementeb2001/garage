@@ -5904,11 +5904,45 @@ html.shop-dev .shop-card-body .shop-price {
 }
 
 .pd-option-label {
-  display: block;
+  display: flex;
+  justify-content: space-between;
+  gap: .75rem;
+  align-items: baseline;
   margin-bottom: .3rem;
   color: var(--navy-900);
   font-size: .82rem;
   font-weight: 800;
+}
+.pd-option-required {
+  flex: 0 0 auto;
+  color: var(--accent-dark);
+  font-size: .68rem;
+  letter-spacing: .025em;
+  text-transform: uppercase;
+}
+.pd-config-matrix {
+  margin: .8rem 0 .25rem;
+  padding: .6rem .72rem;
+  border-radius: 9px;
+  background: #eef3f7;
+  color: #425466;
+  font-size: .8rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.pd-config-exact {
+  display: flex;
+  gap: .45rem;
+  align-items: flex-start;
+  margin: .7rem 0 0;
+  color: #155d3b;
+  font-size: .82rem;
+  font-weight: 750;
+  line-height: 1.4;
+}
+.pd-config-exact::before {
+  content: "✓";
+  flex: 0 0 auto;
 }
 
 .pd-option-sound {

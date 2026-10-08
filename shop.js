@@ -380,6 +380,10 @@
     config_component: "Eenzelkomponent: déi néideg Haaptanlag gëtt separat gebraucht.",
     config_check: "Mir kontrolléieren d’Stécklëscht an d’Passform nach eng Kéier mat Äre komplette Gefierdaten virun der Bestellung.",
     config_total: "Bundle-Präis",
+    config_matrix: "{n} offiziell REMUS-Konfiguratioune fir dës Produktfamill",
+    config_exact: "Aktuell Auswiel: komplett a valabel",
+    config_required_mark: "Pflichtauswiel",
+    config_add: "Komplett Bundle an de Kuerf",
     related: "Passend Ergänzungen",
     related_sub: "Kompatibel Ergänzungen – net automatesch Pflichtdeeler.",
     compat_review: "Kompatibel – Pflichtdeelstatus gëtt kontrolléiert"
@@ -404,6 +408,10 @@
     config_component: "Einzelkomponente: Die erforderliche Hauptanlage wird separat benötigt.",
     config_check: "Wir prüfen Stückliste und Passform vor der Bestellung noch einmal anhand Ihrer vollständigen Fahrzeugdaten.",
     config_total: "Bundle-Preis",
+    config_matrix: "{n} offizielle REMUS-Konfigurationen für diese Produktfamilie",
+    config_exact: "Aktuelle Auswahl: vollständig und gültig",
+    config_required_mark: "Pflichtauswahl",
+    config_add: "Komplettes Bundle in den Warenkorb",
     related: "Passende Ergänzungen",
     related_sub: "Kompatible Ergänzungen – nicht automatisch Pflichtteile.",
     compat_review: "Kompatibel – Pflichtteilstatus wird geprüft"
@@ -428,6 +436,10 @@
     config_component: "Composant individuel: le système principal requis doit être choisi séparément.",
     config_check: "Avant la commande, nous vérifions à nouveau la nomenclature et la compatibilité à partir des données complètes du véhicule.",
     config_total: "Prix du bundle",
+    config_matrix: "{n} configurations REMUS officielles pour cette famille de produits",
+    config_exact: "Sélection actuelle : complète et valide",
+    config_required_mark: "Choix obligatoire",
+    config_add: "Ajouter le bundle complet au panier",
     related: "Compléments compatibles",
     related_sub: "Compléments compatibles – pas automatiquement obligatoires.",
     compat_review: "Compatible – statut obligatoire à vérifier"
@@ -452,6 +464,10 @@
     config_component: "Individual component: the required main system must be selected separately.",
     config_check: "Before ordering, we verify the bill of materials and fitment again using the complete vehicle details.",
     config_total: "Bundle price",
+    config_matrix: "{n} official REMUS configurations for this product family",
+    config_exact: "Current selection: complete and valid",
+    config_required_mark: "Required selection",
+    config_add: "Add complete bundle to cart",
     related: "Compatible additions",
     related_sub: "Compatible additions – not automatically mandatory.",
     compat_review: "Compatible – mandatory-part status will be checked"
@@ -1074,11 +1090,11 @@
     var variants = mfOf(p) === "REMUS" ? remusConfigVariants(p) : bundleVariants(p);
     btn.type = "button";
     btn.className = "btn btn-outline shop-add";
-    btn.textContent = variants.length > 1 ? t.configure : t.add;
+    btn.textContent = mfOf(p) === "REMUS" ? t.configure : t.add;
     btn.disabled = !p.p;
     btn.addEventListener("click", function (e) {
       e.stopPropagation();
-      if (variants.length > 1) openProduct(p);
+      if (mfOf(p) === "REMUS") openProduct(p);
       else addToCart(p, btn);
     });
     body.appendChild(btn);
@@ -1407,6 +1423,10 @@
     }
 
     var variants = remusConfigVariants(p);
+    var matrixInfo = document.createElement("p");
+    matrixInfo.className = "pd-config-matrix";
+    matrixInfo.textContent = t.config_matrix.replace("{n}", formattedCount(variants.length));
+    wrap.appendChild(matrixInfo);
     if (variants.length > 1) {
       var configLabel = document.createElement("span");
       configLabel.className = "pd-config-label";
@@ -1432,16 +1452,28 @@
         else if (def.type === "tail") label.textContent = t.config_tail_parts + (def.index ? " " + (def.index + 1) : "");
         else if (def.type === "sound") label.textContent = t.config_sound_parts;
         else label.textContent = t.config_adapter_parts + (def.index ? " " + (def.index + 1) : "");
+        var required = document.createElement("span");
+        required.className = "pd-option-required";
+        required.textContent = t.config_required_mark;
+        label.appendChild(required);
         field.appendChild(label);
 
         var select = document.createElement("select");
         select.className = "pd-variant pd-option-select";
         select.id = id;
+        select.required = true;
+        select.setAttribute("aria-required", "true");
         values.sort().forEach(function (value) {
           var option = document.createElement("option");
           option.value = value;
           option.selected = value === remusSlotValue(p, def);
-          option.textContent = value || t.config_none;
+          var example = variants.filter(function (variant) { return remusSlotValue(variant, def) === value; })[0];
+          var description = "";
+          if (value && example && def.type === "tail") description = bundleVariantName(example);
+          else if (value && example && def.type === "system") description = bundleBaseName(example);
+          else if (value && def.type === "sound") description = t.config_sound_parts;
+          else if (value && def.type === "adapter") description = t.config_adapter_parts;
+          option.textContent = value ? ((description && description !== value ? description + " · " : "") + value) : t.config_none;
           select.appendChild(option);
         });
         select.addEventListener("change", function () {
@@ -1478,6 +1510,11 @@
     total.appendChild(totalLabel);
     total.appendChild(totalPrice);
     wrap.appendChild(total);
+
+    var exact = document.createElement("p");
+    exact.className = "pd-config-exact";
+    exact.textContent = t.config_exact + " · " + p.i;
+    wrap.appendChild(exact);
 
     var check = document.createElement("p");
     check.className = "pd-required-check";
@@ -1551,7 +1588,7 @@
     setTxt("pd-price", p.p ? priceStr(p.p) : "—");
     setTxt("pd-shipping", p.p ? t.shipping_extra : "");
     var addBtn = $("pd-add");
-    addBtn.textContent = t.add; addBtn.disabled = !p.p;
+    addBtn.textContent = mfOf(p) === "REMUS" ? t.config_add : t.add; addBtn.disabled = !p.p;
     addBtn.onclick = function () { addToCart(p, addBtn); };
     var inquiry = $("pd-inquiry");
     if (inquiry) {
