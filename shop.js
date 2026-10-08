@@ -154,7 +154,7 @@
       cats: { all: "Alles", system: "Sportauspuffanlagen", sound: "Sound Controller", tail: "Endrohren", adapter: "Adapter", disc: "Bremsscheiwen", pads: "Bremsbeläg", caliper: "Bremssättel", bbk: "Big Brake Kits", booster: "Bremskraaftverstärker", park: "Handbrems", drum: "Bremstrommel", shoes: "Bremsschong", other: "Anerer" },
       info_all: "{n} Produiten", info_more: "{n} Produiten (déi éischt {c} Produktkaarte gewisen – wiel däi Won oder verfeinert d’Sich)",
       info_search: "{n} Resultater fir „{q}“", info_veh: "{n} Produiten fir {v}",
-      info_grouped: "{g} Produktgruppen, inklusiv allen auswielbare REMUS-Konfiguratiounen",
+      info_grouped: "{g} Produktgruppen, mat allen auswielbare REMUS-Konfiguratiounen",
       info_cat: "{n} · {c}",
       empty: "Keng Produiten fonnt. Rufft eis un – mir fannen dat richtegt Deel.",
       fits: "Passt:", artnr: "Réf.", add: "An de Kuerf", fits_on: "Passt op:", related: "Dobäibestellen", related_sub: "Passend Deeler fir Äert Gefier – fir e komplett System", rel_none: "Keng passend Zousatzdeeler fonnt.", pd_add: "+ derbäi", pd_close: "Zoumaachen", roles: { system: "Komplett-System", catback: "Cat-Back", axleback: "Axle-Back", slipon: "Slip-On", rear: "Endschalldämpfer", mid: "Mëttelrouer", front: "Front-Schalldämpfer", downpipe: "Downpipe", header: "Krümmer", tail: "Endrohren", sound: "Sound Controller", adapter: "Adapter / Verbindung" },
