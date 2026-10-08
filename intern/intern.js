@@ -702,15 +702,20 @@
   function reqCard(kind, a) {
     var el = document.createElement("div"); el.className = "booking" + (a.status === "new" ? " is-new" : "");
     var canVal = can("bookings.validate"), isAdmin = can("members.manage"), actions = "", nid = "rnote-" + kind + "-" + a.id;
+    var apptSched = function (prefillTime) {
+      if (kind !== "appointment") return "";
+      var dv = a.confirmedDate || a.prefDate || "", tv = prefillTime ? (a.confirmedTime || "") : "";
+      return '<div class="appt-sched" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'
+        + '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.88em">📅 <input class="b-note-input" id="rdate-' + a.id + '" type="date" value="' + esc(dv) + '" style="width:auto"></label>'
+        + '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.88em">🕒 <input class="b-note-input" id="rtime-' + a.id + '" type="time" step="300" value="' + esc(tv) + '" style="width:auto"></label></div>';
+    };
     if (canVal && a.status === "new") {
-      var sched = kind === "appointment"
-        ? '<div class="appt-sched" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'
-          + '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.88em">📅 <input class="b-note-input" id="rdate-' + a.id + '" type="date" value="' + esc(a.prefDate || "") + '" style="width:auto"></label>'
-          + '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.88em">🕒 <input class="b-note-input" id="rtime-' + a.id + '" type="time" step="300" style="width:auto"></label></div>'
-        : "";
-      actions = sched + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-ract="confirmed">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-ract="declined">✕ Ofleenen</button>';
+      actions = apptSched(false) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-ract="confirmed">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-ract="declined">✕ Ofleenen</button>';
     }
-    else if (canVal && a.status === "confirmed") actions = '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button>';
+    else if (canVal && a.status === "confirmed") {
+      var resend = kind === "appointment" ? '<button class="btn btn-ok btn-sm" data-ract="confirmed">🕒 Zäit setzen &amp; Mail schécken</button>' : '';
+      actions = apptSched(true) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" />' + resend + '<button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button>';
+    }
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-delr="1">Läschen</button>';
     var audit = (a.events || []).map(function (ev) { return '<div class="ev">• ' + esc(ev.action) + ' vum <b>' + esc(ev.by) + "</b>, " + fmt(ev.at) + (ev.note ? ' – „' + esc(ev.note) + "“" : "") + "</div>"; }).join("");
     var meta = [];
