@@ -27,3 +27,16 @@ bucket_name = "garage-media"
 # Deeglecht Backup vun der D1-Datebank op R2 (03:17 UTC).
 [triggers]
 crons = ["17 3 * * *"]
+
+
+# Native Workers counters: rejected traffic does not write to D1.
+# Workers limits are approximate and enforced per Cloudflare location.
+[[ratelimits]]
+name = "PUBLIC_REQUEST_LIMITER"
+namespace_id = "1001"
+simple = { limit = 8, period = 60 }
+
+[[ratelimits]]
+name = "PUBLIC_GLOBAL_LIMITER"
+namespace_id = "1002"
+simple = { limit = 30, period = 60 }

@@ -78,16 +78,11 @@ function sessionCookie(token) {
 function clearSessionCookie() {
   return SESSION_COOKIE + "=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict";
 }
-async function ensureSessions(env) {
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, username TEXT NOT NULL, expires_at INTEGER NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
-  await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_sessions_username ON sessions(username)").run();
-}
+
 async function createSession(env, username) {
-  await ensureSessions(env);
   const token = randomToken();
   const tokenHash = await hashText(token);
   const expires = Math.floor(Date.now() / 1000) + SESSION_TTL;
-  await env.DB.prepare("DELETE FROM sessions WHERE expires_at < ?1").bind(Math.floor(Date.now() / 1000)).run();
   await env.DB.prepare("INSERT INTO sessions (token_hash, username, expires_at) VALUES (?1,?2,?3)").bind(tokenHash, username, expires).run();
   return token;
 }
@@ -168,24 +163,41 @@ async function hashText(s) {
   const digest = await crypto.subtle.digest("SHA-256", enc(s));
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
-async function publicRateAllowed(request, env) {
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-  const bucket = await hashText(ip + ":" + Math.floor(Date.now() / 3600000));
-  const expires = Math.floor(Date.now() / 1000) + 7200;
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS booking_rate_limits (bucket TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0, expires_at INTEGER NOT NULL)").run();
-  await env.DB.prepare("DELETE FROM booking_rate_limits WHERE expires_at < ?1").bind(Math.floor(Date.now() / 1000)).run();
-  await env.DB.prepare("INSERT INTO booking_rate_limits (bucket, count, expires_at) VALUES (?1,1,?2) ON CONFLICT(bucket) DO UPDATE SET count=count+1, expires_at=?2").bind(bucket, expires).run();
-  const row = await env.DB.prepare("SELECT count FROM booking_rate_limits WHERE bucket=?1").bind(bucket).first();
-  return !!row && Number(row.count) <= 8;
+// Workers rate-limit counters live outside D1. A missing binding fails closed.
+async function publicEdgeAllowed(request, env) {
+  const ip = request.headers.get("CF-Connecting-IP");
+  if (!ip || !env.PUBLIC_REQUEST_LIMITER || !env.PUBLIC_GLOBAL_LIMITER) return false;
+  const global = await env.PUBLIC_GLOBAL_LIMITER.limit({ key: "public-writes" });
+  if (!global.success) return false;
+  return (await env.PUBLIC_REQUEST_LIMITER.limit({ key: ip })).success;
 }
+async function publicRateAllowed(request, env) {
+  const ip = request.headers.get("CF-Connecting-IP");
+  if (!ip) return false;
+  const hour = Math.floor(Date.now() / 3600000);
+  const bucket = await hashText(ip + ":" + hour);
+  const existing = await env.DB.prepare("SELECT count FROM booking_rate_limits WHERE bucket=?1").bind(bucket).first();
+  if (existing && Number(existing.count) >= 8) return false;
+  // The conditional UPSERT also caps concurrent attempts. Rejected requests
+  // neither update count nor extend expiry. RETURNING identifies the winner.
+  const row = await env.DB.prepare("INSERT INTO booking_rate_limits (bucket,count,expires_at) VALUES (?1,1,?2) ON CONFLICT(bucket) DO UPDATE SET count=count+1 WHERE count<8 RETURNING count")
+    .bind(bucket, (hour + 2) * 3600).first();
+  return !!row;
+}
+async function cleanupExpiredAuth(env) {
+  const now = Math.floor(Date.now() / 1000);
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM booking_rate_limits WHERE bucket IN (SELECT bucket FROM booking_rate_limits WHERE expires_at<?1 LIMIT 500)").bind(now),
+    env.DB.prepare("DELETE FROM sessions WHERE token_hash IN (SELECT token_hash FROM sessions WHERE expires_at<?1 LIMIT 500)").bind(now),
+  ]);
+}
+
 async function findConflict(env, veh, from, to, excludeId) {
-  await ensureMaint(env);
   const fleet = (await env.DB.prepare("SELECT id,vehicle,asset_type FROM maintenance").all()).results || [];
   const wanted = vehicleDescriptors(veh,fleet);
   const rows = (await env.DB.prepare("SELECT id, veh, from_dt, to_dt FROM bookings WHERE status='confirmed' AND from_dt < ?1 AND to_dt > ?2").bind(to, from).all()).results || [];
   const hit = rows.find((b) => Number(b.id) !== Number(excludeId || 0) && wanted.some((a) => vehicleDescriptors(b.veh,fleet).some((x) => descriptorOverlap(a,x))));
   if (hit) return hit;
-  await ensureFleetBlocks(env);
   const blocks = (await env.DB.prepare("SELECT id, vehicle, from_dt, to_dt FROM fleet_blocks WHERE from_dt < ?1 AND to_dt > ?2").bind(to, from).all()).results || [];
   return blocks.find((bl) => wanted.some((a) => vehicleDescriptors(bl.vehicle,fleet).some((x) => descriptorOverlap(a,x)))) || null;
 }
@@ -195,8 +207,6 @@ async function loginBucket(request) {
   return "login:" + await hashText(ip + ":" + Math.floor(Date.now() / 3600000));
 }
 async function loginFails(env, bucket) {
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS booking_rate_limits (bucket TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0, expires_at INTEGER NOT NULL)").run();
-  await env.DB.prepare("DELETE FROM booking_rate_limits WHERE expires_at < ?1").bind(Math.floor(Date.now() / 1000)).run();
   const row = await env.DB.prepare("SELECT count FROM booking_rate_limits WHERE bucket=?1").bind(bucket).first();
   return row ? Number(row.count) : 0;
 }
@@ -238,7 +248,6 @@ async function sendEmail(env, to, subject, html, text) {
 }
 
 async function saveConsent(env, type, id, privacy, terms) {
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS request_consents (request_type TEXT NOT NULL, request_id INTEGER NOT NULL, privacy_accepted INTEGER NOT NULL, terms_accepted INTEGER NOT NULL DEFAULT 0, consent_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (request_type, request_id))").run();
   await env.DB.prepare("INSERT OR REPLACE INTO request_consents (request_type, request_id, privacy_accepted, terms_accepted, consent_at) VALUES (?1,?2,?3,?4,CURRENT_TIMESTAMP)")
     .bind(type, id, privacy ? 1 : 0, terms ? 1 : 0).run();
 }
@@ -289,51 +298,8 @@ async function sendBookingReceipt(env, bookingId, booking) {
   await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(bookingId, result.ok ? "Empfangsmail geschéckt" : "Empfangsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
-async function ensureAppts(env) {
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS appointments (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT, phone TEXT, service TEXT, vehicle TEXT, pref_date TEXT, alt_date TEXT, daytime TEXT, vin TEXT, msg TEXT, lang TEXT, kind TEXT NOT NULL DEFAULT 'appointment', status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS appointment_events (id INTEGER PRIMARY KEY AUTOINCREMENT, appointment_id INTEGER NOT NULL, action TEXT NOT NULL, by_user TEXT, note TEXT, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
-  try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_appts_status ON appointments(status)").run(); } catch (e) {}
-  try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_appt_events_aid ON appointment_events(appointment_id)").run(); } catch (e) {}
-  // Defensiv: Spalt "kind" bei enger aler Tabell derbäisetzen (ignoréiert wann se scho besteet).
-  try { await env.DB.prepare("ALTER TABLE appointments ADD COLUMN kind TEXT NOT NULL DEFAULT 'appointment'").run(); } catch (e) {}
-  // Bestätegt Datum + Auerzäit (Lëtzebuerger Zäit) fir d'Rendez-vous-Bestätegung.
-  try { await env.DB.prepare("ALTER TABLE appointments ADD COLUMN confirmed_date TEXT").run(); } catch (e) {}
-  try { await env.DB.prepare("ALTER TABLE appointments ADD COLUMN confirmed_time TEXT").run(); } catch (e) {}
-}
-async function ensureMaint(env) {
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS maintenance (id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle TEXT NOT NULL, service TEXT NOT NULL, due_date TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT)").run();
-  try { await env.DB.prepare("ALTER TABLE maintenance ADD COLUMN fleet_status TEXT NOT NULL DEFAULT 'ready'").run(); } catch (e) {}
-  try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_maint_public ON maintenance(public_active)").run(); } catch (e) {}
-  const cols = [
-    ["description","TEXT"],["image_url","TEXT"],["price_day","REAL"],["year","TEXT"],["seats","TEXT"],
-    ["fuel","TEXT"],["transmission","TEXT"],["license_class","TEXT"],["load_space","TEXT"],
-    ["deposit","REAL"],["included_km","INTEGER"],["extra_km_rate","REAL"],["late_fee_hour","REAL"],["features","TEXT"],["public_active","INTEGER NOT NULL DEFAULT 0"],["featured","INTEGER NOT NULL DEFAULT 0"],
-    ["asset_type","TEXT NOT NULL DEFAULT 'van'"],["gross_weight","TEXT"],["payload","TEXT"],["braked","INTEGER NOT NULL DEFAULT 0"],["plate","TEXT"]
-  ];
-  for (const c of cols) { try { await env.DB.prepare("ALTER TABLE maintenance ADD COLUMN " + c[0] + " " + c[1]).run(); } catch (e) {} }
-  // Et gëtt kee "Haaptgefier". Finanziell Konditioune bleiwen dogéint pro Gefier gespäichert.
-  try { await env.DB.prepare("UPDATE maintenance SET featured=0 WHERE featured!=0").run(); } catch (e) {}
-  // Präiskorrektur Oktober 2026: nëmmen den ale Renault-Master-Tarif vun 80 € migréieren.
-  try { await env.DB.prepare("UPDATE maintenance SET price_day=100 WHERE lower(vehicle)='renault master' AND (price_day IS NULL OR price_day=80)").run(); } catch (e) {}
-  const master = await env.DB.prepare("SELECT id FROM maintenance WHERE lower(vehicle)='renault master' LIMIT 1").first();
-  if (!master) await env.DB.prepare("INSERT INTO maintenance (vehicle,service,note,fleet_status,description,image_url,price_day,year,seats,fuel,transmission,license_class,load_space,features,public_active,featured,plate,updated_by) VALUES ('Renault Master','No Bedarf','Automatesch aus der bestoender Locatioun iwwerholl','ready','Grousse Transporter fir Ëmzuch, Transport a sperreg Luedung.','assets/rental-renault-master.webp',100,'2021','3','Diesel','','B','L2H2','Grousse Luedraum (L2H2)\nBis 3,5 t\nVollgetankt zréckbréngen',1,0,'GK 0106','System')").run();
-  try { await env.DB.prepare("UPDATE maintenance SET plate='GK 0106' WHERE lower(vehicle)='renault master' AND (plate IS NULL OR plate='')").run(); } catch (e) {}
-  try { await env.DB.prepare("UPDATE maintenance SET deposit=COALESCE(deposit,300), included_km=COALESCE(included_km,250), extra_km_rate=COALESCE(extra_km_rate,0.30), late_fee_hour=COALESCE(late_fee_hour,20) WHERE lower(vehicle)='renault master' AND (deposit IS NULL OR included_km IS NULL OR extra_km_rate IS NULL OR late_fee_hour IS NULL)").run(); } catch (e) {}
-}
-async function ensureBookingSnapshots(env) {
-  const cols = [["contract_snapshot","TEXT"],["snapshot_at","TEXT"]];
-  for (const c of cols) { try { await env.DB.prepare("ALTER TABLE bookings ADD COLUMN " + c[0] + " " + c[1]).run(); } catch (e) {} }
-}
-async function ensureFleetBlocks(env) {
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS fleet_blocks (id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle TEXT NOT NULL, from_dt TEXT NOT NULL, to_dt TEXT NOT NULL, reason TEXT, created_by TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
-  try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_fleet_blocks_veh ON fleet_blocks(vehicle)").run(); } catch (e) {}
-}
-// Termin-Sperren pro Hallefdag: slot = "am" (moies) oder "pm" (nomëttes).
-async function ensureApptBlocks(env) {
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS appointment_blocks (date TEXT NOT NULL, slot TEXT NOT NULL, note TEXT, created_by TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (date, slot))").run();
-}
+
 async function snapshotForBooking(env, b) {
-  await ensureMaint(env);
   const fleet = (await env.DB.prepare("SELECT * FROM maintenance ORDER BY id ASC").all()).results || [];
   const items = vehicleDescriptors(b.veh, fleet).map((d) => {
     let f = d.id ? fleet.find((x) => Number(x.id) === d.id) : null;
@@ -352,19 +318,13 @@ async function snapshotForBooking(env, b) {
   return JSON.stringify({ version:1, capturedAt:new Date().toISOString(), customer:{ name:b.cust_name || "", email:b.cust_email || "", phone:b.cust_phone || "" }, rental:{ from:b.from_dt, to:b.to_dt, lang:b.lang || "lb", requestedVehicle:b.veh || "" }, items });
 }
 async function freezeBookingSnapshot(env, id, force) {
-  await ensureBookingSnapshots(env);
   const b = await env.DB.prepare("SELECT * FROM bookings WHERE id=?1").bind(id).first();
   if (!b || (!force && b.contract_snapshot)) return b;
   const snapshot = await snapshotForBooking(env, b);
-  await env.DB.prepare("UPDATE bookings SET contract_snapshot=?1, snapshot_at=CURRENT_TIMESTAMP WHERE id=?2").bind(snapshot,id).run();
+  await env.DB.prepare("UPDATE bookings SET contract_snapshot=?1, snapshot_at=CURRENT_TIMESTAMP WHERE id=?2" + (force ? "" : " AND (contract_snapshot IS NULL OR contract_snapshot='')")).bind(snapshot,id).run();
   return Object.assign({}, b, { contract_snapshot:snapshot });
 }
-async function ensureRentalInspections(env) {
-  await env.DB.prepare("CREATE TABLE IF NOT EXISTS rental_inspections (id INTEGER PRIMARY KEY AUTOINCREMENT, booking_id INTEGER NOT NULL, stage TEXT NOT NULL, inspected_at TEXT NOT NULL, odometer INTEGER, fuel_level TEXT, condition_note TEXT, damage_note TEXT, photo_refs TEXT, accessories TEXT, license_checked INTEGER NOT NULL DEFAULT 0, deposit_amount REAL, extra_km INTEGER, extra_costs REAL, customer_signature TEXT, staff_signature TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT, UNIQUE(booking_id, stage))").run();
-  try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_inspections_booking ON rental_inspections(booking_id)").run(); } catch (e) {}
-  try { await env.DB.prepare("ALTER TABLE rental_inspections ADD COLUMN checklist_json TEXT").run(); } catch (e) {}
-  try { await env.DB.prepare("ALTER TABLE rental_inspections ADD COLUMN staff_name TEXT").run(); } catch (e) {}
-}
+
 /* ---------- Deeglecht Backup vun der D1-Datebank op R2 ---------- */
 async function runBackup(env) {
   if (!env.MEDIA) return { ok: false, error: "no_media" };
@@ -562,11 +522,9 @@ async function authUser(request, env) {
   // fir JavaScript an och bei enger méiglecher XSS net ausliesbar.
   const token = cookieValue(request, SESSION_COOKIE);
   if (!token) return null;
-  await ensureSessions(env);
   const tokenHash = await hashText(token);
   const sess = await env.DB.prepare("SELECT username, expires_at FROM sessions WHERE token_hash = ?1").bind(tokenHash).first();
   if (!sess || Number(sess.expires_at) < Math.floor(Date.now() / 1000)) {
-    if (sess) await env.DB.prepare("DELETE FROM sessions WHERE token_hash = ?1").bind(tokenHash).run();
     return null;
   }
   const row = await env.DB.prepare("SELECT username, name, role, active, must_change FROM users WHERE username = ?1").bind(sess.username).first();
@@ -619,7 +577,7 @@ export default {
         if (!isAllowedOrigin(request, env)) return json(env, { error: "forbidden_origin" }, 403);
         if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
         if (bodyData.website) return json(env, { ok: true }, 202);
-        if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
+        if (!(await publicEdgeAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
         const veh = clip(bodyData.veh, 120).trim();
         const name = clip(bodyData.name, 120).trim();
         const email = clip(bodyData.email, 160).trim().toLowerCase();
@@ -631,6 +589,7 @@ export default {
         const fromMs = Date.parse(from), toMs = Date.parse(to), nowMs = Date.now();
         if (fromMs < nowMs - 300000 || toMs <= fromMs || toMs - fromMs > 31 * 86400000) return json(env, { error: "invalid_period" }, 400);
         if (!loadedAt || nowMs - loadedAt < 2500 || nowMs - loadedAt > 86400000) return json(env, { error: "invalid_submission" }, 400);
+        if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
         if (await findConflict(env, veh, from, to)) return json(env, { error: "unavailable" }, 409);
         const r = await env.DB.prepare(
           "INSERT INTO bookings (veh, from_dt, to_dt, cust_name, cust_email, cust_phone, msg, lang, status) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,'new')"
@@ -647,7 +606,6 @@ export default {
       if (path === "/availability" && method === "GET") {
         const since = new Date(Date.now() - 86400000).toISOString().slice(0, 16);
         const rows = (await env.DB.prepare("SELECT veh, from_dt, to_dt FROM bookings WHERE status='confirmed' AND to_dt >= ?1 ORDER BY from_dt ASC LIMIT 500").bind(since).all()).results || [];
-        await ensureFleetBlocks(env);
         const blocks = (await env.DB.prepare("SELECT vehicle, from_dt, to_dt FROM fleet_blocks WHERE to_dt >= ?1 ORDER BY from_dt ASC LIMIT 500").bind(since).all()).results || [];
         const busy = rows.map((r) => ({ veh: r.veh, from: r.from_dt, to: r.to_dt }))
           .concat(blocks.map((r) => ({ veh: r.vehicle, from: r.from_dt, to: r.to_dt })));
@@ -656,7 +614,6 @@ export default {
 
       /* ---- public: gespaart Termin-Hallefdeeg (nëmmen Datum + Slot, keng perséinlech Donnéeën) ---- */
       if (path === "/appointment-availability" && method === "GET") {
-        await ensureApptBlocks(env);
         const sinceDay = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
         const rows = (await env.DB.prepare("SELECT date, slot FROM appointment_blocks WHERE date >= ?1 ORDER BY date ASC LIMIT 1000").bind(sinceDay).all()).results || [];
         return json(env, { blocks: rows.map((r) => ({ date: r.date, slot: r.slot })) }, 200, { "Cache-Control": "public, max-age=120" });
@@ -664,7 +621,6 @@ export default {
 
       /* ---- public: aktiv Gefierer aus der interner Flotte ---- */
       if (path === "/fleet/public" && method === "GET") {
-        await ensureMaint(env);
         const rows = (await env.DB.prepare("SELECT id,vehicle,description,image_url,price_day,deposit,included_km,extra_km_rate,late_fee_hour,year,seats,fuel,transmission,license_class,load_space,features,asset_type,gross_weight,payload,braked FROM maintenance WHERE public_active=1 AND fleet_status!='blocked' ORDER BY id ASC").all()).results || [];
         return json(env, { vehicles: rows.map((x) => ({ id:"fleet-"+x.id,type:["van","car","trailer"].includes(x.asset_type)?x.asset_type:"van",name:x.vehicle,description:x.description||"",image:x.image_url||"",priceDay:Number(x.price_day||0),deposit:Number(x.deposit||0),includedKm:Number(x.included_km||0),extraKmRate:Number(x.extra_km_rate||0),lateFeeHour:Number(x.late_fee_hour||0),year:x.year||"",seats:x.seats||"",fuel:x.fuel||"",transmission:x.transmission||"",licenseClass:x.license_class||"",loadSpace:x.load_space||"",grossWeight:x.gross_weight||"",payload:x.payload||"",braked:!!x.braked,features:String(x.features||"").split("\n").map((v)=>v.trim()).filter(Boolean) })) }, 200, { "Cache-Control": "public, max-age=120" });
       }
@@ -699,7 +655,7 @@ export default {
         if (!isAllowedOrigin(request, env)) return json(env, { error: "forbidden_origin" }, 403);
         if (!(request.headers.get("content-type") || "").includes("application/json")) return json(env, { error: "unsupported_media_type" }, 415);
         if (bodyData.website) return json(env, { ok: true }, 202);
-        if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
+        if (!(await publicEdgeAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
         const name = clip(bodyData.name, 120).trim();
         const email = clip(bodyData.email, 160).trim().toLowerCase();
         const loadedAt = Number(bodyData.loadedAt || 0), nowMs = Date.now();
@@ -711,7 +667,7 @@ export default {
         const preferredDate = clip(bodyData.prefDate,20).trim(), alternativeDate = clip(bodyData.altDate,20).trim();
         if (!service || !vehicle || !message || (kind === "inquiry" && !clip(bodyData.phone,60).trim()) || (kind === "appointment" && !preferredDate)) return json(env, { error:"missing_fields" }, 400);
         if (kind === "appointment" && (!validDateOnly(preferredDate) || (alternativeDate && !validDateOnly(alternativeDate)) || preferredDate < new Date().toISOString().slice(0,10) || (alternativeDate && alternativeDate < new Date().toISOString().slice(0,10)))) return json(env, { error:"invalid_fields" }, 400);
-        await ensureAppts(env);
+        if (!(await publicRateAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
         const r = await env.DB.prepare(
           "INSERT INTO appointments (name, email, phone, service, vehicle, pref_date, alt_date, daytime, vin, msg, lang, kind, status) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,'new')"
         ).bind(name, email, clip(bodyData.phone, 60), service, vehicle, preferredDate, alternativeDate, clip(bodyData.daytime, 40), clip(bodyData.vin, 40), message, ["lb", "de", "fr", "en"].includes(bodyData.lang) ? bodyData.lang : "lb", kind).run();
@@ -729,6 +685,7 @@ export default {
       /* ---- login (mat Brute-Force-Schutz: max 10 falsch Versich/Stonn/IP) ---- */
       if (path === "/auth/login" && method === "POST") {
         if (!isAllowedOrigin(request, env)) return json(env, { error: "forbidden_origin" }, 403);
+        if (!(await publicEdgeAllowed(request, env))) return json(env, { error: "rate_limited" }, 429);
         const username = clip(bodyData.username, 60).trim().toLowerCase();
         const password = String(bodyData.password || "");
         const lbk = await loginBucket(request);
@@ -787,7 +744,6 @@ export default {
         const row = await env.DB.prepare("SELECT pw FROM users WHERE username = ?1").bind(me.username).first();
         if (!row || !(await verifyPw(row.pw, cur))) return json(env, { error: "wrong_current" }, 400);
         await env.DB.prepare("UPDATE users SET pw = ?1, must_change = 0 WHERE username = ?2").bind(await hashPw(next), me.username).run();
-        await ensureSessions(env);
         await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(me.username).run();
         const token = await createSession(env, me.username);
         return json(env, { ok: true }, 200, { "Set-Cookie": sessionCookie(token) });
@@ -796,9 +752,6 @@ export default {
       /* ---- bookings list ---- */
       if (path === "/bookings" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
-        await ensureBookingSnapshots(env);
-        const missing = (await env.DB.prepare("SELECT id FROM bookings WHERE status IN ('confirmed','done') AND (contract_snapshot IS NULL OR contract_snapshot='')").all()).results || [];
-        for (const row of missing) await freezeBookingSnapshot(env, row.id, false);
         const bs = (await env.DB.prepare("SELECT * FROM bookings ORDER BY id DESC").all()).results || [];
         const evs = (await env.DB.prepare("SELECT booking_id, action, by_user, note, at FROM booking_events ORDER BY id ASC").all()).results || [];
         const byId = {};
@@ -816,6 +769,11 @@ export default {
         if (!labels[status]) return json(env, { error: "bad_status" }, 400);
         const ex = await env.DB.prepare("SELECT id,status FROM bookings WHERE id = ?1").bind(id).first();
         if (!ex) return json(env, { error: "not_found" }, 404);
+        if (ex.status === status) {
+          const note = clip(bodyData.note, 500).trim();
+          if (note) await env.DB.prepare("INSERT INTO booking_events (booking_id,action,by_user,note) VALUES (?1,'Notiz',?2,?3)").bind(id,me.username,note).run();
+          return json(env, { ok:true, unchanged:!note });
+        }
         if (ex.status === "done" && status !== "done") return json(env, { error: "bad_status" }, 409);
         if (status === "confirmed") {
           const candidate = await env.DB.prepare("SELECT veh, from_dt, to_dt FROM bookings WHERE id = ?1").bind(id).first();
@@ -823,7 +781,8 @@ export default {
           if (conflict) return json(env, { error: "booking_conflict" }, 409);
           await freezeBookingSnapshot(env, id, false);
         }
-        await env.DB.prepare("UPDATE bookings SET status = ?1 WHERE id = ?2").bind(status, id).run();
+        const changed = await env.DB.prepare("UPDATE bookings SET status=?1 WHERE id=?2 AND status=?3").bind(status,id,ex.status).run();
+        if (!changed.meta.changes) return json(env, { error:"stale_status" }, 409);
         await env.DB.prepare("INSERT INTO booking_events (booking_id, action, by_user, note) VALUES (?1,?2,?3,?4)").bind(id, labels[status], me.username, clip(bodyData.note, 500)).run();
         if (status === "confirmed" || status === "declined") {
           const b = await env.DB.prepare("SELECT veh, from_dt, to_dt, cust_email, lang FROM bookings WHERE id = ?1").bind(id).first();
@@ -873,8 +832,7 @@ export default {
       if (m && method === "DELETE") {
         if (me.role !== "admin") return json(env, { error: "forbidden" }, 403);
         const id = parseInt(m[1], 10);
-        await ensureRentalInspections(env);
-        const inspections = (await env.DB.prepare("SELECT photo_refs, customer_signature, staff_signature FROM rental_inspections WHERE booking_id=?1").bind(id).all()).results || [];
+        const inspections = (await env.DB.prepare("SELECT * FROM rental_inspections WHERE booking_id=?1").bind(id).all()).results || [];
         const mediaKeys = inspections.flatMap(protocolMediaKeys);
         await env.DB.batch([
           env.DB.prepare("DELETE FROM request_consents WHERE request_type='booking' AND request_id=?1").bind(id),
@@ -889,7 +847,6 @@ export default {
       /* ---- Rendez-vous lëschten (viewer+) ---- */
       if (path === "/appointments" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
-        await ensureAppts(env);
         const as = (await env.DB.prepare("SELECT * FROM appointments ORDER BY id DESC LIMIT 1000").all()).results || [];
         const evs = (await env.DB.prepare("SELECT appointment_id, action, by_user, note, at FROM appointment_events ORDER BY id ASC").all()).results || [];
         const byId = {};
@@ -901,7 +858,6 @@ export default {
       m = path.match(/^\/appointments\/(\d+)\/status$/);
       if (m && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
-        await ensureAppts(env);
         const id = parseInt(m[1], 10);
         const status = clip(bodyData.status, 20);
         const labels = { confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss", new: "Zrécksetzen" };
@@ -918,10 +874,18 @@ export default {
           if (tm && !/^([01]\d|2[0-3]):[0-5]\d$/.test(tm)) return json(env, { error: "invalid_time" }, 400);
           if (d) confDate = d;
           if (tm) confTime = tm;
-          await env.DB.prepare("UPDATE appointments SET status = ?1, confirmed_date = ?2, confirmed_time = ?3 WHERE id = ?4").bind(status, confDate, confTime, id).run();
-        } else {
-          await env.DB.prepare("UPDATE appointments SET status = ?1 WHERE id = ?2").bind(status, id).run();
         }
+        const changesConfirmation = status === "confirmed" && isAppt;
+        const sameState = appt.status === status && (!changesConfirmation || ((appt.confirmed_date || "") === confDate && (appt.confirmed_time || "") === confTime));
+        const note = clip(bodyData.note,500).trim();
+        if (sameState) {
+          if (note) await env.DB.prepare("INSERT INTO appointment_events (appointment_id,action,by_user,note) VALUES (?1,'Notiz',?2,?3)").bind(id,me.username,note).run();
+          return json(env, { ok:true, unchanged:!note, confirmedDate:confDate, confirmedTime:confTime });
+        }
+        const changed = changesConfirmation
+          ? await env.DB.prepare("UPDATE appointments SET status=?1,confirmed_date=?2,confirmed_time=?3 WHERE id=?4 AND status=?5 AND confirmed_date IS ?6 AND confirmed_time IS ?7").bind(status,confDate,confTime,id,appt.status,appt.confirmed_date ?? null,appt.confirmed_time ?? null).run()
+          : await env.DB.prepare("UPDATE appointments SET status=?1 WHERE id=?2 AND status=?3").bind(status,id,appt.status).run();
+        if (!changed.meta.changes) return json(env, { error:"stale_status" }, 409);
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,?3,?4)").bind(id, labels[status], me.username, clip(bodyData.note, 500)).run();
         // Bestätegungsmail un de Client (nëmme fir Rendez-vous mat enger E-Mail).
         if (status === "confirmed" && isAppt && appt.email) {
@@ -934,7 +898,6 @@ export default {
       m = path.match(/^\/appointments\/(\d+)$/);
       if (m && method === "DELETE") {
         if (me.role !== "admin") return json(env, { error: "forbidden" }, 403);
-        await ensureAppts(env);
         const id = parseInt(m[1], 10);
         const appointment = await env.DB.prepare("SELECT kind FROM appointments WHERE id=?1").bind(id).first();
         if (!appointment) return json(env, { error: "not_found" }, 404);
@@ -950,13 +913,11 @@ export default {
       /* ---- Wartung / Maintenance ---- */
       if (path === "/maintenance" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
-        await ensureMaint(env);
         const ms = (await env.DB.prepare("SELECT * FROM maintenance ORDER BY (due_date IS NULL), due_date ASC, id DESC").all()).results || [];
         return json(env, { items: ms.map((m) => ({ id:m.id, type:["van","car","trailer"].includes(m.asset_type)?m.asset_type:"van", vehicle:m.vehicle, service:m.service, dueDate:m.due_date||"", note:m.note||"", status:m.fleet_status||"ready", description:m.description||"", imageUrl:m.image_url||"", priceDay:m.price_day==null?"":m.price_day, deposit:m.deposit==null?"":m.deposit, includedKm:m.included_km==null?"":m.included_km, extraKmRate:m.extra_km_rate==null?"":m.extra_km_rate, lateFeeHour:m.late_fee_hour==null?"":m.late_fee_hour, year:m.year||"", seats:m.seats||"", fuel:m.fuel||"", transmission:m.transmission||"", licenseClass:m.license_class||"", loadSpace:m.load_space||"", grossWeight:m.gross_weight||"", payload:m.payload||"", braked:!!m.braked, plate:m.plate||"", features:m.features||"", active:!!m.public_active, updated_at:m.updated_at, updated_by:m.updated_by||"" })) });
       }
       if (path === "/maintenance" && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
-        await ensureMaint(env);
         const vehicle = clip(bodyData.vehicle, 120).trim();
         const service = clip(bodyData.service, 120).trim() || "Nach Bedarf";
         const dueDate = clip(bodyData.dueDate, 20).trim();
@@ -971,7 +932,6 @@ export default {
       m = path.match(/^\/maintenance\/(\d+)$/);
       if (m && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
-        await ensureMaint(env);
         const id = parseInt(m[1], 10);
         const ex = await env.DB.prepare("SELECT id FROM maintenance WHERE id = ?1").bind(id).first();
         if (!ex) return json(env, { error: "not_found" }, 404);
@@ -988,7 +948,6 @@ export default {
       }
       if (m && method === "DELETE") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
-        await ensureMaint(env);
         await env.DB.prepare("DELETE FROM maintenance WHERE id = ?1").bind(parseInt(m[1], 10)).run();
         return json(env, { ok: true });
       }
@@ -996,7 +955,6 @@ export default {
       /* ---- Flott-Sperren (Gefier fir Deeg blockéieren) ---- */
       if (path === "/fleet-blocks" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
-        await ensureFleetBlocks(env);
         const q = url.searchParams.get("vehicle");
         const rows = q
           ? (await env.DB.prepare("SELECT * FROM fleet_blocks WHERE vehicle=?1 ORDER BY from_dt ASC").bind(q).all()).results
@@ -1005,7 +963,6 @@ export default {
       }
       if (path === "/fleet-blocks" && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
-        await ensureFleetBlocks(env);
         const vehicle = clip(bodyData.vehicle, 120).trim();
         const fromDate = clip(bodyData.from, 20).trim(), toDate = clip(bodyData.to, 20).trim();
         if (!vehicle || !validDateOnly(fromDate) || !validDateOnly(toDate)) return json(env, { error: "invalid_fields" }, 400);
@@ -1018,7 +975,6 @@ export default {
       m = path.match(/^\/fleet-blocks\/(\d+)$/);
       if (m && method === "DELETE") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
-        await ensureFleetBlocks(env);
         await env.DB.prepare("DELETE FROM fleet_blocks WHERE id = ?1").bind(parseInt(m[1], 10)).run();
         return json(env, { ok: true });
       }
@@ -1026,14 +982,12 @@ export default {
       /* ---- Termin-Sperren (Hallefdeeg blockéieren: moies / nomëttes) ---- */
       if (path === "/appointment-blocks" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
-        await ensureApptBlocks(env);
         const since = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
         const rows = (await env.DB.prepare("SELECT date, slot, note FROM appointment_blocks WHERE date >= ?1 ORDER BY date ASC").bind(since).all()).results || [];
         return json(env, { blocks: rows.map((r) => ({ date: r.date, slot: r.slot, note: r.note || "" })) });
       }
       if (path === "/appointment-blocks" && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
-        await ensureApptBlocks(env);
         const date = clip(bodyData.date, 20).trim();
         const slot = ["am", "pm", "closed"].includes(bodyData.slot) ? bodyData.slot : "";
         if (!validDateOnly(date) || !slot) return json(env, { error: "invalid_fields" }, 400);
@@ -1048,13 +1002,11 @@ export default {
       /* ---- Digital Iwwergab- / Retourprotokoller ---- */
       if (path === "/rental-inspections" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
-        await ensureRentalInspections(env);
         const rows = (await env.DB.prepare("SELECT i.*, b.veh, b.cust_name, b.from_dt, b.to_dt FROM rental_inspections i LEFT JOIN bookings b ON b.id=i.booking_id ORDER BY i.inspected_at DESC, i.id DESC").all()).results || [];
         return json(env, { items: rows.map((x) => { const staffMedia=protocolMediaUrl(x.staff_signature); return { id:x.id, bookingId:x.booking_id, stage:x.stage, inspectedAt:x.inspected_at, odometer:x.odometer, fuelLevel:x.fuel_level || "", conditionNote:x.condition_note || "", damageNote:x.damage_note || "", photoRefs:x.photo_refs || "", accessories:x.accessories || "", licenseChecked:!!x.license_checked, extraKm:x.extra_km, extraCosts:x.extra_costs, customerSignature:x.customer_signature || "", staffSignature:staffMedia, staffName:x.staff_name || (!staffMedia ? x.staff_signature || "" : "") || x.updated_by || "", note:x.note || "", checklistJson:x.checklist_json || "{}", updatedAt:x.updated_at, updatedBy:x.updated_by || "", vehicle:x.veh || "", customer:x.cust_name || "", from:x.from_dt || "", to:x.to_dt || "" }; }) });
       }
       if (path === "/rental-inspections" && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
-        await ensureRentalInspections(env);
         const bookingId = parseInt(bodyData.bookingId, 10), stage = clip(bodyData.stage, 10), inspectedAt = clip(bodyData.inspectedAt, 20);
         const odometer = bodyData.odometer === "" ? null : parseInt(bodyData.odometer, 10);
         if (!bookingId || ["pickup","return"].indexOf(stage) < 0 || !validDateTime(inspectedAt)) return json(env, { error: "invalid_fields" }, 400);
@@ -1073,9 +1025,12 @@ export default {
           v: 2
         })).filter((m) => Number.isFinite(m.x) && Number.isFinite(m.y)) : [];
         const checklist = { keyCount:Number.isFinite(keyCount)&&keyCount>=0&&keyCount<=10?String(keyCount):"", cleanliness:["Propper","Liicht verschmotzt","Staark verschmotzt"].includes(rawChecklist.cleanliness)?rawChecklist.cleanliness:"", documentsChecked:!!rawChecklist.documentsChecked, lightsChecked:!!rawChecklist.lightsChecked, tyresChecked:!!rawChecklist.tyresChecked, jointInspection:!!rawChecklist.jointInspection, damageMarkers };
-        const previous = await env.DB.prepare("SELECT photo_refs, customer_signature, staff_signature FROM rental_inspections WHERE booking_id=?1 AND stage=?2").bind(bookingId,stage).first();
+        const previous = await env.DB.prepare("SELECT * FROM rental_inspections WHERE booking_id=?1 AND stage=?2").bind(bookingId,stage).first();
         const vals = [bookingId, stage, inspectedAt, odometer, clip(bodyData.fuelLevel,30), clip(bodyData.conditionNote,1000), clip(bodyData.damageNote,1500), photos, clip(bodyData.accessories,1000), pickup && bodyData.licenseChecked ? 1 : 0, extraKm, extraCosts, signature, staffSignature, staffName, clip(bodyData.note,1500), me.username, JSON.stringify(checklist)];
-        await env.DB.prepare("INSERT INTO rental_inspections (booking_id,stage,inspected_at,odometer,fuel_level,condition_note,damage_note,photo_refs,accessories,license_checked,deposit_amount,extra_km,extra_costs,customer_signature,staff_signature,staff_name,note,updated_by,checklist_json) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,NULL,?11,?12,?13,?14,?15,?16,?17,?18) ON CONFLICT(booking_id,stage) DO UPDATE SET inspected_at=?3,odometer=?4,fuel_level=?5,condition_note=?6,damage_note=?7,photo_refs=?8,accessories=?9,license_checked=?10,deposit_amount=NULL,extra_km=?11,extra_costs=?12,customer_signature=?13,staff_signature=?14,staff_name=?15,note=?16,updated_at=CURRENT_TIMESTAMP,updated_by=?17,checklist_json=?18").bind(...vals).run();
+        const fields = ["booking_id","stage","inspected_at","odometer","fuel_level","condition_note","damage_note","photo_refs","accessories","license_checked","extra_km","extra_costs","customer_signature","staff_signature","staff_name","note"];
+        if (previous && fields.every((field,index) => previous[field] === vals[index]) && previous.checklist_json === vals[17] && previous.deposit_amount == null) return json(env, { ok:true, unchanged:true });
+        const changed = await env.DB.prepare("INSERT INTO rental_inspections (booking_id,stage,inspected_at,odometer,fuel_level,condition_note,damage_note,photo_refs,accessories,license_checked,deposit_amount,extra_km,extra_costs,customer_signature,staff_signature,staff_name,note,updated_by,checklist_json) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,NULL,?11,?12,?13,?14,?15,?16,?17,?18) ON CONFLICT(booking_id,stage) DO UPDATE SET inspected_at=?3,odometer=?4,fuel_level=?5,condition_note=?6,damage_note=?7,photo_refs=?8,accessories=?9,license_checked=?10,deposit_amount=NULL,extra_km=?11,extra_costs=?12,customer_signature=?13,staff_signature=?14,staff_name=?15,note=?16,updated_at=CURRENT_TIMESTAMP,updated_by=?17,checklist_json=?18 WHERE rental_inspections.inspected_at IS NOT excluded.inspected_at OR rental_inspections.odometer IS NOT excluded.odometer OR rental_inspections.fuel_level IS NOT excluded.fuel_level OR rental_inspections.condition_note IS NOT excluded.condition_note OR rental_inspections.damage_note IS NOT excluded.damage_note OR rental_inspections.photo_refs IS NOT excluded.photo_refs OR rental_inspections.accessories IS NOT excluded.accessories OR rental_inspections.license_checked IS NOT excluded.license_checked OR rental_inspections.deposit_amount IS NOT excluded.deposit_amount OR rental_inspections.extra_km IS NOT excluded.extra_km OR rental_inspections.extra_costs IS NOT excluded.extra_costs OR rental_inspections.customer_signature IS NOT excluded.customer_signature OR rental_inspections.staff_signature IS NOT excluded.staff_signature OR rental_inspections.staff_name IS NOT excluded.staff_name OR rental_inspections.note IS NOT excluded.note OR rental_inspections.checklist_json IS NOT excluded.checklist_json RETURNING id").bind(...vals).first();
+        if (!changed) return json(env, { ok:true, unchanged:true });
         await env.DB.prepare("INSERT INTO booking_events (booking_id,action,by_user,note) VALUES (?1,?2,?3,?4)").bind(bookingId, stage === "pickup" ? "Iwwergabprotokoll gespäichert" : "Retourprotokoll gespäichert", me.username, clip(bodyData.damageNote || bodyData.note,500)).run();
         const currentKeys = new Set(protocolMediaKeys({ photo_refs:photos, customer_signature:signature, staff_signature:staffSignature }));
         await deleteProtocolMedia(env, protocolMediaKeys(previous).filter((key) => !currentKeys.has(key)));
@@ -1140,7 +1095,6 @@ export default {
         if (!t) return json(env, { error: "not_found" }, 404);
         const tempPw = genTempPw();
         await env.DB.prepare("UPDATE users SET pw = ?1, must_change = 1 WHERE username = ?2").bind(await hashPw(tempPw), target).run();
-        await ensureSessions(env);
         await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(target).run();
         await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES ('reset-pw', ?1, ?2)").bind(target, me.username).run();
         return json(env, { ok: true, tempPassword: tempPw });
@@ -1173,7 +1127,7 @@ export default {
             if (t.role === "admin" && (await adminCount(env)) <= 1) return json(env, { error: "last_admin" }, 409);
           }
           await env.DB.prepare("UPDATE users SET active = ?1 WHERE username = ?2").bind(act, target).run();
-          if (!act) { await ensureSessions(env); await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(target).run(); }
+          if (!act) { await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(target).run(); }
           await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES (?1, ?2, ?3)").bind(act ? "activated" : "deactivated", target, me.username).run();
         }
         let selfRenamed = false, newUsername = null;
@@ -1184,7 +1138,6 @@ export default {
             const dup = await env.DB.prepare("SELECT username FROM users WHERE username = ?1").bind(nu).first();
             if (dup) return json(env, { error: "exists" }, 409);
             await env.DB.prepare("UPDATE users SET username = ?1 WHERE username = ?2").bind(nu, target).run();
-            await ensureSessions(env);
             await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(target).run();
             await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES (?1, ?2, ?3)").bind("username>" + nu, target, me.username).run();
             newUsername = nu;
@@ -1201,7 +1154,6 @@ export default {
         if (!t) return json(env, { error: "not_found" }, 404);
         if (t.role === "admin" && (await adminCount(env)) <= 1) return json(env, { error: "last_admin" }, 409);
         await env.DB.prepare("DELETE FROM users WHERE username = ?1").bind(target).run();
-        await ensureSessions(env);
         await env.DB.prepare("DELETE FROM sessions WHERE username = ?1").bind(target).run();
         await env.DB.prepare("INSERT INTO member_events (action, target, by_user) VALUES ('deleted', ?1, ?2)").bind(target, me.username).run();
         return json(env, { ok: true });
@@ -1217,7 +1169,8 @@ export default {
 
   // Deeglecht Cron (wrangler [triggers]) — Backup vun der Datebank op R2.
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(runBackup(env).catch(function () {}));
+    ctx.waitUntil(cleanupExpiredAuth(env).catch((error) => console.error("auth_cleanup_failed", error)));
+    ctx.waitUntil(runBackup(env).catch((error) => console.error("backup_failed", error)));
   },
 };
 
@@ -1230,3 +1183,4 @@ async function adminCount(env) {
   const r = await env.DB.prepare("SELECT COUNT(*) AS n FROM users WHERE role='admin' AND active=1").first();
   return r ? r.n : 0;
 }
+

@@ -37,16 +37,22 @@
   try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
   function setToken() { token = null; try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
   function onAuthLost() { setToken(null); if (!session) return; session = null; showLogin(); toast("Sessioun ofgelaf – logg dech w.e.g. nei an."); }
+  // Share concurrent identical requests, including accidental double clicks.
+  var pendingRequests = new Map();
   function api(path, opts) {
     opts = opts || {}; var headers = {}; var hadSession = !!session;
     var init = { method: opts.method || "GET", headers: headers, credentials: "include" };
     if (opts.body) { headers["Content-Type"] = "application/json"; init.body = JSON.stringify(opts.body); }
-    return fetch(API_BASE + path, init).then(function (r) {
+    var key = init.method + " " + path + " " + (init.body || "");
+    if (pendingRequests.has(key)) return pendingRequests.get(key);
+    var promise = fetch(API_BASE + path, init).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) {
         if (r.status === 401 && hadSession) setTimeout(onAuthLost, 0);
         return { status: r.status, body: j };
       });
-    });
+    }).finally(function () { if (pendingRequests.get(key) === promise) pendingRequests.delete(key); });
+    pendingRequests.set(key, promise);
+    return promise;
   }
   function uploadImage(blob, scope) {
     var headers = { "Content-Type": blob.type || "image/webp" };
@@ -93,17 +99,18 @@
     uploadProtocolImage: function(blob){return uploadImage(blob,"protocol");},
   };
 
+  var bookingListCache = null, requestListCache = null;
   var STORE = liveStore;
   var session = null;
   function can(perm) { return !!(session && ROLES[session.role] && ROLES[session.role].perms.indexOf(perm) !== -1); }
-  var ERR = { invalid_credentials: "Falsche Benotzernumm oder falscht Passwuert.", wrong_current: "Dat aktuellt Passwuert ass falsch.", weak_password: "Dat neit Passwuert ass ze kuerz (op d'mannst 8 Zeechen).", exists: "Dee Benotzernumm gëtt et schonn.", last_admin: "Et muss op d'mannst een Admin bleiwen.", self: "Du kanns dech net selwer läschen.", bad_input: "Ongëlteg Donnéeën.", forbidden: "Keng Berechtegung.", rate_limited: "Ze vill Umeldungsversich. Waart w.e.g. eng Stonn oder rufft den Admin un.", booking_conflict: "Dëst Gefier ass an dësem Zäitraum schonn reservéiert. D'Iwwerschneidung kann net bestätegt ginn.", not_found: "Reservatioun net fonnt.", bad_status: "Ongëltege Status.", missing_fields: "Obligatoresch Felder feelen (Gefier, Numm, Vun, Bis).", invalid_fields: "Ongëlteg E-Mail-Adress oder Datum.", invalid_protocol: "De Protokoll enthält eng ongëlteg oder feelend Ënnerschrëft beziehungsweise Zuel.", invalid_period: "Den Enddatum muss nom Ufanksdatum leien.", forbidden_origin: "Zougrëff vun dëser Adress blockéiert – benotzt w.e.g. https://autoservicebettenduerf.lu/intern/", server_not_configured: "Server net konfiguréiert." };
+  var ERR = { invalid_credentials: "Falsche Benotzernumm oder falscht Passwuert.", wrong_current: "Dat aktuellt Passwuert ass falsch.", weak_password: "Dat neit Passwuert ass ze kuerz (op d'mannst 8 Zeechen).", exists: "Dee Benotzernumm gëtt et schonn.", last_admin: "Et muss op d'mannst een Admin bleiwen.", self: "Du kanns dech net selwer läschen.", bad_input: "Ongëlteg Donnéeën.", forbidden: "Keng Berechtegung.", rate_limited: "Ze vill Umeldungsversich. Waart w.e.g. eng Stonn oder rufft den Admin un.", booking_conflict: "Dëst Gefier ass an dësem Zäitraum schonn reservéiert. D'Iwwerschneidung kann net bestätegt ginn.", not_found: "Reservatioun net fonnt.", bad_status: "Ongëltege Status.", missing_fields: "Obligatoresch Felder feelen (Gefier, Numm, Vun, Bis).", invalid_fields: "Ongëlteg E-Mail-Adress oder Datum.", invalid_protocol: "De Protokoll enthält eng ongëlteg oder feelend Ënnerschrëft beziehungsweise Zuel.", invalid_period: "Den Enddatum muss nom Ufanksdatum leien.", forbidden_origin: "Zougrëff vun dëser Adress blockéiert – benotzt w.e.g. https://autoservicebettenduerf.lu/intern/", stale_status: "De Status gouf mëttlerweil geännert. Luet d’Lëscht nei.", server_not_configured: "Server net konfiguréiert." };
   function errMsg(e) { return ERR[e] || "Feeler – probéiert nach eng Kéier."; }
 
   /* ---------- Views ---------- */
   var activePage = "bookings", activeFilter = "all", editingMember = null, editingBooking = null, bookingQuery = "", protocolOpen = null, inspections = [];
   var STATUS = { new: "Nei", confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss" };
 
-  function showLogin() { $("view-app").hidden = true; $("view-login").hidden = false; $("login-err").textContent = ""; $("login-form").reset(); }
+  function showLogin() { bookingListCache = null; requestListCache = null; $("view-app").hidden = true; $("view-login").hidden = false; $("login-err").textContent = ""; $("login-form").reset(); }
   function showApp() {
     $("view-login").hidden = true; $("view-app").hidden = false;
     $("who-name").textContent = session.name + " · " + roleLabel(session.role);
@@ -146,9 +153,9 @@
   });
   $("btn-logout").addEventListener("click", function () { STORE.logout().catch(function () {}).then(function () { session = null; showLogin(); }); });
   document.querySelectorAll("#topnav button").forEach(function (b) { b.addEventListener("click", function () { gotoPage(b.getAttribute("data-page")); }); });
-  var searchEl = $("booking-search"); if (searchEl) searchEl.addEventListener("input", function () { bookingQuery = searchEl.value.trim(); renderBookings(); });
-  var apptSearchEl = $("appt-search"); if (apptSearchEl) apptSearchEl.addEventListener("input", function () { reqState.appointment.query = apptSearchEl.value.trim(); renderReq("appointment"); });
-  var inqSearchEl = $("inq-search"); if (inqSearchEl) inqSearchEl.addEventListener("input", function () { reqState.inquiry.query = inqSearchEl.value.trim(); renderReq("inquiry"); });
+  var searchEl = $("booking-search"); if (searchEl) searchEl.addEventListener("input", function () { bookingQuery = searchEl.value.trim(); renderBookings(true); });
+  var apptSearchEl = $("appt-search"); if (apptSearchEl) apptSearchEl.addEventListener("input", function () { reqState.appointment.query = apptSearchEl.value.trim(); renderReq("appointment", true); });
+  var inqSearchEl = $("inq-search"); if (inqSearchEl) inqSearchEl.addEventListener("input", function () { reqState.inquiry.query = inqSearchEl.value.trim(); renderReq("inquiry", true); });
 
   /* ---------- Change password ---------- */
   function openPw(forced) { gotoPage("pw"); $("pw-forced-note").hidden = !forced; $("pw-err").textContent = ""; $("pw-form").reset(); }
@@ -172,7 +179,7 @@
   function renderFilters(bk) {
     var c = counts(bk), defs = [["all","All"],["new","Nei"],["confirmed","Bestätegt"],["declined","Ofgeleent"],["done","Ofgeschloss"]], wrap = $("filters");
     wrap.innerHTML = "";
-    defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (activeFilter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { activeFilter = d[0]; renderBookings(); }); wrap.appendChild(b); });
+    defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (activeFilter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { activeFilter = d[0]; renderBookings(true); }); wrap.appendChild(b); });
   }
   function doAct(id, status) { if (!can("bookings.validate")) return; var noteEl = $("note-" + id), note = noteEl ? noteEl.value.trim() : ""; STORE.setStatus(id, status, note).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Reservatioun " + refOf(id) + ": " + (STATUS[status] || status).toLowerCase() + "."); renderBookings(); }); }
   function doDelBooking(id) { if (!can("members.manage")) return; if (!confirm("Reservatioun " + refOf(id) + " endgülteg läschen?")) return; STORE.delBooking(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast("Reservatioun " + refOf(id) + " geläscht."); renderBookings(); }); }
@@ -339,7 +346,16 @@
     });
   }
   function uploadSignature(canvas) { var existing=decodeURIComponent(canvas.dataset.existing||"");if(canvas._signed)return signatureBlob(canvas).then(function(blob){return STORE.uploadProtocolImage(blob);}).then(function(r){if(!r||r.error)throw new Error("signature_upload");return r.url;});return Promise.resolve(existing); }
-  function saveProtocol(b,stage) { var p="pr-"+b.id+"-"+stage+"-",pickup=stage==="pickup",canvas=$(p+"signature"),staffCanvas=$(p+"staff-signature"),photos=protocolPhotoList($(p+"photos").value),km=$(p+"km"),fuel=$(p+"fuel"),marks=[];try{marks=damageMarkers(JSON.parse($(p+'damage-markers').value||'[]'));}catch(e){}if(!$(p+"at").value||!$(p+"staff").value.trim()){toast("Zäitpunkt a Mataarbechter mussen ausgefëllt sinn.");return;}if(photos.length<4&&!confirm("Et si manner wéi 4 Fotoe gespäichert. Protokoll trotzdem späicheren?"))return;Promise.all([uploadSignature(canvas),uploadSignature(staffCanvas)]).then(function(signatures){if(!signatures[0]){toast("D'Ënnerschrëft vum Client feelt.");return;}if(!signatures[1]){toast("D'Ënnerschrëft vum Verléiner feelt.");return;}return STORE.saveInspection({bookingId:b.id,stage:stage,inspectedAt:$(p+"at").value,odometer:km?km.value:"",fuelLevel:fuel?fuel.value:"",extraKm:pickup?"":$(p+"extraKm").value,extraCosts:pickup?"":$(p+"extraCosts").value,conditionNote:$(p+"condition").value,damageNote:$(p+"damage").value,photoRefs:$(p+"photos").value,accessories:$(p+"accessories").value,customerSignature:signatures[0],staffSignature:signatures[1],staffName:$(p+"staff").value.trim(),licenseChecked:pickup?$(p+"license").checked:false,note:$(p+"note").value,checklist:{keyCount:$(p+"keys").value,cleanliness:$(p+"cleanliness").value,documentsChecked:$(p+"documents").checked,lightsChecked:$(p+"lights").checked,tyresChecked:$(p+"tyres").checked,jointInspection:$(p+"joint").checked,damageMarkers:marks}});}).then(function(r){if(!r)return;if(r.error){toast(errMsg(r.error));return;}toast("Protokoll mat béiden Ënnerschrëfte gespäichert.");renderBookings();}).catch(function(){toast("D'Protokoll konnt net gespäichert ginn.");}); }
+  var protocolSaves = new Set();
+  function saveProtocol(b, stage) {
+    var key = b.id + ":" + stage;
+    if (protocolSaves.has(key)) return;
+    protocolSaves.add(key);
+    try {
+      return Promise.resolve(saveProtocolOnce(b, stage)).finally(function () { protocolSaves.delete(key); });
+    } catch (error) { protocolSaves.delete(key); throw error; }
+  }
+  function saveProtocolOnce(b,stage) { var p="pr-"+b.id+"-"+stage+"-",pickup=stage==="pickup",canvas=$(p+"signature"),staffCanvas=$(p+"staff-signature"),photos=protocolPhotoList($(p+"photos").value),km=$(p+"km"),fuel=$(p+"fuel"),marks=[];try{marks=damageMarkers(JSON.parse($(p+'damage-markers').value||'[]'));}catch(e){}if(!$(p+"at").value||!$(p+"staff").value.trim()){toast("Zäitpunkt a Mataarbechter mussen ausgefëllt sinn.");return;}if(photos.length<4&&!confirm("Et si manner wéi 4 Fotoe gespäichert. Protokoll trotzdem späicheren?"))return;return Promise.all([uploadSignature(canvas),uploadSignature(staffCanvas)]).then(function(signatures){if(!signatures[0]){toast("D'Ënnerschrëft vum Client feelt.");return;}if(!signatures[1]){toast("D'Ënnerschrëft vum Verléiner feelt.");return;}return STORE.saveInspection({bookingId:b.id,stage:stage,inspectedAt:$(p+"at").value,odometer:km?km.value:"",fuelLevel:fuel?fuel.value:"",extraKm:pickup?"":$(p+"extraKm").value,extraCosts:pickup?"":$(p+"extraCosts").value,conditionNote:$(p+"condition").value,damageNote:$(p+"damage").value,photoRefs:$(p+"photos").value,accessories:$(p+"accessories").value,customerSignature:signatures[0],staffSignature:signatures[1],staffName:$(p+"staff").value.trim(),licenseChecked:pickup?$(p+"license").checked:false,note:$(p+"note").value,checklist:{keyCount:$(p+"keys").value,cleanliness:$(p+"cleanliness").value,documentsChecked:$(p+"documents").checked,lightsChecked:$(p+"lights").checked,tyresChecked:$(p+"tyres").checked,jointInspection:$(p+"joint").checked,damageMarkers:marks}});}).then(function(r){if(!r)return;if(r.error){toast(errMsg(r.error));return;}toast("Protokoll mat béiden Ënnerschrëfte gespäichert.");renderBookings();}).catch(function(){toast("D'Protokoll konnt net gespäichert ginn.");}); }
   /* ---------- Dokumenter: Mietvertrag + Blanko (selwecht Design wéi Protokoll) ---------- */
   function plateFor(veh) { return /renault\s+master|transporter|lieferwagen/i.test(String(veh || "")) ? "GK 0106" : ""; }
   function ppFill(label) { return '<tr><th>' + esc(label) + '</th><td style="border-bottom:1px dotted #94a3b8">&nbsp;</td></tr>'; }
@@ -682,7 +698,7 @@
     items.forEach(function (a) { c[a.status] = (c[a.status] || 0) + 1; });
     var defs = [["all", "All"], ["new", "Nei"], ["confirmed", "Bestätegt"], ["declined", "Ofgeleent"], ["done", "Ofgeschloss"]], wrap = $(REQCFG[kind].filters);
     wrap.innerHTML = "";
-    defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (reqState[kind].filter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { reqState[kind].filter = d[0]; renderReq(kind); }); wrap.appendChild(b); });
+    defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (reqState[kind].filter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { reqState[kind].filter = d[0]; renderReq(kind, true); }); wrap.appendChild(b); });
   }
   function doReqAct(kind, id, status) {
     if (!can("bookings.validate")) return;
@@ -736,10 +752,11 @@
     el.querySelectorAll("[data-delr]").forEach(function (btn) { btn.addEventListener("click", function () { doDelReq(kind, a.id); }); });
     return el;
   }
-  function renderReq(kind) {
+  function renderReq(kind, useCache) {
     var c = REQCFG[kind];
     $(c.sub).textContent = can("bookings.validate") ? c.subAct : "Dir hutt Liesrechter (Kucker).";
-    STORE.listAppointments().then(function (all) {
+    (useCache === true && requestListCache ? Promise.resolve(requestListCache) : STORE.listAppointments()).then(function (all) {
+      requestListCache = all;
       updateReqBadge("appointment", all); updateReqBadge("inquiry", all);
       var items = all.filter(function (a) { return (a.kind || "appointment") === kind; });
       renderReqFilters(kind, items);
@@ -756,9 +773,10 @@
   }
   function renderAppointments() { renderReq("appointment"); }
   function renderInquiries() { renderReq("inquiry"); }
-  function renderBookings() {
+  function renderBookings(useCache) {
     $("bookings-sub").textContent = can("bookings.validate") ? "Ufroe bestätegen oder ofleenen. All Aktioun gëtt mam Benotzernumm festgehalen." : "Dir hutt Liesrechter (Kucker).";
-    Promise.all([STORE.listBookings(), STORE.listInspections(), STORE.listMaintenance()]).then(function (allData) {
+    (useCache === true && bookingListCache ? Promise.resolve(bookingListCache) : Promise.all([STORE.listBookings(), STORE.listInspections(), STORE.listMaintenance()])).then(function (allData) {
+      bookingListCache = allData;
       var bk=allData[0]; inspections=allData[1]||[]; fleetCache=allData[2]||[];
       updateNewBadge(bk);
       renderFilters(bk);
@@ -1589,3 +1607,4 @@
   }
   boot();
 })();
+

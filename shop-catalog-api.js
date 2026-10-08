@@ -31,8 +31,10 @@
   // All Säite lokal sammelen; eréischt bei komplettem Erfolleg an SHOP_PRODUCTS
   // iwwerhuelen – sou gëtt et keng hallef gelueden / duebel Donnéeën.
   function fetchAll(manufacturer){
-    var acc=[];
+    var acc=[],seenCursors=new Set(),pageCount=0;
     function page(cursor){
+      if(seenCursors.has(cursor)||++pageCount>100)return Promise.reject(new Error("catalog_pagination_stalled"));
+      seenCursors.add(cursor);
       var url=API+"/products?manufacturer="+encodeURIComponent(manufacturer)+"&limit=1000";
       if(cursor)url+="&cursor="+encodeURIComponent(cursor);
       return getJson(url,PRODUCT_TIMEOUT).then(function(data){
@@ -63,3 +65,4 @@
     loadManufacturer:loadManufacturer
   };
 })();
+

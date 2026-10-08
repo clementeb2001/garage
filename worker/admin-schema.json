@@ -1,0 +1,207 @@
+[
+  {
+    "name": "ensureSessions",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, username TEXT NOT NULL, expires_at INTEGER NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+    ],
+    "indexes": [
+      "CREATE INDEX IF NOT EXISTS idx_sessions_username ON sessions(username)",
+      "CREATE INDEX IF NOT EXISTS idx_sessions_expiry ON sessions(expires_at)"
+    ],
+    "columns": []
+  },
+  {
+    "name": "ensureAppts",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS appointments (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT, phone TEXT, service TEXT, vehicle TEXT, pref_date TEXT, alt_date TEXT, daytime TEXT, vin TEXT, msg TEXT, lang TEXT, kind TEXT NOT NULL DEFAULT 'appointment', status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+      "CREATE TABLE IF NOT EXISTS appointment_events (id INTEGER PRIMARY KEY AUTOINCREMENT, appointment_id INTEGER NOT NULL, action TEXT NOT NULL, by_user TEXT, note TEXT, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+    ],
+    "indexes": [
+      "CREATE INDEX IF NOT EXISTS idx_appts_status ON appointments(status)",
+      "CREATE INDEX IF NOT EXISTS idx_appt_events_aid ON appointment_events(appointment_id)"
+    ],
+    "columns": [
+      {
+        "table": "appointments",
+        "definition": "kind TEXT NOT NULL DEFAULT 'appointment'"
+      },
+      {
+        "table": "appointments",
+        "definition": "confirmed_date TEXT"
+      },
+      {
+        "table": "appointments",
+        "definition": "confirmed_time TEXT"
+      }
+    ]
+  },
+  {
+    "name": "ensureMaint",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS maintenance (id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle TEXT NOT NULL, service TEXT NOT NULL, due_date TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT)"
+    ],
+    "indexes": [
+      "CREATE INDEX IF NOT EXISTS idx_maint_public ON maintenance(public_active)"
+    ],
+    "columns": [
+      {
+        "table": "maintenance",
+        "definition": "fleet_status TEXT NOT NULL DEFAULT 'ready'"
+      },
+      {
+        "table": "maintenance",
+        "definition": "description TEXT"
+      },
+      {
+        "table": "maintenance",
+        "definition": "image_url TEXT"
+      },
+      {
+        "table": "maintenance",
+        "definition": "price_day REAL"
+      },
+      {
+        "table": "maintenance",
+        "definition": "year TEXT"
+      },
+      {
+        "table": "maintenance",
+        "definition": "seats TEXT"
+      },
+      {
+        "table": "maintenance",
+        "definition": "fuel TEXT"
+      },
+      {
+        "table": "maintenance",
+        "definition": "transmission TEXT"
+      },
+      {
+        "table": "maintenance",
+        "definition": "license_class TEXT"
+      },
+      {
+        "table": "maintenance",
+        "definition": "load_space TEXT"
+      },
+      {
+        "table": "maintenance",
+        "definition": "deposit REAL"
+      },
+      {
+        "table": "maintenance",
+        "definition": "included_km INTEGER"
+      },
+      {
+        "table": "maintenance",
+        "definition": "extra_km_rate REAL"
+      },
+      {
+        "table": "maintenance",
+        "definition": "late_fee_hour REAL"
+      },
+      {
+        "table": "maintenance",
+        "definition": "features TEXT"
+      },
+      {
+        "table": "maintenance",
+        "definition": "public_active INTEGER NOT NULL DEFAULT 0"
+      },
+      {
+        "table": "maintenance",
+        "definition": "featured INTEGER NOT NULL DEFAULT 0"
+      },
+      {
+        "table": "maintenance",
+        "definition": "asset_type TEXT NOT NULL DEFAULT 'van'"
+      },
+      {
+        "table": "maintenance",
+        "definition": "gross_weight TEXT"
+      },
+      {
+        "table": "maintenance",
+        "definition": "payload TEXT"
+      },
+      {
+        "table": "maintenance",
+        "definition": "braked INTEGER NOT NULL DEFAULT 0"
+      },
+      {
+        "table": "maintenance",
+        "definition": "plate TEXT"
+      }
+    ]
+  },
+  {
+    "name": "ensureBookingSnapshots",
+    "create": [],
+    "indexes": [],
+    "columns": [
+      {
+        "table": "bookings",
+        "definition": "contract_snapshot TEXT"
+      },
+      {
+        "table": "bookings",
+        "definition": "snapshot_at TEXT"
+      }
+    ]
+  },
+  {
+    "name": "ensureFleetBlocks",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS fleet_blocks (id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle TEXT NOT NULL, from_dt TEXT NOT NULL, to_dt TEXT NOT NULL, reason TEXT, created_by TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+    ],
+    "indexes": [
+      "CREATE INDEX IF NOT EXISTS idx_fleet_blocks_veh ON fleet_blocks(vehicle)"
+    ],
+    "columns": []
+  },
+  {
+    "name": "ensureApptBlocks",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS appointment_blocks (date TEXT NOT NULL, slot TEXT NOT NULL, note TEXT, created_by TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (date, slot))"
+    ],
+    "indexes": [],
+    "columns": []
+  },
+  {
+    "name": "ensureRentalInspections",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS rental_inspections (id INTEGER PRIMARY KEY AUTOINCREMENT, booking_id INTEGER NOT NULL, stage TEXT NOT NULL, inspected_at TEXT NOT NULL, odometer INTEGER, fuel_level TEXT, condition_note TEXT, damage_note TEXT, photo_refs TEXT, accessories TEXT, license_checked INTEGER NOT NULL DEFAULT 0, deposit_amount REAL, extra_km INTEGER, extra_costs REAL, customer_signature TEXT, staff_signature TEXT, note TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT, UNIQUE(booking_id, stage))"
+    ],
+    "indexes": [
+      "CREATE INDEX IF NOT EXISTS idx_inspections_booking ON rental_inspections(booking_id)"
+    ],
+    "columns": [
+      {
+        "table": "rental_inspections",
+        "definition": "checklist_json TEXT"
+      },
+      {
+        "table": "rental_inspections",
+        "definition": "staff_name TEXT"
+      }
+    ]
+  },
+  {
+    "name": "requestConsents",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS request_consents (request_type TEXT NOT NULL, request_id INTEGER NOT NULL, privacy_accepted INTEGER NOT NULL, terms_accepted INTEGER NOT NULL DEFAULT 0, consent_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (request_type, request_id))"
+    ],
+    "indexes": [],
+    "columns": []
+  },
+  {
+    "name": "rateLimits",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS booking_rate_limits (bucket TEXT PRIMARY KEY, count INTEGER NOT NULL DEFAULT 0, expires_at INTEGER NOT NULL)"
+    ],
+    "indexes": [
+      "CREATE INDEX IF NOT EXISTS idx_rate_limits_expiry ON booking_rate_limits(expires_at)"
+    ],
+    "columns": []
+  }
+]
