@@ -427,12 +427,12 @@ function apptConfirmMail(a) {
   var dateLabel = apptDateLabel(a.confirmed_date || a.pref_date, L);
   var time = a.confirmed_time || "";
   var T = {
-    lb: { s: "Äre Rendez-vous ass bestätegt", h: "Rendez-vous bestätegt", p: "Mir hunn Äre Rendez-vous bestätegt:", service: "Service", date: "Datum", time: "Auerzäit", tz: "(Lëtzebuerger Zäit)", veh: "Gefier", foot: "Bei Froen äntwert einfach op dës E-Mail oder rufft eis un. Mir freeën eis op Iech!" },
-    de: { s: "Ihr Termin ist bestätigt", h: "Termin bestätigt", p: "Wir haben Ihren Termin bestätigt:", service: "Leistung", date: "Datum", time: "Uhrzeit", tz: "(Luxemburger Zeit)", veh: "Fahrzeug", foot: "Bei Fragen antworten Sie einfach auf diese E-Mail oder rufen Sie uns an. Wir freuen uns auf Sie!" },
-    fr: { s: "Votre rendez-vous est confirmé", h: "Rendez-vous confirmé", p: "Nous avons confirmé votre rendez-vous :", service: "Prestation", date: "Date", time: "Heure", tz: "(heure du Luxembourg)", veh: "Véhicule", foot: "Pour toute question, répondez simplement à cet e-mail ou appelez-nous. À bientôt !" },
-    en: { s: "Your appointment is confirmed", h: "Appointment confirmed", p: "We have confirmed your appointment:", service: "Service", date: "Date", time: "Time", tz: "(Luxembourg time)", veh: "Vehicle", foot: "If you have any questions, just reply to this e-mail or call us. We look forward to seeing you!" }
+    lb: { s: "Äre Rendez-vous ass bestätegt", h: "Rendez-vous bestätegt", p: "Mir hunn Äre Rendez-vous bestätegt:", service: "Service", date: "Datum", time: "Auerzäit", veh: "Gefier", foot: "Bei Froen äntwert einfach op dës E-Mail oder rufft eis un. Mir freeën eis op Iech!" },
+    de: { s: "Ihr Termin ist bestätigt", h: "Termin bestätigt", p: "Wir haben Ihren Termin bestätigt:", service: "Leistung", date: "Datum", time: "Uhrzeit", veh: "Fahrzeug", foot: "Bei Fragen antworten Sie einfach auf diese E-Mail oder rufen Sie uns an. Wir freuen uns auf Sie!" },
+    fr: { s: "Votre rendez-vous est confirmé", h: "Rendez-vous confirmé", p: "Nous avons confirmé votre rendez-vous :", service: "Prestation", date: "Date", time: "Heure", veh: "Véhicule", foot: "Pour toute question, répondez simplement à cet e-mail ou appelez-nous. À bientôt !" },
+    en: { s: "Your appointment is confirmed", h: "Appointment confirmed", p: "We have confirmed your appointment:", service: "Service", date: "Date", time: "Time", veh: "Vehicle", foot: "If you have any questions, just reply to this e-mail or call us. We look forward to seeing you!" }
   }[L];
-  var rows = [[T.service, a.service], [T.veh, a.vehicle], [T.date, dateLabel], [T.time, time ? time + " " + T.tz : ""]].filter(function (r) { return r[1]; });
+  var rows = [[T.service, a.service], [T.veh, a.vehicle], [T.date, dateLabel], [T.time, time]].filter(function (r) { return r[1]; });
   var detailHtml = rows.map(function (r) { return "<b>" + esc(r[0]) + ":</b> " + esc(r[1]); }).join("<br>");
   var html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430">' +
     '<div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div>' +

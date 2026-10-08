@@ -706,8 +706,7 @@
       var sched = kind === "appointment"
         ? '<div class="appt-sched" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'
           + '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.88em">📅 <input class="b-note-input" id="rdate-' + a.id + '" type="date" value="' + esc(a.prefDate || "") + '" style="width:auto"></label>'
-          + '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.88em">🕒 <input class="b-note-input" id="rtime-' + a.id + '" type="time" step="300" style="width:auto"></label>'
-          + '<span style="font-size:.78em;opacity:.7">Lëtzebuerger Zäit</span></div>'
+          + '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.88em">🕒 <input class="b-note-input" id="rtime-' + a.id + '" type="time" step="300" style="width:auto"></label></div>'
         : "";
       actions = sched + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-ract="confirmed">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-ract="declined">✕ Ofleenen</button>';
     }
