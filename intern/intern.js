@@ -77,6 +77,8 @@
     listAppointments: function () { return api("/appointments").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.appointments; }); },
     setApptStatus: function (id, status, note, date, time) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime } : { error: r.body.error }; }); },
     delAppt: function (id) { return api("/appointments/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
+    listApptBlocks: function () { return api("/appointment-blocks", { method: "GET" }).then(function (r) { return r.status === 200 ? (r.body.blocks || []) : []; }); },
+    setApptBlock: function (date, slot, blocked) { return api("/appointment-blocks", { method: "POST", body: { date: date, slot: slot, blocked: !!blocked } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listMemberEvents: function () { return api("/member-events").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.events; }); },
     listMaintenance: function () { return api("/maintenance").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.items; }); },
     addMaintenance: function (p) { return api("/maintenance", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true, id: r.body.id } : { error: r.body.error }; }); },
@@ -773,7 +775,8 @@
   }
 
   /* ---------- Dashboard ---------- */
-  var calRef = new Date(), dashActive = [], dashAppts = [];
+  var calRef = new Date(), dashActive = [], dashAppts = [], dashBlocks = [];
+  function isSlotBlocked(dkey, slot) { return dashBlocks.some(function (b) { return b.date === dkey && b.slot === slot; }); }
   var dashBk = [], dashAp = [], dashMaint = [];
   var VEH_COLORS = ["#2f6df6", "#e63946", "#2e7d5b", "#b7791f", "#7c4dff", "#0ea5a5", "#d6457f", "#546e7a"];
   var APPT_COLOR = "#334155"; // Rendez-vousen (Service) — donkel, onofhängeg vun de Gefier-Faarwen
@@ -804,11 +807,12 @@
       STORE.listBookings().then(function (v) { return v; }, function () { return null; }),
       STORE.listAppointments().then(function (v) { return v; }, function () { return null; }),
       STORE.listMaintenance().then(function (v) { return v; }, function () { return []; }),
+      STORE.listApptBlocks().then(function (v) { return v; }, function () { return []; }),
     ]).then(function (res) {
       var bk = res[0], ap = res[1];
       if (bk === null && ap === null) { throw new Error("load_failed"); }
       bk = bk || []; ap = ap || [];
-      dashBk = bk; dashAp = ap; dashMaint = res[2] || [];
+      dashBk = bk; dashAp = ap; dashMaint = res[2] || []; dashBlocks = res[3] || [];
       updateNewBadge(bk);
       updateReqBadge("appointment", ap); updateReqBadge("inquiry", ap);
       var rentals = bk.filter(function (b) { return b.status === "confirmed" || b.status === "done"; });
@@ -1013,18 +1017,21 @@
       var dayEvents = active.filter(function (b) { var f = parseDay(b.from), t = parseDay(b.to) || f; return f && cur >= f && cur <= t; });
       var dayAppts = appts.filter(function (a) { var d = apptDay(a); return d && d.getTime() === cur.getTime(); });
       var total = dayEvents.length + dayAppts.length;
-      var evHtml = dayEvents.slice(0, 3).map(function (b) { return '<div class="cal-ev' + (b.status === "new" ? " tentative" : "") + '" style="background:' + cmap[b.veh || "?"] + '" title="' + esc(b.veh) + " – " + esc(b.name) + " (" + (b.status === "new" ? "nei" : b.status === "confirmed" ? "bestätegt" : "ofgeschloss") + ')">' + esc(vehName(b.veh)) + "</div>"; }).join("");
+      var dkey = cur.getFullYear() + "-" + pad(cur.getMonth() + 1) + "-" + pad(cur.getDate());
+      var amB = isSlotBlocked(dkey, "am"), pmB = isSlotBlocked(dkey, "pm");
+      var blkHtml = (amB && pmB) ? '<div class="cal-ev blocked" title="Ganzen Dag gespaart">⛔ Ganzen Dag</div>' : amB ? '<div class="cal-ev blocked" title="Moies gespaart">⛔ Moies</div>' : pmB ? '<div class="cal-ev blocked" title="Nomëtteg gespaart">⛔ Nomëtteg</div>' : "";
+      var evHtml = blkHtml + dayEvents.slice(0, 3).map(function (b) { return '<div class="cal-ev' + (b.status === "new" ? " tentative" : "") + '" style="background:' + cmap[b.veh || "?"] + '" title="' + esc(b.veh) + " – " + esc(b.name) + " (" + (b.status === "new" ? "nei" : b.status === "confirmed" ? "bestätegt" : "ofgeschloss") + ')">' + esc(vehName(b.veh)) + "</div>"; }).join("");
       var remain = 3 - dayEvents.length;
       if (remain > 0) evHtml += dayAppts.slice(0, remain).map(function (a) { return '<div class="cal-ev appt' + (a.status === "new" ? " tentative" : "") + '" title="Rendez-vous: ' + esc(a.service || "") + (a.vehicle ? " – " + esc(a.vehicle) : "") + " – " + esc(a.name) + " (" + (a.status === "new" ? "nei" : "bestätegt") + ')">🔧 ' + esc(vehName(a.service || "RDV")) + "</div>"; }).join("");
       if (total > 3) evHtml += '<div class="cal-ev" style="background:#9aa7b4">+' + (total - 3) + "</div>";
-      var dkey = cur.getFullYear() + "-" + pad(cur.getMonth() + 1) + "-" + pad(cur.getDate());
-      html += '<div class="cal-cell' + (inMonth ? "" : " other") + (isToday ? " today" : "") + (total ? " clickable" : "") + '"' + (total ? ' data-day="' + dkey + '" role="button" tabindex="0"' : "") + '><div class="cal-daynum">' + cur.getDate() + "</div>" + evHtml + "</div>";
+      html += '<div class="cal-cell' + (inMonth ? "" : " other") + (isToday ? " today" : "") + (inMonth ? " clickable" : "") + '"' + (inMonth ? ' data-day="' + dkey + '" role="button" tabindex="0"' : "") + '><div class="cal-daynum">' + cur.getDate() + "</div>" + evHtml + "</div>";
       cur.setDate(cur.getDate() + 1);
     }
     $("calendar").innerHTML = html + "</div>";
     var vehs = Object.keys(cmap);
     var leg = vehs.map(function (v) { return '<span><i style="background:' + cmap[v] + '"></i>' + esc(vehName(v)) + "</span>"; }).join("");
     if (appts.length) leg += '<span><i style="background:' + APPT_COLOR + '"></i>🔧 Rendez-vous</span>';
+    leg += '<span><i style="background:#b4232a"></i>⛔ Gespaart (Hallefdag)</span>';
     $("cal-legend").innerHTML = leg;
     $("calendar").querySelectorAll(".cal-cell[data-day]").forEach(function (c) {
       function open() { openDay(c.getAttribute("data-day")); }
@@ -1045,7 +1052,30 @@
     evs.sort(function (x, y) { return x.sort - y.sort; });
     $("day-title").textContent = dLabel(dkey);
     var body = $("day-body");
-    body.innerHTML = evs.length ? evs.map(function (e) { return '<div class="devent"><span class="dd" style="background:' + e.color + '"></span><div style="min-width:0"><div class="dt">' + e.t + '</div><div class="ds">' + e.s + "</div></div></div>"; }).join("") : '<p class="muted" style="font-size:0.88rem">Keng Termäiner op dësem Dag.</p>';
+    var eventsHtml = evs.length ? evs.map(function (e) { return '<div class="devent"><span class="dd" style="background:' + e.color + '"></span><div style="min-width:0"><div class="dt">' + e.t + '</div><div class="ds">' + e.s + "</div></div></div>"; }).join("") : '<p class="muted" style="font-size:0.88rem">Keng Termäiner op dësem Dag.</p>';
+    var canVal = can("bookings.validate");
+    var amB = isSlotBlocked(dkey, "am"), pmB = isSlotBlocked(dkey, "pm");
+    function slotBtn(slot, label, blocked) {
+      var cls = "slotbtn " + (blocked ? "is-blocked" : "is-free");
+      if (!canVal) return '<span class="' + cls + '">' + label + " · " + (blocked ? "Gespaart" : "Fräi") + "</span>";
+      return '<button type="button" class="' + cls + '" data-block-slot="' + slot + '" data-block-now="' + (blocked ? "1" : "0") + '">' + label + " · " + (blocked ? "Gespaart ✕" : "Blockéieren") + "</button>";
+    }
+    var blockHtml = '<div class="day-block"><div class="day-block-h">Verfügbarkeet blockéieren</div><div class="day-block-row">' + slotBtn("am", "☀️ Moies", amB) + slotBtn("pm", "🌙 Nomëtteg", pmB) + "</div></div>";
+    body.innerHTML = blockHtml + eventsHtml;
+    body.querySelectorAll("[data-block-slot]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var slot = btn.getAttribute("data-block-slot"), now = btn.getAttribute("data-block-now") === "1";
+        btn.disabled = true;
+        STORE.setApptBlock(dkey, slot, !now).then(function (r) {
+          if (r.error) { toast(errMsg(r.error)); btn.disabled = false; return; }
+          if (!now) { if (!isSlotBlocked(dkey, slot)) dashBlocks.push({ date: dkey, slot: slot, note: "" }); }
+          else { dashBlocks = dashBlocks.filter(function (b) { return !(b.date === dkey && b.slot === slot); }); }
+          toast((slot === "am" ? "Moies" : "Nomëtteg") + " " + (!now ? "gespaart" : "erëm fräi") + ".");
+          renderCalendar(dashActive, dashAppts);
+          openDay(dkey);
+        });
+      });
+    });
     $("daypop").hidden = false;
   }
   (function () {

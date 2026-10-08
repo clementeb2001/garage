@@ -328,6 +328,10 @@ async function ensureFleetBlocks(env) {
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS fleet_blocks (id INTEGER PRIMARY KEY AUTOINCREMENT, vehicle TEXT NOT NULL, from_dt TEXT NOT NULL, to_dt TEXT NOT NULL, reason TEXT, created_by TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)").run();
   try { await env.DB.prepare("CREATE INDEX IF NOT EXISTS idx_fleet_blocks_veh ON fleet_blocks(vehicle)").run(); } catch (e) {}
 }
+// Termin-Sperren pro Hallefdag: slot = "am" (moies) oder "pm" (nomëttes).
+async function ensureApptBlocks(env) {
+  await env.DB.prepare("CREATE TABLE IF NOT EXISTS appointment_blocks (date TEXT NOT NULL, slot TEXT NOT NULL, note TEXT, created_by TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (date, slot))").run();
+}
 async function snapshotForBooking(env, b) {
   await ensureMaint(env);
   const fleet = (await env.DB.prepare("SELECT * FROM maintenance ORDER BY id ASC").all()).results || [];
@@ -1009,6 +1013,28 @@ export default {
         await ensureFleetBlocks(env);
         await env.DB.prepare("DELETE FROM fleet_blocks WHERE id = ?1").bind(parseInt(m[1], 10)).run();
         return json(env, { ok: true });
+      }
+
+      /* ---- Termin-Sperren (Hallefdeeg blockéieren: moies / nomëttes) ---- */
+      if (path === "/appointment-blocks" && method === "GET") {
+        if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
+        await ensureApptBlocks(env);
+        const since = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+        const rows = (await env.DB.prepare("SELECT date, slot, note FROM appointment_blocks WHERE date >= ?1 ORDER BY date ASC").bind(since).all()).results || [];
+        return json(env, { blocks: rows.map((r) => ({ date: r.date, slot: r.slot, note: r.note || "" })) });
+      }
+      if (path === "/appointment-blocks" && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
+        await ensureApptBlocks(env);
+        const date = clip(bodyData.date, 20).trim();
+        const slot = bodyData.slot === "pm" ? "pm" : bodyData.slot === "am" ? "am" : "";
+        if (!validDateOnly(date) || !slot) return json(env, { error: "invalid_fields" }, 400);
+        if (bodyData.blocked) {
+          await env.DB.prepare("INSERT OR REPLACE INTO appointment_blocks (date, slot, note, created_by) VALUES (?1,?2,?3,?4)").bind(date, slot, clip(bodyData.note, 200), me.username).run();
+        } else {
+          await env.DB.prepare("DELETE FROM appointment_blocks WHERE date=?1 AND slot=?2").bind(date, slot).run();
+        }
+        return json(env, { ok: true, date: date, slot: slot, blocked: !!bodyData.blocked });
       }
 
       /* ---- Digital Iwwergab- / Retourprotokoller ---- */

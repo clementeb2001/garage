@@ -267,6 +267,14 @@
       .cal-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; font-size: 0.78rem; }
       .cal-legend span { display: inline-flex; align-items: center; gap: 6px; color: var(--mut); }
       .cal-legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+      .cal-ev.blocked { background: #b4232a; font-weight: 700; }
+      .day-block { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; background: var(--input-bg); }
+      .day-block-h { font-size: 0.74rem; font-weight: 800; color: var(--mut); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
+      .day-block-row { display: flex; gap: 8px; flex-wrap: wrap; }
+      .slotbtn { font: inherit; font-size: 0.85rem; font-weight: 700; border-radius: 8px; padding: 7px 12px; border: 1px solid var(--line); cursor: pointer; background: var(--surface); color: var(--fg); }
+      .slotbtn.is-blocked { background: #b4232a; color: #fff; border-color: #b4232a; }
+      .slotbtn:disabled { opacity: 0.6; cursor: default; }
+      span.slotbtn { cursor: default; }
       .veh-bar { margin-bottom: 10px; }
       .veh-bar .vb-top { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 3px; }
       .veh-bar .vb-top b { font-variant-numeric: tabular-nums; }
@@ -910,6 +918,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=69"></script>
+    <script src="intern.js?v=70"></script>
   </body>
 </html>
