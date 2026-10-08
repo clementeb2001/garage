@@ -236,3 +236,13 @@ test("double-clicking protocol save shares signature uploads as well as the D1 w
   const first=ctx.saveProtocol({id:1},"pickup");ctx.saveProtocol({id:1},"pickup");assert.equal(calls,1);release();await first;
   const second=ctx.saveProtocol({id:1},"pickup");assert.equal(calls,2);release();await second;
 });
+
+
+test("Wrangler file-import progress does not break JSON result parsing",()=>{
+  const {parseOutput}=require("../tools/d1_cli");
+  const result=[{success:true,results:[{"Total queries executed":2}],meta:{rows_written:0}}];
+  assert.deepEqual(parseOutput("├ Checking if file needs uploading\n🌀 Processed 2 queries.\n"+JSON.stringify(result,null,2)),result);
+  assert.deepEqual(parseOutput(JSON.stringify(result)),result);
+  assert.throws(()=>parseOutput("Progress without any result"),/valid D1 JSON/);
+  assert.throws(()=>parseOutput('├ Checking\n[{"success":false,"error":"failed"}]'),/D1 command failed/);
+});
