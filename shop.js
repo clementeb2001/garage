@@ -29,7 +29,9 @@
 
   var state = { mode: "all", q: "", mf: "all", cat: "all", brand: "", model: "", modelLabel: "", generation: "", year: "", engine: "", engineHp: 0, engineCc: 0, engineFuel: "", catalogVehicle: false, axle: "all", approval: "all", sort: "name", favoritesOnly: false };
   var favorites = loadJson("gk_shop_favorites", []);
-  var compareIds = loadJson("gk_shop_compare", []);
+  var compareIds = loadSessionJson("gk_shop_compare", []);
+  // Al dauerhaft gespäichert Vergläicher eemoleg ewechhuelen.
+  try { localStorage.removeItem("gk_shop_compare"); } catch (e) {}
   var activeCompareDialog = null;
   var lastDialogFocus = null;
 
@@ -38,6 +40,11 @@
     catch (e) { return fallback; }
   }
   function saveJson(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
+  function loadSessionJson(key, fallback) {
+    try { var value = JSON.parse(sessionStorage.getItem(key)); return Array.isArray(value) ? value : fallback; }
+    catch (e) { return fallback; }
+  }
+  function saveCompare() { try { sessionStorage.setItem("gk_shop_compare", JSON.stringify(compareIds)); } catch (e) {} }
   function saveState() {
     saveJson("gk_shop_state", state);
     try { sessionStorage.setItem("gk_shop_scroll", String(window.scrollY || 0)); } catch (e) {}
@@ -1069,7 +1076,7 @@
     compare.addEventListener("click", function (e) {
       e.stopPropagation(); var at=compareIds.indexOf(p.i);
       if (at !== -1) compareIds.splice(at,1); else if (compareIds.length < 3) compareIds.push(p.i); else showToast(t.compare_limit || "Maximal 3 Produkte vergleichen.");
-      saveJson("gk_shop_compare", compareIds);
+      saveCompare();
       updateCompareBar(); render();
     });
     body.appendChild(compare);
@@ -2208,7 +2215,7 @@
     var vehicleChange=$("shop-vehicle-change"); if(vehicleChange)vehicleChange.addEventListener("click",function(){switchTab("fahrzeug");$("tab-fahrzeug").scrollIntoView({behavior:"smooth",block:"center"});});
     var vehicleClear=$("shop-vehicle-clear"); if(vehicleClear)vehicleClear.addEventListener("click",function(){state.mode="all";state.brand="";state.model="";state.modelLabel="";state.generation="";state.year="";state.engine="";state.engineHp=0;state.engineCc=0;state.engineFuel="";state.catalogVehicle=false;["brand","model","year","engine"].forEach(function(k){var e=$("veh-"+k);if(e)e.value="";});visibleCount=PAGE_SIZE;saveState();render();});
     var compareOpen=$("shop-compare-open"); if(compareOpen) compareOpen.addEventListener("click",openCompare);
-    var compareClear=$("shop-compare-clear"); if(compareClear) compareClear.addEventListener("click",function(){compareIds=[];updateCompareBar();render();});
+    var compareClear=$("shop-compare-clear"); if(compareClear) compareClear.addEventListener("click",function(){compareIds=[];saveCompare();updateCompareBar();render();});
     var ct = $("cart-toggle"); if (ct) ct.addEventListener("click", openCart);
     var cc = $("cart-close"); if (cc) cc.addEventListener("click", closeCart);
     var cb = $("cart-backdrop"); if (cb) cb.addEventListener("click", closeCart);
