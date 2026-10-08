@@ -5,7 +5,7 @@ var CACHE = "ab-intern-v73";
 var CORE = [
   "/intern/",
   "/intern/index.html",
-  "/intern/intern.js?v=72",
+  "/intern/intern.js?v=73",
   "/assets/damage-diagram-car.png",
   "/assets/damage-diagram-van.png",
   "/intern/manifest.webmanifest",
