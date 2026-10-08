@@ -760,9 +760,15 @@ h4 {
 
 /* ------- Service cards ------- */
 .cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 22px;
+}
+/* 4 pro Rei; eng onkomplett läscht Rei (z.B. 2 Kaarten) gëtt zentréiert
+   amplaz lénks ze hänken – wierkt bewosst gestalt a méi héichwäerteg. */
+.cards .card {
+  flex: 0 1 calc(25% - 16.5px);
 }
 .card {
   background: #fff;
@@ -1253,8 +1259,8 @@ a.ci-value:hover {
 
 /* ------- Responsive ------- */
 @media (max-width: 980px) {
-  .cards {
-    grid-template-columns: repeat(2, 1fr);
+  .cards .card {
+    flex-basis: calc(50% - 11px);
   }
   .feature-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1391,7 +1397,9 @@ a.ci-value:hover {
 }
 
 @media (max-width: 560px) {
-  .cards,
+  .cards .card {
+    flex-basis: 100%;
+  }
   .feature-grid {
     grid-template-columns: 1fr;
   }
