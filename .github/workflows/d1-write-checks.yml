@@ -27,6 +27,10 @@ jobs:
       - name: Test with mocks and two local synthetic products; no remote database access
         run: |
           node tests/d1-write-budget.test.js
+          node tests/calendar.test.js
           python3 tests/d1-sql.test.py
       - name: Validate all JavaScript syntax
-        run: find worker tools tests intern -name '*.js' -print0 | xargs -0 -n1 node --check
+        run: |
+          find worker tools tests intern -name '*.js' -print0 | xargs -0 -n1 node --check
+          node --check appt-calendar.js
+          node --check extras.js
