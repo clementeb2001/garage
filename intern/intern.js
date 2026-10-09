@@ -1323,9 +1323,10 @@
     var mechLeg = Object.keys(mechSet).map(function (u) { return '<span class="sched-leg-i"><i style="background:' + mechColor(u) + '"></i>' + esc(staffName(u)) + "</span>"; }).join("");
     if (hasUnassigned) mechLeg += '<span class="sched-leg-i unassigned"><i style="background:#b45309"></i>⚠ Nach net zougewisen</span>';
     var availability = closedB ? "Dëse Betribsdag ass als zou markéiert." : amB && pmB ? "Moies an nomëttes gespaart." : amB ? "Moies gespaart, nomëttes fräi." : pmB ? "Moies fräi, nomëttes gespaart." : "De ganzen Dag ass fräi fir d'Planung.";
-    var scheduleBody = scheduled.length
-      ? '<div class="day-sched-scroll" aria-label="Horizontal scrollbaren Dagesplang"><div class="day-sched" style="height:' + gridH + "px;min-width:" + (maxCols > 2 ? (48 + maxCols * 150) + "px" : "100%") + '">' + linesHtml + shadeHtml + blocksHtml + nowHtml + "</div></div>"
-      : '<div class="day-sched-empty"><div><strong>Nach keng fest Auerzäit geplangt</strong><span>' + esc(availability) + "</span></div></div>";
+    // D'Stonne-Gitter weist sech ëmmer (och op fräien Deeg, fir eranzeplangen);
+    // op Deeg ouni fest Auerzäit kënnt eng kuerz Verfügbarkeets-Notiz dervir.
+    var gridWrap = '<div class="day-sched-scroll" aria-label="Horizontal scrollbaren Dagesplang"><div class="day-sched" style="height:' + gridH + "px;min-width:" + (maxCols > 2 ? (48 + maxCols * 150) + "px" : "100%") + '">' + linesHtml + shadeHtml + blocksHtml + nowHtml + "</div></div>";
+    var scheduleBody = scheduled.length ? gridWrap : ('<div class="day-sched-note">' + esc(availability) + "</div>" + gridWrap);
     var scheduleHtml = '<div class="day-sched-h">🕒 Dagesplang · <span class="day-sched-sum">' + esc(summary) + "</span></div>"
       + (mechLeg ? '<div class="sched-leg">' + mechLeg + "</div>" : "")
       + scheduleBody;

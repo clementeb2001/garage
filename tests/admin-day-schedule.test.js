@@ -30,8 +30,10 @@ test("calendar jump clears stale appointment search before focusing the card", (
   assert.equal(ctx.page, "appointments");
 });
 
-test("day schedule has compact empty state and a safe mobile overlap layout", () => {
-  assert.match(script, /day-sched-empty/);
+test("day schedule always shows the hour grid with an availability note and safe mobile overlap", () => {
+  assert.match(script, /day-sched-note/);
+  // The hour grid (day-sched-scroll) is used for every day, scheduled or free.
+  assert.match(script, /scheduled\.length \? gridWrap : \(/);
   assert.match(script, /maxCols > 2/);
   assert.match(script, /maxCols \* 150/);
   assert.match(html, /\.day-sched-scroll[^}]*overflow-x:\s*auto/);

@@ -243,7 +243,7 @@
   {
     "name": "ensureWorkOrders",
     "create": [
-      "CREATE TABLE IF NOT EXISTS work_orders (id INTEGER PRIMARY KEY AUTOINCREMENT, appointment_id INTEGER, customer_id INTEGER, vehicle_id INTEGER, reference TEXT, title TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'arrived', assigned_to TEXT, planned_minutes INTEGER, description TEXT, diagnosis TEXT, internal_note TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+      "CREATE TABLE IF NOT EXISTS work_orders (id INTEGER PRIMARY KEY AUTOINCREMENT, appointment_id INTEGER, customer_id INTEGER, vehicle_id INTEGER, reference TEXT, title TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'planned', assigned_to TEXT, planned_minutes INTEGER, description TEXT, diagnosis TEXT, internal_note TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
       "CREATE TABLE IF NOT EXISTS work_order_events (id INTEGER PRIMARY KEY AUTOINCREMENT, work_order_id INTEGER NOT NULL, action TEXT NOT NULL, by_user TEXT, note TEXT, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
     ],
     "indexes": [

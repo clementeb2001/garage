@@ -451,6 +451,44 @@ async function sendApptReceipt(env, apptId, a) {
   await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(apptId, result.ok ? "Empfangsmail geschéckt" : "Empfangsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
+// Beim Bestätegen vun engem Rendez-vous: Client + Gefier an d'CRM iwwerhuelen an
+// en Aarbechtsoptrag uleeën (best-effort, idempotent — stéiert d'Bestätegung ni).
+async function ensureCrmLink(env, a, byUser) {
+  try {
+    const email = String(a.email || "").trim().toLowerCase();
+    let customerId = null;
+    if (email) {
+      const existing = await env.DB.prepare("SELECT id FROM customers WHERE lower(trim(email))=?1 ORDER BY id ASC").bind(email).first();
+      if (existing) customerId = existing.id;
+      else {
+        const r = await env.DB.prepare("INSERT INTO customers (name,email,phone,source) VALUES (?1,?2,?3,'appointment')")
+          .bind(clip(a.name, 120).trim() || email, email, clip(a.phone, 60) || null).run();
+        customerId = r.meta.last_row_id;
+      }
+    }
+    let vehicleId = null;
+    const makeModel = clip(a.vehicle, 160).trim();
+    if (customerId && makeModel) {
+      const vin = clip(a.vin, 60);
+      const dupe = await env.DB.prepare("SELECT id FROM customer_vehicles WHERE customer_id=?1 AND lower(trim(make_model))=lower(trim(?2)) AND lower(trim(COALESCE(vin,'')))=lower(trim(COALESCE(?3,''))) ORDER BY id ASC").bind(customerId, makeModel, vin || "").first();
+      if (dupe) vehicleId = dupe.id;
+      else { const rv = await env.DB.prepare("INSERT INTO customer_vehicles (customer_id,make_model,vin) VALUES (?1,?2,?3)").bind(customerId, makeModel, vin || null).run(); vehicleId = rv.meta.last_row_id; }
+    }
+    // Ee Aarbechtsoptrag pro Rendez-vous (idx_work_orders_appointment ass UNIQUE).
+    const linked = await env.DB.prepare("SELECT id FROM work_orders WHERE appointment_id=?1").bind(a.id).first();
+    if (!linked) {
+      const title = clip(a.service, 180).trim() || "Rendez-vous";
+      const planned = a.duration_min == null ? null : a.duration_min;
+      const r = await env.DB.prepare("INSERT INTO work_orders (appointment_id,customer_id,vehicle_id,title,status,assigned_to,planned_minutes,description) VALUES (?1,?2,?3,?4,'planned',?5,?6,?7)")
+        .bind(a.id, customerId, vehicleId, title, a.assigned_to || null, planned, clip(a.msg, 3000) || null).run();
+      const id = r.meta.last_row_id, ref = "AB-A-" + new Date().getFullYear() + "-" + String(id).padStart(4, "0");
+      await env.DB.batch([
+        env.DB.prepare("UPDATE work_orders SET reference=?1 WHERE id=?2").bind(ref, id),
+        env.DB.prepare("INSERT INTO work_order_events (work_order_id,action,by_user,note) VALUES (?1,'Ugeluecht',?2,'aus Rendez-vous')").bind(id, byUser || "System"),
+      ]);
+    }
+  } catch (e) { /* best-effort: en CRM-Feeler däerf d'Bestätegung ni blockéieren */ }
+}
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function mailText(t, b) {
   var lines = [t.h, "", t.p, ""];
@@ -1030,6 +1068,8 @@ export default {
         if (mailQueued) {
           ctx.waitUntil(sendApptConfirmation(env, id, Object.assign({}, appt, { confirmed_date: confDate, confirmed_time: confTime })));
         }
+        // Beim Bestätegen: Client + Gefier an d'CRM iwwerhuelen an en Aarbechtsoptrag uleeën.
+        if (status === "confirmed" && isAppt) ctx.waitUntil(ensureCrmLink(env, appt, me.username));
         return json(env, { ok: true, confirmedDate: confDate, confirmedTime: confTime, mailQueued });
       }
 
