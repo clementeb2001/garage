@@ -83,6 +83,8 @@
     listAppointments: function () { return api("/appointments").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.appointments; }); },
     setApptStatus: function (id, status, note, date, time) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime, unchanged: r.body.unchanged, mailQueued: r.body.mailQueued } : { error: r.body.error }; }); },
     resendApptConfirmation: function (id, date, time) { return api("/appointments/" + id + "/confirmation-email", { method: "POST", body: { date: date, time: time } }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
+    listStaff: function () { return api("/staff").then(function (r) { return r.status === 200 ? (r.body.staff || []) : []; }); },
+    setApptPlan: function (id, p) { return api("/appointments/" + id + "/plan", { method: "POST", body: { assigned: p.assigned || "", duration: p.duration === "" || p.duration == null ? "" : p.duration, planNote: p.planNote || "" } }).then(function (r) { return r.status === 200 ? { ok: true, assignedTo: r.body.assignedTo, assignedName: r.body.assignedName, durationMin: r.body.durationMin, planNote: r.body.planNote } : { error: r.body.error }; }); },
     delAppt: function (id) { return api("/appointments/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listApptBlocks: function () { return api("/appointment-blocks", { method: "GET" }).then(function (r) { return r.status === 200 ? (r.body.blocks || []) : []; }); },
     setApptBlock: function (date, slot, blocked) { return api("/appointment-blocks", { method: "POST", body: { date: date, slot: slot, blocked: !!blocked } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
@@ -101,6 +103,9 @@
   };
 
   var bookingListCache = null, requestListCache = null;
+  var staffList = [], staffLoaded = false;
+  function ensureStaff() { if (staffLoaded) return Promise.resolve(staffList); return STORE.listStaff().then(function (s) { staffList = s || []; staffLoaded = true; return staffList; }, function () { staffList = []; return staffList; }); }
+  function staffName(username) { if (!username) return ""; var hit = staffList.filter(function (u) { return u.username === username; })[0]; return hit ? hit.name : username; }
   var STORE = liveStore;
   var session = null;
   function can(perm) { return !!(session && ROLES[session.role] && ROLES[session.role].perms.indexOf(perm) !== -1); }
@@ -755,6 +760,24 @@
     }); });
   }
   function doDelReq(kind, id) { if (!can("members.manage")) return; if (!confirm(REQCFG[kind].noun + " " + reqRef(kind, id) + " endgülteg läschen?")) return; STORE.delAppt(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast(REQCFG[kind].noun + " " + reqRef(kind, id) + " geläscht."); renderReq(kind); }); }
+  var DUR_OPTIONS = [30, 45, 60, 90, 120, 150, 180, 240, 300, 360, 480];
+  function durLabel(min) { min = Number(min) || 0; if (!min) return ""; if (min < 60) return min + " Min"; var h = Math.floor(min / 60), r = min % 60; return r ? (h + " Std " + r + " Min") : (h + " Std"); }
+  function hhmmToMin(s) { var p = String(s || "").split(":"); return (parseInt(p[0], 10) || 0) * 60 + (parseInt(p[1], 10) || 0); }
+  function minToHHMM(m) { m = Math.max(0, Math.round(m)); return pad(Math.floor(m / 60)) + ":" + pad(m % 60); }
+  function mechColor(username) { if (!username) return "#64748b"; var i = staffList.map(function (u) { return u.username; }).indexOf(username); return VEH_COLORS[(i < 0 ? 0 : i) % VEH_COLORS.length]; }
+  function doSavePlan(a, card) {
+    if (!can("bookings.validate")) return;
+    var mech = $("rmech-" + a.id), dur = $("rdur-" + a.id), pnote = $("rplan-" + a.id);
+    var payload = { assigned: mech ? mech.value : "", duration: dur ? dur.value : "", planNote: pnote ? pnote.value.trim() : "" };
+    return runReqAction("appointment", a.id, card, function () {
+      return STORE.setApptPlan(a.id, payload).then(function (r) {
+        if (r.error) { toast(errMsg(r.error)); return; }
+        toast("Plang gespäichert" + (r.assignedName ? " · " + r.assignedName : "") + (r.durationMin ? " · " + durLabel(r.durationMin) : "") + ".");
+        requestListCache = null;
+        renderReq("appointment");
+      });
+    });
+  }
   function reqCard(kind, a) {
     var el = document.createElement("div"); el.className = "booking" + (a.status === "new" ? " is-new" : "");
     var canVal = can("bookings.validate"), isAdmin = can("members.manage"), actions = "", nid = "rnote-" + kind + "-" + a.id;
@@ -774,20 +797,40 @@
       actions = apptSched(true) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" />' + resend + '<button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button>';
     }
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-delr="1">Läschen</button>';
+    var canPlan = canVal && kind === "appointment" && a.status !== "declined";
+    var planBlock = "";
+    if (canPlan) {
+      var mechOpts = '<option value="">— Keen Mécanicien —</option>' + staffList.map(function (u) { return '<option value="' + esc(u.username) + '"' + (u.username === a.assignedTo ? " selected" : "") + ">" + esc(u.name) + "</option>"; }).join("");
+      var durOpts = '<option value="">— Dauer —</option>' + DUR_OPTIONS.map(function (mm) { return '<option value="' + mm + '"' + (String(mm) === String(a.durationMin) ? " selected" : "") + ">" + durLabel(mm) + "</option>"; }).join("");
+      planBlock = '<div class="appt-plan">'
+        + '<div class="appt-plan-h">🔧 Planung</div>'
+        + '<div class="appt-plan-row">'
+        + '<label>Mécanicien<select class="b-note-input" id="rmech-' + a.id + '">' + mechOpts + "</select></label>"
+        + '<label>Dauer<select class="b-note-input" id="rdur-' + a.id + '">' + durOpts + "</select></label>"
+        + "</div>"
+        + '<input class="b-note-input appt-plan-note" id="rplan-' + a.id + '" type="text" placeholder="Planungsnotiz (intern, net op der Mail) …" value="' + esc(a.planNote || "") + '" />'
+        + '<button class="btn btn-outline btn-sm" data-save-plan="1">Plang späicheren</button>'
+        + "</div>";
+    }
     var audit = (a.events || []).map(function (ev) { return '<div class="ev">• ' + esc(ev.action) + ' vum <b>' + esc(ev.by) + "</b>, " + fmt(ev.at) + (ev.note ? ' – „' + esc(ev.note) + "“" : "") + "</div>"; }).join("");
     var meta = [];
     if (a.vehicle) meta.push("🚗 " + esc(a.vehicle));
     if (a.prefDate) meta.push("📅 " + esc(a.prefDate) + (a.altDate ? " / " + esc(a.altDate) : "") + (a.daytime ? " · " + esc(a.daytime) : ""));
     if (a.confirmedTime) meta.push("✅ " + esc(a.confirmedDate || a.prefDate || "") + " · " + esc(a.confirmedTime) + " Auer");
+    if (a.assignedTo) meta.push("🔧 " + esc(a.assignedName || staffName(a.assignedTo)));
+    if (a.durationMin) meta.push("⏱ " + esc(durLabel(a.durationMin)));
     if (a.vin) meta.push("VIN " + esc(a.vin));
     el.innerHTML =
       '<div class="b-top"><div><div class="b-veh">' + esc(a.service || REQCFG[kind].titleFb) + '</div><div class="b-id">Réf. ' + reqRef(kind, a.id) + "</div></div><span class=\"status status-" + a.status + '">' + esc(STATUS[a.status]) + "</span></div>" +
       (meta.length ? '<div class="b-dates" style="gap:6px 16px;flex-wrap:wrap">' + meta.join('<span class="arrow">·</span>') + "</div>" : "") +
       '<div class="b-cust"><strong>' + esc(a.name) + "</strong>" + (a.email ? "<span>✉ " + esc(a.email) + "</span>" : "") + (a.phone ? "<span>☎ " + esc(a.phone) + "</span>" : "") + "</div>" +
       (a.msg ? '<p class="b-msg">' + esc(a.msg) + "</p>" : "") +
+      planBlock +
       (actions ? '<div class="b-actions">' + actions + "</div>" : "") +
       '<div class="b-audit">' + audit + "</div>";
     el.querySelectorAll("[data-ract]").forEach(function (btn) { btn.addEventListener("click", function () { doReqAct(kind, a.id, btn.getAttribute("data-ract"), el); }); });
+    var savePlanBtn = el.querySelector("[data-save-plan]");
+    if (savePlanBtn) savePlanBtn.addEventListener("click", function () { doSavePlan(a, el); });
     var resendButton = el.querySelector("[data-resend-appt]");
     if (resendButton) {
       function updateResend() {
@@ -806,7 +849,8 @@
   function renderReq(kind, useCache) {
     var c = REQCFG[kind];
     $(c.sub).textContent = can("bookings.validate") ? c.subAct : "Dir hutt Liesrechter (Kucker).";
-    (useCache === true && requestListCache ? Promise.resolve(requestListCache) : STORE.listAppointments()).then(function (all) {
+    Promise.all([ensureStaff(), (useCache === true && requestListCache ? Promise.resolve(requestListCache) : STORE.listAppointments())]).then(function (res) {
+      var all = res[1];
       requestListCache = all;
       updateReqBadge("appointment", all); updateReqBadge("inquiry", all);
       var items = all.filter(function (a) { return (a.kind || "appointment") === kind; });
@@ -886,6 +930,7 @@
       STORE.listAppointments().then(function (v) { return v; }, function () { return null; }),
       STORE.listMaintenance().then(function (v) { return v; }, function () { return []; }),
       STORE.listApptBlocks().then(function (v) { return v; }, function () { return []; }),
+      ensureStaff().then(function (v) { return v; }, function () { return []; }),
     ]).then(function (res) {
       var bk = res[0], ap = res[1];
       if (bk === null && ap === null) { throw new Error("load_failed"); }
@@ -1125,17 +1170,50 @@
   function openDay(dkey) {
     var day = parseDay(dkey); if (!day) return; var dMs = day.getTime();
     var cmap = vehColorMap(dashActive);
-    var evs = [];
-    dashActive.forEach(function (b) { var f = parseDay(b.from), t = parseDay(b.to) || f; if (f && dMs >= f.getTime() && dMs <= t.getTime()) {
-      var role = dMs === f.getTime() ? "Ofhuelung" : dMs === (t ? t.getTime() : f.getTime()) ? "Retour" : "ënnerwee";
-      evs.push({ sort: 1, color: cmap[b.veh || "?"], t: esc(b.veh), s: esc(b.name) + " · " + role + " · " + STATUS[b.status] + " · " + refOf(b.id) });
-    } });
-    dashAppts.forEach(function (a) { var d = apptDay(a); if (d && d.getTime() === dMs) evs.push({ sort: 2, color: APPT_COLOR, t: "🔧 " + esc(a.service || "Rendez-vous"), s: (a.vehicle ? esc(a.vehicle) + " · " : "") + esc(a.name) + " · " + STATUS[a.status] + " · " + reqRef("appointment", a.id) }); });
-    evs.sort(function (x, y) { return x.sort - y.sort; });
     $("day-title").textContent = dLabel(dkey);
     var body = $("day-body");
-    var eventsHtml = evs.length ? evs.map(function (e) { return '<div class="devent"><span class="dd" style="background:' + e.color + '"></span><div style="min-width:0"><div class="dt">' + e.t + '</div><div class="ds">' + e.s + "</div></div></div>"; }).join("") : '<p class="muted" style="font-size:0.88rem">Keng Rendez-vousen op dësem Dag.</p>';
     var canVal = can("bookings.validate");
+
+    // ---- Locatiounen (ganzen Dag) a Rendez-vousen vun dësem Dag ----
+    var rentals = [];
+    dashActive.forEach(function (b) { var f = parseDay(b.from), t = parseDay(b.to) || f; if (f && dMs >= f.getTime() && dMs <= t.getTime()) {
+      var role = dMs === f.getTime() ? "Ofhuelung" : dMs === (t ? t.getTime() : f.getTime()) ? "Retour" : "ënnerwee";
+      rentals.push({ color: cmap[b.veh || "?"], label: esc(vehName(b.veh)) + " · " + esc(b.name) + " · " + role + " · " + STATUS[b.status] + " · " + refOf(b.id) });
+    } });
+    var dayAppts = dashAppts.filter(function (a) { var d = apptDay(a); return d && d.getTime() === dMs; });
+    var scheduled = [], unscheduled = [];
+    dayAppts.forEach(function (a) {
+      var tm = (a.status === "confirmed" && a.confirmedTime) ? a.confirmedTime : "";
+      if (/^([01]\d|2[0-3]):[0-5]\d$/.test(tm)) { var start = hhmmToMin(tm), dur = Number(a.durationMin) || 60; scheduled.push({ a: a, start: start, end: start + dur, dur: dur }); }
+      else unscheduled.push(a);
+    });
+
+    // ---- Dagesplang (Stonne-Timeline, Rendez-vousen no Auerzäit + Dauer) ----
+    var scheduleHtml = "";
+    if (scheduled.length) {
+      var minStart = 420, maxEnd = 1140;
+      scheduled.forEach(function (s) { minStart = Math.min(minStart, s.start); maxEnd = Math.max(maxEnd, s.end); });
+      var winStart = Math.floor(minStart / 60) * 60, winEnd = Math.ceil(maxEnd / 60) * 60;
+      var PXMIN = 0.92, gridH = (winEnd - winStart) * PXMIN;
+      scheduled.sort(function (x, y) { return x.start - y.start || x.end - y.end; });
+      var clusters = [], cur = [], curEnd = -1;
+      scheduled.forEach(function (s) { if (cur.length && s.start >= curEnd) { clusters.push(cur); cur = []; curEnd = -1; } cur.push(s); curEnd = Math.max(curEnd, s.end); });
+      if (cur.length) clusters.push(cur);
+      clusters.forEach(function (cl) { var lanes = []; cl.forEach(function (s) { var placed = false; for (var i = 0; i < lanes.length; i++) { if (s.start >= lanes[i]) { s.col = i; lanes[i] = s.end; placed = true; break; } } if (!placed) { s.col = lanes.length; lanes.push(s.end); } }); cl.forEach(function (s) { s.cols = lanes.length; }); });
+      var hoursHtml = "";
+      for (var hm = winStart; hm <= winEnd; hm += 60) { hoursHtml += '<div class="sched-hour" style="top:' + ((hm - winStart) * PXMIN) + 'px"><span class="sched-hlabel">' + pad(hm / 60) + ":00</span></div>"; }
+      var blocksHtml = scheduled.map(function (s) {
+        var a = s.a, top = (s.start - winStart) * PXMIN, h = Math.max((s.end - s.start) * PXMIN, 28);
+        var w = 100 / s.cols, left = s.col * w, col = mechColor(a.assignedTo), who = a.assignedTo ? staffName(a.assignedTo) : "Keen Mécanicien";
+        return '<div class="sched-ev" style="top:' + top + "px;height:" + h + "px;left:calc(" + left + "% + 48px);width:calc(" + w + "% - 54px);background:" + col + '" title="' + esc((a.service || "Rendez-vous") + " · " + minToHHMM(s.start) + "–" + minToHHMM(s.end) + " · " + who) + '">'
+          + '<div class="sched-ev-t">' + minToHHMM(s.start) + " · " + esc(vehName(a.service || "RDV")) + "</div>"
+          + '<div class="sched-ev-s">' + esc(a.name) + (a.assignedTo ? " · 🔧 " + esc(who) : "") + (s.dur ? " · " + durLabel(s.dur) : "") + "</div></div>";
+      }).join("");
+      scheduleHtml = '<div class="day-sched-h">🕒 Dagesplang</div><div class="day-sched" style="height:' + gridH + 'px">' + hoursHtml + blocksHtml + "</div>";
+    }
+    var rentalsHtml = rentals.length ? '<div class="day-allday">' + rentals.map(function (r) { return '<div class="devent"><span class="dd" style="background:' + r.color + '"></span><div style="min-width:0"><div class="ds">🚐 ' + r.label + "</div></div></div>"; }).join("") + "</div>" : "";
+    var unschedHtml = unscheduled.length ? '<div class="day-unsched"><div class="day-sched-h">⏳ Nach ze plangen (keng Auerzäit)</div>' + unscheduled.map(function (a) { return '<div class="devent"><span class="dd" style="background:' + APPT_COLOR + '"></span><div style="min-width:0"><div class="dt">🔧 ' + esc(a.service || "Rendez-vous") + (a.assignedTo ? " · " + esc(staffName(a.assignedTo)) : "") + '</div><div class="ds">' + esc(a.name) + " · " + STATUS[a.status] + " · " + reqRef("appointment", a.id) + "</div></div></div>"; }).join("") + "</div>" : "";
+    var emptyHtml = (!rentals.length && !dayAppts.length) ? '<p class="muted" style="font-size:0.88rem">Keng Rendez-vousen oder Locatiounen op dësem Dag.</p>' : "";
     var amB = isSlotBlocked(dkey, "am"), pmB = isSlotBlocked(dkey, "pm"), closedB = isSlotBlocked(dkey, "closed");
     function slotBtn(slot, label, blocked) {
       var cls = "slotbtn " + (blocked ? "is-blocked" : "is-free");
@@ -1148,7 +1226,7 @@
       return '<button type="button" class="' + cls + '" data-block-slot="closed" data-block-now="' + (blocked ? "1" : "0") + '">' + (blocked ? "🚫 Zou (Feiertag) ✕" : "🚫 Als Feiertag / zou") + "</button>";
     }
     var blockHtml = '<div class="day-block"><div class="day-block-h">Verfügbarkeet blockéieren</div><div class="day-block-row">' + slotBtn("am", "☀️ Moies", amB) + slotBtn("pm", "🌙 Nomëtteg", pmB) + '</div><div class="day-block-row" style="margin-top:8px">' + closedBtn(closedB) + "</div></div>";
-    body.innerHTML = blockHtml + eventsHtml;
+    body.innerHTML = blockHtml + rentalsHtml + scheduleHtml + unschedHtml + emptyHtml;
     body.querySelectorAll("[data-block-slot]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var slot = btn.getAttribute("data-block-slot"), now = btn.getAttribute("data-block-now") === "1";

@@ -60,9 +60,9 @@ test('explicit resend mails saved schedule and records the user without modifyin
 });
 const intern=fs.readFileSync('intern/intern.js','utf8');
 function ui(){
- const ctx={Map,Promise,Array,STORE:{},can:()=>true,toast:()=>{},renderReq:()=>{},errMsg:x=>x,REQCFG:{appointment:{noun:'Termin'},inquiry:{noun:'Inquiry'}},STATUS:{confirmed:'Confirmed'},reqRef:()=> 'T-1001',document:{createElement:()=>({querySelectorAll:()=>[],querySelector:()=>null})},esc:x=>String(x||''),fmt:x=>x};
+ const ctx={Map,Promise,Array,Math,Number,String,STORE:{},can:()=>true,toast:()=>{},renderReq:()=>{},errMsg:x=>x,REQCFG:{appointment:{noun:'Termin'},inquiry:{noun:'Inquiry'}},STATUS:{confirmed:'Confirmed'},reqRef:()=> 'T-1001',document:{createElement:()=>({querySelectorAll:()=>[],querySelector:()=>null})},esc:x=>String(x||''),fmt:x=>x,pad:n=>n<10?'0'+n:''+n,staffList:[],staffName:x=>x,VEH_COLORS:['#000']};
  vm.createContext(ctx);
- vm.runInContext(intern.slice(intern.indexOf('  var pendingReqActions'),intern.indexOf('  function doDelReq')),ctx);
+ vm.runInContext(intern.slice(intern.indexOf('  var pendingReqActions'),intern.indexOf('  function reqCard')),ctx);
  vm.runInContext(intern.slice(intern.indexOf('  function reqCard'),intern.indexOf('  function renderReq(kind')),ctx);
  return ctx;
 }

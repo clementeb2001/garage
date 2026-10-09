@@ -32,6 +32,18 @@
       {
         "table": "appointments",
         "definition": "confirmed_time TEXT"
+      },
+      {
+        "table": "appointments",
+        "definition": "assigned_to TEXT"
+      },
+      {
+        "table": "appointments",
+        "definition": "duration_min INTEGER"
+      },
+      {
+        "table": "appointments",
+        "definition": "plan_note TEXT"
       }
     ]
   },

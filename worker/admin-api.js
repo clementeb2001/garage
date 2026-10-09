@@ -868,9 +868,45 @@ export default {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
         const as = (await env.DB.prepare("SELECT * FROM appointments ORDER BY id DESC LIMIT 1000").all()).results || [];
         const evs = (await env.DB.prepare("SELECT appointment_id, action, by_user, note, at FROM appointment_events ORDER BY id ASC").all()).results || [];
+        const staff = (await env.DB.prepare("SELECT username, name FROM users").all()).results || [];
+        const staffName = {}; staff.forEach((u) => { staffName[u.username] = u.name || u.username; });
         const byId = {};
         evs.forEach((e) => { (byId[e.appointment_id] = byId[e.appointment_id] || []).push({ action: e.action, by: e.by_user, at: e.at, note: e.note || "" }); });
-        return json(env, { appointments: as.map((a) => ({ id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, confirmedDate: a.confirmed_date || "", confirmedTime: a.confirmed_time || "", vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, events: byId[a.id] || [] })) });
+        return json(env, { appointments: as.map((a) => ({ id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, confirmedDate: a.confirmed_date || "", confirmedTime: a.confirmed_time || "", assignedTo: a.assigned_to || "", assignedName: a.assigned_to ? (staffName[a.assigned_to] || a.assigned_to) : "", durationMin: a.duration_min == null ? "" : a.duration_min, planNote: a.plan_note || "", vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, events: byId[a.id] || [] })) });
+      }
+
+      /* ---- Mataarbechter-Lëscht fir d'Rendez-vous-Zouweisung (viewer+) ---- */
+      if (path === "/staff" && method === "GET") {
+        if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
+        const us = (await env.DB.prepare("SELECT username, name, role FROM users WHERE active = 1 ORDER BY name ASC").all()).results || [];
+        return json(env, { staff: us.map((u) => ({ username: u.username, name: u.name || u.username, role: u.role })) });
+      }
+
+      /* ---- Rendez-vous plangen: Mécanicien + Dauer + Notiz (validator+, keng Mail) ---- */
+      m = path.match(/^\/appointments\/(\d+)\/plan$/);
+      if (m && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
+        const id = parseInt(m[1], 10);
+        const appt = await env.DB.prepare("SELECT id FROM appointments WHERE id = ?1").bind(id).first();
+        if (!appt) return json(env, { error: "not_found" }, 404);
+        let assigned = clip(bodyData.assigned, 60).trim().toLowerCase();
+        if (assigned) {
+          const u = await env.DB.prepare("SELECT username FROM users WHERE username = ?1 AND active = 1").bind(assigned).first();
+          if (!u) return json(env, { error: "invalid_staff" }, 400);
+        }
+        let duration = null;
+        if (bodyData.duration !== "" && bodyData.duration != null) {
+          duration = parseInt(bodyData.duration, 10);
+          if (!Number.isInteger(duration) || duration < 0 || duration > 1440) return json(env, { error: "invalid_duration" }, 400);
+          if (duration === 0) duration = null;
+        }
+        const planNote = clip(bodyData.planNote, 1000);
+        await env.DB.prepare("UPDATE appointments SET assigned_to=?1, duration_min=?2, plan_note=?3 WHERE id=?4")
+          .bind(assigned || null, duration, planNote || null, id).run();
+        await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,'Plang',?2,?3)")
+          .bind(id, me.username, clip([assigned ? "Mécanicien: " + assigned : "", duration ? "Dauer: " + duration + " min" : "", planNote ? "Notiz" : ""].filter(Boolean).join(" · "), 500)).run();
+        const staffRow = assigned ? await env.DB.prepare("SELECT name FROM users WHERE username = ?1").bind(assigned).first() : null;
+        return json(env, { ok: true, assignedTo: assigned || "", assignedName: staffRow ? (staffRow.name || assigned) : "", durationMin: duration == null ? "" : duration, planNote: planNote || "" });
       }
 
       /* ---- Bestätegung bewosst nei schécken, nëmme fir bestätegt Rendez-vous ---- */
