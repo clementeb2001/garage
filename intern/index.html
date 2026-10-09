@@ -321,6 +321,63 @@
         .b-actions .btn { min-height: 42px; }
       }
       @media print { .topbar, .testbar, .filters, .b-actions, .b-note-input, #btn-export, #btn-print, #btn-reset { display: none !important; } .booking { break-inside: avoid; } }
+
+      /* Professional administration shell */
+      .admin-mainbar { margin-left:236px; min-height:68px; padding:12px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; background:var(--surface); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:28; }
+      .admin-context strong { display:block; font-size:.94rem; } .admin-context span { color:var(--mut); font-size:.76rem; }
+      .admin-actions { display:flex; gap:8px; align-items:center; }
+      .admin-search { min-width:250px; text-align:left; color:var(--mut); background:var(--surface-2); border:1px solid var(--line); }
+      .admin-search kbd { float:right; border:1px solid var(--line); border-radius:5px; padding:0 5px; font-size:.7rem; }
+      .nav-section { padding:16px 14px 6px; color:#738398; font-size:.64rem; font-weight:900; text-transform:uppercase; letter-spacing:.12em; }
+      .nav-icon { width:23px; display:inline-flex; justify-content:center; font-size:1rem; }
+      .topbar { position:fixed; z-index:35; inset:0 auto 0 0; width:236px; padding:20px 12px 14px; display:flex; flex-direction:column; flex-wrap:nowrap; align-items:stretch; justify-content:flex-start; overflow-y:auto; box-shadow:8px 0 30px rgba(3,12,22,.08); }
+      .topbar .brand { min-height:52px; padding:0 8px 18px; border-bottom:1px solid rgba(255,255,255,.09); }
+      .topbar .brand img { height:38px; max-width:150px; object-fit:contain; }
+      .topbar .brand span { display:none; }
+      .topnav { display:flex; flex-direction:column; gap:4px; width:100%; padding-top:12px; }
+      .topnav button { width:100%; display:flex; align-items:center; gap:9px; min-height:44px; text-align:left; padding:10px 12px; border-radius:10px; font-size:.84rem; }
+      .topnav button.active { background:linear-gradient(100deg,rgba(230,57,70,.28),rgba(255,255,255,.09)); box-shadow:inset 3px 0 var(--accent); }
+      .topbar .who { margin-top:auto; padding:14px 6px 0; border-top:1px solid rgba(255,255,255,.09); flex-wrap:wrap; }
+      .topbar .bar-tools { display:none; }
+      .topbar .who #who-name { width:100%; display:block; color:#fff; font-weight:700; }
+      .wrap { max-width:1440px; margin-left:236px; padding:28px 28px 70px; }
+      .page-title { letter-spacing:-.02em; }
+      .view-intro { margin:2px 0 20px; color:var(--mut); font-size:.9rem; }
+      .request-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:18px 0; }
+      .request-summary .card { padding:15px; display:flex; gap:12px; align-items:center; }
+      .request-summary .metric { font-size:1.55rem; line-height:1; font-weight:900; }
+      .unified-list { display:grid; gap:10px; }
+      .unified-item { display:grid; grid-template-columns:42px minmax(0,1fr) auto; gap:12px; align-items:center; padding:14px 16px; background:var(--surface); border:1px solid var(--line); border-radius:13px; box-shadow:var(--shadow); }
+      .unified-item.is-new { border-left:4px solid var(--accent); }
+      .unified-kind { width:38px; height:38px; border-radius:10px; background:var(--surface-2); display:grid; place-items:center; }
+      .unified-title { font-weight:800; } .unified-meta { color:var(--mut); font-size:.8rem; margin-top:2px; }
+      .planner-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:16px 0; }
+      .planner-grid { display:grid; grid-template-columns:repeat(5,minmax(150px,1fr)); gap:10px; overflow-x:auto; padding-bottom:8px; }
+      .planner-day { min-height:340px; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px; }
+      .planner-day h3 { margin:0 0 10px; font-size:.84rem; color:var(--mut); text-transform:uppercase; letter-spacing:.04em; }
+      .planner-job { padding:10px; margin-bottom:8px; border-radius:9px; border-left:3px solid var(--accent); background:var(--surface-2); font-size:.8rem; }
+      .planner-job b { display:block; color:var(--fg); } .planner-job span { color:var(--mut); }
+      .system-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:18px; }
+      .system-grid .panel { margin:0; }
+      .health-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
+      .health-row:last-child { border:0; } .health-ok { color:var(--ok); font-weight:800; }
+      .mobile-nav-toggle { display:none; }
+
+      @media (max-width:900px) {
+        .admin-mainbar { margin-left:0; min-height:58px; padding:8px 12px; top:0; }
+        .admin-search { min-width:0; width:44px; overflow:hidden; white-space:nowrap; color:transparent; padding:9px 11px; }
+        .admin-search kbd { display:none; }
+        .mobile-nav-toggle { display:inline-flex; }
+        .topbar { transform:translateX(-105%); transition:transform .2s ease; width:min(286px,86vw); padding-top:calc(18px + env(safe-area-inset-top)); box-shadow:18px 0 45px rgba(0,0,0,.35); }
+        body.nav-open .topbar { transform:translateX(0); }
+        body.nav-open::after { content:""; position:fixed; z-index:30; inset:0; background:rgba(3,12,22,.55); }
+        .topnav { display:flex; grid-template-columns:none; overflow:visible; }
+        .topnav button { font-size:.86rem; min-height:43px; overflow:visible; }
+        .topbar .who { display:flex; }
+        .wrap { margin-left:0; padding:20px 14px 60px; }
+        .request-summary,.system-grid { grid-template-columns:1fr; }
+        .unified-item { grid-template-columns:38px minmax(0,1fr); } .unified-item .btn { grid-column:1/-1; }
+      }
       [hidden] { display: none !important; }
 
       /* ===== Installéiert App =====
@@ -667,6 +724,9 @@
         @page { size: A4; margin: 12mm; }
       }
       .crm-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}.crm-toolbar .booking-search{flex:1;margin:0;min-width:220px}.crm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.crm-card{padding:16px}.crm-card h3{margin:0 0 4px;font-size:1rem}.crm-meta{color:var(--mut);font-size:.82rem;overflow-wrap:anywhere}.crm-stats{display:flex;gap:12px;margin-top:10px;font-size:.78rem;font-weight:700}.crm-vehicles{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:.82rem}.crm-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:16px;margin:12px 0}.crm-form .field{margin:0}.crm-form .wide{grid-column:1/-1}.wo-board{display:grid;grid-template-columns:repeat(4,minmax(190px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}.wo-col{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:170px}.wo-col h3{font-size:.82rem;margin:2px 4px 10px;color:var(--mut)}.wo-card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:11px;margin-bottom:9px;box-shadow:var(--shadow)}.wo-card strong{display:block;font-size:.88rem}.wo-card small{display:block;color:var(--mut);margin-top:3px}.wo-card select{width:100%;margin-top:9px;font:inherit;font-size:.78rem;padding:6px;border:1px solid var(--line);border-radius:7px;background:var(--input-bg);color:var(--fg)}@media(max-width:680px){.crm-grid,.crm-form{grid-template-columns:1fr}.wo-board{grid-template-columns:repeat(4,78vw)}}
+      /* Must remain last: override the legacy compact header rules above. */
+      @media (min-width:901px){.topbar{display:flex;grid-template-columns:none}.topnav{display:flex;width:100%;margin:0;padding:12px 0 0;overflow:visible}.topnav button{flex:none}.topbar .who{display:flex}.admin-mainbar,.wrap{margin-left:236px}}
+      @media (max-width:900px){.topbar{display:flex;grid-template-columns:none;transform:translateX(-105%);width:min(286px,86vw);padding:calc(18px + env(safe-area-inset-top)) 12px 14px}.topbar .brand{display:flex}.topbar .brand img{height:38px;max-width:150px}.topnav{display:flex;flex-direction:column;width:100%;margin:0;padding:12px 0 0;overflow:visible}.topnav button{width:100%;flex:none;text-align:left;padding:10px 12px;font-size:.84rem}.topbar .who{display:flex}.admin-mainbar,.wrap{margin-left:0}body.nav-open .topbar{transform:translateX(0)}}
     </style>
   </head>
   <body>
@@ -689,14 +749,19 @@
       <div class="topbar">
         <div class="brand"><img src="../assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf" /><span>Interne Verwaltung</span></div>
         <nav class="topnav" id="topnav">
-          <button type="button" data-page="dashboard" class="active">Dashboard</button>
-          <button type="button" data-page="analyse">Analyse</button>
-          <button type="button" data-page="bookings">Reservatiounen <span id="nav-new-badge" class="nav-badge" hidden></span></button>
-          <button type="button" data-page="appointments">Rendez-vous <span id="nav-appt-badge" class="nav-badge" hidden></span></button>
-          <button type="button" data-page="inquiries">Produktufroen <span id="nav-inq-badge" class="nav-badge" hidden></span></button>
-          <button type="button" data-page="customers">Clienten</button>
-          <button type="button" data-page="workorders">Aarbechtsopträg</button>
-          <button type="button" data-page="wartung" id="nav-wartung">Flotte</button>
+          <button type="button" data-page="dashboard" class="active"><span class="nav-icon">⌂</span>Dashboard</button>
+          <button type="button" data-page="requests"><span class="nav-icon">▣</span>Ufroen <span id="nav-request-badge" class="nav-badge" hidden></span><span id="nav-new-badge" hidden></span><span id="nav-appt-badge" hidden></span><span id="nav-inq-badge" hidden></span></button>
+          <button type="button" data-page="planner"><span class="nav-icon">▦</span>Werkstatt-Planer</button>
+          <div class="nav-section">Garage</div>
+          <button type="button" data-page="customers"><span class="nav-icon">♙</span>Clienten &amp; Gefierer</button>
+          <button type="button" data-page="workorders"><span class="nav-icon">◫</span>Aarbechtsopträg</button>
+          <button type="button" data-page="wartung" id="nav-wartung"><span class="nav-icon">⌁</span>Flott</button>
+          <button type="button" data-page="bookings"><span class="nav-icon">▤</span>Locatiounsdossieren</button>
+          <div class="nav-section">Steierung</div>
+          <button type="button" data-page="analyse"><span class="nav-icon">↗</span>Analyse</button>
+          <button type="button" data-page="system"><span class="nav-icon">⚙</span>Astellungen</button>
+          <button type="button" data-page="appointments" hidden>Rendez-vous</button>
+          <button type="button" data-page="inquiries" hidden>Produktufroen</button>
           <button type="button" data-page="members" id="nav-members" hidden>Memberen</button>
         </nav>
         <div class="who">
@@ -706,6 +771,37 @@
             <button class="iconbtn" id="btn-theme" type="button" title="Hell / Däischter" aria-label="Theme wiesselen">🌙</button>
           </div>
           <span id="who-name"></span><button class="btn btn-ghost" id="btn-pw" type="button" title="Passwuert änneren" aria-label="Passwuert änneren">Passwuert</button><button class="btn btn-ghost" id="btn-logout" type="button" title="Ausloggen" aria-label="Ausloggen">Ausloggen</button>
+        </div>
+      </div>
+
+      <header class="admin-mainbar">
+        <div style="display:flex;align-items:center;gap:10px"><button class="btn btn-outline mobile-nav-toggle" id="mobile-nav-toggle" type="button" aria-label="Navigatioun opmaachen">☰</button><div class="admin-context"><strong id="admin-section-title">Dashboard</strong><span>Autoservice Bettenduerf · intern</span></div></div>
+        <div class="admin-actions"><button class="btn admin-search" id="admin-search" type="button">🔍 Global sichen <kbd>⌘K</kbd></button><button class="iconbtn" id="admin-theme" type="button" aria-label="Theme wiesselen">🌙</button></div>
+      </header>
+
+      <div class="wrap" id="page-requests" hidden>
+        <div class="page-head"><h2 class="page-title">Ufroen</h2><span class="muted" id="requests-updated"></span></div>
+        <p class="view-intro">All nei Reservatiounen, Rendez-vousen a Produktufroen an enger zentraler Inbox.</p>
+        <div class="request-summary" id="request-summary"></div>
+        <div class="filters" id="request-filters"><button class="chip active" data-rfilter="all">Alles</button><button class="chip" data-rfilter="booking">Locatioun</button><button class="chip" data-rfilter="appointment">Rendez-vous</button><button class="chip" data-rfilter="inquiry">Produkter</button></div>
+        <div class="unified-list" id="request-list"></div>
+      </div>
+
+      <div class="wrap" id="page-planner" hidden>
+        <div class="page-head"><h2 class="page-title">Werkstatt-Planer</h2><button class="btn btn-primary btn-sm" id="planner-new" type="button">+ Rendez-vous</button></div>
+        <p class="view-intro">Déi confirméiert Werkstattaarbechten als kloer Wocheniwwersiicht.</p>
+        <div class="planner-toolbar"><button class="btn btn-outline btn-sm" id="planner-prev" type="button">← Vireg Woch</button><strong id="planner-label"></strong><button class="btn btn-outline btn-sm" id="planner-next" type="button">Nächst Woch →</button></div>
+        <div class="planner-grid" id="planner-grid"></div>
+      </div>
+
+      <div class="wrap" id="page-system" hidden>
+        <div class="page-head"><h2 class="page-title">Astellungen &amp; System</h2><span class="status status-confirmed">Sécher intern</span></div>
+        <p class="view-intro">Systemzoustand, Datensécherung an Zougrëffsverwaltung op enger Plaz.</p>
+        <div class="system-grid">
+          <section class="panel"><h3>Systemzoustand</h3><div class="health-row"><span>Admin-API</span><b class="health-ok">● Online</b></div><div class="health-row"><span>D1-Datebank</span><b class="health-ok">● Verbonnen</b></div><div class="health-row"><span>Sessioun</span><b id="system-session">Aktiv</b></div></section>
+          <section class="panel"><div class="panel-head"><h3>Datensécherungen</h3><button class="btn btn-primary btn-sm" id="backup-run" type="button">Backup elo</button></div><p class="muted" style="font-size:.82rem">Automatesch Backupe bleiwen 14 Deeg erhalen.</p><div id="backup-list"></div></section>
+          <section class="panel"><h3>Kont &amp; Sécherheet</h3><p class="muted" style="font-size:.84rem">Passwuert an Zougrëffsmemberen verwalten.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" id="system-pw" type="button">Passwuert änneren</button><button class="btn btn-outline btn-sm" id="system-members" type="button">Memberen</button></div></section>
+          <section class="panel"><h3>Applikatioun</h3><p class="muted" style="font-size:.84rem">Installéierbar PWA mat Offline-Shell. Geschäftsdonnéeë ginn ëmmer live vum Server gelueden.</p><button class="btn btn-outline btn-sm" id="system-install" type="button">App installéieren</button></section>
         </div>
       </div>
 
@@ -908,7 +1004,7 @@
       <!-- Bookings page -->
       <div class="wrap" id="page-bookings">
         <div class="page-head">
-          <h2 class="page-title">Reservatiounen</h2>
+          <h2 class="page-title">Locatiounsdossieren</h2>
           <div style="display:flex;gap:8px">
             <button class="btn btn-outline btn-sm" id="btn-export" type="button">⭳ Export (CSV)</button>
             <button class="btn btn-outline btn-sm" id="btn-print" type="button">🖨 Drécken</button>
@@ -991,6 +1087,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=79"></script>
+    <script src="intern.js?v=80"></script>
   </body>
 </html>

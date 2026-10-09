@@ -106,6 +106,8 @@
     listWorkOrders: function(){return api("/work-orders").then(function(r){if(r.status!==200)throw new Error(r.body.error||"server_error");return r.body.orders||[];});},
     addWorkOrder: function(p){return api("/work-orders",{method:"POST",body:p}).then(function(r){return r.status===200?{ok:true,id:r.body.id,reference:r.body.reference}:{error:r.body.error};});},
     updateWorkOrder: function(id,p){return api("/work-orders/"+id,{method:"POST",body:p}).then(function(r){return r.status===200?{ok:true}:{error:r.body.error};});},
+    listBackups: function(){return api("/backups").then(function(r){if(r.status!==200)throw new Error(r.body.error||"server_error");return r.body.backups||[];});},
+    runBackup: function(){return api("/backup/run",{method:"POST",body:{}}).then(function(r){return r.status===200?{ok:true,key:r.body.key,bytes:r.body.bytes}:{error:r.body.error};});},
   };
 
   var bookingListCache = null, requestListCache = null;
@@ -140,7 +142,11 @@
     if (p !== "members") editingMember = null;
     if (p !== "bookings") editingBooking = null;
     activePage = p;
+    document.body.classList.remove("nav-open");
     $("page-dashboard").hidden = p !== "dashboard";
+    $("page-requests").hidden = p !== "requests";
+    $("page-planner").hidden = p !== "planner";
+    $("page-system").hidden = p !== "system";
     $("page-analyse").hidden = p !== "analyse";
     $("page-bookings").hidden = p !== "bookings";
     $("page-appointments").hidden = p !== "appointments";
@@ -150,8 +156,13 @@
     $("page-wartung").hidden = p !== "wartung";
     $("page-members").hidden = p !== "members";
     $("page-pw").hidden = p !== "pw";
+    var titles={dashboard:"Dashboard",requests:"Ufroen",planner:"Werkstatt-Planer",customers:"Clienten & Gefierer",workorders:"Aarbechtsopträg",wartung:"Flott",bookings:"Locatiounsdossieren",analyse:"Analyse",system:"Astellungen & System",appointments:"Rendez-vous",inquiries:"Produktufroen",members:"Memberen",pw:"Passwuert änneren"};
+    if ($("admin-section-title")) $("admin-section-title").textContent=titles[p]||"Verwaltung";
     document.querySelectorAll("#topnav button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-page") === p); });
     if (p === "dashboard") renderDashboard();
+    else if (p === "requests") renderRequests();
+    else if (p === "planner") renderPlanner();
+    else if (p === "system") renderSystem();
     else if (p === "analyse") renderAnalyse();
     else if (p === "bookings") renderBookings();
     else if (p === "appointments") renderAppointments();
@@ -174,6 +185,9 @@
   });
   $("btn-logout").addEventListener("click", function () { STORE.logout().catch(function () {}).then(function () { session = null; showLogin(); }); });
   document.querySelectorAll("#topnav button").forEach(function (b) { b.addEventListener("click", function () { gotoPage(b.getAttribute("data-page")); }); });
+  if ($("mobile-nav-toggle")) $("mobile-nav-toggle").addEventListener("click",function(){document.body.classList.toggle("nav-open");});
+  if ($("admin-search")) $("admin-search").addEventListener("click",function(){if ($("btn-search")) $("btn-search").click();});
+  if ($("admin-theme")) $("admin-theme").addEventListener("click",function(){if ($("btn-theme")) $("btn-theme").click();});
   var searchEl = $("booking-search"); if (searchEl) searchEl.addEventListener("input", function () { bookingQuery = searchEl.value.trim(); renderBookings(true); });
   var apptSearchEl = $("appt-search"); if (apptSearchEl) apptSearchEl.addEventListener("input", function () { reqState.appointment.query = apptSearchEl.value.trim(); renderReq("appointment", true); });
   var inqSearchEl = $("inq-search"); if (inqSearchEl) inqSearchEl.addEventListener("input", function () { reqState.inquiry.query = inqSearchEl.value.trim(); renderReq("inquiry", true); });
@@ -707,7 +721,9 @@
     STORE.editBooking(id, patch).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } editingBooking = null; toast("Reservatioun " + refOf(id) + " geännert."); renderBookings(); });
   }
   function matchQuery(b) { if (!bookingQuery) return true; var q = bookingQuery.toLowerCase(); return (refOf(b.id) + " " + (b.veh || "") + " " + (b.name || "") + " " + (b.email || "") + " " + (b.phone || "")).toLowerCase().indexOf(q) !== -1; }
-  function updateNewBadge(bk) { var badge = $("nav-new-badge"); if (!badge) return; var n = bk.filter(function (b) { return b.status === "new"; }).length; badge.textContent = n; badge.hidden = n === 0; }
+  var navNewCounts={booking:0,appointment:0,inquiry:0};
+  function refreshUnifiedBadge(){var badge=$("nav-request-badge");if(!badge)return;var n=navNewCounts.booking+navNewCounts.appointment+navNewCounts.inquiry;badge.textContent=n;badge.hidden=n===0;}
+  function updateNewBadge(bk) { var badge = $("nav-new-badge"), n = bk.filter(function (b) { return b.status === "new"; }).length; navNewCounts.booking=n;refreshUnifiedBadge();if(!badge)return;badge.textContent=n;badge.hidden=n===0; }
 
   /* ---------- Ufroen: Rendez-vous + Produktufroen (gemeinsamt Backend) ---------- */
   var REQCFG = {
@@ -716,7 +732,7 @@
   };
   var reqState = { appointment: { filter: "all", query: "" }, inquiry: { filter: "all", query: "" } };
   function reqRef(kind, id) { return REQCFG[kind].ref + (id >= 1000 ? id : id + 1000); }
-  function updateReqBadge(kind, all) { var badge = $(REQCFG[kind].badge); if (!badge) return; var n = all.filter(function (a) { return (a.kind || "appointment") === kind && a.status === "new"; }).length; badge.textContent = n; badge.hidden = n === 0; }
+  function updateReqBadge(kind, all) { var badge = $(REQCFG[kind].badge), n = all.filter(function (a) { return (a.kind || "appointment") === kind && a.status === "new"; }).length; navNewCounts[kind]=n;refreshUnifiedBadge();if(!badge)return;badge.textContent=n;badge.hidden=n===0; }
   function reqMatch(kind, a) { var q = reqState[kind].query; if (!q) return true; q = q.toLowerCase(); return (reqRef(kind, a.id) + " " + (a.service || "") + " " + (a.vehicle || "") + " " + (a.name || "") + " " + (a.email || "") + " " + (a.phone || "")).toLowerCase().indexOf(q) !== -1; }
   function renderReqFilters(kind, items) {
     var c = { all: items.length, new: 0, confirmed: 0, declined: 0, done: 0 };
@@ -933,6 +949,53 @@
     else if (t.page === "appointments") { reqState.appointment.filter = t.filter; gotoPage("appointments"); }
     else if (t.page) { gotoPage(t.page); }
   }
+
+  /* ---------- Central inbox, workshop planner and system ---------- */
+  var unifiedFilter="all", plannerMonday=startOfWeek(new Date());
+  function unifiedItems(bookings,appointments){
+    var items=[];
+    (bookings||[]).forEach(function(b){items.push({kind:"booking",icon:"🚐",status:b.status||"new",id:b.id,title:b.veh||"Locatioun",name:b.name||"",meta:dLabel(b.from)+" → "+dLabel(b.to),created:b.created||b.from,page:"bookings"});});
+    (appointments||[]).forEach(function(a){var kind=(a.kind||"appointment")==="inquiry"?"inquiry":"appointment";items.push({kind:kind,icon:kind==="inquiry"?"🛒":"🔧",status:a.status||"new",id:a.id,title:a.service||(kind==="inquiry"?"Produktufro":"Rendez-vous"),name:a.name||"",meta:(a.vehicle?a.vehicle+" · ":"")+(a.prefDate||"")+(a.daytime?" "+a.daytime:""),created:a.created||a.prefDate,page:kind==="inquiry"?"inquiries":"appointments"});});
+    return items.sort(function(a,b){return String(b.created||"").localeCompare(String(a.created||""));});
+  }
+  function renderRequests(){
+    Promise.all([STORE.listBookings(),STORE.listAppointments()]).then(function(res){
+      var items=unifiedItems(res[0],res[1]), fresh=items.filter(function(x){return x.status==="new";});
+      var defs=[{k:"booking",i:"🚐",l:"Locatioun"},{k:"appointment",i:"🔧",l:"Rendez-vous"},{k:"inquiry",i:"🛒",l:"Produktufroen"}];
+      $("request-summary").innerHTML=defs.map(function(d){var n=fresh.filter(function(x){return x.kind===d.k;}).length;return '<div class="card"><span class="unified-kind">'+d.i+'</span><div><div class="metric">'+n+'</div><div class="muted">Nei '+d.l+'</div></div></div>';}).join("");
+      var total=fresh.length,badge=$("nav-request-badge");if(badge){badge.textContent=total;badge.hidden=!total;}
+      $("requests-updated").textContent="Aktualiséiert · "+new Date().toLocaleTimeString("lb-LU",{hour:"2-digit",minute:"2-digit"});
+      var shown=items.filter(function(x){return unifiedFilter==="all"||x.kind===unifiedFilter;});
+      $("request-list").innerHTML=shown.length?shown.map(function(x,i){return '<article class="unified-item '+(x.status==="new"?"is-new":"")+'"><span class="unified-kind">'+x.icon+'</span><div><div class="unified-title">'+esc(x.title)+' <span class="status status-'+esc(x.status)+'">'+esc(STATUS[x.status]||x.status)+'</span></div><div class="unified-meta">'+esc(x.name)+(x.meta?' · '+esc(x.meta):'')+'</div></div><button class="btn btn-outline btn-sm" data-open-request="'+i+'">Opmaachen →</button></article>';}).join(""):'<div class="empty">Keng Ufroen an dëser Kategorie.</div>';
+      $("request-list").querySelectorAll("[data-open-request]").forEach(function(btn){btn.addEventListener("click",function(){var x=shown[Number(btn.dataset.openRequest)];if(x.kind==="booking")activeFilter=x.status;else reqState[x.kind].filter=x.status;gotoPage(x.page);});});
+    }).catch(function(){$("request-list").innerHTML='<div class="empty">⚠ Ufroe konnten net geluede ginn. <button class="btn btn-outline btn-sm" id="requests-retry">Nei probéieren</button></div>';if($("requests-retry"))$("requests-retry").addEventListener("click",renderRequests);});
+  }
+  document.querySelectorAll("[data-rfilter]").forEach(function(btn){btn.addEventListener("click",function(){unifiedFilter=btn.dataset.rfilter;document.querySelectorAll("[data-rfilter]").forEach(function(b){b.classList.toggle("active",b===btn);});renderRequests();});});
+
+  function renderPlanner(){
+    STORE.listAppointments().then(function(all){
+      var days=[],names=["Méindeg","Dënschdeg","Mëttwoch","Donneschdeg","Freideg"];
+      for(var i=0;i<5;i++){var d=new Date(plannerMonday);d.setDate(d.getDate()+i);days.push(d);}
+      $("planner-label").textContent=dLabel(days[0])+" – "+dLabel(days[4]);
+      var ap=(all||[]).filter(function(a){return (a.kind||"appointment")==="appointment"&&a.status!=="declined";});
+      $("planner-grid").innerHTML=days.map(function(day,i){var key=day.toISOString().slice(0,10),jobs=ap.filter(function(a){var d=apptDay(a);return d&&d.toISOString().slice(0,10)===key;}).sort(function(a,b){return String(a.daytime||"").localeCompare(String(b.daytime||""));});return '<section class="planner-day"><h3>'+names[i]+' · '+day.toLocaleDateString("lb-LU",{day:"2-digit",month:"2-digit"})+'</h3>'+(jobs.length?jobs.map(function(a){return '<div class="planner-job"><b>'+esc(a.daytime||"Auerzäit op")+' · '+esc(a.service||"Rendez-vous")+'</b><span>'+esc(a.name||"")+(a.vehicle?' · '+esc(a.vehicle):'')+(a.assignedTo?' · '+esc(staffName(a.assignedTo)):'')+'</span></div>';}).join(""):'<p class="muted" style="font-size:.78rem">Fräi</p>')+'</section>';}).join("");
+    }).catch(function(){$("planner-grid").innerHTML='<div class="empty">⚠ Planer konnt net geluede ginn.</div>';});
+  }
+  $("planner-prev").addEventListener("click",function(){plannerMonday.setDate(plannerMonday.getDate()-7);renderPlanner();});
+  $("planner-next").addEventListener("click",function(){plannerMonday.setDate(plannerMonday.getDate()+7);renderPlanner();});
+  $("planner-new").addEventListener("click",function(){reqState.appointment.filter="all";gotoPage("appointments");});
+
+  function renderSystem(){
+    $("system-session").textContent=session?session.name+" · "+roleLabel(session.role):"Aktiv";
+    $("system-members").hidden=!can("members.manage");$("backup-run").hidden=!can("members.manage");
+    if(!can("members.manage")){ $("backup-list").innerHTML='<p class="muted" style="font-size:.82rem">Nëmmen Admins gesinn d’Backuplëscht.</p>';return; }
+    $("backup-list").innerHTML='<p class="muted">Luet …</p>';
+    STORE.listBackups().then(function(items){$("backup-list").innerHTML=items.length?items.slice(0,5).map(function(b){return '<div class="health-row"><span>'+esc(String(b.key).split("/").pop())+'</span><span class="muted">'+Math.round((b.size||0)/1024)+' KB</span></div>';}).join(""):'<p class="muted" style="font-size:.82rem">Nach kee Backup fonnt.</p>';}).catch(function(){$("backup-list").innerHTML='<p class="muted" style="font-size:.82rem">Backuplëscht momentan net verfügbar.</p>';});
+  }
+  $("backup-run").addEventListener("click",function(){var b=$("backup-run");b.disabled=true;b.textContent="Backup leeft …";STORE.runBackup().then(function(r){b.disabled=false;b.textContent="Backup elo";if(r.error){toast(errMsg(r.error));return;}toast("Backup erfollegräich ugeluecht.");renderSystem();});});
+  $("system-pw").addEventListener("click",function(){openPw(false);});
+  $("system-members").addEventListener("click",function(){gotoPage("members");});
+  $("system-install").addEventListener("click",function(){if($("btn-install"))$("btn-install").click();});
 
   function renderDashboard() {
     Promise.all([
