@@ -1020,6 +1020,25 @@ export default {
         return json(env, { staff: us.map((u) => ({ username: u.username, name: u.name || u.username, role: u.role })) });
       }
 
+      /* ---- Betribsastellungen: Ëffnungszäiten + Standard-Dauer (viewer liest, admin schreift) ---- */
+      if (path === "/settings" && method === "GET") {
+        if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
+        const rows = (await env.DB.prepare("SELECT key, value FROM admin_settings").all()).results || [];
+        const settings = {}; rows.forEach((r) => { settings[r.key] = r.value; });
+        return json(env, { settings });
+      }
+      if (path === "/settings" && method === "POST") {
+        if (!hasPerm(me.role, "members.manage")) return json(env, { error: "forbidden" }, 403);
+        const openFrom = clip(bodyData.openFrom, 5).trim(), openTo = clip(bodyData.openTo, 5).trim();
+        const dur = parseInt(bodyData.defaultDuration, 10), timeRe = /^([01]\d|2[0-3]):[0-5]\d$/;
+        if (!timeRe.test(openFrom) || !timeRe.test(openTo)) return json(env, { error: "invalid_time" }, 400);
+        if (openFrom >= openTo) return json(env, { error: "invalid_range" }, 400);
+        if (!Number.isInteger(dur) || dur < 15 || dur > 600) return json(env, { error: "invalid_duration" }, 400);
+        const entries = [["open_from", openFrom], ["open_to", openTo], ["default_duration", String(dur)]];
+        await env.DB.batch(entries.map(([k, v]) => env.DB.prepare("INSERT INTO admin_settings (key,value,updated_at,updated_by) VALUES (?1,?2,CURRENT_TIMESTAMP,?3) ON CONFLICT(key) DO UPDATE SET value=?2,updated_at=CURRENT_TIMESTAMP,updated_by=?3").bind(k, v, me.username)));
+        return json(env, { ok: true });
+      }
+
       /* ---- Rendez-vous plangen: Mécanicien + Dauer + Notiz (validator+, keng Mail) ---- */
       m = path.match(/^\/appointments\/(\d+)\/plan$/);
       if (m && method === "POST") {

@@ -845,6 +845,7 @@
         <p class="view-intro">Systemzoustand, Datensécherung an Zougrëffsverwaltung op enger Plaz.</p>
         <div class="system-grid">
           <section class="panel"><h3>Systemzoustand</h3><div class="health-row"><span>Admin-API</span><b class="health-ok">● Online</b></div><div class="health-row"><span>D1-Datebank</span><b class="health-ok">● Verbonnen</b></div><div class="health-row"><span>Sessioun</span><b id="system-session">Aktiv</b></div></section>
+          <section class="panel" id="settings-panel" hidden><div class="panel-head"><h3>Betribsastellungen</h3></div><p class="muted" style="font-size:.82rem">Ëffnungszäiten a Standard-Dauer fir de Werkstatt-Kalenner.</p><form id="settings-form" class="detail-form"><div class="field"><label for="set-open-from">Op vu</label><input id="set-open-from" type="time" step="900"></div><div class="field"><label for="set-open-to">Op bis</label><input id="set-open-to" type="time" step="900"></div><div class="field wide"><label for="set-default-duration">Standard-Dauer vun engem Rendez-vous (Minutten)</label><input id="set-default-duration" type="number" min="15" max="600" step="15"></div><div class="wide"><button class="btn btn-primary btn-sm" type="submit">Astellunge späicheren</button></div></form></section>
           <section class="panel"><div class="panel-head"><h3>Datensécherungen</h3><button class="btn btn-primary btn-sm" id="backup-run" type="button">Backup elo</button></div><p class="muted" style="font-size:.82rem">Automatesch Backupe bleiwen 14 Deeg erhalen.</p><div id="backup-list"></div></section>
           <section class="panel"><h3>Kont &amp; Sécherheet</h3><p class="muted" style="font-size:.84rem">Passwuert an Zougrëffsmemberen verwalten.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" id="system-pw" type="button">Passwuert änneren</button><button class="btn btn-outline btn-sm" id="system-members" type="button">Memberen</button></div></section>
           <section class="panel"><h3>Applikatioun</h3><p class="muted" style="font-size:.84rem">Installéierbar PWA mat Offline-Shell. Geschäftsdonnéeë ginn ëmmer live vum Server gelueden.</p><button class="btn btn-outline btn-sm" id="system-install" type="button">App installéieren</button></section>
@@ -1138,6 +1139,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=84"></script>
+    <script src="intern.js?v=85"></script>
   </body>
 </html>

@@ -84,6 +84,8 @@
     setApptStatus: function (id, status, note, date, time) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime, unchanged: r.body.unchanged, mailQueued: r.body.mailQueued } : { error: r.body.error }; }); },
     resendApptConfirmation: function (id, date, time) { return api("/appointments/" + id + "/confirmation-email", { method: "POST", body: { date: date, time: time } }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
     listStaff: function () { return api("/staff").then(function (r) { return r.status === 200 ? (r.body.staff || []) : []; }); },
+    listSettings: function () { return api("/settings").then(function (r) { return r.status === 200 ? (r.body.settings || {}) : {}; }); },
+    saveSettings: function (p) { return api("/settings", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     setApptPlan: function (id, p) { return api("/appointments/" + id + "/plan", { method: "POST", body: { assigned: p.assigned || "", duration: p.duration === "" || p.duration == null ? "" : p.duration, planNote: p.planNote || "" } }).then(function (r) { return r.status === 200 ? { ok: true, assignedTo: r.body.assignedTo, assignedName: r.body.assignedName, durationMin: r.body.durationMin, planNote: r.body.planNote } : { error: r.body.error }; }); },
     delAppt: function (id) { return api("/appointments/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listApptBlocks: function () { return api("/appointment-blocks", { method: "GET" }).then(function (r) { return r.status === 200 ? (r.body.blocks || []) : []; }); },
@@ -118,6 +120,9 @@
   var staffList = [], staffLoaded = false;
   function ensureStaff() { if (staffLoaded) return Promise.resolve(staffList); return STORE.listStaff().then(function (s) { staffList = s || []; staffLoaded = true; return staffList; }, function () { staffList = []; return staffList; }); }
   function staffName(username) { if (!username) return ""; var hit = staffList.filter(function (u) { return u.username === username; })[0]; return hit ? hit.name : username; }
+  var adminSettings = { open_from: "07:00", open_to: "19:00", default_duration: "60" }, settingsLoaded = false;
+  function ensureSettings() { if (settingsLoaded) return Promise.resolve(adminSettings); return STORE.listSettings().then(function (s) { Object.keys(s || {}).forEach(function (k) { if (s[k]) adminSettings[k] = s[k]; }); settingsLoaded = true; return adminSettings; }, function () { return adminSettings; }); }
+  function defaultDurationMin() { var d = parseInt(adminSettings.default_duration, 10); return (Number.isInteger(d) && d > 0) ? d : 60; }
   var STORE = liveStore;
   var session = null;
   function can(perm) { return !!(session && ROLES[session.role] && ROLES[session.role].perms.indexOf(perm) !== -1); }
@@ -833,7 +838,8 @@
     var planBlock = "";
     if (canPlan) {
       var mechOpts = '<option value="">— Keen Mécanicien —</option>' + staffList.map(function (u) { return '<option value="' + esc(u.username) + '"' + (u.username === a.assignedTo ? " selected" : "") + ">" + esc(u.name) + "</option>"; }).join("");
-      var durOpts = '<option value="">— Dauer —</option>' + DUR_OPTIONS.map(function (mm) { return '<option value="' + mm + '"' + (String(mm) === String(a.durationMin) ? " selected" : "") + ">" + durLabel(mm) + "</option>"; }).join("");
+      var selDur = (a.durationMin !== "" && a.durationMin != null) ? String(a.durationMin) : String(defaultDurationMin());
+      var durOpts = '<option value="">— Dauer —</option>' + DUR_OPTIONS.map(function (mm) { return '<option value="' + mm + '"' + (String(mm) === selDur ? " selected" : "") + ">" + durLabel(mm) + "</option>"; }).join("");
       planBlock = '<div class="appt-plan">'
         + '<div class="appt-plan-h">🔧 Planung</div>'
         + '<div class="appt-plan-row">'
@@ -1010,13 +1016,16 @@
   function renderSystem(){
     $("system-session").textContent=session?session.name+" · "+roleLabel(session.role):"Aktiv";
     $("system-members").hidden=!can("members.manage");$("backup-run").hidden=!can("members.manage");
-    if(!can("members.manage")){ $("backup-list").innerHTML='<p class="muted" style="font-size:.82rem">Nëmmen Admins gesinn d’Backuplëscht.</p>';return; }
+    if(!can("members.manage")){ $("settings-panel").hidden=true; $("backup-list").innerHTML='<p class="muted" style="font-size:.82rem">Nëmmen Admins gesinn d’Backuplëscht.</p>';return; }
+    $("settings-panel").hidden=false;
+    ensureSettings().then(function(s){$("set-open-from").value=s.open_from||"07:00";$("set-open-to").value=s.open_to||"19:00";$("set-default-duration").value=s.default_duration||"60";});
     $("backup-list").innerHTML='<p class="muted">Luet …</p>';
     STORE.listBackups().then(function(items){$("backup-list").innerHTML=items.length?items.slice(0,5).map(function(b){return '<div class="health-row"><span>'+esc(String(b.key).split("/").pop())+'</span><span class="muted">'+Math.round((b.size||0)/1024)+' KB</span></div>';}).join(""):'<p class="muted" style="font-size:.82rem">Nach kee Backup fonnt.</p>';}).catch(function(){$("backup-list").innerHTML='<p class="muted" style="font-size:.82rem">Backuplëscht momentan net verfügbar.</p>';});
   }
   $("backup-run").addEventListener("click",function(){var b=$("backup-run");b.disabled=true;b.textContent="Backup leeft …";STORE.runBackup().then(function(r){b.disabled=false;b.textContent="Backup elo";if(r.error){toast(errMsg(r.error));return;}toast("Backup erfollegräich ugeluecht.");renderSystem();});});
   $("system-pw").addEventListener("click",function(){openPw(false);});
   $("system-members").addEventListener("click",function(){gotoPage("members");});
+  $("settings-form").addEventListener("submit",function(e){e.preventDefault();if(!can("members.manage"))return;var from=$("set-open-from").value,to=$("set-open-to").value,dur=$("set-default-duration").value;STORE.saveSettings({openFrom:from,openTo:to,defaultDuration:dur}).then(function(r){if(r.error){toast(errMsg(r.error));return;}adminSettings.open_from=from;adminSettings.open_to=to;adminSettings.default_duration=dur;settingsLoaded=true;toast("Betribsastellunge gespäichert.");});});
   $("system-install").addEventListener("click",function(){if($("btn-install"))$("btn-install").click();});
 
   function renderDashboard() {
@@ -1026,6 +1035,7 @@
       STORE.listMaintenance().then(function (v) { return v; }, function () { return []; }),
       STORE.listApptBlocks().then(function (v) { return v; }, function () { return []; }),
       ensureStaff().then(function (v) { return v; }, function () { return []; }),
+      ensureSettings().then(function (v) { return v; }, function () { return adminSettings; }),
     ]).then(function (res) {
       var bk = res[0], ap = res[1];
       if (bk === null && ap === null) { throw new Error("load_failed"); }
@@ -1301,13 +1311,13 @@
     var scheduled = [], unscheduled = [];
     dayAppts.forEach(function (a) {
       var tm = (a.status === "confirmed" && a.confirmedTime) ? a.confirmedTime : "";
-      if (/^([01]\d|2[0-3]):[0-5]\d$/.test(tm)) { var start = hhmmToMin(tm), dur = Number(a.durationMin) || 60; scheduled.push({ a: a, start: start, end: start + dur, dur: dur }); }
+      if (/^([01]\d|2[0-3]):[0-5]\d$/.test(tm)) { var start = hhmmToMin(tm), dur = Number(a.durationMin) || defaultDurationMin(); scheduled.push({ a: a, start: start, end: start + dur, dur: dur }); }
       else unscheduled.push(a);
     });
 
     // ---- Dagesplang (Stonne-Timeline — ëmmer siichtbar, och op fräien Deeg) ----
     var amB = isSlotBlocked(dkey, "am"), pmB = isSlotBlocked(dkey, "pm"), closedB = isSlotBlocked(dkey, "closed");
-    var minStart = 420, maxEnd = 1140, NOON = 720;
+    var minStart = hhmmToMin(adminSettings.open_from || "07:00"), maxEnd = hhmmToMin(adminSettings.open_to || "19:00"), NOON = 720;
     scheduled.forEach(function (s) { minStart = Math.min(minStart, s.start); maxEnd = Math.max(maxEnd, s.end); });
     var winStart = Math.floor(minStart / 60) * 60, winEnd = Math.ceil(maxEnd / 60) * 60;
     var PXMIN = 0.92, gridH = (winEnd - winStart) * PXMIN;
