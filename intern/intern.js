@@ -779,7 +779,7 @@
     });
   }
   function reqCard(kind, a) {
-    var el = document.createElement("div"); el.className = "booking" + (a.status === "new" ? " is-new" : "");
+    var el = document.createElement("div"); el.className = "booking" + (a.status === "new" ? " is-new" : ""); el.id = "req-" + kind + "-" + a.id;
     var canVal = can("bookings.validate"), isAdmin = can("members.manage"), actions = "", nid = "rnote-" + kind + "-" + a.id;
     var apptSched = function (prefillTime) {
       if (kind !== "appointment") return "";
@@ -1167,6 +1167,17 @@
     });
   }
 
+  function focusAppointment(id) {
+    $("daypop").hidden = true;
+    reqState.appointment.filter = "all";
+    gotoPage("appointments");
+    var tries = 0;
+    (function seek() {
+      var card = document.getElementById("req-appointment-" + id);
+      if (card) { card.scrollIntoView({ behavior: "smooth", block: "center" }); card.classList.add("flash"); setTimeout(function () { card.classList.remove("flash"); }, 1800); }
+      else if (tries++ < 25) setTimeout(seek, 120);
+    })();
+  }
   function openDay(dkey) {
     var day = parseDay(dkey); if (!day) return; var dMs = day.getTime();
     var cmap = vehColorMap(dashActive);
@@ -1188,33 +1199,47 @@
       else unscheduled.push(a);
     });
 
-    // ---- Dagesplang (Stonne-Timeline, Rendez-vousen no Auerzäit + Dauer) ----
-    var scheduleHtml = "";
-    if (scheduled.length) {
-      var minStart = 420, maxEnd = 1140;
-      scheduled.forEach(function (s) { minStart = Math.min(minStart, s.start); maxEnd = Math.max(maxEnd, s.end); });
-      var winStart = Math.floor(minStart / 60) * 60, winEnd = Math.ceil(maxEnd / 60) * 60;
-      var PXMIN = 0.92, gridH = (winEnd - winStart) * PXMIN;
-      scheduled.sort(function (x, y) { return x.start - y.start || x.end - y.end; });
+    // ---- Dagesplang (Stonne-Timeline — ëmmer siichtbar, och op fräien Deeg) ----
+    var amB = isSlotBlocked(dkey, "am"), pmB = isSlotBlocked(dkey, "pm"), closedB = isSlotBlocked(dkey, "closed");
+    var minStart = 420, maxEnd = 1140, NOON = 720;
+    scheduled.forEach(function (s) { minStart = Math.min(minStart, s.start); maxEnd = Math.max(maxEnd, s.end); });
+    var winStart = Math.floor(minStart / 60) * 60, winEnd = Math.ceil(maxEnd / 60) * 60;
+    var PXMIN = 0.92, gridH = (winEnd - winStart) * PXMIN;
+    // Spalten fir Iwwerschneidungen (pro Iwwerschneidungs-Cluster)
+    scheduled.sort(function (x, y) { return x.start - y.start || x.end - y.end; });
+    (function () {
       var clusters = [], cur = [], curEnd = -1;
       scheduled.forEach(function (s) { if (cur.length && s.start >= curEnd) { clusters.push(cur); cur = []; curEnd = -1; } cur.push(s); curEnd = Math.max(curEnd, s.end); });
       if (cur.length) clusters.push(cur);
       clusters.forEach(function (cl) { var lanes = []; cl.forEach(function (s) { var placed = false; for (var i = 0; i < lanes.length; i++) { if (s.start >= lanes[i]) { s.col = i; lanes[i] = s.end; placed = true; break; } } if (!placed) { s.col = lanes.length; lanes.push(s.end); } }); cl.forEach(function (s) { s.cols = lanes.length; }); });
-      var hoursHtml = "";
-      for (var hm = winStart; hm <= winEnd; hm += 60) { hoursHtml += '<div class="sched-hour" style="top:' + ((hm - winStart) * PXMIN) + 'px"><span class="sched-hlabel">' + pad(hm / 60) + ":00</span></div>"; }
-      var blocksHtml = scheduled.map(function (s) {
-        var a = s.a, top = (s.start - winStart) * PXMIN, h = Math.max((s.end - s.start) * PXMIN, 28);
-        var w = 100 / s.cols, left = s.col * w, col = mechColor(a.assignedTo), who = a.assignedTo ? staffName(a.assignedTo) : "Keen Mécanicien";
-        return '<div class="sched-ev" style="top:' + top + "px;height:" + h + "px;left:calc(" + left + "% + 48px);width:calc(" + w + "% - 54px);background:" + col + '" title="' + esc((a.service || "Rendez-vous") + " · " + minToHHMM(s.start) + "–" + minToHHMM(s.end) + " · " + who) + '">'
-          + '<div class="sched-ev-t">' + minToHHMM(s.start) + " · " + esc(vehName(a.service || "RDV")) + "</div>"
-          + '<div class="sched-ev-s">' + esc(a.name) + (a.assignedTo ? " · 🔧 " + esc(who) : "") + (s.dur ? " · " + durLabel(s.dur) : "") + "</div></div>";
-      }).join("");
-      scheduleHtml = '<div class="day-sched-h">🕒 Dagesplang</div><div class="day-sched" style="height:' + gridH + 'px">' + hoursHtml + blocksHtml + "</div>";
-    }
+    })();
+    // Ganz- a Hallefstonne-Linnen
+    var linesHtml = "";
+    for (var hm = winStart; hm <= winEnd; hm += 30) { var ltop = (hm - winStart) * PXMIN, full = hm % 60 === 0; linesHtml += '<div class="sched-hour' + (full ? "" : " half") + '" style="top:' + ltop + 'px">' + (full ? '<span class="sched-hlabel">' + pad(hm / 60) + ":00</span>" : "") + "</div>"; }
+    // Blockéiert Zäiten am Gitter schrafféiert
+    function shade(fromMin, toMin, label) { var t = (Math.max(fromMin, winStart) - winStart) * PXMIN, h = (Math.min(toMin, winEnd) - Math.max(fromMin, winStart)) * PXMIN; if (h <= 0) return ""; return '<div class="sched-shade" style="top:' + t + "px;height:" + h + 'px"><span>' + label + "</span></div>"; }
+    var shadeHtml = closedB ? shade(winStart, winEnd, "🚫 Zou / Feiertag") : ((amB ? shade(winStart, NOON, "⛔ Moies gespaart") : "") + (pmB ? shade(NOON, winEnd, "⛔ Nomëtteg gespaart") : ""));
+    // Rendez-vous Bléck (uklickbar → sprangt an d'Rendez-vous-Kaart)
+    var blocksHtml = scheduled.map(function (s) {
+      var a = s.a, top = (s.start - winStart) * PXMIN, h = Math.max((s.end - s.start) * PXMIN, 28);
+      var w = 100 / s.cols, left = s.col * w, col = mechColor(a.assignedTo), who = a.assignedTo ? staffName(a.assignedTo) : "Keen Mécanicien";
+      return '<div class="sched-ev" data-appt="' + a.id + '" tabindex="0" role="button" style="top:' + top + "px;height:" + h + "px;left:calc(" + left + "% + 48px);width:calc(" + w + "% - 54px);background:" + col + '" title="' + esc((a.service || "Rendez-vous") + " · " + minToHHMM(s.start) + "–" + minToHHMM(s.end) + " · " + who + " — klick fir opzemaachen") + '">'
+        + '<div class="sched-ev-t">' + minToHHMM(s.start) + " · " + esc(vehName(a.service || "RDV")) + "</div>"
+        + '<div class="sched-ev-s">' + esc(a.name) + (a.assignedTo ? " · 🔧 " + esc(who) : "") + (s.dur ? " · " + durLabel(s.dur) : "") + "</div></div>";
+    }).join("");
+    // Aktuell-Zäit-Linn (nëmme wann een haut kuckt)
+    var nowD = new Date(), todayKey = nowD.getFullYear() + "-" + pad(nowD.getMonth() + 1) + "-" + pad(nowD.getDate()), nowHtml = "";
+    if (dkey === todayKey) { var nowMin = nowD.getHours() * 60 + nowD.getMinutes(); if (nowMin >= winStart && nowMin <= winEnd) nowHtml = '<div class="sched-now" style="top:' + ((nowMin - winStart) * PXMIN) + 'px"><span>' + minToHHMM(nowMin) + "</span></div>"; }
+    // Kappzeil: Zesummefaassung + Mécanicien-Legend
+    var totalMin = scheduled.reduce(function (sum, s) { return sum + s.dur; }, 0);
+    var summary = scheduled.length ? (scheduled.length + " Rendez-vous" + (scheduled.length > 1 ? "en" : "") + (totalMin ? " · " + durLabel(totalMin) + " geplangt" : "")) : "Keng fest Auerzäiten";
+    var mechSet = {}; scheduled.forEach(function (s) { if (s.a.assignedTo) mechSet[s.a.assignedTo] = true; });
+    var mechLeg = Object.keys(mechSet).map(function (u) { return '<span class="sched-leg-i"><i style="background:' + mechColor(u) + '"></i>' + esc(staffName(u)) + "</span>"; }).join("");
+    var scheduleHtml = '<div class="day-sched-h">🕒 Dagesplang · <span class="day-sched-sum">' + esc(summary) + "</span></div>"
+      + (mechLeg ? '<div class="sched-leg">' + mechLeg + "</div>" : "")
+      + '<div class="day-sched" style="height:' + gridH + 'px">' + linesHtml + shadeHtml + blocksHtml + nowHtml + "</div>";
     var rentalsHtml = rentals.length ? '<div class="day-allday">' + rentals.map(function (r) { return '<div class="devent"><span class="dd" style="background:' + r.color + '"></span><div style="min-width:0"><div class="ds">🚐 ' + r.label + "</div></div></div>"; }).join("") + "</div>" : "";
-    var unschedHtml = unscheduled.length ? '<div class="day-unsched"><div class="day-sched-h">⏳ Nach ze plangen (keng Auerzäit)</div>' + unscheduled.map(function (a) { return '<div class="devent"><span class="dd" style="background:' + APPT_COLOR + '"></span><div style="min-width:0"><div class="dt">🔧 ' + esc(a.service || "Rendez-vous") + (a.assignedTo ? " · " + esc(staffName(a.assignedTo)) : "") + '</div><div class="ds">' + esc(a.name) + " · " + STATUS[a.status] + " · " + reqRef("appointment", a.id) + "</div></div></div>"; }).join("") + "</div>" : "";
-    var emptyHtml = (!rentals.length && !dayAppts.length) ? '<p class="muted" style="font-size:0.88rem">Keng Rendez-vousen oder Locatiounen op dësem Dag.</p>' : "";
-    var amB = isSlotBlocked(dkey, "am"), pmB = isSlotBlocked(dkey, "pm"), closedB = isSlotBlocked(dkey, "closed");
+    var unschedHtml = unscheduled.length ? '<div class="day-unsched"><div class="day-sched-h">⏳ Nach ze plangen (keng Auerzäit)</div>' + unscheduled.map(function (a) { return '<div class="devent devent-click" data-appt="' + a.id + '" tabindex="0" role="button"><span class="dd" style="background:' + APPT_COLOR + '"></span><div style="min-width:0"><div class="dt">🔧 ' + esc(a.service || "Rendez-vous") + (a.assignedTo ? " · " + esc(staffName(a.assignedTo)) : "") + '</div><div class="ds">' + esc(a.name) + " · " + STATUS[a.status] + " · " + reqRef("appointment", a.id) + "</div></div></div>"; }).join("") + "</div>" : "";
     function slotBtn(slot, label, blocked) {
       var cls = "slotbtn " + (blocked ? "is-blocked" : "is-free");
       if (!canVal) return '<span class="' + cls + '">' + label + " · " + (blocked ? "Gespaart" : "Fräi") + "</span>";
@@ -1226,7 +1251,12 @@
       return '<button type="button" class="' + cls + '" data-block-slot="closed" data-block-now="' + (blocked ? "1" : "0") + '">' + (blocked ? "🚫 Zou (Feiertag) ✕" : "🚫 Als Feiertag / zou") + "</button>";
     }
     var blockHtml = '<div class="day-block"><div class="day-block-h">Verfügbarkeet blockéieren</div><div class="day-block-row">' + slotBtn("am", "☀️ Moies", amB) + slotBtn("pm", "🌙 Nomëtteg", pmB) + '</div><div class="day-block-row" style="margin-top:8px">' + closedBtn(closedB) + "</div></div>";
-    body.innerHTML = blockHtml + rentalsHtml + scheduleHtml + unschedHtml + emptyHtml;
+    body.innerHTML = blockHtml + rentalsHtml + scheduleHtml + unschedHtml;
+    body.querySelectorAll("[data-appt]").forEach(function (ev) {
+      function go() { focusAppointment(parseInt(ev.getAttribute("data-appt"), 10)); }
+      ev.addEventListener("click", go);
+      ev.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    });
     body.querySelectorAll("[data-block-slot]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var slot = btn.getAttribute("data-block-slot"), now = btn.getAttribute("data-block-now") === "1";

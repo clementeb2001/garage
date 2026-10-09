@@ -474,6 +474,21 @@
       .appt-plan-row label { display: flex; flex-direction: column; gap: 4px; font-size: 0.72rem; font-weight: 700; color: var(--mut); flex: 1; min-width: 130px; }
       .appt-plan-row select { font: inherit; font-size: 0.85rem; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--input-bg); color: var(--fg); }
       .appt-plan-note { width: 100%; margin-bottom: 9px; }
+      .sched-hour { z-index: 1; } .sched-hour.half { opacity: 0.45; }
+      .sched-shade { position: absolute; left: 40px; right: 0; z-index: 0; background: repeating-linear-gradient(45deg, rgba(100,114,127,0.18), rgba(100,114,127,0.18) 6px, rgba(100,114,127,0.05) 6px, rgba(100,114,127,0.05) 12px); display: flex; align-items: flex-start; justify-content: center; }
+      .sched-shade span { font-size: 0.62rem; font-weight: 800; color: var(--mut); background: var(--surface); padding: 1px 7px; border-radius: 6px; margin-top: 5px; }
+      .sched-ev { z-index: 2; cursor: pointer; transition: transform .08s ease, filter .08s ease; }
+      .sched-ev:hover { transform: translateY(-1px); filter: brightness(1.06); }
+      .sched-ev:focus-visible { outline: 2px solid #fff; outline-offset: -3px; }
+      .sched-now { position: absolute; left: 40px; right: 0; border-top: 2px solid #e11d48; z-index: 3; }
+      .sched-now span { position: absolute; left: 2px; top: -8px; font-size: 0.58rem; font-weight: 800; color: #fff; background: #e11d48; padding: 0 5px; border-radius: 4px; }
+      .sched-leg { display: flex; flex-wrap: wrap; gap: 10px; margin: 2px 0 5px; }
+      .sched-leg-i { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--mut); }
+      .sched-leg-i i { width: 11px; height: 11px; border-radius: 3px; }
+      .day-sched-sum { color: var(--fg); font-weight: 700; text-transform: none; letter-spacing: 0; }
+      .devent-click { cursor: pointer; } .devent-click:hover { border-color: var(--info); }
+      @keyframes gkflash { 0%, 55% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 1px 3px rgba(13,27,42,0.05); } }
+      .booking.flash { animation: gkflash 1.8s ease; }
 
       @media (max-width: 760px) { .analyse-grid { grid-template-columns: 1fr; } }
       @media (max-width: 560px) {
@@ -936,6 +951,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=76"></script>
+    <script src="intern.js?v=77"></script>
   </body>
 </html>
