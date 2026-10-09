@@ -28,16 +28,6 @@
       .legal-langbar button{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.03em;padding:5px 12px;border:1px solid var(--line,#d9dee5);background:transparent;color:var(--text-mut,#667381);border-radius:999px;cursor:pointer}
       .legal-langbar button.active{background:var(--navy-900,#0d1b2a);color:#fff;border-color:var(--navy-900,#0d1b2a)}
       .legal-langbar button:focus-visible{outline:2px solid var(--accent,#d8232a);outline-offset:2px}
-      .imprint-intro{max-width:720px;margin:-6px 0 26px;color:var(--text-mut,#667381)}
-      .imprint-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}
-      .imprint-panel{padding:22px;border:1px solid var(--line,#d9dee5);border-radius:16px;background:linear-gradient(145deg,#fff,#f7f9fb)}
-      .imprint-panel h2{margin:0 0 10px;font-size:1.05rem}
-      .imprint-panel p{margin:0}
-      .imprint-panel--wide{grid-column:1/-1}
-      .imprint-meta{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 0}
-      .imprint-meta span{padding:7px 11px;border-radius:999px;background:#f3f5f8;color:var(--navy-900,#0d1b2a);font-size:.83rem;font-weight:700}
-      .imprint-updated{display:block;margin-top:24px;padding-top:18px;border-top:1px solid var(--line,#d9dee5)}
-      @media(max-width:680px){.imprint-grid{grid-template-columns:1fr}.imprint-panel--wide{grid-column:auto}.imprint-panel{padding:18px}}
     </style>
   </head>
   <body class="legal-page">
@@ -68,31 +58,41 @@
           <div data-lang-block="lb" hidden>
             <a class="legal-back" href="index.html">← Zréck op d’Startsäit</a>
             <h1>Impressum</h1>
-            <p class="imprint-intro">Hei fannt Dir d’Kontakt- an d’Firmeninformatioune vum Bedreiwer vun dëser Websäit.</p>
-            <div class="imprint-meta"><span>RCS A39773</span><span>TVA LU26600977</span><span>Bettendorf · Lëtzebuerg</span></div>
-            <div class="imprint-grid">
-              <section class="imprint-panel"><h2>Déngschtleeschter</h2><p>Autoservice Bettenduerf<br />63, rue de Diekirch-Echternach<br />L-9355 Bettendorf<br />Lëtzebuerg</p></section>
-              <section class="imprint-panel"><h2>Kontakt</h2><p>Telefon: <a href="tel:+352808687">+352 80 86 87</a><br />Mobil: <a href="tel:+352621435495">+352 621 435 495</a><br />E-Mail: <a href="mailto:Autoservicebettenduerf@outlook.com">Autoservicebettenduerf@outlook.com</a></p></section>
-              <section class="imprint-panel"><h2>Firmeninformatiounen</h2><p>Registre de Commerce et des Sociétés Luxembourg (RCS): A39773<br />TVA-Identifikatiounsnummer: LU26600977</p></section>
-              <section class="imprint-panel"><h2>Haftung fir Inhalter a Linken</h2><p>D’Inhalter vun dëser Websäit goufe mat Suergfalt erstallt. Fir extern Säiten, op déi verlinkt gëtt, sinn ausschliisslech hir Bedreiwer verantwortlech.</p></section>
-            </div>
-            <small class="imprint-updated">Stand: Oktober 2026. Dësen Text ass eng praktesch Informatiounsgrondlag an ersetzt keng individuell Rechtsberodung.</small>
+
+            <h2>Déngschtleeschter</h2>
+            <p>Autoservice Bettenduerf<br />63, rue de Diekirch-Echternach<br />L-9355 Bettendorf<br />Lëtzebuerg</p>
+
+            <h2>Kontakt</h2>
+            <p>Telefon: <a href="tel:+352808687">+352 80 86 87</a><br />Mobil: <a href="tel:+352621435495">+352 621 435 495</a><br />E-Mail: <a href="mailto:Autoservicebettenduerf@outlook.com">Autoservicebettenduerf@outlook.com</a></p>
+
+            <h2>Firmeninformatiounen</h2>
+            <p>Registre de Commerce et des Sociétés Luxembourg (RCS): A39773<br />TVA-Identifikatiounsnummer: LU26600977</p>
+
+            <h2>Hosting an technesch Bereetstellung</h2>
+            <p>D’Websäit gëtt iwwer GitHub Pages bereetgestallt a benotzt Cloudflare fir DNS, Sécherheet a Leeschtung. Informatiounen iwwer d’Veraarbechtung vu perséinlechen Donnéeë fannt Dir an eiser <a href="datenschutz.html">Dateschutzerklärung</a>.</p>
+
+            <h2>Haftung fir Inhalter a Linken</h2>
+            <p>D’Inhalter vun dëser Websäit goufe mat Suergfalt erstallt. Fir extern Säiten, op déi verlinkt gëtt, sinn ausschliisslech hir Bedreiwer verantwortlech.</p>
+
+            <h2>Urheberrecht</h2>
+            <p>D’Texter, Fotoen, Grafiken an aner Inhalter vun dëser Websäit sinn urheberrechtlech geschützt, souwäit näischt anescht uginn ass. Eng Notzung ausserhalb vun de gesetzleche Grenzen erfuerdert déi virausgehend Erlaabnis vum jeeweilege Rechterinhaber.</p>
+
+            <h2>Verbraucherreklamatiounen</h2>
+            <p>Bei enger Reklamatioun kontaktéiert eis w.e.g. fir d’éischt direkt. Wann de Sträit net geléist gëtt, kënnt Dir Iech un de <a href="https://mediateurconsommation.lu/" target="_blank" rel="noopener noreferrer">Médiateur de la consommation</a> wenden.</p>
+
+            <p><small>Stand: Oktober 2026. Dësen Text ass eng praktesch Informatiounsgrondlag an ersetzt keng individuell Rechtsberodung.</small></p>
           </div>
 
           <div data-lang-block="de">
             <a class="legal-back" href="index.html">← Zurück zur Startseite</a>
             <h1>Impressum</h1>
-            <p class="imprint-intro">Hier finden Sie die Kontakt- und Unternehmensangaben des Betreibers dieser Website.</p>
-            <div class="imprint-meta"><span>RCS A39773</span><span>TVA LU26600977</span><span>Bettendorf · Luxemburg</span></div>
-            <div class="imprint-grid">
-
-            <section class="imprint-panel"><h2>Diensteanbieter</h2>
+            <h2>Diensteanbieter</h2>
             <p>
               Autoservice Bettenduerf<br />63, rue de Diekirch-Echternach<br />L-9355
               Bettendorf<br />Luxemburg
-            </p></section>
+            </p>
 
-            <section class="imprint-panel"><h2>Kontakt</h2>
+            <h2>Kontakt</h2>
             <p>
               Telefon: <a href="tel:+352808687">+352 80 86 87</a><br />
               Mobil: <a href="tel:+352621435495">+352 621 435 495</a><br />
@@ -100,42 +100,46 @@
               <a href="mailto:Autoservicebettenduerf@outlook.com"
                 >Autoservicebettenduerf@outlook.com</a
               >
-            </p></section>
+            </p>
 
-            <section class="imprint-panel"><h2>Weitere Unternehmensangaben</h2>
+            <h2>Weitere Unternehmensangaben</h2>
             <p>
               Registre de Commerce et des Sociétés Luxembourg (RCS): A39773<br />
               Umsatzsteuer-Identifikationsnummer (TVA): LU26600977
-            </p></section>
+            </p>
 
-            <section class="imprint-panel"><h2>Haftung für Inhalte und Links</h2>
+            <h2>Hosting und technische Bereitstellung</h2>
+            <p>Die Website wird über GitHub Pages bereitgestellt und nutzt Cloudflare für DNS, Sicherheit und Leistung. Informationen zur Verarbeitung personenbezogener Daten finden Sie in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+
+            <h2>Haftung für Inhalte und Links</h2>
             <p>
               Die Inhalte dieser Website wurden mit Sorgfalt erstellt. Für externe
               Seiten, auf die verlinkt wird, sind ausschließlich deren Betreiber
               verantwortlich.
-            </p></section>
-            </div>
+            </p>
 
-            <small class="imprint-updated"
+            <h2>Urheberrecht</h2>
+            <p>Texte, Fotos, Grafiken und sonstige Inhalte dieser Website sind urheberrechtlich geschützt, soweit nichts anderes angegeben ist. Eine Nutzung außerhalb der gesetzlichen Grenzen bedarf der vorherigen Zustimmung des jeweiligen Rechteinhabers.</p>
+
+            <h2>Verbraucherbeschwerden</h2>
+            <p>Bei einer Beschwerde kontaktieren Sie uns bitte zunächst direkt. Bleibt der Streit ungelöst, können Sie sich an den <a href="https://mediateurconsommation.lu/" target="_blank" rel="noopener noreferrer">Médiateur de la consommation</a> wenden.</p>
+
+            <p><small
                 >Stand: Oktober 2026. Dieser Text ist eine praktische
                 Informationsgrundlage und ersetzt keine individuelle
-                Rechtsberatung.</small>
+                Rechtsberatung.</small></p>
           </div>
 
           <div data-lang-block="fr" hidden>
             <a class="legal-back" href="index.html">← Retour à l’accueil</a>
             <h1>Mentions légales</h1>
-            <p class="imprint-intro">Vous trouverez ici les coordonnées et les informations relatives à l’exploitant de ce site.</p>
-            <div class="imprint-meta"><span>RCS A39773</span><span>TVA LU26600977</span><span>Bettendorf · Luxembourg</span></div>
-            <div class="imprint-grid">
-
-            <section class="imprint-panel"><h2>Prestataire</h2>
+            <h2>Prestataire</h2>
             <p>
               Autoservice Bettenduerf<br />63, rue de Diekirch-Echternach<br />L-9355
               Bettendorf<br />Luxembourg
-            </p></section>
+            </p>
 
-            <section class="imprint-panel"><h2>Contact</h2>
+            <h2>Contact</h2>
             <p>
               Téléphone : <a href="tel:+352808687">+352 80 86 87</a><br />
               Mobile : <a href="tel:+352621435495">+352 621 435 495</a><br />
@@ -143,42 +147,46 @@
               <a href="mailto:Autoservicebettenduerf@outlook.com"
                 >Autoservicebettenduerf@outlook.com</a
               >
-            </p></section>
+            </p>
 
-            <section class="imprint-panel"><h2>Autres informations sur l’entreprise</h2>
+            <h2>Autres informations sur l’entreprise</h2>
             <p>
               Registre de Commerce et des Sociétés Luxembourg (RCS) : A39773<br />
               Numéro d’identification TVA : LU26600977
-            </p></section>
+            </p>
 
-            <section class="imprint-panel"><h2>Responsabilité des contenus et des liens</h2>
+            <h2>Hébergement et mise à disposition technique</h2>
+            <p>Le site est hébergé via GitHub Pages et utilise Cloudflare pour le DNS, la sécurité et les performances. Les informations relatives au traitement des données personnelles figurent dans notre <a href="datenschutz.html">politique de confidentialité</a>.</p>
+
+            <h2>Responsabilité des contenus et des liens</h2>
             <p>
               Les contenus de ce site ont été élaborés avec soin. Les exploitants
               des sites externes vers lesquels pointent des liens sont seuls
               responsables de leur contenu.
-            </p></section>
-            </div>
+            </p>
 
-            <small class="imprint-updated"
+            <h2>Droits d’auteur</h2>
+            <p>Les textes, photographies, graphiques et autres contenus de ce site sont protégés par le droit d’auteur, sauf indication contraire. Toute utilisation en dehors des limites légales nécessite l’autorisation préalable du titulaire des droits concerné.</p>
+
+            <h2>Réclamations des consommateurs</h2>
+            <p>En cas de réclamation, veuillez d’abord nous contacter directement. Si le litige reste sans solution, vous pouvez saisir le <a href="https://mediateurconsommation.lu/" target="_blank" rel="noopener noreferrer">Médiateur de la consommation</a>.</p>
+
+            <p><small
                 >Mise à jour : octobre 2026. Ce texte constitue une base
                 d’information pratique et ne remplace pas un conseil juridique
-                individuel.</small>
+                individuel.</small></p>
           </div>
 
           <div data-lang-block="en" hidden>
             <a class="legal-back" href="index.html">← Back to home</a>
             <h1>Legal notice</h1>
-            <p class="imprint-intro">This page provides the contact and company details of the operator of this website.</p>
-            <div class="imprint-meta"><span>RCS A39773</span><span>TVA LU26600977</span><span>Bettendorf · Luxembourg</span></div>
-            <div class="imprint-grid">
-
-            <section class="imprint-panel"><h2>Service provider</h2>
+            <h2>Service provider</h2>
             <p>
               Autoservice Bettenduerf<br />63, rue de Diekirch-Echternach<br />L-9355
               Bettendorf<br />Luxembourg
-            </p></section>
+            </p>
 
-            <section class="imprint-panel"><h2>Contact</h2>
+            <h2>Contact</h2>
             <p>
               Phone: <a href="tel:+352808687">+352 80 86 87</a><br />
               Mobile: <a href="tel:+352621435495">+352 621 435 495</a><br />
@@ -186,25 +194,33 @@
               <a href="mailto:Autoservicebettenduerf@outlook.com"
                 >Autoservicebettenduerf@outlook.com</a
               >
-            </p></section>
+            </p>
 
-            <section class="imprint-panel"><h2>Further company details</h2>
+            <h2>Further company details</h2>
             <p>
               Registre de Commerce et des Sociétés Luxembourg (RCS): A39773<br />
               VAT identification number (TVA): LU26600977
-            </p></section>
+            </p>
 
-            <section class="imprint-panel"><h2>Liability for content and links</h2>
+            <h2>Hosting and technical delivery</h2>
+            <p>The website is hosted through GitHub Pages and uses Cloudflare for DNS, security and performance. Information about the processing of personal data is available in our <a href="datenschutz.html">privacy policy</a>.</p>
+
+            <h2>Liability for content and links</h2>
             <p>
               The content of this website has been prepared with care. The
               operators of external sites linked to here are solely responsible
               for their content.
-            </p></section>
-            </div>
+            </p>
 
-            <small class="imprint-updated"
+            <h2>Copyright</h2>
+            <p>Texts, photographs, graphics and other content on this website are protected by copyright unless otherwise stated. Use beyond the limits permitted by law requires prior permission from the relevant rights holder.</p>
+
+            <h2>Consumer complaints</h2>
+            <p>If you have a complaint, please contact us directly first. If the dispute remains unresolved, you may contact the <a href="https://mediateurconsommation.lu/" target="_blank" rel="noopener noreferrer">Médiateur de la consommation</a>.</p>
+
+            <p><small
                 >Last updated: October 2026. This text is a practical information
-                basis and does not replace individual legal advice.</small>
+                basis and does not replace individual legal advice.</small></p>
           </div>
         </article>
       </div>
