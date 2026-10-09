@@ -238,8 +238,7 @@
       "CREATE INDEX IF NOT EXISTS idx_customer_vehicles_plate ON customer_vehicles(plate)",
       "CREATE INDEX IF NOT EXISTS idx_customer_vehicles_vin ON customer_vehicles(vin)",
       "CREATE INDEX IF NOT EXISTS idx_customers_email_norm ON customers(lower(trim(email)))",
-      "CREATE INDEX IF NOT EXISTS idx_appointments_email_norm ON appointments(lower(trim(email)))",
-      "CREATE INDEX IF NOT EXISTS idx_bookings_email_norm ON bookings(lower(trim(cust_email)))"
+      "CREATE INDEX IF NOT EXISTS idx_appointments_email_norm ON appointments(lower(trim(email)))"
     ],
     "columns": [
       {
