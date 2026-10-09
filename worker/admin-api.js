@@ -953,8 +953,25 @@ export default {
         const customerId=parseInt(m[1],10), makeModel=clip(bodyData.makeModel,160).trim(); if(!makeModel)return json(env,{error:"missing_fields"},400);
         const ex=await env.DB.prepare("SELECT id FROM customers WHERE id=?1 AND COALESCE(archived,0)=0").bind(customerId).first(); if(!ex)return json(env,{error:"not_found"},404);
         const mileage=bodyData.mileage===""||bodyData.mileage==null?null:parseInt(bodyData.mileage,10); if(mileage!==null&&(!Number.isInteger(mileage)||mileage<0))return json(env,{error:"invalid_fields"},400);
-        const r=await env.DB.prepare("INSERT INTO customer_vehicles (customer_id,make_model,plate,vin,year,mileage,notes) VALUES (?1,?2,?3,?4,?5,?6,?7)").bind(customerId,makeModel,clip(bodyData.plate,30),clip(bodyData.vin,60),clip(bodyData.year,20),mileage,clip(bodyData.notes,1000)).run();
+        const vin=clip(bodyData.vin,60);
+        // Keng Duebel-Gefierer: selwecht Modell + VIN beim selwechte Client.
+        const dupe=await env.DB.prepare("SELECT id FROM customer_vehicles WHERE customer_id=?1 AND lower(trim(make_model))=lower(trim(?2)) AND lower(trim(COALESCE(vin,'')))=lower(trim(COALESCE(?3,'')))").bind(customerId,makeModel,vin||"").first();
+        if(dupe)return json(env,{error:"exists",id:dupe.id},409);
+        const r=await env.DB.prepare("INSERT INTO customer_vehicles (customer_id,make_model,plate,vin,year,mileage,notes) VALUES (?1,?2,?3,?4,?5,?6,?7)").bind(customerId,makeModel,clip(bodyData.plate,30),vin,clip(bodyData.year,20),mileage,clip(bodyData.notes,1000)).run();
         return json(env,{ok:true,id:r.meta.last_row_id});
+      }
+      /* ---- Gefier läschen (admin): Opträg entkoppelen ---- */
+      m = path.match(/^\/customers\/(\d+)\/vehicles\/(\d+)$/);
+      if (m && method === "DELETE") {
+        if (me.role !== "admin") return json(env,{error:"forbidden"},403);
+        const customerId=parseInt(m[1],10), vehicleId=parseInt(m[2],10);
+        const ex=await env.DB.prepare("SELECT id FROM customer_vehicles WHERE id=?1 AND customer_id=?2").bind(vehicleId,customerId).first();
+        if(!ex)return json(env,{error:"not_found"},404);
+        await env.DB.batch([
+          env.DB.prepare("UPDATE work_orders SET vehicle_id=NULL WHERE vehicle_id=?1").bind(vehicleId),
+          env.DB.prepare("DELETE FROM customer_vehicles WHERE id=?1").bind(vehicleId),
+        ]);
+        return json(env,{ok:true});
       }
 
       /* ---- Aarbechtsopträg: Werkstatt-Workflow ouni Rendez-vous ze veränneren ---- */
@@ -980,6 +997,19 @@ export default {
         const planned=bodyData.plannedMinutes===""||bodyData.plannedMinutes==null?null:parseInt(bodyData.plannedMinutes,10); if(planned!==null&&(!Number.isInteger(planned)||planned<0||planned>10080))return json(env,{error:"invalid_fields"},400);
         const action=status!==ex.status?"Status: "+status:"Geännert";
         await env.DB.batch([env.DB.prepare("UPDATE work_orders SET customer_id=?1,vehicle_id=?2,title=?3,status=?4,assigned_to=?5,planned_minutes=?6,description=?7,diagnosis=?8,internal_note=?9,updated_at=CURRENT_TIMESTAMP WHERE id=?10").bind(Number(bodyData.customerId)||null,Number(bodyData.vehicleId)||null,title,status,clip(bodyData.assignedTo,60)||null,planned,clip(bodyData.description,3000),clip(bodyData.diagnosis,3000),clip(bodyData.internalNote,3000),id),env.DB.prepare("INSERT INTO work_order_events (work_order_id,action,by_user,note) VALUES (?1,?2,?3,?4)").bind(id,action,me.username,clip(bodyData.eventNote,500))]);
+        return json(env,{ok:true});
+      }
+      /* ---- Aarbechtsoptrag läschen (admin) ---- */
+      m = path.match(/^\/work-orders\/(\d+)$/);
+      if (m && method === "DELETE") {
+        if (me.role !== "admin") return json(env,{error:"forbidden"},403);
+        const id=parseInt(m[1],10);
+        const ex=await env.DB.prepare("SELECT id FROM work_orders WHERE id=?1").bind(id).first();
+        if(!ex)return json(env,{error:"not_found"},404);
+        await env.DB.batch([
+          env.DB.prepare("DELETE FROM work_order_events WHERE work_order_id=?1").bind(id),
+          env.DB.prepare("DELETE FROM work_orders WHERE id=?1").bind(id),
+        ]);
         return json(env,{ok:true});
       }
 
@@ -1013,6 +1043,10 @@ export default {
           .bind(assigned || null, duration, planNote || null, id).run();
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,'Plang',?2,?3)")
           .bind(id, me.username, clip([assigned ? "Mécanicien: " + assigned : "", duration ? "Dauer: " + duration + " min" : "", planNote ? "Notiz" : ""].filter(Boolean).join(" · "), 500)).run();
+        // Planung ass d'Quell vun der Wourecht: Mécanicien + Dauer op de verbonnenen
+        // Aarbechtsoptrag iwwerhuelen (falls ee besteet), soudatt se net auserneelafen.
+        await env.DB.prepare("UPDATE work_orders SET assigned_to=?1, planned_minutes=?2, updated_at=CURRENT_TIMESTAMP WHERE appointment_id=?3")
+          .bind(assigned || null, duration, id).run();
         const staffRow = assigned ? await env.DB.prepare("SELECT name FROM users WHERE username = ?1").bind(assigned).first() : null;
         return json(env, { ok: true, assignedTo: assigned || "", assignedName: staffRow ? (staffRow.name || assigned) : "", durationMin: duration == null ? "" : duration, planNote: planNote || "" });
       }
