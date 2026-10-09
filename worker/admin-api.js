@@ -247,9 +247,13 @@ async function sendEmail(env, to, subject, html, text) {
   } catch (e) { return { ok: false, error: clip(e && e.message || e, 160) }; }
 }
 
+const PRIVACY_NOTICE_VERSION = "2026-10-09";
+const RENTAL_TERMS_VERSION = "2026-10-09";
+
 async function saveConsent(env, type, id, privacy, terms) {
-  await env.DB.prepare("INSERT OR REPLACE INTO request_consents (request_type, request_id, privacy_accepted, terms_accepted, consent_at) VALUES (?1,?2,?3,?4,CURRENT_TIMESTAMP)")
-    .bind(type, id, privacy ? 1 : 0, terms ? 1 : 0).run();
+  const termsVersion = terms && type === "booking" ? RENTAL_TERMS_VERSION : null;
+  await env.DB.prepare("INSERT OR REPLACE INTO request_consents (request_type, request_id, privacy_accepted, terms_accepted, privacy_version, terms_version, consent_at) VALUES (?1,?2,?3,?4,?5,?6,CURRENT_TIMESTAMP)")
+    .bind(type, id, privacy ? 1 : 0, terms ? 1 : 0, PRIVACY_NOTICE_VERSION, termsVersion).run();
 }
 async function sendConfirmation(env, bookingId, booking) {
   booking.ref = "AB-L-" + String(bookingId).padStart(5, "0");

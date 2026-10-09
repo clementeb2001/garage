@@ -19,13 +19,13 @@
         time_pm: "Nomëttes",
         vin: "Chassisnummer (VIN)",
         vin_ph: "z. B. WVWZZZ…",
-        privacy: "Ech hunn d'Dateschutzerklärung gelies a sinn averstanen, datt meng Donnéeë fir d'Veraarbechtung vun der Ufro benotzt ginn.",
+        privacy: "Ech hunn d'Dateschutzerklärung zur Kenntnis geholl.",
         rate: "Ze vill Ufroen a kuerzer Zäit. Probéiert et w.e.g. méi spéit nach eng Kéier.",
         missing: "Fëllt w.e.g. nach aus:",
         vehicle_lbl: "Gefier",
         vehicle_ph: "Mark, Modell, Baujoer",
         vin_unknown: "Oldtimer / VIN net bekannt",
-        names: { name: "Numm", email: "eng gëlteg E-Mail", vin: "Chassisnummer", message: "Noriicht", privacy: "Dateschutz-Zoustëmmung", preferred_date: "e Wonschdatum", service: "e Service", vin_bad: "eng gëlteg VIN (17 Zeechen)", vehicle: "d’Gefier" },
+        names: { name: "Numm", email: "eng gëlteg E-Mail", vin: "Chassisnummer", message: "Noriicht", privacy: "Bestätegung vun der Dateschutzerklärung", preferred_date: "e Wonschdatum", service: "e Service", vin_bad: "eng gëlteg VIN (17 Zeechen)", vehicle: "d’Gefier" },
       },
       saison: {
         eyebrow: "Tipps",
@@ -111,13 +111,13 @@
         time_pm: "Nachmittag",
         vin: "Fahrgestellnummer (VIN)",
         vin_ph: "z. B. WVWZZZ…",
-        privacy: "Ich habe die Datenschutzerklärung gelesen und bin mit der Verarbeitung meiner Daten für diese Anfrage einverstanden.",
+        privacy: "Ich habe die Datenschutzerklärung zur Kenntnis genommen.",
         rate: "Zu viele Anfragen in kurzer Zeit. Bitte versuchen Sie es später erneut.",
         missing: "Bitte noch ausfüllen:",
         vehicle_lbl: "Fahrzeug",
         vehicle_ph: "Marke, Modell, Baujahr",
         vin_unknown: "Oldtimer / VIN nicht bekannt",
-        names: { name: "Name", email: "eine gültige E-Mail", vin: "Fahrgestellnummer", message: "Nachricht", privacy: "Datenschutz-Zustimmung", preferred_date: "ein Wunschdatum", service: "einen Service", vin_bad: "eine gültige VIN (17 Zeichen)", vehicle: "das Fahrzeug" },
+        names: { name: "Name", email: "eine gültige E-Mail", vin: "Fahrgestellnummer", message: "Nachricht", privacy: "Bestätigung der Datenschutzerklärung", preferred_date: "ein Wunschdatum", service: "einen Service", vin_bad: "eine gültige VIN (17 Zeichen)", vehicle: "das Fahrzeug" },
       },
       saison: {
         eyebrow: "Tipps",
@@ -202,7 +202,7 @@
         time_pm: "Après-midi",
         vin: "Numéro de châssis (VIN)",
         vin_ph: "p. ex. VF1…",
-        privacy: "J'ai lu la politique de confidentialité et j'accepte le traitement de mes données pour cette demande.",
+        privacy: "J'ai pris connaissance de la politique de confidentialité.",
         rate: "Trop de demandes en peu de temps. Veuillez réessayer plus tard.",
         missing: "Merci de compléter encore :",
         vehicle_lbl: "Véhicule",
@@ -294,13 +294,13 @@
         time_pm: "Afternoon",
         vin: "Chassis number (VIN)",
         vin_ph: "e.g. WVWZZZ…",
-        privacy: "I have read the privacy policy and agree to the processing of my data for this request.",
+        privacy: "I have read and acknowledged the privacy policy.",
         rate: "Too many requests in a short time. Please try again later.",
         missing: "Please still fill in:",
         vehicle_lbl: "Vehicle",
         vehicle_ph: "Make, model, year",
         vin_unknown: "Classic car / VIN unknown",
-        names: { name: "name", email: "a valid email", vin: "chassis number", message: "message", privacy: "privacy consent", preferred_date: "a preferred date", service: "a service", vin_bad: "a valid VIN (17 characters)", vehicle: "the vehicle" },
+        names: { name: "name", email: "a valid email", vin: "chassis number", message: "message", privacy: "privacy-policy acknowledgement", preferred_date: "a preferred date", service: "a service", vin_bad: "a valid VIN (17 characters)", vehicle: "the vehicle" },
       },
       saison: {
         eyebrow: "Tips",
@@ -759,4 +759,3 @@
     if (opt) { opt.selected = true; sel.dispatchEvent(new Event("change", { bubbles: true })); }
   });
 })();
-
