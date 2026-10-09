@@ -353,7 +353,38 @@
       .unified-kind { width:38px; height:38px; border-radius:10px; background:var(--surface-2); display:grid; place-items:center; }
       .unified-title { font-weight:800; } .unified-meta { color:var(--mut); font-size:.8rem; margin-top:2px; }
       .planner-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:16px 0; }
-      .planner-grid { display:grid; grid-template-columns:repeat(5,minmax(150px,1fr)); gap:10px; overflow-x:auto; padding-bottom:8px; }
+      .planner-grid { display:grid; grid-template-columns:repeat(5,minmax(190px,1fr)); gap:10px; overflow-x:auto; padding-bottom:8px; }
+      .request-tools { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin:12px 0; }
+      .request-tools .filters { margin:0; }
+      .request-sort { display:flex; gap:8px; align-items:center; color:var(--mut); font-size:.82rem; font-weight:700; }
+      .request-sort select { min-height:40px; border:1px solid var(--line); border-radius:10px; background:var(--input-bg); color:var(--fg); padding:7px 34px 7px 10px; font:inherit; }
+      .request-age { display:inline-flex; margin-top:5px; color:var(--accent-dark); font-size:.74rem; font-weight:800; }
+      .planner-overview { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:14px 0; }
+      .planner-kpi { padding:13px 14px; border:1px solid var(--line); border-radius:12px; background:var(--surface); }
+      .planner-kpi b { display:block; font-size:1.25rem; }
+      .planner-kpi span { color:var(--mut); font-size:.76rem; }
+      .planner-day-head { display:flex; justify-content:space-between; gap:8px; align-items:flex-start; }
+      .planner-load { height:6px; border-radius:6px; background:var(--line); overflow:hidden; margin:9px 0 12px; }
+      .planner-load > i { display:block; height:100%; background:var(--ok); border-radius:inherit; }
+      .planner-load > i.busy { background:var(--warn); }
+      .planner-job { cursor:pointer; }
+      .planner-job.unassigned { border-left-color:var(--danger); }
+      .planner-job small { display:block; margin-top:4px; color:var(--mut); }
+      .planner-queue { margin-top:14px; padding:14px; border:1px dashed var(--accent); border-radius:14px; background:color-mix(in srgb,var(--accent) 5%,var(--surface)); }
+      .planner-queue h3 { margin:0 0 9px; font-size:.9rem; }
+      .vehicle-selector { display:grid; gap:8px; margin-top:10px; }
+      .vehicle-selector button { width:100%; text-align:left; border:1px solid var(--line); border-radius:11px; padding:11px 12px; background:var(--surface-2); color:var(--fg); cursor:pointer; }
+      .vehicle-selector button.active { border-color:var(--accent); box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 18%,transparent); }
+      .vehicle-file { margin-top:12px; padding:14px; border:1px solid var(--line); border-radius:13px; background:var(--surface-2); }
+      .vehicle-file h4 { margin:0 0 10px; }
+      .history-item { padding:10px 0; border-top:1px solid var(--line); }
+      .history-item:first-child { border-top:0; }
+      .history-item p { margin:4px 0 0; font-size:.8rem; color:var(--mut); }
+      .danger-zone { margin-top:18px; padding-top:15px; border-top:1px solid var(--line); }
+      .btn-danger-soft { color:var(--danger); border-color:color-mix(in srgb,var(--danger) 50%,var(--line)); background:transparent; }
+      .ops-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:14px; }
+      .ops-list { display:grid; gap:8px; }
+      .ops-row { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid var(--line); font-size:.82rem; }
       .planner-day { min-height:340px; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px; }
       .planner-day h3 { margin:0 0 10px; font-size:.84rem; color:var(--mut); text-transform:uppercase; letter-spacing:.04em; }
       .planner-job { padding:10px; margin-bottom:8px; border-radius:9px; border-left:3px solid var(--accent); background:var(--surface-2); font-size:.8rem; }
@@ -387,7 +418,7 @@
         .topnav button { font-size:.86rem; min-height:43px; overflow:visible; }
         .topbar .who { display:flex; }
         .wrap { margin-left:0; padding:20px 14px 60px; }
-        .request-summary,.system-grid { grid-template-columns:1fr; }
+        .request-summary,.system-grid,.planner-overview,.ops-grid { grid-template-columns:1fr; }
         .unified-item { grid-template-columns:38px minmax(0,1fr); } .unified-item .btn { grid-column:1/-1; }
       }
       [hidden] { display: none !important; }
@@ -796,15 +827,17 @@
         <div class="page-head"><h2 class="page-title">Ufroen</h2><span class="muted" id="requests-updated"></span></div>
         <p class="view-intro">All nei Reservatiounen, Rendez-vousen a Produktufroen an enger zentraler Inbox.</p>
         <div class="request-summary" id="request-summary"></div>
-        <div class="filters" id="request-filters"><button class="chip active" data-rfilter="all">Alles</button><button class="chip" data-rfilter="booking">Locatioun</button><button class="chip" data-rfilter="appointment">Rendez-vous</button><button class="chip" data-rfilter="inquiry">Produkter</button></div>
+        <div class="request-tools"><div class="filters" id="request-filters"><button class="chip active" data-rfilter="all">Alles</button><button class="chip" data-rfilter="booking">Locatioun</button><button class="chip" data-rfilter="appointment">Rendez-vous</button><button class="chip" data-rfilter="inquiry">Produkter</button></div><label class="request-sort">Sortéieren <select id="request-sort"><option value="oldest-open">Am längsten op fir d’éischt</option><option value="newest">Neisten Empfang fir d’éischt</option><option value="oldest">Eelsten Empfang fir d’éischt</option><option value="date-asc">Fréisten Wonschdatum</option></select></label></div>
         <div class="unified-list" id="request-list"></div>
       </div>
 
       <div class="wrap" id="page-planner" hidden>
         <div class="page-head"><h2 class="page-title">Werkstatt-Planer</h2><button class="btn btn-primary btn-sm" id="planner-new" type="button">+ Rendez-vous</button></div>
-        <p class="view-intro">Déi confirméiert Werkstattaarbechten als kloer Wocheniwwersiicht.</p>
+        <p class="view-intro">Operativ Ressourcen- a Kapazitéitsplanung fir d’Werkstatt. Den Dashboard-Kalenner bleift déi allgemeng Geschäfts- a Locatiounsiwwersiicht.</p>
         <div class="planner-toolbar"><button class="btn btn-outline btn-sm" id="planner-prev" type="button">← Vireg Woch</button><strong id="planner-label"></strong><button class="btn btn-outline btn-sm" id="planner-next" type="button">Nächst Woch →</button></div>
+        <div class="planner-overview" id="planner-overview"></div>
         <div class="planner-grid" id="planner-grid"></div>
+        <div class="planner-queue" id="planner-queue"></div>
       </div>
 
       <div class="wrap" id="page-system" hidden>
@@ -833,7 +866,7 @@
         <div class="crm-grid" id="customer-list"></div>
       </div>
 
-      <div class="detail-overlay" id="customer-detail" hidden><aside class="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="customer-detail-title"><div class="detail-head"><div><h2 id="customer-detail-title">Clientendossier</h2><span class="muted" id="customer-detail-meta"></span></div><button class="detail-close" id="customer-detail-close" type="button">✕</button></div><div id="customer-detail-body"></div><section class="detail-section"><h3>Gefier bäisetzen</h3><form class="detail-form" id="vehicle-form"><div class="field wide"><label for="cv-model">Mark &amp; Modell</label><input id="cv-model" required maxlength="160"></div><div class="field"><label for="cv-plate">Nummerplaque</label><input id="cv-plate" maxlength="30"></div><div class="field"><label for="cv-year">Baujoer</label><input id="cv-year" maxlength="20"></div><div class="field wide"><label for="cv-vin">VIN</label><input id="cv-vin" maxlength="60"></div><div class="field"><label for="cv-mileage">Kilometerstand</label><input id="cv-mileage" type="number" min="0"></div><div class="field"><label for="cv-notes">Notiz</label><input id="cv-notes" maxlength="1000"></div><div class="wide"><button class="btn btn-primary" type="submit">Gefier späicheren</button></div></form></section></aside></div>
+      <div class="detail-overlay" id="customer-detail" hidden><aside class="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="customer-detail-title"><div class="detail-head"><div><h2 id="customer-detail-title">Clientendossier</h2><span class="muted" id="customer-detail-meta"></span></div><button class="detail-close" id="customer-detail-close" type="button">✕</button></div><div id="customer-detail-body"></div><section class="detail-section"><h3>Gefier bäisetzen</h3><form class="detail-form" id="vehicle-form"><div class="field wide"><label for="cv-model">Mark &amp; Modell</label><input id="cv-model" required maxlength="160"></div><div class="field"><label for="cv-plate">Nummerplaque</label><input id="cv-plate" maxlength="30"></div><div class="field"><label for="cv-year">Baujoer</label><input id="cv-year" maxlength="20"></div><div class="field wide"><label for="cv-vin">VIN</label><input id="cv-vin" maxlength="60"></div><div class="field"><label for="cv-mileage">Kilometerstand</label><input id="cv-mileage" type="number" min="0"></div><div class="field"><label for="cv-notes">Notiz</label><input id="cv-notes" maxlength="1000"></div><div class="wide"><button class="btn btn-primary" type="submit">Gefier späicheren</button></div></form></section><div class="danger-zone" id="customer-danger"><button class="btn btn-danger-soft" id="customer-delete" type="button">Client läschen</button><p class="muted" style="font-size:.74rem">De Client verschwënnt aus der aktiver Lëscht; d’gesetzlech relevant Aarbechtshistorik bleift erhalen.</p></div></aside></div>
 
       <!-- Aarbechtsopträg -->
       <div class="wrap" id="page-workorders" hidden>
@@ -914,6 +947,7 @@
       <div class="wrap" id="page-analyse" hidden>
         <div class="page-head"><h2 class="page-title">Analyse</h2><span class="muted" id="analyse-sub" style="font-size:0.85rem"></span></div>
         <div class="stat-row" id="analyse-kpis"></div>
+        <div class="ops-grid"><section class="panel"><h3>Operative Pipeline</h3><div class="ops-list" id="an-pipeline"></div></section><section class="panel"><h3>Werkstatt-Auslaaschtung</h3><div class="ops-list" id="an-workload"></div></section><section class="panel"><h3>Donnéeëqualitéit</h3><div class="ops-list" id="an-quality"></div></section></div>
         <div class="panel" id="an-rev-panel" style="margin:14px 0 0">
           <h3>💶 Akommes aus der Locatioun</h3>
           <div class="stat-row" id="an-rev-kpis" style="margin-top:6px"></div>
@@ -1104,6 +1138,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=82"></script>
+    <script src="intern.js?v=83"></script>
   </body>
 </html>

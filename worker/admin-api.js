@@ -459,7 +459,7 @@ async function ensureCrmLink(env, a, byUser) {
     let customerId = null;
     if (email) {
       const existing = await env.DB.prepare("SELECT id FROM customers WHERE lower(trim(email))=?1 ORDER BY id ASC").bind(email).first();
-      if (existing) customerId = existing.id;
+      if (existing) { customerId = existing.id; await env.DB.prepare("UPDATE customers SET archived=0,updated_at=CURRENT_TIMESTAMP WHERE id=?1 AND COALESCE(archived,0)<>0").bind(customerId).run(); }
       else {
         const r = await env.DB.prepare("INSERT INTO customers (name,email,phone,source) VALUES (?1,?2,?3,'appointment')")
           .bind(clip(a.name, 120).trim() || email, email, clip(a.phone, 60) || null).run();
@@ -910,13 +910,13 @@ export default {
         const staffName = {}; staff.forEach((u) => { staffName[u.username] = u.name || u.username; });
         const byId = {};
         evs.forEach((e) => { (byId[e.appointment_id] = byId[e.appointment_id] || []).push({ action: e.action, by: e.by_user, at: e.at, note: e.note || "" }); });
-        return json(env, { appointments: as.map((a) => ({ id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, confirmedDate: a.confirmed_date || "", confirmedTime: a.confirmed_time || "", assignedTo: a.assigned_to || "", assignedName: a.assigned_to ? (staffName[a.assigned_to] || a.assigned_to) : "", durationMin: a.duration_min == null ? "" : a.duration_min, planNote: a.plan_note || "", vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, events: byId[a.id] || [] })) });
+        return json(env, { appointments: as.map((a) => ({ id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, confirmedDate: a.confirmed_date || "", confirmedTime: a.confirmed_time || "", assignedTo: a.assigned_to || "", assignedName: a.assigned_to ? (staffName[a.assigned_to] || a.assigned_to) : "", durationMin: a.duration_min == null ? "" : a.duration_min, planNote: a.plan_note || "", vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, created: a.created_at, events: byId[a.id] || [] })) });
       }
 
       /* ---- Clientedatebank (additiv; Originalufroe bleiwen onverännert) ---- */
       if (path === "/customers" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error:"forbidden" }, 403);
-        const cs = (await env.DB.prepare("SELECT * FROM customers c WHERE trim(COALESCE(c.email,''))='' OR c.id=(SELECT MIN(c2.id) FROM customers c2 WHERE lower(trim(c2.email))=lower(trim(c.email))) ORDER BY updated_at DESC,id DESC").all()).results || [];
+        const cs = (await env.DB.prepare("SELECT * FROM customers c WHERE COALESCE(c.archived,0)=0 AND (trim(COALESCE(c.email,''))='' OR c.id=(SELECT MIN(c2.id) FROM customers c2 WHERE COALESCE(c2.archived,0)=0 AND lower(trim(c2.email))=lower(trim(c.email)))) ORDER BY updated_at DESC,id DESC").all()).results || [];
         const vs = (await env.DB.prepare("SELECT v.*,COALESCE((SELECT MIN(c2.id) FROM customers c2 WHERE lower(trim(c2.email))=lower(trim(c.email))),v.customer_id) canonical_customer_id FROM customer_vehicles v LEFT JOIN customers c ON c.id=v.customer_id ORDER BY v.id DESC").all()).results || [];
         const history = (await env.DB.prepare("SELECT c.id customer_id, COUNT(DISTINCT a.id) appointments, COUNT(DISTINCT b.id) rentals FROM customers c LEFT JOIN appointments a ON lower(trim(a.email))=lower(trim(c.email)) AND trim(COALESCE(c.email,''))<>'' LEFT JOIN bookings b ON lower(trim(b.cust_email))=lower(trim(c.email)) AND trim(COALESCE(c.email,''))<>'' GROUP BY c.id").all()).results || [];
         const vBy = {}, vSeen={}, hBy = {}; vs.forEach(v => { const key=v.canonical_customer_id||v.customer_id, list=(vBy[key] ||= []), sig=[v.make_model,v.plate||"",v.vin||""].join("|").toLowerCase(); vSeen[key] ||= new Set(); if(!vSeen[key].has(sig)){vSeen[key].add(sig);list.push({ id:v.id, makeModel:v.make_model, plate:v.plate||"", vin:v.vin||"", year:v.year||"", mileage:v.mileage==null?"":v.mileage, notes:v.notes||"" });} }); history.forEach(h => { hBy[h.customer_id]=h; });
@@ -926,7 +926,7 @@ export default {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error:"forbidden" }, 403);
         const name=clip(bodyData.name,120).trim(), email=clip(bodyData.email,160).trim().toLowerCase(), phone=clip(bodyData.phone,60).trim();
         if (!name || (email && !validEmail(email))) return json(env,{error:"invalid_fields"},400);
-        if (email) { const duplicate=await env.DB.prepare("SELECT id FROM customers WHERE lower(trim(email))=?1").bind(email).first(); if (duplicate) return json(env,{error:"exists",id:duplicate.id},409); }
+        if (email) { const duplicate=await env.DB.prepare("SELECT id FROM customers WHERE COALESCE(archived,0)=0 AND lower(trim(email))=?1").bind(email).first(); if (duplicate) return json(env,{error:"exists",id:duplicate.id},409); }
         const r=await env.DB.prepare("INSERT INTO customers (name,email,phone,notes,source) VALUES (?1,?2,?3,?4,'manual')").bind(name,email||null,phone||null,clip(bodyData.notes,2000)).run();
         return json(env,{ok:true,id:r.meta.last_row_id});
       }
@@ -935,16 +935,23 @@ export default {
         if (!hasPerm(me.role, "bookings.validate")) return json(env,{error:"forbidden"},403);
         const id=parseInt(m[1],10), name=clip(bodyData.name,120).trim(), email=clip(bodyData.email,160).trim().toLowerCase(), phone=clip(bodyData.phone,60).trim();
         if (!name || (email && !validEmail(email))) return json(env,{error:"invalid_fields"},400);
-        const ex=await env.DB.prepare("SELECT id FROM customers WHERE id=?1").bind(id).first(); if(!ex)return json(env,{error:"not_found"},404);
-        if(email){const duplicate=await env.DB.prepare("SELECT id FROM customers WHERE lower(trim(email))=?1 AND id<>?2").bind(email,id).first();if(duplicate)return json(env,{error:"exists"},409);}
+        const ex=await env.DB.prepare("SELECT id FROM customers WHERE id=?1 AND COALESCE(archived,0)=0").bind(id).first(); if(!ex)return json(env,{error:"not_found"},404);
+        if(email){const duplicate=await env.DB.prepare("SELECT id FROM customers WHERE COALESCE(archived,0)=0 AND lower(trim(email))=?1 AND id<>?2").bind(email,id).first();if(duplicate)return json(env,{error:"exists"},409);}
         await env.DB.prepare("UPDATE customers SET name=?1,email=?2,phone=?3,notes=?4,updated_at=CURRENT_TIMESTAMP WHERE id=?5").bind(name,email||null,phone||null,clip(bodyData.notes,2000),id).run();
+        return json(env,{ok:true});
+      }
+      if (m && method === "DELETE") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env,{error:"forbidden"},403);
+        const id=parseInt(m[1],10), ex=await env.DB.prepare("SELECT id FROM customers WHERE id=?1 AND COALESCE(archived,0)=0").bind(id).first();
+        if(!ex)return json(env,{error:"not_found"},404);
+        await env.DB.prepare("UPDATE customers SET archived=1,updated_at=CURRENT_TIMESTAMP WHERE id=?1").bind(id).run();
         return json(env,{ok:true});
       }
       m = path.match(/^\/customers\/(\d+)\/vehicles$/);
       if (m && method === "POST") {
         if (!hasPerm(me.role, "bookings.validate")) return json(env,{error:"forbidden"},403);
         const customerId=parseInt(m[1],10), makeModel=clip(bodyData.makeModel,160).trim(); if(!makeModel)return json(env,{error:"missing_fields"},400);
-        const ex=await env.DB.prepare("SELECT id FROM customers WHERE id=?1").bind(customerId).first(); if(!ex)return json(env,{error:"not_found"},404);
+        const ex=await env.DB.prepare("SELECT id FROM customers WHERE id=?1 AND COALESCE(archived,0)=0").bind(customerId).first(); if(!ex)return json(env,{error:"not_found"},404);
         const mileage=bodyData.mileage===""||bodyData.mileage==null?null:parseInt(bodyData.mileage,10); if(mileage!==null&&(!Number.isInteger(mileage)||mileage<0))return json(env,{error:"invalid_fields"},400);
         const r=await env.DB.prepare("INSERT INTO customer_vehicles (customer_id,make_model,plate,vin,year,mileage,notes) VALUES (?1,?2,?3,?4,?5,?6,?7)").bind(customerId,makeModel,clip(bodyData.plate,30),clip(bodyData.vin,60),clip(bodyData.year,20),mileage,clip(bodyData.notes,1000)).run();
         return json(env,{ok:true,id:r.meta.last_row_id});
