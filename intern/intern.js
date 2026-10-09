@@ -387,8 +387,9 @@
         "<b>Notzung.</b> Suergfälteg a bestëmmungsgeméiss Notzung. Keen Iwwerlueden, keng Weiderverlounung, keng gesetzeswiddreg Notzung. Faarten mat engem Unhänger oder an d'Ausland nëmme mat ausdrécklecher Erlaabnes.",
         "<b>Kilometer & Tanken.</b> {included} km pro Locatioun sinn abegraff; all weidere Kilometer gëtt mat {km} verrechent. D'Gefier muss vollgetankt zréckbruecht ginn, soss ginn d'Tankkäschten + 50 € Pauschal verrechent.",
         "<b>Retour & Verspéidung.</b> Retour zu där Zäit an op där Plaz, déi ofgemaach goufen. Pro ugefaangener Stonn Verspéidung gëtt {late} verrechent.",
-        "<b>Kautioun & Bezuelung.</b> D'Kautioun gëtt virum Ufank festgehalen; d'Bezuelung geschitt beim Retour vum Gefier.",
-        "<b>Assurance & Haftung.</b> Bei Accident, Pann, Déifstall oder Schued muss Autoservice Bettenduerf direkt informéiert ginn; keng Reparatur ouni Zoustëmmung. Obligatoresch gesetzlech Rechter bleiwen onberéiert.",
+        "<b>Kautioun & Bezuelung.</b> D'Kautioun bedréit 250 €; d'Bezuelung geschitt beim Retour vum Gefier.",
+        "<b>Assurance & Haftung.</b> D'Gefier ass bei Foyer Assurances assuréiert; d'Selbstbedeelegung bedréit 750 € pro Schuedefall. Bei Accident, Pann, Déifstall oder Schued muss Autoservice Bettenduerf direkt informéiert ginn; keng Reparatur ouni Zoustëmmung.",
+        "<b>Annulatioun.</b> Annulatioun bis 24 Stonne virum Ufank ass gratis. Ënner 24 Stonnen oder bei Net-Erschéine ginn 50 € verrechent.",
         "<b>Dateschutz.</b> D'perséinlech Donnéeë ginn eleng fir d'Ofwécklung vun der Locatioun veraarbecht (cf. Dateschutzerklärung op autoservicebettenduerf.lu)."
       ] },
     de: { title:"Mietvertrag", ref:"Ref.", secVermieter:"Vermieter", secMieter:"Mieter", secObjet:"Mietobjekt", secPeriod:"Mietzeitraum", secPrix:"Preis, Kaution und Zahlung", secTerms:"Bedingungen",
@@ -409,8 +410,9 @@
         "<b>Nutzung.</b> Sorgfältige und bestimmungsgemäße Nutzung. Kein Überladen, keine Weitervermietung, keine rechtswidrige Nutzung. Fahrten mit Anhänger oder ins Ausland nur mit ausdrücklicher Erlaubnis.",
         "<b>Kilometer & Betankung.</b> {included} km pro Miete sind inbegriffen; jeder weitere Kilometer wird mit {km} berechnet. Das Fahrzeug ist vollgetankt zurückzubringen, andernfalls werden die Tankkosten + 50 € Pauschale berechnet.",
         "<b>Rückgabe & Verspätung.</b> Rückgabe zur vereinbarten Zeit und am vereinbarten Ort. Je angefangene Stunde Verspätung werden {late} berechnet.",
-        "<b>Kaution & Zahlung.</b> Die Kaution wird vor Beginn festgelegt; die Zahlung erfolgt bei der Rückgabe des Fahrzeugs.",
-        "<b>Versicherung & Haftung.</b> Bei Unfall, Panne, Diebstahl oder Schaden ist Autoservice Bettenduerf unverzüglich zu informieren; keine Reparatur ohne Zustimmung. Zwingende gesetzliche Rechte bleiben unberührt.",
+        "<b>Kaution & Zahlung.</b> Die Kaution beträgt 250 €; die Zahlung erfolgt bei der Rückgabe des Fahrzeugs.",
+        "<b>Versicherung & Haftung.</b> Das Fahrzeug ist bei Foyer Assurances versichert; die Selbstbeteiligung beträgt 750 € je Schadenfall. Bei Unfall, Panne, Diebstahl oder Schaden ist Autoservice Bettenduerf unverzüglich zu informieren; keine Reparatur ohne Zustimmung.",
+        "<b>Stornierung.</b> Eine Stornierung bis 24 Stunden vor Beginn ist kostenlos. Unter 24 Stunden oder bei Nichterscheinen werden 50 € berechnet.",
         "<b>Datenschutz.</b> Die personenbezogenen Daten werden ausschließlich zur Abwicklung der Vermietung verarbeitet (siehe Datenschutzerklärung auf autoservicebettenduerf.lu)."
       ] },
     fr: { title:"Contrat de location", ref:"Réf.", secVermieter:"Loueur", secMieter:"Locataire", secObjet:"Objet loué", secPeriod:"Période de location", secPrix:"Prix, caution et paiement", secTerms:"Conditions",
@@ -431,8 +433,9 @@
         "<b>Utilisation.</b> Utilisation soigneuse et conforme. Pas de surcharge, pas de sous-location, pas d'usage illicite. Les trajets avec remorque ou à l'étranger nécessitent une autorisation expresse.",
         "<b>Kilométrage & carburant.</b> {included} km par location sont inclus ; chaque kilomètre supplémentaire est facturé {km}. Le véhicule doit être rendu avec le plein, sinon les frais de carburant + un forfait de 50 € sont facturés.",
         "<b>Retour & retard.</b> Retour à l'heure et au lieu convenus. Chaque heure de retard entamée est facturée {late}.",
-        "<b>Caution & paiement.</b> La caution est fixée avant le début ; le paiement s'effectue au retour du véhicule.",
-        "<b>Assurance & responsabilité.</b> En cas d'accident, de panne, de vol ou de dommage, Autoservice Bettenduerf doit être informé immédiatement ; aucune réparation sans accord. Les droits légaux impératifs restent réservés.",
+        "<b>Caution & paiement.</b> La caution est de 250 € ; le paiement s'effectue au retour du véhicule.",
+        "<b>Assurance & responsabilité.</b> Le véhicule est assuré auprès de Foyer Assurances ; la franchise est de 750 € par sinistre. En cas d'accident, de panne, de vol ou de dommage, Autoservice Bettenduerf doit être informé immédiatement ; aucune réparation sans accord.",
+        "<b>Annulation.</b> L'annulation est gratuite jusqu'à 24 heures avant le début. À moins de 24 heures ou en cas de non-présentation, 50 € sont facturés.",
         "<b>Protection des données.</b> Les données personnelles sont traitées uniquement pour la gestion de la location (voir la déclaration de confidentialité sur autoservicebettenduerf.lu)."
       ] },
     en: { title:"Rental agreement", ref:"Ref.", secVermieter:"Lessor", secMieter:"Renter", secObjet:"Rented item", secPeriod:"Rental period", secPrix:"Price, deposit and payment", secTerms:"Conditions",
@@ -453,8 +456,9 @@
         "<b>Use.</b> Careful and proper use. No overloading, no subletting, no unlawful use. Trips with a trailer or abroad require express permission.",
         "<b>Mileage & fuel.</b> {included} km per rental are included; each additional kilometre is charged at {km}. The vehicle must be returned with a full tank, otherwise the fuel costs + a €50 flat fee are charged.",
         "<b>Return & lateness.</b> Return at the agreed time and place. Each started hour of delay is charged {late}.",
-        "<b>Deposit & payment.</b> The deposit is set before the start; payment is made on return of the vehicle.",
-        "<b>Insurance & liability.</b> In case of accident, breakdown, theft or damage, Autoservice Bettenduerf must be informed immediately; no repair without consent. Mandatory statutory rights remain unaffected.",
+        "<b>Deposit & payment.</b> The deposit is €250; payment is made on return of the vehicle.",
+        "<b>Insurance & liability.</b> The vehicle is insured by Foyer Assurances; the excess is €750 per claim. In case of accident, breakdown, theft or damage, Autoservice Bettenduerf must be informed immediately; no repair without consent.",
+        "<b>Cancellation.</b> Cancellation is free until 24 hours before the start. Within 24 hours or in the event of a no-show, €50 is charged.",
         "<b>Data protection.</b> Personal data is processed solely to handle the rental (see the privacy policy at autoservicebettenduerf.lu)."
       ] }
   };
@@ -536,7 +540,7 @@
   }
   function contractInner(d, T) {
     function R(label, val) { return val ? ppRow(label, val) : ppFill(label); }
-    var vermieter = '<table class="pp-tbl">' + ppRow(T.firma, "Autoservice Bettenduerf") + ppRow(T.adr, "63, rue de Diekirch-Echternach · L-9355 Bettendorf") + ppRow(T.tel, "+352 80 86 87 · +352 621 435 495") + ppRow(T.email, "Autoservicebettenduerf@outlook.com") + ppRow(T.rcs, "A39773 · LU26600977") + "</table>";
+    var vermieter = '<table class="pp-tbl">' + ppRow(T.firma, "Yves Kremer · Autoservice Bettenduerf") + ppRow(T.adr, "63, rue de Diekirch-Echternach · L-9355 Bettendorf") + ppRow(T.tel, "+352 80 86 87 · +352 621 435 495") + ppRow(T.email, "Autoservicebettenduerf@outlook.com") + ppRow(T.rcs, "A39773 · LU26600977 · Aut. 10038124/0 + /1") + "</table>";
     var mieter = '<table class="pp-tbl">' + R(T.numm, d.name) + R(T.email, d.email) + R(T.tel, d.phone) + ppFill(T.adrMieter) + ppFill(T.dob) + ppFill(T.licNo) + ppFill(T.idNo) + "</table>";
     var objet = d.trailer
       ? '<table class="pp-tbl">' + R(T.gefier, d.veh) + R(T.plaque, d.plate) + R(T.typ, d.typeLabel) + R(T.baujoer, d.year) + R(T.dims, d.dims) + R(T.gvw, d.gvw) + R(T.payload, d.payload) + R(T.brake, d.brakeLabel) + R(T.fs, d.license) + "</table>"

@@ -7,6 +7,7 @@ on:
       - "worker/admin-api.js"
       - "worker/admin-wrangler.toml"
       - "worker/admin-schema.json"
+      - "worker/business-migrations.sql"
       - "tools/prepare_admin_schema.js"
       - "tools/d1_cli.js"
       - ".github/workflows/deploy-worker.yml"
@@ -32,6 +33,11 @@ jobs:
       - run: npm install --no-save --package-lock=false wrangler@4.149.0
       - name: Apply only missing admin schema definitions
         run: node tools/prepare_admin_schema.js
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Apply idempotent confirmed business-data corrections
+        run: node node_modules/wrangler/bin/wrangler.js d1 execute garage-admin --remote -c worker/admin-wrangler.toml --file worker/business-migrations.sql
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

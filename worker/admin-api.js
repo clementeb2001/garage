@@ -472,10 +472,10 @@ function confirmMail(b) {
   var t = T || { s: "Är Reservatioun ass bestätegt", h: "Reservatioun bestätegt", p: "Mir hunn Är Reservatioun bestätegt:", veh: "Gefier", from: "Vun", to: "Bis", foot: "Merci!" };
   t.ref = { lb: "Réf.", de: "Ref.", fr: "Réf.", en: "Ref." }[L] || "Réf.";
   var masterTerms = /renault\s+master/i.test(b.veh || "") ? ({
-    lb: "Konditiounen: 100 € pro ugefaangene 24 Stonnen, 250 km pro Locatioun abegraff, duerno 0,30 €/km, Kautioun 300 €, verspéite Retour 20 € pro ugefaangener Stonn.",
-    de: "Konditionen: 100 € pro angefangenen 24 Stunden, 250 km pro Miete inklusive, danach 0,30 €/km, Kaution 300 €, verspätete Rückgabe 20 € pro angefangener Stunde.",
-    fr: "Conditions : 100 € par tranche de 24 heures entamée, 250 km par location inclus, puis 0,30 €/km, caution 300 €, retard 20 € par heure entamée.",
-    en: "Terms: €100 per 24-hour period or part thereof, 250 km included per rental, then €0.30/km, €300 deposit, late return €20 per hour or part thereof."
+    lb: "Konditiounen: 100 € pro ugefaangene 24 Stonnen, 250 km pro Locatioun abegraff, duerno 0,30 €/km, Kautioun 250 €, Foyer-Assurance mat 750 € Selbstbedeelegung pro Schuedefall, verspéite Retour 20 € pro ugefaangener Stonn. Annulatioun ënner 24 Stonnen oder Net-Erschéinen: 50 €.",
+    de: "Konditionen: 100 € pro angefangenen 24 Stunden, 250 km pro Miete inklusive, danach 0,30 €/km, Kaution 250 €, Foyer-Versicherung mit 750 € Selbstbeteiligung je Schadenfall, verspätete Rückgabe 20 € pro angefangener Stunde. Stornierung unter 24 Stunden oder Nichterscheinen: 50 €.",
+    fr: "Conditions : 100 € par tranche de 24 heures entamée, 250 km par location inclus, puis 0,30 €/km, caution 250 €, assurance Foyer avec franchise de 750 € par sinistre, retard 20 € par heure entamée. Annulation à moins de 24 heures ou non-présentation : 50 €.",
+    en: "Terms: €100 per 24-hour period or part thereof, 250 km included per rental, then €0.30/km, €250 deposit, Foyer insurance with a €750 excess per claim, late return €20 per hour or part thereof. Cancellation within 24 hours or no-show: €50."
   }[L] || "") : "";
   var html =
     '<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1c2430">' +
