@@ -878,10 +878,10 @@ export default {
       /* ---- Clientedatebank (additiv; Originalufroe bleiwen onverännert) ---- */
       if (path === "/customers" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error:"forbidden" }, 403);
-        const cs = (await env.DB.prepare("SELECT * FROM customers ORDER BY updated_at DESC,id DESC").all()).results || [];
-        const vs = (await env.DB.prepare("SELECT * FROM customer_vehicles ORDER BY id DESC").all()).results || [];
+        const cs = (await env.DB.prepare("SELECT * FROM customers c WHERE trim(COALESCE(c.email,''))='' OR c.id=(SELECT MIN(c2.id) FROM customers c2 WHERE lower(trim(c2.email))=lower(trim(c.email))) ORDER BY updated_at DESC,id DESC").all()).results || [];
+        const vs = (await env.DB.prepare("SELECT v.*,COALESCE((SELECT MIN(c2.id) FROM customers c2 WHERE lower(trim(c2.email))=lower(trim(c.email))),v.customer_id) canonical_customer_id FROM customer_vehicles v LEFT JOIN customers c ON c.id=v.customer_id ORDER BY v.id DESC").all()).results || [];
         const history = (await env.DB.prepare("SELECT c.id customer_id, COUNT(DISTINCT a.id) appointments, COUNT(DISTINCT b.id) rentals FROM customers c LEFT JOIN appointments a ON lower(trim(a.email))=lower(trim(c.email)) AND trim(COALESCE(c.email,''))<>'' LEFT JOIN bookings b ON lower(trim(b.cust_email))=lower(trim(c.email)) AND trim(COALESCE(c.email,''))<>'' GROUP BY c.id").all()).results || [];
-        const vBy = {}, hBy = {}; vs.forEach(v => { (vBy[v.customer_id] ||= []).push({ id:v.id, makeModel:v.make_model, plate:v.plate||"", vin:v.vin||"", year:v.year||"", mileage:v.mileage==null?"":v.mileage, notes:v.notes||"" }); }); history.forEach(h => { hBy[h.customer_id]=h; });
+        const vBy = {}, vSeen={}, hBy = {}; vs.forEach(v => { const key=v.canonical_customer_id||v.customer_id, list=(vBy[key] ||= []), sig=[v.make_model,v.plate||"",v.vin||""].join("|").toLowerCase(); vSeen[key] ||= new Set(); if(!vSeen[key].has(sig)){vSeen[key].add(sig);list.push({ id:v.id, makeModel:v.make_model, plate:v.plate||"", vin:v.vin||"", year:v.year||"", mileage:v.mileage==null?"":v.mileage, notes:v.notes||"" });} }); history.forEach(h => { hBy[h.customer_id]=h; });
         return json(env, { customers:cs.map(c => ({ id:c.id,name:c.name,email:c.email||"",phone:c.phone||"",notes:c.notes||"",source:c.source||"manual",createdAt:c.created_at,updatedAt:c.updated_at,vehicles:vBy[c.id]||[],appointments:Number(hBy[c.id]?.appointments||0),rentals:Number(hBy[c.id]?.rentals||0) })) });
       }
       if (path === "/customers" && method === "POST") {
