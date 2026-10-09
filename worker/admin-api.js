@@ -614,14 +614,14 @@ export default {
       }
 
       /* ---- public: gespaart Termin-Hallefdeeg (nëmmen Datum + Slot, keng perséinlech Donnéeën) ---- */
-      if (path === "/appointment-availability" && method === "GET") {
+      if (path === "/appointment-availability" && (method === "GET" || method === "HEAD")) {
         const sinceDay = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
         const rows = (await env.DB.prepare("SELECT date, slot FROM appointment_blocks WHERE date >= ?1 ORDER BY date ASC LIMIT 1000").bind(sinceDay).all()).results || [];
         return json(env, { blocks: rows.map((r) => ({ date: r.date, slot: r.slot })) }, 200, { "Cache-Control": "public, max-age=120" });
       }
 
       /* ---- public: aktiv Gefierer aus der interner Flotte ---- */
-      if (path === "/fleet/public" && method === "GET") {
+      if (path === "/fleet/public" && (method === "GET" || method === "HEAD")) {
         const rows = (await env.DB.prepare("SELECT id,vehicle,description,image_url,price_day,deposit,included_km,extra_km_rate,late_fee_hour,year,seats,fuel,transmission,license_class,load_space,features,asset_type,gross_weight,payload,braked FROM maintenance WHERE public_active=1 AND fleet_status!='blocked' ORDER BY id ASC").all()).results || [];
         return json(env, { vehicles: rows.map((x) => ({ id:"fleet-"+x.id,type:["van","car","trailer"].includes(x.asset_type)?x.asset_type:"van",name:x.vehicle,description:x.description||"",image:x.image_url||"",priceDay:Number(x.price_day||0),deposit:Number(x.deposit||0),includedKm:Number(x.included_km||0),extraKmRate:Number(x.extra_km_rate||0),lateFeeHour:Number(x.late_fee_hour||0),year:x.year||"",seats:x.seats||"",fuel:x.fuel||"",transmission:x.transmission||"",licenseClass:x.license_class||"",loadSpace:x.load_space||"",grossWeight:x.gross_weight||"",payload:x.payload||"",braked:!!x.braked,features:String(x.features||"").split("\n").map((v)=>v.trim()).filter(Boolean) })) }, 200, { "Cache-Control": "public, max-age=120" });
       }
@@ -1219,4 +1219,3 @@ async function adminCount(env) {
   const r = await env.DB.prepare("SELECT COUNT(*) AS n FROM users WHERE role='admin' AND active=1").first();
   return r ? r.n : 0;
 }
-

@@ -62,7 +62,7 @@
           <img class="site-logo" src="assets/autoservice-bettenduerf-logo.png" alt="Autoservice Bettenduerf" width="1351" height="728" />
         </a>
 
-        <div class="header-actions" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
+        <div class="header-actions" role="group" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
           <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta">Rendez-vous ufroen</a>
           <a href="/lb/location.html" class="nav-rental" aria-current="page"><span aria-hidden="true">🚐</span> <span data-i18n="rental_nav">Locatioun</span></a>
           <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · geschwënn</span></a>
@@ -83,7 +83,7 @@
           <a href="index.html#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
           <a href="index.html#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
           <a href="index.html#faq">FAQ</a>
-          <div class="menu-mobile-actions" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
+          <div class="menu-mobile-actions" role="group" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
             <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta">Rendez-vous ufroen</a>
             <a href="/lb/location.html" class="nav-rental" aria-current="page"><span aria-hidden="true">🚐</span> <span data-i18n="rental_nav">Locatioun</span></a>
             <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · geschwënn</span></a>
@@ -181,18 +181,18 @@
             <div class="field-row">
               <div class="field">
                 <label for="r-from-date" id="lbl-r-from">Vun</label>
-                <input type="hidden" id="r-from" name="Vun (Datum an Auerzäit)" required />
+                <input type="hidden" id="r-from" name="Vun (Datum an Auerzäit)" />
                 <div class="rental-datetime" data-for="r-from">
                   <input type="date" id="r-from-date" aria-labelledby="lbl-r-from" required />
-                  <select id="r-from-time" aria-label="Auerzäit vun" required></select>
+                  <select id="r-from-time" aria-label="Auerzäit vun" required><option value="">Auerzäit wielen</option></select>
                 </div>
               </div>
               <div class="field">
                 <label for="r-to-date" id="lbl-r-to">Bis</label>
-                <input type="hidden" id="r-to" name="Bis (Datum an Auerzäit)" required />
+                <input type="hidden" id="r-to" name="Bis (Datum an Auerzäit)" />
                 <div class="rental-datetime" data-for="r-to">
                   <input type="date" id="r-to-date" aria-labelledby="lbl-r-to" required />
-                  <select id="r-to-time" aria-label="Auerzäit bis" required></select>
+                  <select id="r-to-time" aria-label="Auerzäit bis" required><option value="">Auerzäit wielen</option></select>
                 </div>
               </div>
             </div>
@@ -278,14 +278,14 @@
           </div>
         </div>
         <nav class="footer-nav" aria-label="Footer">
-          <h4 data-i18n="footer_nav_h">Navigatioun</h4>
+          <h3 data-i18n="footer_nav_h">Navigatioun</h3>
           <a href="index.html#leistungen" data-i18n="nav_services">Servicer</a>
           <a href="index.html#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
           <a href="index.html#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
           <a href="index.html#kontakt" data-i18n="nav_cta">Rendez-vous ufroen</a>
         </nav>
         <div class="footer-contact">
-          <h4 data-i18n="footer_contact_h">Kontakt</h4>
+          <h3 data-i18n="footer_contact_h">Kontakt</h3>
           <p>63, rue de Diekirch-Echternach<br />L-9355 Bettendorf</p>
           <p>
             <a href="tel:+352808687">+352 80 86 87</a> ·
@@ -304,7 +304,7 @@
       </div>
     </footer>
 
-    <a href="#top" class="back-to-top" id="back-to-top" aria-label="Nach oben / Back to top">↑</a>
+    <a href="#top" class="back-to-top" id="back-to-top" aria-label="No uewen">↑</a>
 
     <script src="script.js?v=27"></script>
     <script src="location.js?v=40"></script>

@@ -910,7 +910,13 @@
       var msg = document.getElementById("message");
       var vehicleInput = document.getElementById("fahrzeug");
       var serviceSelect = document.getElementById("service");
-      if (msg) msg.value = "Passformprüfung für " + shopName + "\nArtikelnummer: " + shopProduct + (shopVehicle ? "\nFahrzeug: " + shopVehicle : "") + "\n\nBitte prüfen Sie, ob dieses Teil zu meinem Fahrzeug passt.";
+      var fitText = {
+        lb: { title: "Passformkontroll fir ", number: "Artikelnummer: ", vehicle: "Gefier: ", request: "Kuckt wgl. no, ob dëst Deel bei mäi Gefier passt." },
+        de: { title: "Passformprüfung für ", number: "Artikelnummer: ", vehicle: "Fahrzeug: ", request: "Bitte prüfen Sie, ob dieses Teil zu meinem Fahrzeug passt." },
+        fr: { title: "Contrôle de compatibilité pour ", number: "Référence : ", vehicle: "Véhicule : ", request: "Veuillez vérifier si cette pièce est compatible avec mon véhicule." },
+        en: { title: "Fitment check for ", number: "Part number: ", vehicle: "Vehicle: ", request: "Please check whether this part fits my vehicle." }
+      }[currentLang] || null;
+      if (msg && fitText) msg.value = fitText.title + shopName + "\n" + fitText.number + shopProduct + (shopVehicle ? "\n" + fitText.vehicle + shopVehicle : "") + "\n\n" + fitText.request;
       if (vehicleInput && shopVehicle) vehicleInput.value = shopVehicle;
       if (serviceSelect) serviceSelect.selectedIndex = serviceSelect.options.length - 1;
     }

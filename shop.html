@@ -83,7 +83,7 @@
           />
         </a>
 
-        <div class="header-actions" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
+        <div class="header-actions" role="group" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
           <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta">Rendez-vous ufroen</a>
           <a href="location.html" class="nav-rental"><span aria-hidden="true">🚐</span> <span data-i18n="rental_nav">Locatioun</span></a>
           <a href="shop.html" class="nav-shop" aria-current="page"><span aria-hidden="true">🛒</span> <span data-i18n="nav_shop">Shop</span></a>
@@ -104,7 +104,7 @@
           <a href="index.html#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
           <a href="index.html#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
           <a href="index.html#faq">FAQ</a>
-          <div class="menu-mobile-actions" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
+          <div class="menu-mobile-actions" role="group" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
             <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta">Rendez-vous ufroen</a>
             <a href="location.html" class="nav-rental"><span aria-hidden="true">🚐</span> <span data-i18n="rental_nav">Locatioun</span></a>
             <a href="shop.html" class="nav-shop" aria-current="page"><span aria-hidden="true">🛒</span> <span data-i18n="nav_shop">Shop</span></a>
@@ -180,7 +180,7 @@
             </aside>
           </div>
 
-          <div class="shop-search" aria-labelledby="shop-finder-title">
+          <div class="shop-search" role="search" aria-labelledby="shop-finder-title">
             <div class="shop-finder-head">
               <div>
                 <span class="shop-finder-step" id="shop-finder-step">SCHRËTT 1</span>
@@ -198,6 +198,7 @@
                 id="tab-artikel"
                 data-tab="artikel"
                 role="tab"
+                aria-controls="panel-artikel"
                 aria-selected="false"
               >
                 🔎 <span id="lbl-tab-artikel">Artikel</span>
@@ -207,13 +208,14 @@
                 id="tab-fahrzeug"
                 data-tab="fahrzeug"
                 role="tab"
+                aria-controls="panel-fahrzeug"
                 aria-selected="true"
               >
                 🚗 <span id="lbl-tab-fahrzeug">Won</span>
               </button>
             </div>
 
-            <div class="shop-panel" id="panel-artikel" role="tabpanel" hidden>
+            <div class="shop-panel" id="panel-artikel" role="tabpanel" aria-labelledby="tab-artikel" hidden>
               <div class="search-row">
                 <input
                   type="search"
@@ -232,7 +234,7 @@
               </div>
             </div>
 
-            <div class="shop-panel" id="panel-fahrzeug" role="tabpanel">
+            <div class="shop-panel" id="panel-fahrzeug" role="tabpanel" aria-labelledby="tab-fahrzeug">
               <div class="veh-row">
                 <div class="veh-field combo">
                   <label for="veh-brand"><span>1</span><b id="label-veh-brand">Mark</b></label>
@@ -291,7 +293,7 @@
           ></div>
           <div class="shop-vehicle-summary" id="shop-vehicle-summary" hidden><strong id="shop-vehicle-summary-text"></strong><button type="button" id="shop-vehicle-change">Fahrzeug ändern</button><button type="button" id="shop-vehicle-clear">Zurücksetzen</button></div>
           <button class="shop-filter-mobile-toggle" id="shop-filter-mobile-toggle" type="button" aria-expanded="false" aria-controls="shop-filterbar">Filter &amp; Sortierung</button>
-          <div class="shop-filterbar" id="shop-filterbar" aria-label="Produktfilter">
+          <div class="shop-filterbar" id="shop-filterbar" role="group" aria-label="Produktfilter">
             <label for="filter-axle"><span id="filter-axle-label">Achse</span><select id="filter-axle"><option value="all">Alle Achsen</option><option value="F">Vorderachse</option><option value="R">Hinterachse</option></select></label>
             <label for="filter-approval"><span id="filter-approval-label">Zulassung</span><select id="filter-approval"><option value="all">Alle Zulassungen</option><option value="road">Straßenzulassung</option><option value="race">Ohne Straßenzulassung</option></select></label>
             <label for="filter-sort"><span id="filter-sort-label">Sortierung</span><select id="filter-sort"><option value="name">Name A–Z</option><option value="price-asc">Preis aufsteigend</option><option value="price-desc">Preis absteigend</option></select></label>
@@ -380,7 +382,7 @@
 
     <!-- Warekuerf-Panel -->
     <div class="cart-backdrop" id="cart-backdrop" hidden></div>
-    <aside
+    <div
       class="cart-drawer"
       id="cart-drawer"
       role="dialog"
@@ -408,7 +410,7 @@
         <p class="cart-note" id="cart-note">Mir kontrolléieren d’Passform, de Präis, d’Liwwerkäschten an d’Liwwerzäit a kontaktéieren Iech. Dëst ass nach keng verbindlech Bestellung.</p>
         <p class="form-status" id="cart-status" role="status" aria-live="polite"></p>
       </div>
-    </aside>
+    </div>
 
     <!-- Footer -->
     <footer class="site-footer">
@@ -443,7 +445,7 @@
           </div>
         </div>
         <nav class="footer-nav" aria-label="Footer">
-          <h4 data-i18n="footer_nav_h">Navigatioun</h4>
+          <h3 data-i18n="footer_nav_h">Navigatioun</h3>
           <a href="index.html#leistungen" data-i18n="nav_services">Servicer</a>
           <a href="index.html#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
           <a href="shop.html" data-i18n="nav_shop">Shop</a>
@@ -452,7 +454,7 @@
           >
         </nav>
         <div class="footer-contact">
-          <h4 data-i18n="footer_contact_h">Kontakt</h4>
+          <h3 data-i18n="footer_contact_h">Kontakt</h3>
           <p>63, rue de Diekirch-Echternach<br />L-9355 Bettendorf</p>
           <p>
             <a href="tel:+352808687">+352 80 86 87</a> ·
@@ -484,7 +486,7 @@
       </div>
     </footer>
 
-    <div class="mobile-contact" aria-label="Schnellkontakt" data-i18n-aria="quick_contact">
+    <div class="mobile-contact" role="group" aria-label="Schnellkontakt" data-i18n-aria="quick_contact">
       <a href="tel:+352808687"
         >📞 <span data-i18n="mobile_call">Uruffen</span></a
       >

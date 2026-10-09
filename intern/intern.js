@@ -849,7 +849,16 @@
   function dLabel(s) { var d = parseDay(s); if (!d) return esc(s || ""); function p(n) { return (n < 10 ? "0" : "") + n; } return p(d.getDate()) + "." + p(d.getMonth() + 1) + "." + d.getFullYear(); }
   function timeStr(s) { if (!s) return ""; var d = new Date(s); if (isNaN(d)) return ""; return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
   function vehColorMap(bookings) { var map = {}, i = 0; bookings.forEach(function (b) { var v = b.veh || "?"; if (map[v] == null) { map[v] = VEH_COLORS[i % VEH_COLORS.length]; i++; } }); return map; }
-  function parseDay(s) { if (!s) return null; var d = new Date(s); return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function parseDay(s) {
+    if (!s) return null;
+    var match = String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+      var localDay = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+      return isNaN(localDay.getTime()) ? null : localDay;
+    }
+    var d = new Date(s);
+    return isNaN(d.getTime()) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
   function startOfWeek(d) { var x = new Date(d); var g = (x.getDay() + 6) % 7; x.setDate(x.getDate() - g); x.setHours(0, 0, 0, 0); return x; }
   function overlaps(a, b) { var a1 = parseDay(a.from) || parseDay(a.to), a2 = parseDay(a.to) || a1, b1 = parseDay(b.from) || parseDay(b.to), b2 = parseDay(b.to) || b1; if (!a1 || !b1) return false; return a1 <= b2 && b1 <= a2; }
   function vehName(v) { return (v || "").replace(/\s*\(.*$/, ""); }
@@ -1047,7 +1056,7 @@
   function renderMaintDash(maint) {
     var el = $("maint-dash"); if (!el) return;
     var btn = $("maint-manage"); if (btn) { btn.hidden = !can("bookings.validate"); btn.onclick = function () { gotoPage("wartung"); }; }
-    if (!maint || !maint.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Nach keng Wartungs-Antrag. ' + (can("bookings.validate") ? 'Leg se ënner „Wartung“ un.' : "") + "</p>"; return; }
+    if (!maint || !maint.length) { el.innerHTML = '<p class="muted" style="font-size:0.85rem">Nach keng Wartungsufro. ' + (can("bookings.validate") ? 'Lee se ënner „Flotte“ un.' : "") + "</p>"; return; }
     var arr = maint.map(function (m) { return { m: m, days: maintDays(m) }; }).sort(function (a, b) {
       if (a.days == null && b.days == null) return 0; if (a.days == null) return 1; if (b.days == null) return -1; return a.days - b.days;
     }).slice(0, 5);
@@ -1065,7 +1074,7 @@
       counts.push({ c: c, t: i === 0 }); if (c > max) max = c;
       labels.push(i === 0 ? "haut" : (i % 2 === 0 ? (i > 0 ? "+" + i : "" + i) : ""));
     }
-    bars.innerHTML = counts.map(function (x) { return '<div class="abar' + (x.t ? " today" : "") + '" style="height:' + Math.max(6, Math.round(x.c / max * 100)) + '%" title="' + x.c + ' Termäiner"></div>'; }).join("");
+    bars.innerHTML = counts.map(function (x) { return '<div class="abar' + (x.t ? " today" : "") + '" style="height:' + Math.max(6, Math.round(x.c / max * 100)) + '%" title="' + x.c + ' Rendez-vous"></div>'; }).join("");
     xs.innerHTML = labels.map(function (l) { return "<div>" + l + "</div>"; }).join("");
   }
 
@@ -1121,7 +1130,7 @@
     evs.sort(function (x, y) { return x.sort - y.sort; });
     $("day-title").textContent = dLabel(dkey);
     var body = $("day-body");
-    var eventsHtml = evs.length ? evs.map(function (e) { return '<div class="devent"><span class="dd" style="background:' + e.color + '"></span><div style="min-width:0"><div class="dt">' + e.t + '</div><div class="ds">' + e.s + "</div></div></div>"; }).join("") : '<p class="muted" style="font-size:0.88rem">Keng Termäiner op dësem Dag.</p>';
+    var eventsHtml = evs.length ? evs.map(function (e) { return '<div class="devent"><span class="dd" style="background:' + e.color + '"></span><div style="min-width:0"><div class="dt">' + e.t + '</div><div class="ds">' + e.s + "</div></div></div>"; }).join("") : '<p class="muted" style="font-size:0.88rem">Keng Rendez-vousen op dësem Dag.</p>';
     var canVal = can("bookings.validate");
     var amB = isSlotBlocked(dkey, "am"), pmB = isSlotBlocked(dkey, "pm"), closedB = isSlotBlocked(dkey, "closed");
     function slotBtn(slot, label, blocked) {
@@ -1654,4 +1663,3 @@
   }
   boot();
 })();
-

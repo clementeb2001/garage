@@ -26,7 +26,7 @@
     <link rel="alternate" hreflang="fr" href="https://autoservicebettenduerf.lu/fr/" />
     <link rel="alternate" hreflang="en" href="https://autoservicebettenduerf.lu/en/" />
     <link rel="alternate" hreflang="x-default" href="https://autoservicebettenduerf.lu/lb/" />
-    <meta property="og:url" content="https://autoservicebettenduerf.lu/" />
+    <meta property="og:url" content="https://autoservicebettenduerf.lu/lb/" />
     <meta
       property="og:image"
       content="https://autoservicebettenduerf.lu/assets/social-preview.jpg"
@@ -106,7 +106,7 @@
           />
         </a>
 
-        <div class="header-actions" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
+        <div class="header-actions" role="group" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
           <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta">Rendez-vous ufroen</a>
           <a href="location.html" class="nav-rental"><span aria-hidden="true">🚐</span> <span data-i18n="rental_nav">Locatioun</span></a>
           <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · geschwënn</span></a>
@@ -127,7 +127,7 @@
           <a href="index.html#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
           <a href="index.html#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
           <a href="index.html#faq">FAQ</a>
-          <div class="menu-mobile-actions" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
+          <div class="menu-mobile-actions" role="group" aria-label="Schnellaktiounen" data-i18n-aria="quick_actions">
             <a href="index.html#kontakt" class="nav-cta" data-i18n="nav_cta">Rendez-vous ufroen</a>
             <a href="location.html" class="nav-rental"><span aria-hidden="true">🚐</span> <span data-i18n="rental_nav">Locatioun</span></a>
             <a href="shop.html" class="nav-shop"><span aria-hidden="true">🛒</span> <span data-i18n="shop_soon_nav">Shop · geschwënn</span></a>
@@ -174,8 +174,8 @@
             viewBox="0 0 300 300"
             width="100%"
             height="100%"
-            role="img"
-            aria-label="Concave Felge"
+            aria-hidden="true"
+            focusable="false"
           >
             <defs>
               <radialGradient id="dish" cx="50%" cy="50%" r="50%">
@@ -947,14 +947,14 @@
           </div>
         </div>
         <nav class="footer-nav" aria-label="Footer">
-          <h4 data-i18n="footer_nav_h">Navigatioun</h4>
+          <h3 data-i18n="footer_nav_h">Navigatioun</h3>
           <a href="#leistungen" data-i18n="nav_services">Servicer</a>
           <a href="#ueber-uns" data-i18n="nav_about">Iwwer eis</a>
           <a href="#oeffnungszeiten" data-i18n="nav_hours">Ëffnungszäiten</a>
           <a href="#kontakt" data-i18n="nav_cta">Rendez-vous ufroen</a>
         </nav>
         <div class="footer-contact">
-          <h4 data-i18n="footer_contact_h">Kontakt</h4>
+          <h3 data-i18n="footer_contact_h">Kontakt</h3>
           <p>63, rue de Diekirch-Echternach<br />L-9355 Bettendorf</p>
           <p>
             <a href="tel:+352808687">+352 80 86 87</a> ·
@@ -986,7 +986,7 @@
       </div>
     </footer>
 
-    <div class="mobile-contact" aria-label="Schnellkontakt" data-i18n-aria="quick_contact">
+    <div class="mobile-contact" role="group" aria-label="Schnellkontakt" data-i18n-aria="quick_contact">
       <a href="tel:+352808687"
         >📞 <span data-i18n="mobile_call">Uruffen</span></a
       >
@@ -1007,7 +1007,7 @@
       <button class="lightbox-close" id="lightbox-close" aria-label="Zoumaachen">
         ✕
       </button>
-      <img id="lightbox-img" alt="" />
+      <img id="lightbox-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="" />
     </div>
 
     <script src="script.js?v=27"></script>
@@ -1023,4 +1023,3 @@
     <!-- End Cloudflare Web Analytics -->
   </body>
 </html>
-

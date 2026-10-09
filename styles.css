@@ -1170,8 +1170,8 @@ a.ci-value:hover {
 .footer-brand .brand-text {
   margin-bottom: 4px;
 }
-.footer-nav h4,
-.footer-contact h4 {
+.footer-nav h3,
+.footer-contact h3 {
   color: #fff;
   font-size: 1rem;
   margin-bottom: 16px;
@@ -5384,11 +5384,11 @@ html.shop-dev .shop-add:hover {
 .hero h1,
 .hero .lead,
 .hero-actions {
-  animation: gk-hero-in 0.75s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation: gk-hero-in 0.38s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
-.hero h1 { animation-delay: 0.1s; }
-.hero .lead { animation-delay: 0.22s; }
-.hero-actions { animation-delay: 0.34s; }
+.hero h1 { animation-delay: 0.03s; }
+.hero .lead { animation-delay: 0.06s; }
+.hero-actions { animation-delay: 0.09s; }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-bg { animation: none; }

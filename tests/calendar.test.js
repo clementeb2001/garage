@@ -3,9 +3,9 @@ const source=fs.readFileSync('worker/admin-api.js','utf8');
 const workerModule=import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 test('confirmed appointments use confirmed day, pending requests use preferred day',()=>{
  const s=fs.readFileSync('intern/intern.js','utf8'),ctx={Date};vm.createContext(ctx);
- vm.runInContext(s.match(/  function parseDay\(s\).*\n/)[0]+s.match(/  function apptDay\(a\).*\n/)[0],ctx);
- assert.equal(ctx.apptDay({status:'confirmed',prefDate:'2030-01-07',confirmedDate:'2030-01-09'}).getUTCDate(),9);
- assert.equal(ctx.apptDay({status:'new',prefDate:'2030-01-07',confirmedDate:'2030-01-09'}).getUTCDate(),7);
+ vm.runInContext(s.match(/  function parseDay\(s\) \{[\s\S]*?\n  \}/)[0]+"\n"+s.match(/  function apptDay\(a\).*\n/)[0],ctx);
+ assert.equal(ctx.apptDay({status:'confirmed',prefDate:'2030-01-07',confirmedDate:'2030-01-09'}).getDate(),9);
+ assert.equal(ctx.apptDay({status:'new',prefDate:'2030-01-07',confirmedDate:'2030-01-09'}).getDate(),7);
 });
 async function submit({prefDate='2030-01-07',altDate='',timeSlot='',blocks=[]}){
  const calls=[],jobs=[],{default:worker}=await workerModule;
