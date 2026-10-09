@@ -450,10 +450,11 @@
 
       /* ===== Day popover ===== */
       .daypop { position: fixed; inset: 0; background: rgba(8,15,24,0.5); z-index: 190; display: flex; align-items: center; justify-content: center; padding: 16px; }
-      .daycard { width: min(600px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 60px -16px rgba(0,0,0,0.5); overflow: hidden; max-height: 86vh; display: flex; flex-direction: column; }
-      .daycard header { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+      .daycard { width: min(600px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 60px -16px rgba(0,0,0,0.5); overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; }
+      .daycard header { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); flex: none; }
       .daycard header h3 { font-size: 1.05rem; margin: 0; } .daycard header .x { margin-left: auto; cursor: pointer; border: 0; background: var(--surface-2); border-radius: 8px; width: 30px; height: 30px; color: var(--fg); font-size: 1rem; }
-      .daycard .dbody { padding: 10px 16px 16px; display: flex; flex-direction: column; gap: 9px; overflow-y: auto; }
+      .daycard .dbody { padding: 10px 16px 16px; display: flex; flex-direction: column; gap: 9px; overflow-y: auto; min-height: 0; flex: 1 1 auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+      .daycard .dbody > * { flex: 0 0 auto; }
       .devent { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
       .devent .dd { width: 8px; align-self: stretch; min-height: 34px; border-radius: 4px; flex: none; }
       .devent .dt { font-weight: 600; font-size: 0.88rem; } .devent .ds { font-size: 0.78rem; color: var(--mut); }
