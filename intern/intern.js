@@ -133,7 +133,7 @@
   function showApp() {
     $("view-login").hidden = true; $("view-app").hidden = false;
     $("who-name").textContent = session.name + " · " + roleLabel(session.role);
-    $("nav-members").hidden = !can("members.manage");
+    $("nav-members").hidden = true;
     if (session.mustChange) { openPw(true); }
     else { gotoPage("dashboard"); }
   }
