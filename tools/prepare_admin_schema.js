@@ -31,7 +31,9 @@ function planSchema(snapshot) {
     }
   }
   for (const group of schema) for (const sql of group.indexes) {
-    const name = sql.match(/CREATE INDEX IF NOT EXISTS (\w+)/)[1];
+    const match = sql.match(/CREATE (?:UNIQUE )?INDEX IF NOT EXISTS (\w+)/);
+    if (!match) throw new Error(`Unsupported index definition: ${sql}`);
+    const name = match[1];
     if (!indexes.has(name)) { statements.push(sql); indexes.add(name); }
   }
   return statements;

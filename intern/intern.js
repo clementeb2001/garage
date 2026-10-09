@@ -100,6 +100,12 @@
     saveInspection: function (p) { return api("/rental-inspections", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
     uploadFleetImage: function(blob){return uploadImage(blob,"fleet");},
     uploadProtocolImage: function(blob){return uploadImage(blob,"protocol");},
+    listCustomers: function(){return api("/customers").then(function(r){if(r.status!==200)throw new Error(r.body.error||"server_error");return r.body.customers||[];});},
+    addCustomer: function(p){return api("/customers",{method:"POST",body:p}).then(function(r){return r.status===200?{ok:true,id:r.body.id}:{error:r.body.error};});},
+    addCustomerVehicle: function(id,p){return api("/customers/"+id+"/vehicles",{method:"POST",body:p}).then(function(r){return r.status===200?{ok:true,id:r.body.id}:{error:r.body.error};});},
+    listWorkOrders: function(){return api("/work-orders").then(function(r){if(r.status!==200)throw new Error(r.body.error||"server_error");return r.body.orders||[];});},
+    addWorkOrder: function(p){return api("/work-orders",{method:"POST",body:p}).then(function(r){return r.status===200?{ok:true,id:r.body.id,reference:r.body.reference}:{error:r.body.error};});},
+    updateWorkOrder: function(id,p){return api("/work-orders/"+id,{method:"POST",body:p}).then(function(r){return r.status===200?{ok:true}:{error:r.body.error};});},
   };
 
   var bookingListCache = null, requestListCache = null;
@@ -139,6 +145,8 @@
     $("page-bookings").hidden = p !== "bookings";
     $("page-appointments").hidden = p !== "appointments";
     $("page-inquiries").hidden = p !== "inquiries";
+    $("page-customers").hidden = p !== "customers";
+    $("page-workorders").hidden = p !== "workorders";
     $("page-wartung").hidden = p !== "wartung";
     $("page-members").hidden = p !== "members";
     $("page-pw").hidden = p !== "pw";
@@ -148,6 +156,8 @@
     else if (p === "bookings") renderBookings();
     else if (p === "appointments") renderAppointments();
     else if (p === "inquiries") renderInquiries();
+    else if (p === "customers") renderCustomers();
+    else if (p === "workorders") renderWorkOrders();
     else if (p === "wartung") renderWartung();
     else if (p === "members") renderMembers();
   }
@@ -1687,6 +1697,33 @@
 
   /* ---------- Members ---------- */
   function afterSelfRename() { toast("Däi Benotzernumm gouf geännert – logg dech w.e.g. nei an."); setToken(null); setTimeout(function () { session = null; showLogin(); }, 1400); }
+  /* ---------- Clienten & Aarbechtsopträg ---------- */
+  var customerCache=null, workOrderCache=null;
+  function loadCustomers(force){if(customerCache&&!force)return Promise.resolve(customerCache);return STORE.listCustomers().then(function(x){customerCache=x;return x;});}
+  function customerText(c){return [c.name,c.email,c.phone].concat((c.vehicles||[]).map(function(v){return [v.makeModel,v.plate,v.vin].join(" ");})).join(" ").toLowerCase();}
+  function renderCustomers(){
+    $("customer-list").innerHTML='<p class="empty">Clientë gi gelueden …</p>';
+    loadCustomers(false).then(function(items){var q=$("customer-search").value.trim().toLowerCase(),shown=items.filter(function(c){return !q||customerText(c).indexOf(q)!==-1;});$("customer-count").textContent=shown.length+" / "+items.length;
+      $("customer-list").innerHTML=shown.length?shown.map(function(c){var vehicles=(c.vehicles||[]).map(function(v){return '<div>🚗 <strong>'+esc(v.makeModel)+'</strong>'+(v.plate?' · '+esc(v.plate):'')+(v.vin?' · VIN '+esc(v.vin):'')+'</div>';}).join('');return '<article class="card crm-card"><h3>'+esc(c.name)+'</h3><div class="crm-meta">'+(c.email?'✉️ '+esc(c.email):'Keng E-Mail')+(c.phone?' · ☎ '+esc(c.phone):'')+'</div><div class="crm-stats"><span>'+c.appointments+' Rendez-vous</span><span>'+c.rentals+' Locatioun(en)</span></div>'+(vehicles?'<div class="crm-vehicles">'+vehicles+'</div>':'')+(c.notes?'<p class="crm-meta">📝 '+esc(c.notes)+'</p>':'')+'</article>';}).join(''):'<p class="empty">Kee passende Client fonnt.</p>';
+    }).catch(function(){$("customer-list").innerHTML='<p class="empty">Clientë konnten net geluede ginn.</p>';});
+  }
+  $("customer-search").addEventListener("input",renderCustomers);
+  $("customer-add-toggle").addEventListener("click",function(){$("customer-form").hidden=!$("customer-form").hidden;if(!$("customer-form").hidden)$("c-name").focus();});
+  $("customer-cancel").addEventListener("click",function(){$("customer-form").hidden=true;$("customer-form").reset();});
+  $("customer-form").addEventListener("submit",function(e){e.preventDefault();STORE.addCustomer({name:$("c-name").value,email:$("c-email").value,phone:$("c-phone").value,notes:$("c-notes").value}).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Client gespäichert.");customerCache=null;$("customer-form").reset();$("customer-form").hidden=true;renderCustomers();});});
+  var WO_STATUS={planned:"Geplangt",arrived:"Ukënnt",diagnosis:"Diagnos",approval:"Accord waarden",working:"An Aarbecht",ready:"Fäerdeg",collected:"Ofgeholl"};
+  function fillCustomerSelect(items){$("wo-customer").innerHTML='<option value="">— kee Client —</option>'+items.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+(c.email?' · '+esc(c.email):'')+'</option>';}).join('');}
+  function renderWorkOrders(){
+    $("workorder-board").innerHTML='<p class="empty">Aarbechtsopträg gi gelueden …</p>';
+    Promise.all([loadCustomers(false),STORE.listWorkOrders()]).then(function(all){var customers=all[0],items=all[1];workOrderCache=items;fillCustomerSelect(customers);var q=$("workorder-search").value.trim().toLowerCase();items=items.filter(function(o){return !q||[o.reference,o.title,o.customerName,o.vehicleName,o.vehiclePlate].join(" ").toLowerCase().indexOf(q)!==-1;});$("workorder-count").textContent=items.length+" Opträg";var groups=[["planned","Geplangt"],["arrived","Ukënnt"],["diagnosis","Diagnos"],["approval","Accord waarden"],["working","An Aarbecht"],["ready","Fäerdeg"],["collected","Ofgeholl"]];$("workorder-board").innerHTML=groups.map(function(g){var cards=items.filter(function(o){return o.status===g[0];}).map(function(o){return '<article class="wo-card"><strong>'+esc(o.title)+'</strong><small>'+esc(o.reference)+(o.customerName?' · '+esc(o.customerName):'')+'</small><small>'+(o.vehicleName?esc(o.vehicleName)+(o.vehiclePlate?' · '+esc(o.vehiclePlate):''):'Kee Gefier zougewisen')+'</small>'+(o.description?'<small>'+esc(o.description)+'</small>':'')+(can("bookings.validate")?'<select data-wo-status="'+o.id+'">'+Object.keys(WO_STATUS).map(function(s){return '<option value="'+s+'"'+(o.status===s?' selected':'')+'>'+WO_STATUS[s]+'</option>';}).join('')+'</select>':'')+'</article>';}).join('');return '<section class="wo-col"><h3>'+g[1]+' · '+items.filter(function(o){return o.status===g[0];}).length+'</h3>'+cards+'</section>';}).join('');
+      document.querySelectorAll('[data-wo-status]').forEach(function(el){el.addEventListener('change',function(){var id=Number(el.dataset.woStatus),o=workOrderCache.filter(function(x){return x.id===id;})[0];if(!o)return;STORE.updateWorkOrder(id,{customerId:o.customerId,vehicleId:o.vehicleId,title:o.title,status:el.value,assignedTo:o.assignedTo,plannedMinutes:o.plannedMinutes,description:o.description,diagnosis:o.diagnosis,internalNote:o.internalNote}).then(function(r){if(r.error){toast(errMsg(r.error));renderWorkOrders();return;}toast("Status aktualiséiert.");renderWorkOrders();});});});
+    }).catch(function(){$("workorder-board").innerHTML='<p class="empty">Aarbechtsopträg konnten net geluede ginn.</p>';});
+  }
+  $("workorder-search").addEventListener("input",renderWorkOrders);
+  $("workorder-add-toggle").addEventListener("click",function(){$("workorder-form").hidden=!$("workorder-form").hidden;loadCustomers(false).then(fillCustomerSelect);if(!$("workorder-form").hidden)$("wo-title").focus();});
+  $("workorder-cancel").addEventListener("click",function(){$("workorder-form").hidden=true;$("workorder-form").reset();});
+  $("workorder-form").addEventListener("submit",function(e){e.preventDefault();STORE.addWorkOrder({title:$("wo-title").value,customerId:$("wo-customer").value,status:$("wo-status").value,plannedMinutes:$("wo-duration").value,description:$("wo-description").value}).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Aarbechtsoptrag "+r.reference+" ugeluecht.");$("workorder-form").reset();$("workorder-form").hidden=true;renderWorkOrders();});});
+
   function renderMembers() {
     if (!can("members.manage")) return;
     STORE.listMembers().then(function (users) {

@@ -224,5 +224,42 @@
       "CREATE INDEX IF NOT EXISTS idx_rate_limits_expiry ON booking_rate_limits(expires_at)"
     ],
     "columns": []
+  },
+  {
+    "name": "ensureCustomers",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS customers (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT, phone TEXT, notes TEXT, source TEXT NOT NULL DEFAULT 'manual', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+      "CREATE TABLE IF NOT EXISTS customer_vehicles (id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER NOT NULL, make_model TEXT NOT NULL, plate TEXT, vin TEXT, year TEXT, mileage INTEGER, notes TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+    ],
+    "indexes": [
+      "CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email)",
+      "CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)",
+      "CREATE INDEX IF NOT EXISTS idx_customer_vehicles_customer ON customer_vehicles(customer_id)",
+      "CREATE INDEX IF NOT EXISTS idx_customer_vehicles_plate ON customer_vehicles(plate)",
+      "CREATE INDEX IF NOT EXISTS idx_customer_vehicles_vin ON customer_vehicles(vin)"
+    ],
+    "columns": []
+  },
+  {
+    "name": "ensureWorkOrders",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS work_orders (id INTEGER PRIMARY KEY AUTOINCREMENT, appointment_id INTEGER, customer_id INTEGER, vehicle_id INTEGER, reference TEXT, title TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'arrived', assigned_to TEXT, planned_minutes INTEGER, description TEXT, diagnosis TEXT, internal_note TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+      "CREATE TABLE IF NOT EXISTS work_order_events (id INTEGER PRIMARY KEY AUTOINCREMENT, work_order_id INTEGER NOT NULL, action TEXT NOT NULL, by_user TEXT, note TEXT, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX IF NOT EXISTS idx_work_orders_appointment ON work_orders(appointment_id)",
+      "CREATE INDEX IF NOT EXISTS idx_work_orders_status ON work_orders(status)",
+      "CREATE INDEX IF NOT EXISTS idx_work_orders_customer ON work_orders(customer_id)",
+      "CREATE INDEX IF NOT EXISTS idx_work_order_events_order ON work_order_events(work_order_id)"
+    ],
+    "columns": []
+  },
+  {
+    "name": "ensureAdminSettings",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS admin_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT)"
+    ],
+    "indexes": [],
+    "columns": []
   }
 ]

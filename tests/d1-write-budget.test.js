@@ -152,7 +152,7 @@ test("schema planner preserves business data and becomes a no-op when current",(
   const tables={};for(const name of tableNames())tables[name]=["id"];
   const schema=require("../worker/admin-schema.json");
   for(const group of schema)for(const column of group.columns)tables[column.table].push(column.definition.split(" ")[0]);
-  const indexes=schema.flatMap(group=>group.indexes.map(sql=>sql.match(/CREATE INDEX IF NOT EXISTS (\w+)/)[1]));
+  const indexes=schema.flatMap(group=>group.indexes.map(sql=>sql.match(/CREATE (?:UNIQUE )?INDEX IF NOT EXISTS (\w+)/)[1]));
   assert.deepEqual(planSchema({tables,indexes}),[]);
   assert.throws(()=>planSchema({tables:{},indexes:[]}),/bookings/);
 });

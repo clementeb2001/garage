@@ -666,6 +666,7 @@
         .pp-combined .pp-stage + .pp-stage { break-before: page; padding-top: 0; border-top: 0; }
         @page { size: A4; margin: 12mm; }
       }
+      .crm-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}.crm-toolbar .booking-search{flex:1;margin:0;min-width:220px}.crm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.crm-card{padding:16px}.crm-card h3{margin:0 0 4px;font-size:1rem}.crm-meta{color:var(--mut);font-size:.82rem;overflow-wrap:anywhere}.crm-stats{display:flex;gap:12px;margin-top:10px;font-size:.78rem;font-weight:700}.crm-vehicles{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:.82rem}.crm-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:16px;margin:12px 0}.crm-form .field{margin:0}.crm-form .wide{grid-column:1/-1}.wo-board{display:grid;grid-template-columns:repeat(4,minmax(190px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}.wo-col{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:170px}.wo-col h3{font-size:.82rem;margin:2px 4px 10px;color:var(--mut)}.wo-card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:11px;margin-bottom:9px;box-shadow:var(--shadow)}.wo-card strong{display:block;font-size:.88rem}.wo-card small{display:block;color:var(--mut);margin-top:3px}.wo-card select{width:100%;margin-top:9px;font:inherit;font-size:.78rem;padding:6px;border:1px solid var(--line);border-radius:7px;background:var(--input-bg);color:var(--fg)}@media(max-width:680px){.crm-grid,.crm-form{grid-template-columns:1fr}.wo-board{grid-template-columns:repeat(4,78vw)}}
     </style>
   </head>
   <body>
@@ -693,6 +694,8 @@
           <button type="button" data-page="bookings">Reservatiounen <span id="nav-new-badge" class="nav-badge" hidden></span></button>
           <button type="button" data-page="appointments">Rendez-vous <span id="nav-appt-badge" class="nav-badge" hidden></span></button>
           <button type="button" data-page="inquiries">Produktufroen <span id="nav-inq-badge" class="nav-badge" hidden></span></button>
+          <button type="button" data-page="customers">Clienten</button>
+          <button type="button" data-page="workorders">Aarbechtsopträg</button>
           <button type="button" data-page="wartung" id="nav-wartung">Flotte</button>
           <button type="button" data-page="members" id="nav-members" hidden>Memberen</button>
         </nav>
@@ -704,6 +707,37 @@
           </div>
           <span id="who-name"></span><button class="btn btn-ghost" id="btn-pw" type="button" title="Passwuert änneren" aria-label="Passwuert änneren">Passwuert</button><button class="btn btn-ghost" id="btn-logout" type="button" title="Ausloggen" aria-label="Ausloggen">Ausloggen</button>
         </div>
+      </div>
+
+      <!-- Clientedatebank -->
+      <div class="wrap" id="page-customers" hidden>
+        <div class="page-head"><h2 class="page-title">Clienten</h2><button class="btn btn-primary btn-sm" id="customer-add-toggle" type="button">+ Client dobäisetzen</button></div>
+        <p class="muted" style="margin:2px 0 0;font-size:.9rem">Eng zentral, sécher Iwwersiicht aus den existente Rendez-vousen a Reservatiounen.</p>
+        <form id="customer-form" class="card crm-form" hidden>
+          <div class="field"><label for="c-name">Numm</label><input id="c-name" required maxlength="120"></div>
+          <div class="field"><label for="c-email">E-Mail</label><input id="c-email" type="email" maxlength="160"></div>
+          <div class="field"><label for="c-phone">Telefon</label><input id="c-phone" type="tel" maxlength="60"></div>
+          <div class="field"><label for="c-notes">Intern Notiz</label><input id="c-notes" maxlength="2000"></div>
+          <div class="wide"><button class="btn btn-primary" type="submit">Späicheren</button> <button class="btn btn-outline" id="customer-cancel" type="button">Ofbriechen</button></div>
+        </form>
+        <div class="crm-toolbar"><input id="customer-search" class="booking-search" type="search" placeholder="Client, E-Mail, Telefon, Gefier oder VIN sichen …"><span class="muted" id="customer-count"></span></div>
+        <div class="crm-grid" id="customer-list"></div>
+      </div>
+
+      <!-- Aarbechtsopträg -->
+      <div class="wrap" id="page-workorders" hidden>
+        <div class="page-head"><h2 class="page-title">Aarbechtsopträg</h2><button class="btn btn-primary btn-sm" id="workorder-add-toggle" type="button">+ Optrag uleeën</button></div>
+        <p class="muted" style="margin:2px 0 0;font-size:.9rem">Vum geplangte Rendez-vous bis zur Ofhuelung – mat engem kloere Status pro Optrag.</p>
+        <form id="workorder-form" class="card crm-form" hidden>
+          <div class="field"><label for="wo-title">Titel / Aarbecht</label><input id="wo-title" required maxlength="180" placeholder="z.B. Bremsen hannen ersetzen"></div>
+          <div class="field"><label for="wo-customer">Client</label><select id="wo-customer"><option value="">— kee Client —</option></select></div>
+          <div class="field"><label for="wo-status">Status</label><select id="wo-status"><option value="planned">Geplangt</option><option value="arrived">Ukënnt</option><option value="diagnosis">Diagnos</option><option value="approval">Accord waarden</option><option value="working">An Aarbecht</option><option value="ready">Fäerdeg</option><option value="collected">Ofgeholl</option></select></div>
+          <div class="field"><label for="wo-duration">Geplangt Minutten</label><input id="wo-duration" type="number" min="0" max="10080"></div>
+          <div class="field wide"><label for="wo-description">Beschreiwung</label><textarea id="wo-description" rows="3" maxlength="3000"></textarea></div>
+          <div class="wide"><button class="btn btn-primary" type="submit">Optrag uleeën</button> <button class="btn btn-outline" id="workorder-cancel" type="button">Ofbriechen</button></div>
+        </form>
+        <div class="crm-toolbar"><input id="workorder-search" class="booking-search" type="search" placeholder="Referenz, Client, Gefier oder Aarbecht sichen …"><span class="muted" id="workorder-count"></span></div>
+        <div class="wo-board" id="workorder-board"></div>
       </div>
 
       <!-- Change password -->
@@ -957,6 +991,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=78"></script>
+    <script src="intern.js?v=79"></script>
   </body>
 </html>

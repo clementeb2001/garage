@@ -332,7 +332,7 @@ async function freezeBookingSnapshot(env, id, force) {
 /* ---------- Deeglecht Backup vun der D1-Datebank op R2 ---------- */
 async function runBackup(env) {
   if (!env.MEDIA) return { ok: false, error: "no_media" };
-  const tables = ["bookings", "booking_events", "appointments", "appointment_events", "maintenance", "rental_inspections", "request_consents", "member_events"];
+  const tables = ["bookings", "booking_events", "appointments", "appointment_events", "maintenance", "rental_inspections", "request_consents", "member_events", "customers", "customer_vehicles", "work_orders", "work_order_events", "admin_settings"];
   const dump = { formatVersion: 2, exportedAt: new Date().toISOString(), db: "garage-admin", tables: {}, mediaInventory: { fleet: 0, protocol: 0 } };
   for (const tbl of tables) {
     try { dump.tables[tbl] = (await env.DB.prepare("SELECT * FROM " + tbl).all()).results || []; }
@@ -873,6 +873,69 @@ export default {
         const byId = {};
         evs.forEach((e) => { (byId[e.appointment_id] = byId[e.appointment_id] || []).push({ action: e.action, by: e.by_user, at: e.at, note: e.note || "" }); });
         return json(env, { appointments: as.map((a) => ({ id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, confirmedDate: a.confirmed_date || "", confirmedTime: a.confirmed_time || "", assignedTo: a.assigned_to || "", assignedName: a.assigned_to ? (staffName[a.assigned_to] || a.assigned_to) : "", durationMin: a.duration_min == null ? "" : a.duration_min, planNote: a.plan_note || "", vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, events: byId[a.id] || [] })) });
+      }
+
+      /* ---- Clientedatebank (additiv; Originalufroe bleiwen onverännert) ---- */
+      if (path === "/customers" && method === "GET") {
+        if (!hasPerm(me.role, "bookings.view")) return json(env, { error:"forbidden" }, 403);
+        const cs = (await env.DB.prepare("SELECT * FROM customers ORDER BY updated_at DESC,id DESC").all()).results || [];
+        const vs = (await env.DB.prepare("SELECT * FROM customer_vehicles ORDER BY id DESC").all()).results || [];
+        const history = (await env.DB.prepare("SELECT c.id customer_id, COUNT(DISTINCT a.id) appointments, COUNT(DISTINCT b.id) rentals FROM customers c LEFT JOIN appointments a ON lower(trim(a.email))=lower(trim(c.email)) AND trim(COALESCE(c.email,''))<>'' LEFT JOIN bookings b ON lower(trim(b.cust_email))=lower(trim(c.email)) AND trim(COALESCE(c.email,''))<>'' GROUP BY c.id").all()).results || [];
+        const vBy = {}, hBy = {}; vs.forEach(v => { (vBy[v.customer_id] ||= []).push({ id:v.id, makeModel:v.make_model, plate:v.plate||"", vin:v.vin||"", year:v.year||"", mileage:v.mileage==null?"":v.mileage, notes:v.notes||"" }); }); history.forEach(h => { hBy[h.customer_id]=h; });
+        return json(env, { customers:cs.map(c => ({ id:c.id,name:c.name,email:c.email||"",phone:c.phone||"",notes:c.notes||"",source:c.source||"manual",createdAt:c.created_at,updatedAt:c.updated_at,vehicles:vBy[c.id]||[],appointments:Number(hBy[c.id]?.appointments||0),rentals:Number(hBy[c.id]?.rentals||0) })) });
+      }
+      if (path === "/customers" && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env, { error:"forbidden" }, 403);
+        const name=clip(bodyData.name,120).trim(), email=clip(bodyData.email,160).trim().toLowerCase(), phone=clip(bodyData.phone,60).trim();
+        if (!name || (email && !validEmail(email))) return json(env,{error:"invalid_fields"},400);
+        if (email) { const duplicate=await env.DB.prepare("SELECT id FROM customers WHERE lower(trim(email))=?1").bind(email).first(); if (duplicate) return json(env,{error:"exists",id:duplicate.id},409); }
+        const r=await env.DB.prepare("INSERT INTO customers (name,email,phone,notes,source) VALUES (?1,?2,?3,?4,'manual')").bind(name,email||null,phone||null,clip(bodyData.notes,2000)).run();
+        return json(env,{ok:true,id:r.meta.last_row_id});
+      }
+      m = path.match(/^\/customers\/(\d+)$/);
+      if (m && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env,{error:"forbidden"},403);
+        const id=parseInt(m[1],10), name=clip(bodyData.name,120).trim(), email=clip(bodyData.email,160).trim().toLowerCase(), phone=clip(bodyData.phone,60).trim();
+        if (!name || (email && !validEmail(email))) return json(env,{error:"invalid_fields"},400);
+        const ex=await env.DB.prepare("SELECT id FROM customers WHERE id=?1").bind(id).first(); if(!ex)return json(env,{error:"not_found"},404);
+        if(email){const duplicate=await env.DB.prepare("SELECT id FROM customers WHERE lower(trim(email))=?1 AND id<>?2").bind(email,id).first();if(duplicate)return json(env,{error:"exists"},409);}
+        await env.DB.prepare("UPDATE customers SET name=?1,email=?2,phone=?3,notes=?4,updated_at=CURRENT_TIMESTAMP WHERE id=?5").bind(name,email||null,phone||null,clip(bodyData.notes,2000),id).run();
+        return json(env,{ok:true});
+      }
+      m = path.match(/^\/customers\/(\d+)\/vehicles$/);
+      if (m && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env,{error:"forbidden"},403);
+        const customerId=parseInt(m[1],10), makeModel=clip(bodyData.makeModel,160).trim(); if(!makeModel)return json(env,{error:"missing_fields"},400);
+        const ex=await env.DB.prepare("SELECT id FROM customers WHERE id=?1").bind(customerId).first(); if(!ex)return json(env,{error:"not_found"},404);
+        const mileage=bodyData.mileage===""||bodyData.mileage==null?null:parseInt(bodyData.mileage,10); if(mileage!==null&&(!Number.isInteger(mileage)||mileage<0))return json(env,{error:"invalid_fields"},400);
+        const r=await env.DB.prepare("INSERT INTO customer_vehicles (customer_id,make_model,plate,vin,year,mileage,notes) VALUES (?1,?2,?3,?4,?5,?6,?7)").bind(customerId,makeModel,clip(bodyData.plate,30),clip(bodyData.vin,60),clip(bodyData.year,20),mileage,clip(bodyData.notes,1000)).run();
+        return json(env,{ok:true,id:r.meta.last_row_id});
+      }
+
+      /* ---- Aarbechtsopträg: Werkstatt-Workflow ouni Rendez-vous ze veränneren ---- */
+      if (path === "/work-orders" && method === "GET") {
+        if (!hasPerm(me.role,"bookings.view")) return json(env,{error:"forbidden"},403);
+        const rows=(await env.DB.prepare("SELECT w.*,c.name customer_name,c.email customer_email,c.phone customer_phone,v.make_model vehicle_name,v.plate vehicle_plate,u.name staff_name FROM work_orders w LEFT JOIN customers c ON c.id=w.customer_id LEFT JOIN customer_vehicles v ON v.id=w.vehicle_id LEFT JOIN users u ON u.username=w.assigned_to ORDER BY w.updated_at DESC,w.id DESC").all()).results||[];
+        const evs=(await env.DB.prepare("SELECT * FROM work_order_events ORDER BY id ASC").all()).results||[], by={}; evs.forEach(e=>{(by[e.work_order_id]||=[]).push({action:e.action,by:e.by_user||"",note:e.note||"",at:e.at});});
+        return json(env,{orders:rows.map(w=>({id:w.id,appointmentId:w.appointment_id||null,customerId:w.customer_id||null,vehicleId:w.vehicle_id||null,reference:w.reference||("AB-A-"+new Date().getFullYear()+"-"+String(w.id).padStart(4,"0")),title:w.title,status:w.status,assignedTo:w.assigned_to||"",assignedName:w.staff_name||w.assigned_to||"",plannedMinutes:w.planned_minutes==null?"":w.planned_minutes,description:w.description||"",diagnosis:w.diagnosis||"",internalNote:w.internal_note||"",customerName:w.customer_name||"",customerEmail:w.customer_email||"",customerPhone:w.customer_phone||"",vehicleName:w.vehicle_name||"",vehiclePlate:w.vehicle_plate||"",createdAt:w.created_at,updatedAt:w.updated_at,events:by[w.id]||[]}))});
+      }
+      if (path === "/work-orders" && method === "POST") {
+        if (!hasPerm(me.role,"bookings.validate")) return json(env,{error:"forbidden"},403);
+        const title=clip(bodyData.title,180).trim(); if(!title)return json(env,{error:"missing_fields"},400);
+        const allowed=["planned","arrived","diagnosis","approval","working","ready","collected"], status=allowed.includes(bodyData.status)?bodyData.status:"planned";
+        const customerId=Number(bodyData.customerId)||null, vehicleId=Number(bodyData.vehicleId)||null, appointmentId=Number(bodyData.appointmentId)||null, planned=bodyData.plannedMinutes===""||bodyData.plannedMinutes==null?null:parseInt(bodyData.plannedMinutes,10);
+        if(planned!==null&&(!Number.isInteger(planned)||planned<0||planned>10080))return json(env,{error:"invalid_fields"},400);
+        try { const r=await env.DB.prepare("INSERT INTO work_orders (appointment_id,customer_id,vehicle_id,title,status,assigned_to,planned_minutes,description,diagnosis,internal_note) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)").bind(appointmentId,customerId,vehicleId,title,status,clip(bodyData.assignedTo,60)||null,planned,clip(bodyData.description,3000),clip(bodyData.diagnosis,3000),clip(bodyData.internalNote,3000)).run(); const id=r.meta.last_row_id, ref="AB-A-"+new Date().getFullYear()+"-"+String(id).padStart(4,"0"); await env.DB.batch([env.DB.prepare("UPDATE work_orders SET reference=?1 WHERE id=?2").bind(ref,id),env.DB.prepare("INSERT INTO work_order_events (work_order_id,action,by_user,note) VALUES (?1,'Ugeluecht',?2,?3)").bind(id,me.username,status)]); return json(env,{ok:true,id,reference:ref}); } catch(e) { return json(env,{error:String(e).includes("UNIQUE")?"exists":"server_error"},409); }
+      }
+      m = path.match(/^\/work-orders\/(\d+)$/);
+      if (m && method === "POST") {
+        if (!hasPerm(me.role,"bookings.validate")) return json(env,{error:"forbidden"},403);
+        const id=parseInt(m[1],10), ex=await env.DB.prepare("SELECT * FROM work_orders WHERE id=?1").bind(id).first(); if(!ex)return json(env,{error:"not_found"},404);
+        const allowed=["planned","arrived","diagnosis","approval","working","ready","collected"], status=allowed.includes(bodyData.status)?bodyData.status:ex.status, title=clip(bodyData.title||ex.title,180).trim();
+        const planned=bodyData.plannedMinutes===""||bodyData.plannedMinutes==null?null:parseInt(bodyData.plannedMinutes,10); if(planned!==null&&(!Number.isInteger(planned)||planned<0||planned>10080))return json(env,{error:"invalid_fields"},400);
+        const action=status!==ex.status?"Status: "+status:"Geännert";
+        await env.DB.batch([env.DB.prepare("UPDATE work_orders SET customer_id=?1,vehicle_id=?2,title=?3,status=?4,assigned_to=?5,planned_minutes=?6,description=?7,diagnosis=?8,internal_note=?9,updated_at=CURRENT_TIMESTAMP WHERE id=?10").bind(Number(bodyData.customerId)||null,Number(bodyData.vehicleId)||null,title,status,clip(bodyData.assignedTo,60)||null,planned,clip(bodyData.description,3000),clip(bodyData.diagnosis,3000),clip(bodyData.internalNote,3000),id),env.DB.prepare("INSERT INTO work_order_events (work_order_id,action,by_user,note) VALUES (?1,?2,?3,?4)").bind(id,action,me.username,clip(bodyData.eventNote,500))]);
+        return json(env,{ok:true});
       }
 
       /* ---- Mataarbechter-Lëscht fir d'Rendez-vous-Zouweisung (viewer+) ---- */
