@@ -49,6 +49,6 @@ test("PWA cache and page reference the same current admin script", () => {
   const pageVersion = html.match(/intern\.js\?v=(\d+)/)[1];
   const cachedVersion = sw.match(/intern\.js\?v=(\d+)/)[1];
   assert.equal(cachedVersion, pageVersion);
-  assert.equal(pageVersion, "81");
-  assert.match(sw, /ab-intern-v82/);
+  assert.equal(pageVersion, "82");
+  assert.match(sw, /ab-intern-v83/);
 });

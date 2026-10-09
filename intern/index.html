@@ -362,6 +362,17 @@
       .system-grid .panel { margin:0; }
       .health-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); }
       .health-row:last-child { border:0; } .health-ok { color:var(--ok); font-weight:800; }
+      .detail-overlay { position:fixed; z-index:80; inset:0; display:flex; justify-content:flex-end; background:rgba(5,14,24,.58); }
+      .detail-overlay[hidden] { display:none; }
+      .detail-drawer { width:min(520px,100%); height:100%; overflow:auto; background:var(--surface); padding:24px; box-shadow:-18px 0 48px rgba(0,0,0,.2); }
+      .detail-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:18px; }
+      .detail-head h2 { margin:0; font-size:1.25rem; } .detail-close { border:1px solid var(--line); background:var(--surface-2); color:var(--fg); width:38px; height:38px; border-radius:10px; cursor:pointer; }
+      .detail-section { padding:15px 0; border-top:1px solid var(--line); }
+      .detail-section h3 { margin:0 0 10px; font-size:.9rem; }
+      .detail-form { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+      .detail-form .field { margin:0; } .detail-form .wide { grid-column:1/-1; }
+      .crm-card,.wo-card { cursor:pointer; transition:transform .12s,box-shadow .12s; }
+      .crm-card:hover,.wo-card:hover { transform:translateY(-1px); box-shadow:0 8px 22px rgba(13,27,42,.1); }
       .mobile-nav-toggle { display:none; }
 
       @media (max-width:900px) {
@@ -821,6 +832,8 @@
         <div class="crm-grid" id="customer-list"></div>
       </div>
 
+      <div class="detail-overlay" id="customer-detail" hidden><aside class="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="customer-detail-title"><div class="detail-head"><div><h2 id="customer-detail-title">Clientendossier</h2><span class="muted" id="customer-detail-meta"></span></div><button class="detail-close" id="customer-detail-close" type="button">✕</button></div><div id="customer-detail-body"></div><section class="detail-section"><h3>Gefier bäisetzen</h3><form class="detail-form" id="vehicle-form"><div class="field wide"><label for="cv-model">Mark &amp; Modell</label><input id="cv-model" required maxlength="160"></div><div class="field"><label for="cv-plate">Nummerplaque</label><input id="cv-plate" maxlength="30"></div><div class="field"><label for="cv-year">Baujoer</label><input id="cv-year" maxlength="20"></div><div class="field wide"><label for="cv-vin">VIN</label><input id="cv-vin" maxlength="60"></div><div class="field"><label for="cv-mileage">Kilometerstand</label><input id="cv-mileage" type="number" min="0"></div><div class="field"><label for="cv-notes">Notiz</label><input id="cv-notes" maxlength="1000"></div><div class="wide"><button class="btn btn-primary" type="submit">Gefier späicheren</button></div></form></section></aside></div>
+
       <!-- Aarbechtsopträg -->
       <div class="wrap" id="page-workorders" hidden>
         <div class="page-head"><h2 class="page-title">Aarbechtsopträg</h2><button class="btn btn-primary btn-sm" id="workorder-add-toggle" type="button">+ Optrag uleeën</button></div>
@@ -836,6 +849,8 @@
         <div class="crm-toolbar"><input id="workorder-search" class="booking-search" type="search" placeholder="Referenz, Client, Gefier oder Aarbecht sichen …"><span class="muted" id="workorder-count"></span></div>
         <div class="wo-board" id="workorder-board"></div>
       </div>
+
+      <div class="detail-overlay" id="workorder-detail" hidden><aside class="detail-drawer" role="dialog" aria-modal="true" aria-labelledby="workorder-detail-title"><div class="detail-head"><div><h2 id="workorder-detail-title">Aarbechtsoptrag</h2><span class="muted" id="workorder-detail-ref"></span></div><button class="detail-close" id="workorder-detail-close" type="button">✕</button></div><form class="detail-form" id="workorder-detail-form"><div class="field wide"><label for="wod-title">Titel / Aarbecht</label><input id="wod-title" required maxlength="180"></div><div class="field"><label for="wod-status">Status</label><select id="wod-status"></select></div><div class="field"><label for="wod-duration">Geplangt Minutten</label><input id="wod-duration" type="number" min="0" max="10080"></div><div class="field wide"><label for="wod-description">Beschreiwung</label><textarea id="wod-description" rows="3" maxlength="3000"></textarea></div><div class="field wide"><label for="wod-diagnosis">Diagnos</label><textarea id="wod-diagnosis" rows="3" maxlength="3000"></textarea></div><div class="field wide"><label for="wod-note">Intern Notiz</label><textarea id="wod-note" rows="3" maxlength="3000"></textarea></div><div class="wide"><button class="btn btn-primary" type="submit">Ännerunge späicheren</button></div></form><section class="detail-section"><h3>Verlaf</h3><div id="workorder-events"></div></section></aside></div>
 
       <!-- Change password -->
       <div class="wrap" id="page-pw" hidden style="max-width:420px">
@@ -1088,6 +1103,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=81"></script>
+    <script src="intern.js?v=82"></script>
   </body>
 </html>
