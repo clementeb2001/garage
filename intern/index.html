@@ -450,7 +450,7 @@
 
       /* ===== Day popover ===== */
       .daypop { position: fixed; inset: 0; background: rgba(8,15,24,0.5); z-index: 190; display: flex; align-items: center; justify-content: center; padding: 16px; }
-      .daycard { width: min(600px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 60px -16px rgba(0,0,0,0.5); overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; }
+      .daycard { width: min(680px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 60px -16px rgba(0,0,0,0.5); overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; }
       .daycard header { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); flex: none; }
       .daycard header h3 { font-size: 1.05rem; margin: 0; } .daycard header .x { margin-left: auto; cursor: pointer; border: 0; background: var(--surface-2); border-radius: 8px; width: 30px; height: 30px; color: var(--fg); font-size: 1rem; }
       .daycard .dbody { padding: 10px 16px 16px; display: flex; flex-direction: column; gap: 9px; overflow-y: auto; min-height: 0; flex: 1 1 auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
@@ -462,7 +462,10 @@
       /* Dagesplang (Stonne-Timeline) + Planung */
       .day-sched-h { font-size: 0.72rem; font-weight: 800; color: var(--mut); text-transform: uppercase; letter-spacing: 0.03em; margin: 6px 0 2px; }
       .day-allday, .day-unsched { display: flex; flex-direction: column; gap: 7px; }
-      .day-sched { position: relative; border: 1px solid var(--line); border-radius: 12px; background: var(--input-bg); overflow: hidden; margin: 2px 0 4px; }
+      .day-sched-scroll { width: 100%; overflow-x: auto; overflow-y: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--input-bg); margin: 2px 0 4px; overscroll-behavior-inline: contain; scrollbar-width: thin; }
+      .day-sched { position: relative; background: var(--input-bg); overflow: hidden; min-width: 100%; }
+      .day-sched-empty { min-height: 104px; display: grid; place-items: center; padding: 18px; text-align: center; border: 1px dashed var(--line); border-radius: 12px; background: var(--input-bg); color: var(--mut); }
+      .day-sched-empty strong { display: block; color: var(--fg); font-size: 0.9rem; margin-bottom: 3px; }
       .sched-hour { position: absolute; left: 0; right: 0; border-top: 1px solid var(--line); }
       .sched-hour:first-child { border-top: 0; }
       .sched-hlabel { position: absolute; left: 7px; top: 2px; font-size: 0.64rem; color: var(--mut); font-variant-numeric: tabular-nums; }
@@ -486,6 +489,8 @@
       .sched-leg { display: flex; flex-wrap: wrap; gap: 10px; margin: 2px 0 5px; }
       .sched-leg-i { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--mut); }
       .sched-leg-i i { width: 11px; height: 11px; border-radius: 3px; }
+      .sched-leg-i.unassigned { color: #b45309; font-weight: 750; }
+      .sched-ev.unassigned { background: #b45309 !important; box-shadow: inset 0 0 0 2px rgba(255,255,255,.28), 0 1px 5px rgba(0,0,0,.22); }
       .day-sched-sum { color: var(--fg); font-weight: 700; text-transform: none; letter-spacing: 0; }
       .devent-click { cursor: pointer; } .devent-click:hover { border-color: var(--info); }
       @keyframes gkflash { 0%, 55% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 1px 3px rgba(13,27,42,0.05); } }
@@ -944,7 +949,7 @@
 
       <!-- Day popover -->
       <div class="daypop" id="daypop" hidden>
-        <div class="daycard">
+        <div class="daycard" role="dialog" aria-modal="true" aria-labelledby="day-title" tabindex="-1">
           <header><h3 id="day-title">Dag</h3><button class="x" id="day-x" type="button" aria-label="Zoumaachen">✕</button></header>
           <div class="dbody" id="day-body"></div>
         </div>
@@ -952,6 +957,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=77"></script>
+    <script src="intern.js?v=78"></script>
   </body>
 </html>

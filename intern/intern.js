@@ -1167,9 +1167,20 @@
     });
   }
 
+  var dayReturnFocus = null;
+  function closeDay(restoreFocus) {
+    var pop = $("daypop");
+    if (!pop || pop.hidden) return;
+    pop.hidden = true;
+    if (restoreFocus !== false && dayReturnFocus && document.contains(dayReturnFocus)) dayReturnFocus.focus();
+    dayReturnFocus = null;
+  }
   function focusAppointment(id) {
-    $("daypop").hidden = true;
+    closeDay(false);
     reqState.appointment.filter = "all";
+    reqState.appointment.query = "";
+    var search = $("appt-search");
+    if (search) search.value = "";
     gotoPage("appointments");
     var tries = 0;
     (function seek() {
@@ -1207,11 +1218,12 @@
     var PXMIN = 0.92, gridH = (winEnd - winStart) * PXMIN;
     // Spalten fir Iwwerschneidungen (pro Iwwerschneidungs-Cluster)
     scheduled.sort(function (x, y) { return x.start - y.start || x.end - y.end; });
+    var maxCols = 1;
     (function () {
       var clusters = [], cur = [], curEnd = -1;
       scheduled.forEach(function (s) { if (cur.length && s.start >= curEnd) { clusters.push(cur); cur = []; curEnd = -1; } cur.push(s); curEnd = Math.max(curEnd, s.end); });
       if (cur.length) clusters.push(cur);
-      clusters.forEach(function (cl) { var lanes = []; cl.forEach(function (s) { var placed = false; for (var i = 0; i < lanes.length; i++) { if (s.start >= lanes[i]) { s.col = i; lanes[i] = s.end; placed = true; break; } } if (!placed) { s.col = lanes.length; lanes.push(s.end); } }); cl.forEach(function (s) { s.cols = lanes.length; }); });
+      clusters.forEach(function (cl) { var lanes = []; cl.forEach(function (s) { var placed = false; for (var i = 0; i < lanes.length; i++) { if (s.start >= lanes[i]) { s.col = i; lanes[i] = s.end; placed = true; break; } } if (!placed) { s.col = lanes.length; lanes.push(s.end); } }); maxCols = Math.max(maxCols, lanes.length); cl.forEach(function (s) { s.cols = lanes.length; }); });
     })();
     // Ganz- a Hallefstonne-Linnen
     var linesHtml = "";
@@ -1223,9 +1235,9 @@
     var blocksHtml = scheduled.map(function (s) {
       var a = s.a, top = (s.start - winStart) * PXMIN, h = Math.max((s.end - s.start) * PXMIN, 28);
       var w = 100 / s.cols, left = s.col * w, col = mechColor(a.assignedTo), who = a.assignedTo ? staffName(a.assignedTo) : "Keen Mécanicien";
-      return '<div class="sched-ev" data-appt="' + a.id + '" tabindex="0" role="button" style="top:' + top + "px;height:" + h + "px;left:calc(" + left + "% + 48px);width:calc(" + w + "% - 54px);background:" + col + '" title="' + esc((a.service || "Rendez-vous") + " · " + minToHHMM(s.start) + "–" + minToHHMM(s.end) + " · " + who + " — klick fir opzemaachen") + '">'
+      return '<div class="sched-ev' + (a.assignedTo ? "" : " unassigned") + '" data-appt="' + a.id + '" tabindex="0" role="button" aria-label="' + esc((a.service || "Rendez-vous") + ", " + minToHHMM(s.start) + " bis " + minToHHMM(s.end) + ", " + who + ". Opmaachen") + '" style="top:' + top + "px;height:" + h + "px;left:calc(" + left + "% + 48px);width:calc(" + w + "% - 54px);background:" + col + '" title="' + esc((a.service || "Rendez-vous") + " · " + minToHHMM(s.start) + "–" + minToHHMM(s.end) + " · " + who + " — klick fir opzemaachen") + '">'
         + '<div class="sched-ev-t">' + minToHHMM(s.start) + " · " + esc(vehName(a.service || "RDV")) + "</div>"
-        + '<div class="sched-ev-s">' + esc(a.name) + (a.assignedTo ? " · 🔧 " + esc(who) : "") + (s.dur ? " · " + durLabel(s.dur) : "") + "</div></div>";
+        + '<div class="sched-ev-s">' + esc(a.name) + (a.assignedTo ? " · 🔧 " + esc(who) : " · ⚠ Net zougewisen") + (s.dur ? " · " + durLabel(s.dur) : "") + "</div></div>";
     }).join("");
     // Aktuell-Zäit-Linn (nëmme wann een haut kuckt)
     var nowD = new Date(), todayKey = nowD.getFullYear() + "-" + pad(nowD.getMonth() + 1) + "-" + pad(nowD.getDate()), nowHtml = "";
@@ -1233,13 +1245,18 @@
     // Kappzeil: Zesummefaassung + Mécanicien-Legend
     var totalMin = scheduled.reduce(function (sum, s) { return sum + s.dur; }, 0);
     var summary = scheduled.length ? (scheduled.length + " Rendez-vous" + (scheduled.length > 1 ? "en" : "") + (totalMin ? " · " + durLabel(totalMin) + " geplangt" : "")) : "Keng fest Auerzäiten";
-    var mechSet = {}; scheduled.forEach(function (s) { if (s.a.assignedTo) mechSet[s.a.assignedTo] = true; });
+    var mechSet = {}, hasUnassigned = false; scheduled.forEach(function (s) { if (s.a.assignedTo) mechSet[s.a.assignedTo] = true; else hasUnassigned = true; });
     var mechLeg = Object.keys(mechSet).map(function (u) { return '<span class="sched-leg-i"><i style="background:' + mechColor(u) + '"></i>' + esc(staffName(u)) + "</span>"; }).join("");
+    if (hasUnassigned) mechLeg += '<span class="sched-leg-i unassigned"><i style="background:#b45309"></i>⚠ Nach net zougewisen</span>';
+    var availability = closedB ? "Dëse Betribsdag ass als zou markéiert." : amB && pmB ? "Moies an nomëttes gespaart." : amB ? "Moies gespaart, nomëttes fräi." : pmB ? "Moies fräi, nomëttes gespaart." : "De ganzen Dag ass fräi fir d'Planung.";
+    var scheduleBody = scheduled.length
+      ? '<div class="day-sched-scroll" aria-label="Horizontal scrollbaren Dagesplang"><div class="day-sched" style="height:' + gridH + "px;min-width:" + (maxCols > 2 ? (48 + maxCols * 150) + "px" : "100%") + '">' + linesHtml + shadeHtml + blocksHtml + nowHtml + "</div></div>"
+      : '<div class="day-sched-empty"><div><strong>Nach keng fest Auerzäit geplangt</strong><span>' + esc(availability) + "</span></div></div>";
     var scheduleHtml = '<div class="day-sched-h">🕒 Dagesplang · <span class="day-sched-sum">' + esc(summary) + "</span></div>"
       + (mechLeg ? '<div class="sched-leg">' + mechLeg + "</div>" : "")
-      + '<div class="day-sched" style="height:' + gridH + 'px">' + linesHtml + shadeHtml + blocksHtml + nowHtml + "</div>";
+      + scheduleBody;
     var rentalsHtml = rentals.length ? '<div class="day-allday">' + rentals.map(function (r) { return '<div class="devent"><span class="dd" style="background:' + r.color + '"></span><div style="min-width:0"><div class="ds">🚐 ' + r.label + "</div></div></div>"; }).join("") + "</div>" : "";
-    var unschedHtml = unscheduled.length ? '<div class="day-unsched"><div class="day-sched-h">⏳ Nach ze plangen (keng Auerzäit)</div>' + unscheduled.map(function (a) { return '<div class="devent devent-click" data-appt="' + a.id + '" tabindex="0" role="button"><span class="dd" style="background:' + APPT_COLOR + '"></span><div style="min-width:0"><div class="dt">🔧 ' + esc(a.service || "Rendez-vous") + (a.assignedTo ? " · " + esc(staffName(a.assignedTo)) : "") + '</div><div class="ds">' + esc(a.name) + " · " + STATUS[a.status] + " · " + reqRef("appointment", a.id) + "</div></div></div>"; }).join("") + "</div>" : "";
+    var unschedHtml = unscheduled.length ? '<div class="day-unsched"><div class="day-sched-h">⏳ Nach ze plangen (keng Auerzäit)</div>' + unscheduled.map(function (a) { return '<div class="devent devent-click" data-appt="' + a.id + '" tabindex="0" role="button"><span class="dd" style="background:' + (a.assignedTo ? APPT_COLOR : "#b45309") + '"></span><div style="min-width:0"><div class="dt">🔧 ' + esc(a.service || "Rendez-vous") + (a.assignedTo ? " · " + esc(staffName(a.assignedTo)) : " · ⚠ Nach net zougewisen") + '</div><div class="ds">' + esc(a.name) + " · " + STATUS[a.status] + " · " + reqRef("appointment", a.id) + "</div></div></div>"; }).join("") + "</div>" : "";
     function slotBtn(slot, label, blocked) {
       var cls = "slotbtn " + (blocked ? "is-blocked" : "is-free");
       if (!canVal) return '<span class="' + cls + '">' + label + " · " + (blocked ? "Gespaart" : "Fräi") + "</span>";
@@ -1271,12 +1288,25 @@
         });
       });
     });
-    $("daypop").hidden = false;
+    var pop = $("daypop"), card = pop.querySelector(".daycard");
+    dayReturnFocus = document.activeElement;
+    pop.hidden = false;
+    body.scrollTop = 0;
+    setTimeout(function () { if (card) card.focus(); }, 0);
   }
   (function () {
     var x = $("day-x"), pop = $("daypop");
-    if (x) x.addEventListener("click", function () { pop.hidden = true; });
-    if (pop) pop.addEventListener("click", function (e) { if (e.target === pop) pop.hidden = true; });
+    if (x) x.addEventListener("click", function () { closeDay(true); });
+    if (pop) pop.addEventListener("click", function (e) { if (e.target === pop) closeDay(true); });
+    if (pop) pop.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { e.preventDefault(); closeDay(true); return; }
+      if (e.key !== "Tab") return;
+      var focusable = Array.prototype.slice.call(pop.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(function (el) { return el.offsetParent !== null; });
+      if (!focusable.length) { e.preventDefault(); return; }
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
   })();
 
   (function () {
@@ -1626,7 +1656,7 @@
     if (ov) ov.addEventListener("click", function (e) { if (e.target === ov) closeK(); });
     document.addEventListener("keydown", function (e) {
       if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) { if (!session) return; e.preventDefault(); $("k-overlay").hidden ? openK() : closeK(); }
-      if (e.key === "Escape") { if (!$("k-overlay").hidden) closeK(); if (!$("daypop").hidden) $("daypop").hidden = true; }
+      if (e.key === "Escape") { if (!$("k-overlay").hidden) closeK(); if (!$("daypop").hidden) closeDay(true); }
     });
   })();
 
