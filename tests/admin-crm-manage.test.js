@@ -76,10 +76,11 @@ test("deleting a customer archives rather than hard-deletes", async () => {
   assert.ok(!ran.some(s => /DELETE FROM customers/.test(s)), "not hard-deleted");
 });
 
-test("saving the appointment plan propagates mechanic and duration to the linked work order", async () => {
+test("saving the appointment plan keeps the appointment as the single source of truth", async () => {
   const { default: worker } = await workerModule;
   const { DB, ran } = mkDB();
   const res = await worker.fetch(req("/appointments/3/plan", "POST", { assigned: "marco", duration: "90", planNote: "x" }), { DB }, ctx());
   assert.equal(res.status, 200);
-  assert.ok(ran.some(s => /UPDATE work_orders SET assigned_to=\?1, planned_minutes=\?2.*WHERE appointment_id/.test(s)), "work order synced");
+  assert.ok(ran.some(s => /UPDATE appointments SET assigned_to=\?1, duration_min=\?2/.test(s)), "appointment plan saved");
+  assert.ok(!ran.some(s => /UPDATE work_orders SET assigned_to/.test(s)), "legacy work orders are not updated");
 });

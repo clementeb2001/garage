@@ -44,6 +44,30 @@
       {
         "table": "appointments",
         "definition": "plan_note TEXT"
+      },
+      {
+        "table": "appointments",
+        "definition": "customer_id INTEGER"
+      },
+      {
+        "table": "appointments",
+        "definition": "vehicle_id INTEGER"
+      },
+      {
+        "table": "appointments",
+        "definition": "completion_services TEXT"
+      },
+      {
+        "table": "appointments",
+        "definition": "completion_note TEXT"
+      },
+      {
+        "table": "appointments",
+        "definition": "completed_at TEXT"
+      },
+      {
+        "table": "appointments",
+        "definition": "completed_by TEXT"
       }
     ]
   },

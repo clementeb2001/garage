@@ -113,6 +113,8 @@
       .b-cust span { color: var(--mut); overflow-wrap: anywhere; }
       .b-msg { margin: 8px 0 0; font-size: 0.9rem; background: var(--surface-2); border-radius: 8px; padding: 8px 11px; }
       .b-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+      .completion-box{flex:1 0 100%;display:grid;gap:9px;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+      .completion-box details{border:1px solid var(--line);border-radius:9px;background:var(--surface);overflow:hidden}.completion-box summary{cursor:pointer;padding:10px 12px;font-weight:700}.completion-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:2px 12px 12px}.completion-options label{display:flex;gap:7px;align-items:flex-start;font-size:.84rem}.completion-options input{margin-top:2px}
       .b-note-input { flex: 1; min-width: 160px; font: inherit; font-size: 0.85rem; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; }
       .b-edit { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 4px; }
       .b-edit label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 600; color: var(--mut); }
@@ -767,7 +769,7 @@
         .pp-combined .pp-stage + .pp-stage { break-before: page; padding-top: 0; border-top: 0; }
         @page { size: A4; margin: 12mm; }
       }
-      .crm-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}.crm-toolbar .booking-search{flex:1;margin:0;min-width:220px}.crm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.crm-card{padding:16px}.crm-card h3{margin:0 0 4px;font-size:1rem}.crm-meta{color:var(--mut);font-size:.82rem;overflow-wrap:anywhere}.crm-stats{display:flex;gap:12px;margin-top:10px;font-size:.78rem;font-weight:700}.crm-vehicles{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:.82rem}.crm-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:16px;margin:12px 0}.crm-form .field{margin:0}.crm-form .wide{grid-column:1/-1}.wo-board{display:grid;grid-template-columns:repeat(4,minmax(190px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}.wo-col{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:170px}.wo-col h3{font-size:.82rem;margin:2px 4px 10px;color:var(--mut)}.wo-card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:11px;margin-bottom:9px;box-shadow:var(--shadow)}.wo-card strong{display:block;font-size:.88rem}.wo-card small{display:block;color:var(--mut);margin-top:3px}.wo-card select{width:100%;margin-top:9px;font:inherit;font-size:.78rem;padding:6px;border:1px solid var(--line);border-radius:7px;background:var(--input-bg);color:var(--fg)}@media(max-width:680px){.crm-grid,.crm-form{grid-template-columns:1fr}.wo-board{grid-template-columns:repeat(4,78vw)}}
+      .crm-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}.crm-toolbar .booking-search{flex:1;margin:0;min-width:220px}.crm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.crm-card{padding:16px}.crm-card h3{margin:0 0 4px;font-size:1rem}.crm-meta{color:var(--mut);font-size:.82rem;overflow-wrap:anywhere}.crm-stats{display:flex;gap:12px;margin-top:10px;font-size:.78rem;font-weight:700}.crm-vehicles{margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:.82rem}.crm-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:16px;margin:12px 0}.crm-form .field{margin:0}.crm-form .wide{grid-column:1/-1}.wo-board{display:grid;grid-template-columns:repeat(4,minmax(190px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}.wo-col{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:170px}.wo-col h3{font-size:.82rem;margin:2px 4px 10px;color:var(--mut)}.wo-card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:11px;margin-bottom:9px;box-shadow:var(--shadow)}.wo-card strong{display:block;font-size:.88rem}.wo-card small{display:block;color:var(--mut);margin-top:3px}.wo-card select{width:100%;margin-top:9px;font:inherit;font-size:.78rem;padding:6px;border:1px solid var(--line);border-radius:7px;background:var(--input-bg);color:var(--fg)}@media(max-width:680px){.crm-grid,.crm-form{grid-template-columns:1fr}.wo-board{grid-template-columns:repeat(4,78vw)}.completion-options{grid-template-columns:1fr}}
       /* Must remain last: override the legacy compact header rules above. */
       @media (min-width:901px){.topbar{display:flex;grid-template-columns:none}.topnav{display:flex;width:100%;margin:0;padding:12px 0 0;overflow:visible}.topnav button{flex:none}.topbar .who{display:flex}.admin-mainbar,.wrap{margin-left:236px}}
       @media (max-width:900px){.topbar{display:flex;grid-template-columns:none;transform:translateX(-105%);width:min(286px,86vw);padding:calc(18px + env(safe-area-inset-top)) 12px 14px}.topbar .brand{display:flex}.topbar .brand img{height:38px;max-width:150px}.topnav{display:flex;flex-direction:column;width:100%;margin:0;padding:12px 0 0;overflow:visible}.topnav button{width:100%;flex:none;text-align:left;padding:10px 12px;font-size:.84rem}.topbar .who{display:flex}.admin-mainbar,.wrap{margin-left:0}body.nav-open .topbar{transform:translateX(0)}}
@@ -798,7 +800,6 @@
           <button type="button" data-page="planner"><span class="nav-icon">▦</span>Werkstatt-Planer</button>
           <div class="nav-section">Garage</div>
           <button type="button" data-page="customers"><span class="nav-icon">♙</span>Clienten &amp; Gefierer</button>
-          <button type="button" data-page="workorders"><span class="nav-icon">◫</span>Aarbechtsopträg</button>
           <button type="button" data-page="wartung" id="nav-wartung"><span class="nav-icon">⌁</span>Flott</button>
           <button type="button" data-page="bookings"><span class="nav-icon">▤</span>Locatiounsdossieren</button>
           <div class="nav-section">Steierung</div>
@@ -1139,6 +1140,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=85"></script>
+    <script src="intern.js?v=86"></script>
   </body>
 </html>

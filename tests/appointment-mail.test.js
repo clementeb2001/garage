@@ -23,7 +23,7 @@ test('first confirmation and saved date/time changes send exactly one automatic 
  assert(r.mails[0][4].includes(body.time));
  const expectedDate=new Intl.DateTimeFormat('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Luxembourg'}).format(new Date(body.date+'T12:00:00Z'));
  assert(r.mails[0][4].includes(expectedDate));
- assert.equal(r.calls.filter(c=>c.sql.startsWith('UPDATE appointments')).length,1);
+ assert.equal(r.calls.filter(c=>c.sql.startsWith('UPDATE appointments')).length,2); // Status + CRM-Verknëppung
  }
 });
 test('notes and unchanged saves send no mail; finishing an appointment sends no mail',async()=>{

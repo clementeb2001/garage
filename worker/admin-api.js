@@ -451,8 +451,9 @@ async function sendApptReceipt(env, apptId, a) {
   await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,'System',?3)")
     .bind(apptId, result.ok ? "Empfangsmail geschéckt" : "Empfangsmail feelgeschloen", clip(result.ok ? result.id : result.error, 500)).run();
 }
-// Beim Bestätegen vun engem Rendez-vous: Client + Gefier an d'CRM iwwerhuelen an
-// en Aarbechtsoptrag uleeën (best-effort, idempotent — stéiert d'Bestätegung ni).
+// Beim Bestätegen vun engem Rendez-vous: Client + Gefier an d'CRM iwwerhuelen.
+// De Rendez-vous selwer ass déi eenzeg operativ Quell; et gëtt keen zweeten
+// Aarbechtsoptrag méi ugeluecht.
 async function ensureCrmLink(env, a, byUser) {
   try {
     const email = String(a.email || "").trim().toLowerCase();
@@ -474,19 +475,8 @@ async function ensureCrmLink(env, a, byUser) {
       if (dupe) vehicleId = dupe.id;
       else { const rv = await env.DB.prepare("INSERT INTO customer_vehicles (customer_id,make_model,vin) VALUES (?1,?2,?3)").bind(customerId, makeModel, vin || null).run(); vehicleId = rv.meta.last_row_id; }
     }
-    // Ee Aarbechtsoptrag pro Rendez-vous (idx_work_orders_appointment ass UNIQUE).
-    const linked = await env.DB.prepare("SELECT id FROM work_orders WHERE appointment_id=?1").bind(a.id).first();
-    if (!linked) {
-      const title = clip(a.service, 180).trim() || "Rendez-vous";
-      const planned = a.duration_min == null ? null : a.duration_min;
-      const r = await env.DB.prepare("INSERT INTO work_orders (appointment_id,customer_id,vehicle_id,title,status,assigned_to,planned_minutes,description) VALUES (?1,?2,?3,?4,'planned',?5,?6,?7)")
-        .bind(a.id, customerId, vehicleId, title, a.assigned_to || null, planned, clip(a.msg, 3000) || null).run();
-      const id = r.meta.last_row_id, ref = "AB-A-" + new Date().getFullYear() + "-" + String(id).padStart(4, "0");
-      await env.DB.batch([
-        env.DB.prepare("UPDATE work_orders SET reference=?1 WHERE id=?2").bind(ref, id),
-        env.DB.prepare("INSERT INTO work_order_events (work_order_id,action,by_user,note) VALUES (?1,'Ugeluecht',?2,'aus Rendez-vous')").bind(id, byUser || "System"),
-      ]);
-    }
+    await env.DB.prepare("UPDATE appointments SET customer_id=?1,vehicle_id=?2 WHERE id=?3")
+      .bind(customerId, vehicleId, a.id).run();
   } catch (e) { /* best-effort: en CRM-Feeler däerf d'Bestätegung ni blockéieren */ }
 }
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
@@ -907,10 +897,13 @@ export default {
         const as = (await env.DB.prepare("SELECT * FROM appointments ORDER BY id DESC LIMIT 1000").all()).results || [];
         const evs = (await env.DB.prepare("SELECT appointment_id, action, by_user, note, at FROM appointment_events ORDER BY id ASC").all()).results || [];
         const staff = (await env.DB.prepare("SELECT username, name FROM users").all()).results || [];
+        // Al Aarbechtsopträg bleiwen als liesbare Legacy-Historik erhalen.
+        const legacy = (await env.DB.prepare("SELECT appointment_id,customer_id,vehicle_id,title,description,diagnosis,updated_at FROM work_orders WHERE appointment_id IS NOT NULL ORDER BY updated_at DESC,id DESC").all()).results || [];
+        const legacyByAppointment = {}; legacy.forEach((w) => { if (!legacyByAppointment[w.appointment_id]) legacyByAppointment[w.appointment_id] = w; });
         const staffName = {}; staff.forEach((u) => { staffName[u.username] = u.name || u.username; });
         const byId = {};
         evs.forEach((e) => { (byId[e.appointment_id] = byId[e.appointment_id] || []).push({ action: e.action, by: e.by_user, at: e.at, note: e.note || "" }); });
-        return json(env, { appointments: as.map((a) => ({ id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, confirmedDate: a.confirmed_date || "", confirmedTime: a.confirmed_time || "", assignedTo: a.assigned_to || "", assignedName: a.assigned_to ? (staffName[a.assigned_to] || a.assigned_to) : "", durationMin: a.duration_min == null ? "" : a.duration_min, planNote: a.plan_note || "", vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, created: a.created_at, events: byId[a.id] || [] })) });
+        return json(env, { appointments: as.map((a) => { const w=legacyByAppointment[a.id]||{}; let services=[]; try { services=JSON.parse(a.completion_services||"[]"); } catch (_) {} if (!Array.isArray(services)) services=[]; if (!services.length && a.status==="done") services=[w.title||a.service||"Rendez-vous"]; return { id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, confirmedDate: a.confirmed_date || "", confirmedTime: a.confirmed_time || "", assignedTo: a.assigned_to || "", assignedName: a.assigned_to ? (staffName[a.assigned_to] || a.assigned_to) : "", durationMin: a.duration_min == null ? "" : a.duration_min, planNote: a.plan_note || "", customerId:a.customer_id||w.customer_id||null, vehicleId:a.vehicle_id||w.vehicle_id||null, completedServices:services, completionNote:a.completion_note||w.diagnosis||w.description||"", completedAt:a.completed_at||((a.status==="done"&&w.updated_at)?w.updated_at:""), completedBy:a.completed_by||"", vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, created: a.created_at, events: byId[a.id] || [] }; }) });
       }
 
       /* ---- Clientedatebank (additiv; Originalufroe bleiwen onverännert) ---- */
@@ -1062,10 +1055,6 @@ export default {
           .bind(assigned || null, duration, planNote || null, id).run();
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,'Plang',?2,?3)")
           .bind(id, me.username, clip([assigned ? "Mécanicien: " + assigned : "", duration ? "Dauer: " + duration + " min" : "", planNote ? "Notiz" : ""].filter(Boolean).join(" · "), 500)).run();
-        // Planung ass d'Quell vun der Wourecht: Mécanicien + Dauer op de verbonnenen
-        // Aarbechtsoptrag iwwerhuelen (falls ee besteet), soudatt se net auserneelafen.
-        await env.DB.prepare("UPDATE work_orders SET assigned_to=?1, planned_minutes=?2, updated_at=CURRENT_TIMESTAMP WHERE appointment_id=?3")
-          .bind(assigned || null, duration, id).run();
         const staffRow = assigned ? await env.DB.prepare("SELECT name FROM users WHERE username = ?1").bind(assigned).first() : null;
         return json(env, { ok: true, assignedTo: assigned || "", assignedName: staffRow ? (staffRow.name || assigned) : "", durationMin: duration == null ? "" : duration, planNote: planNote || "" });
       }
@@ -1100,6 +1089,14 @@ export default {
         const appt = await env.DB.prepare("SELECT * FROM appointments WHERE id = ?1").bind(id).first();
         if (!appt) return json(env, { error: "not_found" }, 404);
         const isAppt = (appt.kind || "appointment") === "appointment";
+        const allowedServices = ["Ueleg- a Filterwiessel","Inspektioun / Entretien","Bremsen","Pneuen / Rieder","Klimaanlag","Diagnos / Feelerliesen","Fuerwierk / Ophängung","Batterie / Elektrik","Auspuff","Motor / Reparatur","Virkontroll fir d'Kontroll technique","Aneres"];
+        let completedServices = [];
+        let completionNote = "";
+        if (status === "done" && isAppt) {
+          completedServices = Array.isArray(bodyData.services) ? [...new Set(bodyData.services.map((x) => clip(x,80).trim()).filter((x) => allowedServices.includes(x)))].slice(0,12) : [];
+          completionNote = clip(bodyData.completionNote,2000).trim();
+          if (!completedServices.length) return json(env,{error:"missing_completion_service"},400);
+        }
         let confDate = appt.confirmed_date || appt.pref_date || "";
         let confTime = appt.confirmed_time || "";
         if (status === "confirmed" && isAppt) {
@@ -1118,7 +1115,9 @@ export default {
           if (note) await env.DB.prepare("INSERT INTO appointment_events (appointment_id,action,by_user,note) VALUES (?1,'Notiz',?2,?3)").bind(id,me.username,note).run();
           return json(env, { ok:true, unchanged:!note, confirmedDate:confDate, confirmedTime:confTime, mailQueued:false });
         }
-        const changed = changesConfirmation
+        const changed = status === "done" && isAppt
+          ? await env.DB.prepare("UPDATE appointments SET status=?1,completion_services=?2,completion_note=?3,completed_at=CURRENT_TIMESTAMP,completed_by=?4 WHERE id=?5 AND status=?6").bind(status,JSON.stringify(completedServices),completionNote||null,me.username,id,appt.status).run()
+          : changesConfirmation
           ? await env.DB.prepare("UPDATE appointments SET status=?1,confirmed_date=?2,confirmed_time=?3 WHERE id=?4 AND status=?5 AND confirmed_date IS ?6 AND confirmed_time IS ?7").bind(status,confDate,confTime,id,appt.status,appt.confirmed_date ?? null,appt.confirmed_time ?? null).run()
           : await env.DB.prepare("UPDATE appointments SET status=?1 WHERE id=?2 AND status=?3").bind(status,id,appt.status).run();
         if (!changed.meta.changes) return json(env, { error:"stale_status" }, 409);
@@ -1128,8 +1127,8 @@ export default {
         if (mailQueued) {
           ctx.waitUntil(sendApptConfirmation(env, id, Object.assign({}, appt, { confirmed_date: confDate, confirmed_time: confTime })));
         }
-        // Beim Bestätegen: Client + Gefier an d'CRM iwwerhuelen an en Aarbechtsoptrag uleeën.
-        if (status === "confirmed" && isAppt) ctx.waitUntil(ensureCrmLink(env, appt, me.username));
+        // Client + Gefier am CRM verknäppen; keen zousätzlechen Aarbechtsoptrag.
+        if ((status === "confirmed" || status === "done") && isAppt) ctx.waitUntil(ensureCrmLink(env, appt, me.username));
         return json(env, { ok: true, confirmedDate: confDate, confirmedTime: confTime, mailQueued });
       }
 

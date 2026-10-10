@@ -53,15 +53,15 @@ async function confirm(envExtra) {
   return { res, data: await res.json(), inserts, updates };
 }
 
-test("confirming an appointment creates customer, vehicle and a linked work order", async () => {
+test("confirming an appointment creates customer and vehicle and links both on the appointment", async () => {
   const env = run();
   const { res, data, inserts } = await confirm(env);
   assert.equal(res.status, 200);
   assert.equal(data.confirmedTime, "09:30");
   assert.ok(inserts.some(s => s.startsWith("INSERT INTO customers")), "customer inserted");
   assert.ok(inserts.some(s => s.startsWith("INSERT INTO customer_vehicles")), "vehicle inserted");
-  assert.ok(inserts.some(s => s.startsWith("INSERT INTO work_orders")), "work order inserted");
-  assert.ok(inserts.some(s => s.startsWith("INSERT INTO work_order_events")), "work order event logged");
+  assert.ok(!inserts.some(s => s.startsWith("INSERT INTO work_orders")), "no duplicate work order created");
+  assert.ok(env.updates.some(s => s.startsWith("UPDATE appointments SET customer_id")), "CRM ids linked on appointment");
 });
 
 test("auto-link is idempotent: nothing re-created when the records already exist", async () => {
@@ -70,5 +70,5 @@ test("auto-link is idempotent: nothing re-created when the records already exist
   assert.equal(res.status, 200);
   assert.ok(!inserts.some(s => s.startsWith("INSERT INTO customers")), "no duplicate customer");
   assert.ok(!inserts.some(s => s.startsWith("INSERT INTO customer_vehicles")), "no duplicate vehicle");
-  assert.ok(!inserts.some(s => s.startsWith("INSERT INTO work_orders")), "no duplicate work order");
+  assert.ok(!inserts.some(s => s.startsWith("INSERT INTO work_orders")), "no work order created");
 });

@@ -81,7 +81,7 @@
     delBooking: function (id) { return api("/bookings/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     editBooking: function (id, patch) { return api("/bookings/" + id + "/edit", { method: "POST", body: patch }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listAppointments: function () { return api("/appointments").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.appointments; }); },
-    setApptStatus: function (id, status, note, date, time) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime, unchanged: r.body.unchanged, mailQueued: r.body.mailQueued } : { error: r.body.error }; }); },
+    setApptStatus: function (id, status, note, date, time, completion) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "", services: completion && completion.services || [], completionNote: completion && completion.note || "" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime, unchanged: r.body.unchanged, mailQueued: r.body.mailQueued } : { error: r.body.error }; }); },
     resendApptConfirmation: function (id, date, time) { return api("/appointments/" + id + "/confirmation-email", { method: "POST", body: { date: date, time: time } }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
     listStaff: function () { return api("/staff").then(function (r) { return r.status === 200 ? (r.body.staff || []) : []; }); },
     listSettings: function () { return api("/settings").then(function (r) { return r.status === 200 ? (r.body.settings || {}) : {}; }); },
@@ -132,6 +132,7 @@
   ERR.missing_confirmation_time = "Gitt en Datum an eng Auerzäit un.";
   ERR.mail_rate_limited = "Ze vill Mailversich. Waart w.e.g. eng Minutt.";
   ERR.mail_failed = "Mail konnt net geschéckt ginn. Probéiert nach eng Kéier.";
+  ERR.missing_completion_service = "Wielt op d'mannst ee gemaachte Service aus.";
   function errMsg(e) { return ERR[e] || "Feeler – probéiert nach eng Kéier."; }
 
   /* ---------- Views ---------- */
@@ -782,12 +783,19 @@
     if (!can("bookings.validate")) return;
     var noteEl = $("rnote-" + kind + "-" + id), note = noteEl ? noteEl.value.trim() : "";
     var date = "", time = "";
+    var completion = null;
     if (kind === "appointment" && status === "confirmed") {
       var dEl = $("rdate-" + id), tEl = $("rtime-" + id);
       date = dEl ? dEl.value : ""; time = tEl ? tEl.value : "";
       if (!time) { toast("Gitt w.e.g. eng Auerzäit un ier Dir de Rendez-vous bestätegt."); if (tEl) tEl.focus(); return; }
     }
-    return runReqAction(kind, id, card, function () { return STORE.setApptStatus(id, status, note, date, time).then(function (r) {
+    if (kind === "appointment" && status === "done") {
+      var checked = Array.prototype.slice.call(card.querySelectorAll('[data-completion-service]:checked')).map(function(el){return el.value;});
+      var completionEl = $("rcompletion-note-" + id);
+      if (!checked.length) { toast("Wielt op d'mannst ee gemaachte Service aus."); var first=card.querySelector('[data-completion-services]'); if(first) first.open=true; return; }
+      completion = {services:checked,note:completionEl?completionEl.value.trim():""};
+    }
+    return runReqAction(kind, id, card, function () { return STORE.setApptStatus(id, status, note, date, time, completion).then(function (r) {
       if (r.error) { toast(errMsg(r.error)); return; }
       var extra = (status === "confirmed" && r.confirmedTime) ? " (" + (r.confirmedDate || "") + " · " + r.confirmedTime + ")" : "";
       if (kind === "appointment" && status === "confirmed") {
@@ -798,6 +806,7 @@
   }
   function doDelReq(kind, id) { if (!can("members.manage")) return; if (!confirm(REQCFG[kind].noun + " " + reqRef(kind, id) + " endgülteg läschen?")) return; STORE.delAppt(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast(REQCFG[kind].noun + " " + reqRef(kind, id) + " geläscht."); renderReq(kind); }); }
   var DUR_OPTIONS = [30, 45, 60, 90, 120, 150, 180, 240, 300, 360, 480];
+  var COMPLETION_SERVICES = ["Ueleg- a Filterwiessel","Inspektioun / Entretien","Bremsen","Pneuen / Rieder","Klimaanlag","Diagnos / Feelerliesen","Fuerwierk / Ophängung","Batterie / Elektrik","Auspuff","Motor / Reparatur","Virkontroll fir d'Kontroll technique","Aneres"];
   function durLabel(min) { min = Number(min) || 0; if (!min) return ""; if (min < 60) return min + " Min"; var h = Math.floor(min / 60), r = min % 60; return r ? (h + " Std " + r + " Min") : (h + " Std"); }
   function hhmmToMin(s) { var p = String(s || "").split(":"); return (parseInt(p[0], 10) || 0) * 60 + (parseInt(p[1], 10) || 0); }
   function minToHHMM(m) { m = Math.max(0, Math.round(m)); return pad(Math.floor(m / 60)) + ":" + pad(m % 60); }
@@ -831,7 +840,8 @@
     else if (canVal && a.status === "confirmed") {
       var resend = '<button class="btn btn-ok btn-sm" data-ract="confirmed">Späicheren</button>';
       if (kind === "appointment") resend += '<button class="btn btn-outline btn-sm" data-resend-appt="1">Bestätegung nach eng Kéier schécken</button><span style="font-size:.85em">Datum oder Auerzäit geännert: Mail beim Späicheren. Nëmmen Notiz: keng Mail.</span>';
-      actions = apptSched(true) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" />' + resend + '<button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button>';
+      var completionBox = kind === "appointment" ? '<section class="completion-box"><strong>Rendez-vous ofschléissen</strong><details data-completion-services><summary>Gemaachte Servicer auswielen</summary><div class="completion-options">'+COMPLETION_SERVICES.map(function(s){return '<label><input type="checkbox" data-completion-service value="'+esc(s)+'"> '+esc(s)+'</label>';}).join('')+'</div></details><textarea class="b-note-input" id="rcompletion-note-'+a.id+'" rows="2" maxlength="2000" placeholder="Ofschlossnotiz: Detailer, Deeler oder wichteg Bemierkungen …"></textarea><button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button></section>' : '<button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button>';
+      actions = apptSched(true) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" />' + resend + completionBox;
     }
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-delr="1">Läschen</button>';
     var canPlan = canVal && kind === "appointment" && a.status !== "declined";
@@ -858,11 +868,13 @@
     if (a.assignedTo) meta.push("🔧 " + esc(a.assignedName || staffName(a.assignedTo)));
     if (a.durationMin) meta.push("⏱ " + esc(durLabel(a.durationMin)));
     if (a.vin) meta.push("VIN " + esc(a.vin));
+    if (a.status === "done" && (a.completedServices||[]).length) meta.push("🧾 " + esc(a.completedServices.join(", ")));
     el.innerHTML =
       '<div class="b-top"><div><div class="b-veh">' + esc(a.service || REQCFG[kind].titleFb) + '</div><div class="b-id">Réf. ' + reqRef(kind, a.id) + "</div></div><span class=\"status status-" + a.status + '">' + esc(STATUS[a.status]) + "</span></div>" +
       (meta.length ? '<div class="b-dates" style="gap:6px 16px;flex-wrap:wrap">' + meta.join('<span class="arrow">·</span>') + "</div>" : "") +
       '<div class="b-cust"><strong>' + esc(a.name) + "</strong>" + (a.email ? "<span>✉ " + esc(a.email) + "</span>" : "") + (a.phone ? "<span>☎ " + esc(a.phone) + "</span>" : "") + "</div>" +
       (a.msg ? '<p class="b-msg">' + esc(a.msg) + "</p>" : "") +
+      (a.status === "done" && a.completionNote ? '<p class="b-msg"><b>Ofschlossnotiz:</b> '+esc(a.completionNote)+'</p>' : '') +
       planBlock +
       (actions ? '<div class="b-actions">' + actions + "</div>" : "") +
       '<div class="b-audit">' + audit + "</div>";
@@ -1430,7 +1442,6 @@
       STORE.listAppointments().then(function (v) { return v; }, function () { return []; }),
       STORE.listMaintenance().then(function (v) { return v; }, function () { return []; }),
       STORE.listInspections().then(function (v) { return v; }, function () { return []; }),
-      STORE.listWorkOrders().then(function (v) { return v; }, function () { return []; }),
       STORE.listCustomers().then(function (v) { return v; }, function () { return []; }),
       ensureStaff().then(function (v) { return v; }, function () { return []; }),
     ]).then(function (res) {
@@ -1438,7 +1449,7 @@
       var ap = res[1] || [];
       var fleet = res[2] || [];
       var insp = res[3] || [];
-      var workOrders = res[4] || [], customers = res[5] || [], staff = res[6] || [];
+      var customers = res[4] || [], staff = res[5] || [];
       var appts = ap.filter(function (a) { return (a.kind || "appointment") === "appointment"; });
       $("analyse-sub").textContent = "aus dengen Donnéeën berechent";
       var today = new Date(); today.setHours(0, 0, 0, 0);
@@ -1463,11 +1474,11 @@
 
       var openRequests=bk.filter(function(b){return b.status==="new";}).length+ap.filter(function(a){return a.status==="new";}).length;
       var confirmedRequests=bk.filter(function(b){return b.status==="confirmed"||b.status==="done";}).length+ap.filter(function(a){return a.status==="confirmed"||a.status==="done";}).length;
-      var closedOrders=workOrders.filter(function(o){return o.status==="collected";}).length;
-      $("an-pipeline").innerHTML='<div class="ops-row"><span>Oppen Ufroen</span><b>'+openRequests+'</b></div><div class="ops-row"><span>Confirméiert / ofgeschloss</span><b>'+confirmedRequests+'</b></div><div class="ops-row"><span>Aarbechtsopträg ofgeholl</span><b>'+closedOrders+'</b></div><div class="ops-row"><span>Confirmatiounsquote</span><b>'+((openRequests+confirmedRequests)?Math.round(confirmedRequests/(openRequests+confirmedRequests)*100):0)+' %</b></div>';
-      var activeOrders=workOrders.filter(function(o){return o.status!=="collected";}),unassignedOrders=activeOrders.filter(function(o){return !o.assignedTo;}),plannedHours=activeOrders.reduce(function(s,o){return s+(Number(o.plannedMinutes)||0);},0)/60;
-      var staffLoads=staff.map(function(u){return {name:u.name||u.username,n:activeOrders.filter(function(o){return o.assignedTo===u.username;}).length};}).sort(function(a,b){return b.n-a.n;});
-      $("an-workload").innerHTML='<div class="ops-row"><span>Aktiv Opträg</span><b>'+activeOrders.length+'</b></div><div class="ops-row"><span>Geplangten Opwand</span><b>'+plannedHours.toFixed(1).replace('.',',')+' h</b></div><div class="ops-row"><span>Net zougewisen</span><b>'+unassignedOrders.length+'</b></div>'+(staffLoads.length?'<div class="ops-row"><span>Meescht belaascht</span><b>'+esc(staffLoads[0].name)+' · '+staffLoads[0].n+'</b></div>':'');
+      var closedAppointments=appts.filter(function(a){return a.status==="done";}).length;
+      $("an-pipeline").innerHTML='<div class="ops-row"><span>Oppen Ufroen</span><b>'+openRequests+'</b></div><div class="ops-row"><span>Bestätegt</span><b>'+appts.filter(function(a){return a.status==="confirmed";}).length+'</b></div><div class="ops-row"><span>Ofgeschloss Rendez-vousen</span><b>'+closedAppointments+'</b></div><div class="ops-row"><span>Confirmatiounsquote</span><b>'+((openRequests+confirmedRequests)?Math.round(confirmedRequests/(openRequests+confirmedRequests)*100):0)+' %</b></div>';
+      var activeAppointments=appts.filter(function(a){return a.status==="confirmed";}),unassignedAppointments=activeAppointments.filter(function(a){return !a.assignedTo;}),plannedHours=activeAppointments.reduce(function(s,a){return s+(Number(a.durationMin)||defaultDurationMin());},0)/60;
+      var staffLoads=staff.map(function(u){return {name:u.name||u.username,n:activeAppointments.filter(function(a){return a.assignedTo===u.username;}).length};}).sort(function(a,b){return b.n-a.n;});
+      $("an-workload").innerHTML='<div class="ops-row"><span>Bestätegt Rendez-vousen</span><b>'+activeAppointments.length+'</b></div><div class="ops-row"><span>Geplangten Opwand</span><b>'+plannedHours.toFixed(1).replace('.',',')+' h</b></div><div class="ops-row"><span>Net zougewisen</span><b>'+unassignedAppointments.length+'</b></div>'+(staffLoads.length?'<div class="ops-row"><span>Meescht belaascht</span><b>'+esc(staffLoads[0].name)+' · '+staffLoads[0].n+'</b></div>':'');
       var missingMail=customers.filter(function(c){return !c.email;}).length,missingPhone=customers.filter(function(c){return !c.phone;}).length,missingVin=customers.reduce(function(n,c){return n+(c.vehicles||[]).filter(function(v){return !v.vin;}).length;},0),noVehicle=customers.filter(function(c){return !(c.vehicles||[]).length;}).length;
       $("an-quality").innerHTML='<div class="ops-row"><span>Clienten ouni E-Mail</span><b>'+missingMail+'</b></div><div class="ops-row"><span>Clienten ouni Telefon</span><b>'+missingPhone+'</b></div><div class="ops-row"><span>Gefierer ouni VIN</span><b>'+missingVin+'</b></div><div class="ops-row"><span>Clienten ouni Gefier</span><b>'+noVehicle+'</b></div>';
 
@@ -1822,8 +1833,8 @@
   $("customer-add-toggle").addEventListener("click",function(){$("customer-form").hidden=!$("customer-form").hidden;if(!$("customer-form").hidden)$("c-name").focus();});
   $("customer-cancel").addEventListener("click",function(){$("customer-form").hidden=true;$("customer-form").reset();});
   $("customer-form").addEventListener("submit",function(e){e.preventDefault();STORE.addCustomer({name:$("c-name").value,email:$("c-email").value,phone:$("c-phone").value,notes:$("c-notes").value}).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Client gespäichert.");customerCache=null;$("customer-form").reset();$("customer-form").hidden=true;renderCustomers();});});
-  function openCustomer(id){Promise.all([loadCustomers(false),STORE.listWorkOrders()]).then(function(all){activeCustomer=all[0].filter(function(c){return c.id===id;})[0];if(!activeCustomer)return;var orders=all[1]||[],vs=activeCustomer.vehicles||[];$("customer-detail-title").textContent=activeCustomer.name;$("customer-detail-meta").textContent=(activeCustomer.email||"Keng E-Mail")+(activeCustomer.phone?" · "+activeCustomer.phone:"");
-    function vehicleFile(v,index){var hist=orders.filter(function(o){return Number(o.customerId)===Number(activeCustomer.id)&&Number(o.vehicleId)===Number(v.id);}).sort(function(a,b){return requestTime(b.updatedAt)-requestTime(a.updatedAt);}),last=hist[0];return '<div class="vehicle-file" data-vehicle-file="'+index+'"'+(index?' hidden':'')+'><h4>'+esc(v.makeModel)+'</h4><div class="ops-list"><div class="ops-row"><span>Nummerplaque</span><b>'+esc(v.plate||'—')+'</b></div><div class="ops-row"><span>Baujoer</span><b>'+esc(v.year||'—')+'</b></div><div class="ops-row"><span>VIN</span><b>'+esc(v.vin||'—')+'</b></div><div class="ops-row"><span>Kilometerstand</span><b>'+(v.mileage!==''?esc(v.mileage)+' km':'—')+'</b></div></div>'+(v.notes?'<p class="muted">'+esc(v.notes)+'</p>':'')+'<h4 style="margin-top:16px">Servicehistorik</h4>'+(last?'<p class="muted">Lescht Aarbecht: <b>'+esc(last.title)+'</b> · '+dLabel(last.updatedAt)+'</p>':'')+(hist.length?hist.map(function(o){return '<article class="history-item"><div><b>'+esc(o.title)+'</b> <span class="status status-'+esc(o.status)+'">'+esc(WO_STATUS[o.status]||o.status)+'</span></div><small class="muted">'+esc(o.reference)+' · '+dLabel(o.updatedAt)+'</small>'+(o.diagnosis?'<p><b>Diagnos:</b> '+esc(o.diagnosis)+'</p>':'')+(o.description?'<p>'+esc(o.description)+'</p>':'')+'</article>';}).join(''):'<p class="muted">Nach keng Aarbecht fir dëst Gefier erfaasst.</p>')+(can("members.manage")?'<div style="margin-top:14px"><button class="btn btn-danger-soft btn-sm" data-del-vehicle="'+v.id+'">🗑 Gefier läschen</button></div>':'')+'</div>';}
+  function openCustomer(id){Promise.all([loadCustomers(false),STORE.listAppointments()]).then(function(all){activeCustomer=all[0].filter(function(c){return c.id===id;})[0];if(!activeCustomer)return;var orders=(all[1]||[]).filter(function(a){return (a.kind||"appointment")==="appointment"&&a.status==="done";}),vs=activeCustomer.vehicles||[];$("customer-detail-title").textContent=activeCustomer.name;$("customer-detail-meta").textContent=(activeCustomer.email||"Keng E-Mail")+(activeCustomer.phone?" · "+activeCustomer.phone:"");
+    function vehicleFile(v,index){var hist=orders.filter(function(o){return Number(o.customerId)===Number(activeCustomer.id)&&Number(o.vehicleId)===Number(v.id);}).sort(function(a,b){return requestTime(b.completedAt||b.created)-requestTime(a.completedAt||a.created);}),last=hist[0];function serviceText(o){return (o.completedServices&&o.completedServices.length?o.completedServices.join(", "):o.service)||"Rendez-vous";}return '<div class="vehicle-file" data-vehicle-file="'+index+'"'+(index?' hidden':'')+'><h4>'+esc(v.makeModel)+'</h4><div class="ops-list"><div class="ops-row"><span>Nummerplaque</span><b>'+esc(v.plate||'—')+'</b></div><div class="ops-row"><span>Baujoer</span><b>'+esc(v.year||'—')+'</b></div><div class="ops-row"><span>VIN</span><b>'+esc(v.vin||'—')+'</b></div><div class="ops-row"><span>Kilometerstand</span><b>'+(v.mileage!==''?esc(v.mileage)+' km':'—')+'</b></div></div>'+(v.notes?'<p class="muted">'+esc(v.notes)+'</p>':'')+'<h4 style="margin-top:16px">Servicehistorik</h4>'+(last?'<p class="muted">Lescht Aarbecht: <b>'+esc(serviceText(last))+'</b> · '+dLabel(last.completedAt||last.created)+'</p>':'')+(hist.length?hist.map(function(o){return '<article class="history-item"><div><b>'+esc(serviceText(o))+'</b> <span class="status status-done">Ofgeschloss</span></div><small class="muted">'+esc(reqRef("appointment",o.id))+' · '+dLabel(o.completedAt||o.created)+'</small>'+(o.completionNote?'<p><b>Ofschlossnotiz:</b> '+esc(o.completionNote)+'</p>':'')+'</article>';}).join(''):'<p class="muted">Nach keng ofgeschloss Aarbecht fir dëst Gefier erfaasst.</p>')+(can("members.manage")?'<div style="margin-top:14px"><button class="btn btn-danger-soft btn-sm" data-del-vehicle="'+v.id+'">🗑 Gefier läschen</button></div>':'')+'</div>';}
     $("customer-detail-body").innerHTML='<section class="detail-section"><h3>Iwwersiicht</h3><div class="crm-stats"><span>'+activeCustomer.appointments+' Rendez-vous</span><span>'+activeCustomer.rentals+' Locatioun(en)</span><span>'+vs.length+' Gefier(er)</span></div>'+(activeCustomer.notes?'<p>'+esc(activeCustomer.notes)+'</p>':'')+'</section><section class="detail-section"><h3>Gefierer &amp; Historik</h3>'+(vs.length?'<div class="vehicle-selector">'+vs.map(function(v,i){return '<button type="button" data-vehicle-select="'+i+'" class="'+(i===0?'active':'')+'"><b>'+esc(v.makeModel)+'</b><br><small>'+esc(v.plate||'Keng Nummerplaque')+(v.year?' · '+esc(v.year):'')+'</small></button>';}).join('')+'</div>'+vs.map(vehicleFile).join(''):'<p class="muted">Nach kee Gefier erfaasst.</p>')+'</section>';
     $("customer-detail-body").querySelectorAll('[data-vehicle-select]').forEach(function(btn){btn.addEventListener('click',function(){var i=btn.dataset.vehicleSelect;$("customer-detail-body").querySelectorAll('[data-vehicle-select]').forEach(function(b){b.classList.toggle('active',b===btn);});$("customer-detail-body").querySelectorAll('[data-vehicle-file]').forEach(function(f){f.hidden=f.dataset.vehicleFile!==i;});});});
     $("ce-name").value=activeCustomer.name||"";$("ce-email").value=activeCustomer.email||"";$("ce-phone").value=activeCustomer.phone||"";$("ce-notes").value=activeCustomer.notes||"";$("customer-edit-section").hidden=true;
