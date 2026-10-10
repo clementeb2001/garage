@@ -795,16 +795,16 @@
         <nav class="topnav" id="topnav">
           <button type="button" data-page="dashboard" class="active"><span class="nav-icon">⌂</span>Dashboard</button>
           <button type="button" data-page="requests"><span class="nav-icon">▣</span>Ufroen <span id="nav-request-badge" class="nav-badge" hidden></span><span id="nav-new-badge" hidden></span><span id="nav-appt-badge" hidden></span><span id="nav-inq-badge" hidden></span></button>
+          <button type="button" data-page="appointments"><span class="nav-icon">📅</span>Rendez-vous <span id="nav-rdv-badge" class="nav-badge" hidden></span></button>
           <button type="button" data-page="planner"><span class="nav-icon">▦</span>Werkstatt-Planer</button>
           <div class="nav-section">Garage</div>
           <button type="button" data-page="customers"><span class="nav-icon">♙</span>Clienten &amp; Gefierer</button>
-          <button type="button" data-page="workorders"><span class="nav-icon">◫</span>Aarbechtsopträg</button>
+          <button type="button" data-page="workorders" hidden><span class="nav-icon">◫</span>Aarbechtsopträg</button>
           <button type="button" data-page="wartung" id="nav-wartung"><span class="nav-icon">⌁</span>Flott</button>
           <button type="button" data-page="bookings"><span class="nav-icon">▤</span>Locatiounsdossieren</button>
           <div class="nav-section">Steierung</div>
           <button type="button" data-page="analyse"><span class="nav-icon">↗</span>Analyse</button>
           <button type="button" data-page="system"><span class="nav-icon">⚙</span>Astellungen</button>
-          <button type="button" data-page="appointments" hidden>Rendez-vous</button>
           <button type="button" data-page="inquiries" hidden>Produktufroen</button>
           <button type="button" data-page="members" id="nav-members" hidden>Memberen</button>
         </nav>
@@ -1071,11 +1071,22 @@
 
       <!-- Appointments page -->
       <div class="wrap" id="page-appointments" hidden>
-        <div class="page-head">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button type="button" class="btn btn-outline btn-sm" data-goto="requests">← Ufroen</button><h2 class="page-title" style="margin:0">Rendez-vous</h2></div>
-        </div>
+        <div class="page-head"><h2 class="page-title">Rendez-vous</h2><button type="button" class="btn btn-primary btn-sm" id="rdv-add-toggle">+ Neie Rendez-vous</button></div>
         <p class="muted" id="appt-sub" style="margin:2px 0 0;font-size:0.9rem"></p>
-        <input type="search" id="appt-search" class="booking-search" aria-label="Rendez-vous-Ufroe sichen" placeholder="Sichen (Numm, E-Mail, Service, Réf.) …" autocomplete="off" />
+        <form class="crm-form" id="rdv-form" hidden>
+          <div class="field"><label for="rdv-name">Numm *</label><input id="rdv-name" required maxlength="120"></div>
+          <div class="field"><label for="rdv-phone">Telefon</label><input id="rdv-phone" maxlength="60"></div>
+          <div class="field"><label for="rdv-email">E-Mail (fir Bestätegungsmail)</label><input id="rdv-email" type="email" maxlength="160"></div>
+          <div class="field"><label for="rdv-vehicle">Gefier</label><input id="rdv-vehicle" maxlength="120"></div>
+          <div class="field wide"><label for="rdv-service">Service / Grond *</label><input id="rdv-service" required maxlength="120"></div>
+          <div class="field"><label for="rdv-date">Datum *</label><input id="rdv-date" type="date" required></div>
+          <div class="field"><label for="rdv-time">Auerzäit *</label><input id="rdv-time" type="time" step="300" required></div>
+          <div class="field"><label for="rdv-mech">Mécanicien</label><select id="rdv-mech"></select></div>
+          <div class="field"><label for="rdv-dur">Dauer</label><select id="rdv-dur"></select></div>
+          <div class="field wide"><label for="rdv-note">Notiz (intern)</label><input id="rdv-note" maxlength="2000"></div>
+          <div class="wide" style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" type="submit">Rendez-vous androen</button><button class="btn btn-outline btn-sm" type="button" id="rdv-cancel">Ofbriechen</button></div>
+        </form>
+        <input type="search" id="appt-search" class="booking-search" aria-label="Rendez-vous sichen" placeholder="Sichen (Numm, E-Mail, Service, Réf.) …" autocomplete="off" />
         <div class="filters" id="appt-filters"></div>
         <div id="appt-list"></div>
         <p class="footer-note">Rendez-vous-Ufroen vun der Kontakt-Formulaire · um séchere Cloudflare-Server gespäichert.</p>
@@ -1139,6 +1150,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=85"></script>
+    <script src="intern.js?v=86"></script>
   </body>
 </html>

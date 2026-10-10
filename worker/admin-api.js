@@ -902,6 +902,31 @@ export default {
       }
 
       /* ---- Rendez-vous lëschten (viewer+) ---- */
+      /* ---- Rendez-vous manuell androen (Telefon-Buchung, validator+) ---- */
+      if (path === "/appointments/manual" && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
+        const name = clip(bodyData.name, 120).trim(), email = clip(bodyData.email, 160).trim().toLowerCase();
+        const date = clip(bodyData.date, 20).trim(), time = clip(bodyData.time, 10).trim();
+        const service = clip(bodyData.service, 120).trim(), vehicle = clip(bodyData.vehicle, 120).trim();
+        if (!name || !service || !validDateOnly(date) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) return json(env, { error: "missing_fields" }, 400);
+        if (email && !validEmail(email)) return json(env, { error: "invalid_fields" }, 400);
+        let assigned = clip(bodyData.assigned, 60).trim().toLowerCase();
+        if (assigned) { const u = await env.DB.prepare("SELECT username FROM users WHERE username=?1 AND active=1").bind(assigned).first(); if (!u) return json(env, { error: "invalid_staff" }, 400); }
+        let duration = null;
+        if (bodyData.duration !== "" && bodyData.duration != null) { duration = parseInt(bodyData.duration, 10); if (!Number.isInteger(duration) || duration < 0 || duration > 1440) return json(env, { error: "invalid_duration" }, 400); if (duration === 0) duration = null; }
+        const phone = clip(bodyData.phone, 60), vin = clip(bodyData.vin, 40), msg = clip(bodyData.msg, 2000);
+        const lang = ["lb", "de", "fr", "en"].includes(bodyData.lang) ? bodyData.lang : "lb";
+        const r = await env.DB.prepare("INSERT INTO appointments (name,email,phone,service,vehicle,pref_date,daytime,vin,msg,lang,kind,status,confirmed_date,confirmed_time,assigned_to,duration_min) VALUES (?1,?2,?3,?4,?5,?6,'',?7,?8,?9,'appointment','confirmed',?6,?10,?11,?12)")
+          .bind(name, email || null, phone, service, vehicle, date, vin, msg, lang, time, assigned || null, duration).run();
+        const id = r.meta.last_row_id;
+        await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,'Manuell ugeluecht',?2,?3)").bind(id, me.username, clip(service || "Rendez-vous", 500)).run();
+        const appt = { id, name, email, phone, service, vehicle, vin, msg, lang, pref_date: date, confirmed_date: date, confirmed_time: time, assigned_to: assigned || null, duration_min: duration, kind: "appointment" };
+        ctx.waitUntil(ensureCrmLink(env, appt, me.username));
+        const mailQueued = !!(email && validEmail(email));
+        if (mailQueued) ctx.waitUntil(sendApptConfirmation(env, id, appt, me.username));
+        return json(env, { ok: true, id, mailQueued });
+      }
+
       if (path === "/appointments" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
         const as = (await env.DB.prepare("SELECT * FROM appointments ORDER BY id DESC LIMIT 1000").all()).results || [];

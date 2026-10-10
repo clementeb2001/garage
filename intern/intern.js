@@ -81,6 +81,7 @@
     delBooking: function (id) { return api("/bookings/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     editBooking: function (id, patch) { return api("/bookings/" + id + "/edit", { method: "POST", body: patch }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listAppointments: function () { return api("/appointments").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.appointments; }); },
+    createAppointment: function (p) { return api("/appointments/manual", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true, id: r.body.id, mailQueued: r.body.mailQueued } : { error: r.body.error }; }); },
     setApptStatus: function (id, status, note, date, time) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime, unchanged: r.body.unchanged, mailQueued: r.body.mailQueued } : { error: r.body.error }; }); },
     resendApptConfirmation: function (id, date, time) { return api("/appointments/" + id + "/confirmation-email", { method: "POST", body: { date: date, time: time } }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
     listStaff: function () { return api("/staff").then(function (r) { return r.status === 200 ? (r.body.staff || []) : []; }); },
@@ -167,7 +168,7 @@
     $("page-pw").hidden = p !== "pw";
     var titles={dashboard:"Dashboard",requests:"Ufroen",planner:"Werkstatt-Planer",customers:"Clienten & Gefierer",workorders:"Aarbechtsopträg",wartung:"Flott",bookings:"Locatiounsdossieren",analyse:"Analyse",system:"Astellungen & System",appointments:"Rendez-vous",inquiries:"Produktufroen",members:"Memberen",pw:"Passwuert änneren"};
     if ($("admin-section-title")) $("admin-section-title").textContent=titles[p]||"Verwaltung";
-    var navKey=(p==="appointments"||p==="inquiries")?"requests":p;
+    var navKey=(p==="inquiries")?"requests":p;
     document.querySelectorAll("#topnav button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-page") === navKey); });
     if (p === "dashboard") renderDashboard();
     else if (p === "requests") renderRequests();
@@ -895,7 +896,17 @@
       renderReqFilters(kind, items);
       var list = $(c.list); list.innerHTML = "";
       var shown = items.filter(function (a) { return (reqState[kind].filter === "all" || a.status === reqState[kind].filter) && reqMatch(kind, a); });
-      if (!shown.length) { var e = document.createElement("p"); e.className = "empty"; e.textContent = reqState[kind].query ? "Keng Ufro fir dës Sich." : "Keng Ufroen an dëser Kategorie."; list.appendChild(e); return; }
+      if (kind === "appointment") {
+        // Agenda: kommend Rendez-vousen (haut un) opsteigend, dann vergaangen ofsteigend.
+        var t0 = new Date(); t0.setHours(0, 0, 0, 0); var tMs = t0.getTime();
+        shown.sort(function (a, b) {
+          var da = apptDay(a), db = apptDay(b), ta = da ? da.getTime() : Infinity, tb = db ? db.getTime() : Infinity;
+          var fa = ta >= tMs ? 0 : 1, fb = tb >= tMs ? 0 : 1;
+          if (fa !== fb) return fa - fb;
+          return fa === 0 ? ta - tb : tb - ta;
+        });
+      }
+      if (!shown.length) { var e = document.createElement("p"); e.className = "empty"; e.textContent = reqState[kind].query ? "Keng Ufro fir dës Sich." : "Keng Rendez-vousen an dëser Kategorie."; list.appendChild(e); return; }
       shown.forEach(function (a) { list.appendChild(reqCard(kind, a)); });
     }).catch(function () {
       $(c.filters).innerHTML = "";
@@ -905,6 +916,18 @@
     });
   }
   function renderAppointments() { renderReq("appointment"); }
+  function fillRdvSelects(){
+    $("rdv-mech").innerHTML='<option value="">— Keen Mécanicien —</option>'+staffList.map(function(u){return '<option value="'+esc(u.username)+'">'+esc(u.name)+'</option>';}).join('');
+    $("rdv-dur").innerHTML='<option value="">— Dauer —</option>'+DUR_OPTIONS.map(function(mm){return '<option value="'+mm+'"'+(mm===defaultDurationMin()?' selected':'')+'>'+durLabel(mm)+'</option>';}).join('');
+  }
+  if($("rdv-add-toggle"))$("rdv-add-toggle").addEventListener("click",function(){var f=$("rdv-form");f.hidden=!f.hidden;if(!f.hidden){Promise.all([ensureStaff(),ensureSettings()]).then(fillRdvSelects);$("rdv-name").focus();}});
+  if($("rdv-cancel"))$("rdv-cancel").addEventListener("click",function(){$("rdv-form").hidden=true;$("rdv-form").reset();});
+  if($("rdv-form"))$("rdv-form").addEventListener("submit",function(e){e.preventDefault();if(!can("bookings.validate"))return;
+    var p={name:$("rdv-name").value,phone:$("rdv-phone").value,email:$("rdv-email").value,vehicle:$("rdv-vehicle").value,service:$("rdv-service").value,date:$("rdv-date").value,time:$("rdv-time").value,assigned:$("rdv-mech").value,duration:$("rdv-dur").value,msg:$("rdv-note").value,lang:"lb"};
+    if(!p.name.trim()||!p.date||!p.time||!p.service.trim()){toast("Numm, Service, Datum an Auerzäit sinn obligatoresch.");return;}
+    var btn=$("rdv-form").querySelector('button[type="submit"]');btn.disabled=true;
+    STORE.createAppointment(p).then(function(r){btn.disabled=false;if(r.error){toast(errMsg(r.error));return;}toast("Rendez-vous ugeluecht"+(r.mailQueued?" · Bestätegungsmail geschéckt.":"."));requestListCache=null;$("rdv-form").reset();$("rdv-form").hidden=true;renderAppointments();});
+  });
   function renderInquiries() { renderReq("inquiry"); }
   function renderBookings(useCache) {
     $("bookings-sub").textContent = can("bookings.validate") ? "Ufroe bestätegen oder ofleenen. All Aktioun gëtt mam Benotzernumm festgehalen." : "Dir hutt Liesrechter (Kucker).";
