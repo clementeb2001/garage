@@ -446,6 +446,28 @@ async function sendApptConfirmation(env, apptId, a, byUser = "System") {
     .bind(apptId, result.ok ? "Bestätegungsmail geschéckt" : "Bestätegungsmail feelgeschloen", byUser, clip(result.ok ? result.id : result.error, 500)).run();
   return result;
 }
+function apptDeclineMail(a) {
+  var L = ["lb", "de", "fr", "en"].includes(a.lang) ? a.lang : "lb";
+  var dateLabel = apptDateLabel(a.pref_date, L);
+  var T = {
+    lb: { s:"Är Rendez-vous-Ufro konnt leider net bestätegt ginn", h:"Rendez-vous net disponibel", p:"Villmools Merci fir Är Ufro. Leider kënne mir de gewënschte Rendez-vous net bestätegen.", service:"Service", date:"Wonschdatum", veh:"Gefier", foot:"Kontaktéiert eis gär – mir sichen zesumme mat Iech no engem aneren Termin." },
+    de: { s:"Ihre Terminanfrage konnte leider nicht bestätigt werden", h:"Termin nicht verfügbar", p:"Vielen Dank für Ihre Anfrage. Leider können wir den gewünschten Termin nicht bestätigen.", service:"Leistung", date:"Wunschdatum", veh:"Fahrzeug", foot:"Kontaktieren Sie uns gerne – gemeinsam finden wir einen alternativen Termin." },
+    fr: { s:"Votre demande de rendez-vous n’a malheureusement pas pu être confirmée", h:"Rendez-vous indisponible", p:"Merci pour votre demande. Malheureusement, nous ne pouvons pas confirmer le rendez-vous souhaité.", service:"Prestation", date:"Date souhaitée", veh:"Véhicule", foot:"N’hésitez pas à nous contacter afin que nous trouvions ensemble une autre date." },
+    en: { s:"Your appointment request could not be confirmed", h:"Appointment unavailable", p:"Thank you for your request. Unfortunately, we cannot confirm the requested appointment.", service:"Service", date:"Preferred date", veh:"Vehicle", foot:"Please contact us and we will be happy to find an alternative appointment with you." }
+  }[L];
+  var rows = [[T.service,a.service],[T.veh,a.vehicle],[T.date,dateLabel]].filter(function(r){return r[1];});
+  var details = rows.map(function(r){return "<b>"+esc(r[0])+":</b> "+esc(r[1]);}).join("<br>");
+  var html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1c2430"><div style="background:#0d1b2a;color:#fff;padding:16px 20px;border-radius:10px 10px 0 0;font-weight:800">Autoservice Bettenduerf</div><div style="border:1px solid #e6e9ee;border-top:0;border-radius:0 0 10px 10px;padding:20px"><h2 style="margin:0 0 8px;color:#c81420">'+esc(T.h)+'</h2><p>'+esc(T.p)+'</p><p>'+details+'</p><p>'+esc(T.foot)+'</p><p style="color:#8a96a2;font-size:12px">Autoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87</p></div></div>';
+  var text = T.h+"\n\n"+T.p+"\n\n"+rows.map(function(r){return r[0]+": "+r[1];}).join("\n")+"\n\n"+T.foot+"\n\nAutoservice Bettenduerf · 63, rue de Diekirch-Echternach · L-9355 Bettendorf · +352 80 86 87";
+  return {subject:T.s,html:html,text:text};
+}
+async function sendApptDecline(env, apptId, a, byUser = "System") {
+  const mail = apptDeclineMail(a);
+  const result = await sendEmail(env,a.email,mail.subject,mail.html,mail.text);
+  await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,?3,?4)")
+    .bind(apptId,result.ok ? "Oflehnungsmail geschéckt" : "Oflehnungsmail feelgeschloen",byUser,clip(result.ok ? result.id : result.error,500)).run();
+  return result;
+}
 /* Empfangsbestätegung un de Client beim Androen vun enger Ufro (nach keng Bestätegung). */
 function apptReceiptMail(a) {
   var L = ["lb", "de", "fr", "en"].includes(a.lang) ? a.lang : "lb";
@@ -1045,6 +1067,22 @@ export default {
       }
       /* ---- Gefier läschen (admin): Opträg entkoppelen ---- */
       m = path.match(/^\/customers\/(\d+)\/vehicles\/(\d+)$/);
+      if (m && method === "POST") {
+        if (!hasPerm(me.role, "bookings.validate")) return json(env,{error:"forbidden"},403);
+        const customerId=parseInt(m[1],10), vehicleId=parseInt(m[2],10), makeModel=clip(bodyData.makeModel,160).trim();
+        if(!makeModel)return json(env,{error:"missing_fields"},400);
+        const ex=await env.DB.prepare("SELECT id FROM customer_vehicles WHERE id=?1 AND customer_id=?2").bind(vehicleId,customerId).first();
+        if(!ex)return json(env,{error:"not_found"},404);
+        const mileage=bodyData.mileage===""||bodyData.mileage==null?null:parseInt(bodyData.mileage,10);
+        if(mileage!==null&&(!Number.isInteger(mileage)||mileage<0))return json(env,{error:"invalid_fields"},400);
+        const plate=clip(bodyData.plate,30),vin=clip(bodyData.vin,60),year=clip(bodyData.year,20),notes=clip(bodyData.notes,1000);
+        const dupe=await env.DB.prepare("SELECT id FROM customer_vehicles WHERE customer_id=?1 AND id<>?2 AND lower(trim(make_model))=lower(trim(?3)) AND lower(trim(COALESCE(vin,'')))=lower(trim(COALESCE(?4,'')))").bind(customerId,vehicleId,makeModel,vin||"").first();
+        if(dupe)return json(env,{error:"exists",id:dupe.id},409);
+        await env.DB.prepare("UPDATE customer_vehicles SET make_model=?1,plate=?2,vin=?3,year=?4,mileage=?5,notes=?6,updated_at=CURRENT_TIMESTAMP WHERE id=?7 AND customer_id=?8")
+          .bind(makeModel,plate||null,vin||null,year||null,mileage,notes||null,vehicleId,customerId).run();
+        await auditEvent(env,"customer_vehicle",vehicleId,"updated",me.username,"Client "+customerId);
+        return json(env,{ok:true});
+      }
       if (m && method === "DELETE") {
         if (me.role !== "admin") return json(env,{error:"forbidden"},403);
         const customerId=parseInt(m[1],10), vehicleId=parseInt(m[2],10);
@@ -1197,9 +1235,11 @@ export default {
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,?3,?4)").bind(id, labels[status], me.username, clip(bodyData.note, 500)).run();
         await auditEvent(env,"appointment",id,"status:"+status,me.username,note);
         // Bestätegungsmail un de Client (nëmme fir Rendez-vous mat enger E-Mail).
-        const mailQueued = status === "confirmed" && isAppt && !!appt.email;
+        const mailQueued = (status === "confirmed" || status === "declined") && isAppt && !!appt.email;
         if (mailQueued) {
-          ctx.waitUntil(sendApptConfirmation(env, id, Object.assign({}, appt, { confirmed_date: confDate, confirmed_time: confTime })));
+          ctx.waitUntil(status === "confirmed"
+            ? sendApptConfirmation(env, id, Object.assign({}, appt, { confirmed_date: confDate, confirmed_time: confTime }), me.username)
+            : sendApptDecline(env, id, appt, me.username));
         }
         // Client + Gefier am CRM verknäppen; keen zousätzlechen Aarbechtsoptrag.
         if ((status === "confirmed" || status === "done") && isAppt) ctx.waitUntil(ensureCrmLink(env, appt, me.username));

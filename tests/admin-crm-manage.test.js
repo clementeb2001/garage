@@ -54,6 +54,14 @@ test("admin can delete a vehicle; linked appointments are unlinked", async () =>
   assert.ok(ran.some(s => /DELETE FROM customer_vehicles WHERE id/.test(s)));
 });
 
+test("validator can correct all details of an existing customer vehicle", async () => {
+  const { default: worker } = await workerModule;
+  const { DB, ran } = mkDB({}, "validator");
+  const res = await worker.fetch(req("/customers/1/vehicles/5", "POST", { makeModel: "VW Golf VIII", plate: "AB 1234", vin: "WVW123", year: "2021", mileage: 42000, notes: "Diesel" }), { DB }, ctx());
+  assert.equal(res.status, 200);
+  assert.ok(ran.some(s => /UPDATE customer_vehicles SET make_model/.test(s)), "vehicle details updated");
+});
+
 test("deleting a customer archives rather than hard-deletes", async () => {
   const { default: worker } = await workerModule;
   const { DB, ran } = mkDB();

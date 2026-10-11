@@ -38,6 +38,14 @@ test('lost concurrent schedule update cannot send mail',async()=>{
  const r=await invoke({status:'confirmed',date:'2030-01-09',time:'11:00'},{changes:0});
  assert.equal(r.response.status,409);assert.equal(r.mails.length,0);assert(!r.calls.some(c=>c.sql.startsWith('INSERT')));
 });
+test('declining an appointment sends one clear decline mail in the client language',async()=>{
+ const appointment={...confirmed,status:'new',lang:'de',vehicle:'VW Golf',service:'Inspektion'};
+ const r=await invoke({status:'declined'},{appointment});
+ assert.equal(r.response.status,200);assert.equal(r.data.mailQueued,true);assert.equal(r.mails.length,1);
+ assert.match(r.mails[0][2],/leider nicht bestätigt/i);
+ assert.match(r.mails[0][4],/Termin nicht verfügbar/);
+ assert(r.calls.some(c=>c.args&&c.args.includes('Oflehnungsmail geschéckt')));
+});
 const resendBody={date:confirmed.confirmed_date,time:confirmed.confirmed_time},resendPath='/appointments/1/confirmation-email';
 test('manual resend is authenticated and restricted to complete confirmed appointments',async()=>{
  for(const [options,status] of [
