@@ -31,27 +31,8 @@ WHERE trim(COALESCE(a.vehicle,''))<>''
       AND lower(trim(COALESCE(v.vin,'')))=lower(trim(COALESCE(a.vin,'')))
   );
 
-INSERT INTO work_orders (appointment_id,customer_id,vehicle_id,title,status,assigned_to,planned_minutes,description)
-SELECT a.id,
-       (SELECT MIN(c.id) FROM customers c WHERE lower(trim(COALESCE(c.email,'')))=lower(trim(COALESCE(a.email,'')))),
-       (SELECT MIN(v.id) FROM customer_vehicles v JOIN customers vc ON vc.id=v.customer_id WHERE lower(trim(COALESCE(vc.email,'')))=lower(trim(COALESCE(a.email,''))) AND lower(trim(v.make_model))=lower(trim(a.vehicle))),
-       COALESCE(NULLIF(trim(a.service),''),'Rendez-vous'),
-       CASE WHEN a.status='done' THEN 'collected' ELSE 'planned' END,
-       a.assigned_to,a.duration_min,a.msg
-FROM appointments a
-WHERE a.kind='appointment' AND a.status IN ('confirmed','done')
-  AND NOT EXISTS (SELECT 1 FROM work_orders w WHERE w.appointment_id=a.id);
-
-UPDATE work_orders
-SET vehicle_id=(
-  SELECT MIN(v.id)
-  FROM appointments a
-  JOIN customer_vehicles v ON lower(trim(v.make_model))=lower(trim(a.vehicle))
-  JOIN customers c ON c.id=v.customer_id AND lower(trim(COALESCE(c.email,'')))=lower(trim(COALESCE(a.email,'')))
-  WHERE a.id=work_orders.appointment_id
-)
-WHERE vehicle_id IS NULL AND appointment_id IS NOT NULL;
-
-UPDATE work_orders
-SET reference='AB-A-' || strftime('%Y','now') || '-' || printf('%04d',id)
-WHERE reference IS NULL OR reference='';
+-- Aarbechtsopträg goufen den 11.10.2026 pensionéiert. D'Rendez-vousen sinn elo
+-- déi eenzeg operationell Quell fir Planung a Servicehistorik. Déi al Tabellen
+-- ginn net geläscht, fir datt eng eemoleg Archiv-/Kontrollmigratioun méiglech
+-- bleift; dëse widderhuelbare Deployment-Script däerf awer ni méi nei Opträg
+-- generéieren oder al Donnéeën zréck an den aktive Workflow bréngen.

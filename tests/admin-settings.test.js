@@ -45,7 +45,7 @@ test("admin can save valid opening hours and default duration", async () => {
   const res = await worker.fetch(req("POST", { openFrom: "07:30", openTo: "18:30", defaultDuration: "90" }), { DB }, ctx());
   assert.equal(res.status, 200);
   const writes = ran.filter(r => /INSERT INTO admin_settings/.test(r.sql));
-  assert.equal(writes.length, 3, "three settings upserted");
+  assert.equal(writes.length, 6, "all central business settings are upserted");
 });
 
 test("invalid times and durations are rejected", async () => {

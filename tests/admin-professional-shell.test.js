@@ -13,7 +13,7 @@ test("professional admin shell keeps all operational areas wired", () => {
     assert.match(html, new RegExp(`id="page-${page}"`));
   }
   assert.doesNotMatch(html, /data-page="workorders"/);
-  assert.match(script, /COMPLETION_SERVICES/);
+  assert.match(script, /function serviceCatalog\(\)/);
   assert.match(script, /function renderRequests\(\)/);
   assert.match(script, /function renderPlanner\(\)/);
   assert.match(script, /function renderSystem\(\)/);

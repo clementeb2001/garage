@@ -1,11 +1,11 @@
 /* Service Worker fir d'Interne Verwaltung (PWA). Scope: /intern/
    Network-first fir eegen Dateien (ëmmer frësch wann online, offline-fäeg
    duerch Cache). API-Uruff (aner Origin) ginn NET ofgefaangen. */
-var CACHE = "ab-intern-v87";
+var CACHE = "ab-intern-v88";
 var CORE = [
   "/intern/",
   "/intern/index.html",
-  "/intern/intern.js?v=86",
+  "/intern/intern.js?v=88",
   "/assets/damage-diagram-car.png",
   "/assets/damage-diagram-van.png",
   "/intern/manifest.webmanifest",
@@ -19,7 +19,9 @@ var CORE = [
 // iwwerhëlt eréischt beim nächsten Opmaachen (wann keng al Säit méi op ass).
 // Esou gëtt et NI e Reload-Loop an der oppener Säit.
 self.addEventListener("install", function (e) {
-  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(CORE).catch(function () {}); }));
+  e.waitUntil(caches.open(CACHE).then(function (c) {
+    return Promise.all(CORE.map(function(url){return fetch(url,{cache:"reload"}).then(function(res){if(!res.ok)throw new Error("PWA asset "+url+" net verfügbar");return c.put(url,res);});}));
+  }));
 });
 self.addEventListener("message", function (e) { if (e.data && e.data.type === "SKIP_WAITING") self.skipWaiting(); });
 self.addEventListener("activate", function (e) {

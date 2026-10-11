@@ -18,6 +18,8 @@ const SESSION_TTL = 8 * 60 * 60; // 8h
 const PW_ITERATIONS = 100000;
 const SESSION_COOKIE = "garage_session";
 const enc = (s) => new TextEncoder().encode(s);
+const DEFAULT_SERVICES = ["Ueleg- a Filterwiessel","Inspektioun / Entretien","Bremsen","Pneuen / Rieder","Klimaanlag","Diagnos / Feelerliesen","Fuerwierk / Ophängung","Batterie / Elektrik","Auspuff","Motor / Reparatur","Virkontroll fir d'Kontroll technique","Aneres"];
+const DEFAULT_WORKDAYS = [1,2,3,4,5,6];
 
 /* ---------- base64 / base64url ---------- */
 function bufToB64(buf) {
@@ -142,6 +144,31 @@ function validDateOnly(s) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
   const d = new Date(s + "T00:00:00Z");
   return Number.isFinite(d.getTime()) && d.toISOString().slice(0,10) === s;
+}
+function safeJson(value, fallback) {
+  try { const parsed = JSON.parse(value); return parsed == null ? fallback : parsed; } catch (_) { return fallback; }
+}
+async function settingsMap(env) {
+  const statement=env.DB.prepare("SELECT key,value FROM admin_settings");
+  if(!statement||typeof statement.all!=="function")return {};
+  const rows = (await statement.all()).results || [];
+  const out = {}; rows.forEach((row) => { out[row.key] = row.value; });
+  return out;
+}
+async function auditEvent(env, type, id, action, user, note) {
+  try { await env.DB.prepare("INSERT INTO admin_audit_events (entity_type,entity_id,action,by_user,note) VALUES (?1,?2,?3,?4,?5)").bind(type,String(id == null ? "" : id),action,user || "System",clip(note,1000)).run(); } catch (_) {}
+}
+async function appointmentConflict(env, date, time, duration, assigned, excludeId) {
+  if (!validDateOnly(date) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) return null;
+  const start = Date.parse(date + "T" + time + ":00Z"), end = start + Math.max(15, Number(duration) || 60) * 60000;
+  const statement=env.DB.prepare("SELECT id,name,confirmed_date,confirmed_time,duration_min,assigned_to FROM appointments WHERE kind='appointment' AND status IN ('confirmed','arrived') AND confirmed_date=?1 AND id<>?2").bind(date,Number(excludeId)||0);
+  if(!statement||typeof statement.all!=="function")return null;
+  const rows = (await statement.all()).results || [];
+  return rows.find((row) => {
+    if (assigned && row.assigned_to && assigned !== row.assigned_to) return false;
+    const otherStart = Date.parse(row.confirmed_date + "T" + row.confirmed_time + ":00Z"), otherEnd = otherStart + Math.max(15,Number(row.duration_min)||60) * 60000;
+    return start < otherEnd && end > otherStart;
+  }) || null;
 }
 function vehicleDescriptors(s, fleet) {
   return String(s || "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean).map((raw) => {
@@ -649,7 +676,14 @@ export default {
       if (path === "/appointment-availability" && (method === "GET" || method === "HEAD")) {
         const sinceDay = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
         const rows = (await env.DB.prepare("SELECT date, slot FROM appointment_blocks WHERE date >= ?1 ORDER BY date ASC LIMIT 1000").bind(sinceDay).all()).results || [];
-        return json(env, { blocks: rows.map((r) => ({ date: r.date, slot: r.slot })) }, 200, { "Cache-Control": "public, max-age=120" });
+        const settings = await settingsMap(env);
+        return json(env, {
+          blocks: rows.map((r) => ({ date: r.date, slot: r.slot })),
+          openFrom: settings.open_from || "07:00",
+          openTo: settings.open_to || "19:00",
+          workdays: safeJson(settings.workdays, DEFAULT_WORKDAYS),
+          closedDates: safeJson(settings.closed_dates, [])
+        }, 200, { "Cache-Control": "public, max-age=120" });
       }
 
       /* ---- public: aktiv Gefierer aus der interner Flotte ---- */
@@ -706,7 +740,8 @@ export default {
           const slot = bodyData.timeSlot || legacySlots[clip(bodyData.daytime,40).trim().toLowerCase()] || "";
           if (!["", "am", "pm"].includes(slot)) return json(env, { error:"invalid_fields" }, 400);
           const days = [preferredDate, alternativeDate].filter(Boolean);
-          if (days.some(day => new Date(day + "T00:00:00Z").getUTCDay() === 0)) return json(env, { error:"appointment_unavailable" }, 409);
+          const settings = await settingsMap(env), workdays = safeJson(settings.workdays, DEFAULT_WORKDAYS), closedDates = safeJson(settings.closed_dates, []);
+          if (days.some(day => workdays.indexOf(new Date(day + "T00:00:00Z").getUTCDay()) === -1 || closedDates.indexOf(day) !== -1)) return json(env, { error:"appointment_unavailable" }, 409);
           const result = await env.DB.prepare("SELECT date, slot FROM appointment_blocks WHERE date IN (?1, ?2)").bind(preferredDate, alternativeDate || preferredDate).all();
           const blocks = result.results || [];
           if (days.some(day => {
@@ -812,7 +847,7 @@ export default {
         if (!hasPerm(me.role, "bookings.validate")) return json(env, { error: "forbidden" }, 403);
         const id = parseInt(m[1], 10);
         const status = clip(bodyData.status, 20);
-        const labels = { confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss", new: "Zrécksetzen" };
+        const labels = { confirmed:"Bestätegt",arrived:"Ukomm",rescheduled:"Ëmgeplangt",cancelled_client:"Vum Client annuléiert",cancelled_garage:"Vun der Garage annuléiert",no_show:"Net opgedaucht",declined:"Ofgeleent",done:"Ofgeschloss",new:"Zrécksetzen" };
         if (!labels[status]) return json(env, { error: "bad_status" }, 400);
         const ex = await env.DB.prepare("SELECT id,status FROM bookings WHERE id = ?1").bind(id).first();
         if (!ex) return json(env, { error: "not_found" }, 404);
@@ -905,11 +940,20 @@ export default {
         let duration = null;
         if (bodyData.duration !== "" && bodyData.duration != null) { duration = parseInt(bodyData.duration, 10); if (!Number.isInteger(duration) || duration < 0 || duration > 1440) return json(env, { error: "invalid_duration" }, 400); if (duration === 0) duration = null; }
         const phone = clip(bodyData.phone, 60), vin = clip(bodyData.vin, 40), msg = clip(bodyData.msg, 2000);
+        const customerId = Number(bodyData.customerId) || null, vehicleId = Number(bodyData.vehicleId) || null;
+        if (customerId) { const c = await env.DB.prepare("SELECT id FROM customers WHERE id=?1 AND COALESCE(archived,0)=0").bind(customerId).first(); if (!c) return json(env,{error:"invalid_customer"},400); }
+        if (vehicleId) { const v = await env.DB.prepare("SELECT id FROM customer_vehicles WHERE id=?1 AND customer_id=?2").bind(vehicleId,customerId).first(); if (!v) return json(env,{error:"invalid_vehicle"},400); }
+        const settings = await settingsMap(env), openFrom=settings.open_from||"07:00", openTo=settings.open_to||"19:00", workdays=safeJson(settings.workdays,DEFAULT_WORKDAYS), closedDates=safeJson(settings.closed_dates,[]);
+        if (time < openFrom || time >= openTo || workdays.indexOf(new Date(date+"T00:00:00Z").getUTCDay())===-1 || closedDates.indexOf(date)!==-1) return json(env,{error:"outside_business_hours"},409);
+        const conflict = await appointmentConflict(env,date,time,duration||parseInt(settings.default_duration||"60",10),assigned,0);
+        if (conflict && !bodyData.overrideConflict) return json(env,{error:"appointment_conflict",conflict:{id:conflict.id,name:conflict.name}},409);
+        if (conflict && !clip(bodyData.overrideReason,300).trim()) return json(env,{error:"override_reason_required"},400);
         const lang = ["lb", "de", "fr", "en"].includes(bodyData.lang) ? bodyData.lang : "lb";
-        const r = await env.DB.prepare("INSERT INTO appointments (name,email,phone,service,vehicle,pref_date,daytime,vin,msg,lang,kind,status,confirmed_date,confirmed_time,assigned_to,duration_min) VALUES (?1,?2,?3,?4,?5,?6,'',?7,?8,?9,'appointment','confirmed',?6,?10,?11,?12)")
-          .bind(name, email || null, phone, service, vehicle, date, vin, msg, lang, time, assigned || null, duration).run();
+        const r = await env.DB.prepare("INSERT INTO appointments (name,email,phone,service,vehicle,pref_date,daytime,vin,msg,lang,kind,status,confirmed_date,confirmed_time,assigned_to,duration_min,customer_id,vehicle_id) VALUES (?1,?2,?3,?4,?5,?6,'',?7,?8,?9,'appointment','confirmed',?6,?10,?11,?12,?13,?14)")
+          .bind(name, email || null, phone, service, vehicle, date, vin, msg, lang, time, assigned || null, duration, customerId, vehicleId).run();
         const id = r.meta.last_row_id;
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,'Manuell ugeluecht',?2,?3)").bind(id, me.username, clip(service || "Rendez-vous", 500)).run();
+        if (conflict) await auditEvent(env,"appointment",id,"conflict_override",me.username,bodyData.overrideReason);
         const appt = { id, name, email, phone, service, vehicle, vin, msg, lang, pref_date: date, confirmed_date: date, confirmed_time: time, assigned_to: assigned || null, duration_min: duration, kind: "appointment" };
         ctx.waitUntil(ensureCrmLink(env, appt, me.username));
         const mailQueued = !!(email && validEmail(email));
@@ -919,16 +963,17 @@ export default {
 
       if (path === "/appointments" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
-        const as = (await env.DB.prepare("SELECT * FROM appointments ORDER BY id DESC LIMIT 1000").all()).results || [];
-        const evs = (await env.DB.prepare("SELECT appointment_id, action, by_user, note, at FROM appointment_events ORDER BY id ASC").all()).results || [];
+        const limit = Math.min(250,Math.max(20,parseInt(url.searchParams.get("limit")||"250",10)||250)), before=Math.max(0,parseInt(url.searchParams.get("before")||"0",10)||0);
+        const as = before
+          ? (await env.DB.prepare("SELECT * FROM appointments WHERE id<?1 ORDER BY id DESC LIMIT ?2").bind(before,limit).all()).results || []
+          : (await env.DB.prepare("SELECT * FROM appointments ORDER BY id DESC LIMIT ?1").bind(limit).all()).results || [];
+        const minId=as.length?Math.min(...as.map((a)=>Number(a.id))):0, maxId=as.length?Math.max(...as.map((a)=>Number(a.id))):0;
+        const evs = as.length ? (await env.DB.prepare("SELECT appointment_id, action, by_user, note, at FROM appointment_events WHERE appointment_id BETWEEN ?1 AND ?2 ORDER BY id ASC").bind(minId,maxId).all()).results || [] : [];
         const staff = (await env.DB.prepare("SELECT username, name FROM users").all()).results || [];
-        // Al Aarbechtsopträg bleiwen als liesbare Legacy-Historik erhalen.
-        const legacy = (await env.DB.prepare("SELECT appointment_id,customer_id,vehicle_id,title,description,diagnosis,updated_at FROM work_orders WHERE appointment_id IS NOT NULL ORDER BY updated_at DESC,id DESC").all()).results || [];
-        const legacyByAppointment = {}; legacy.forEach((w) => { if (!legacyByAppointment[w.appointment_id]) legacyByAppointment[w.appointment_id] = w; });
         const staffName = {}; staff.forEach((u) => { staffName[u.username] = u.name || u.username; });
         const byId = {};
         evs.forEach((e) => { (byId[e.appointment_id] = byId[e.appointment_id] || []).push({ action: e.action, by: e.by_user, at: e.at, note: e.note || "" }); });
-        return json(env, { appointments: as.map((a) => { const w=legacyByAppointment[a.id]||{}; let services=[]; try { services=JSON.parse(a.completion_services||"[]"); } catch (_) {} if (!Array.isArray(services)) services=[]; if (!services.length && a.status==="done") services=[w.title||a.service||"Rendez-vous"]; return { id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, confirmedDate: a.confirmed_date || "", confirmedTime: a.confirmed_time || "", assignedTo: a.assigned_to || "", assignedName: a.assigned_to ? (staffName[a.assigned_to] || a.assigned_to) : "", durationMin: a.duration_min == null ? "" : a.duration_min, planNote: a.plan_note || "", customerId:a.customer_id||w.customer_id||null, vehicleId:a.vehicle_id||w.vehicle_id||null, completedServices:services, completionNote:a.completion_note||w.diagnosis||w.description||"", completedAt:a.completed_at||((a.status==="done"&&w.updated_at)?w.updated_at:""), completedBy:a.completed_by||"", vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, created: a.created_at, events: byId[a.id] || [] }; }) });
+        return json(env, { appointments: as.map((a) => { let services=[]; try { services=JSON.parse(a.completion_services||"[]"); } catch (_) {} if (!Array.isArray(services)) services=[]; if (!services.length && a.status==="done" && a.service) services=[a.service]; return { id: a.id, name: a.name, email: a.email, phone: a.phone, service: a.service, vehicle: a.vehicle, prefDate: a.pref_date, altDate: a.alt_date, daytime: a.daytime, confirmedDate: a.confirmed_date || "", confirmedTime: a.confirmed_time || "", assignedTo: a.assigned_to || "", assignedName: a.assigned_to ? (staffName[a.assigned_to] || a.assigned_to) : "", durationMin: a.duration_min == null ? "" : a.duration_min, planNote: a.plan_note || "", customerId:a.customer_id||null, vehicleId:a.vehicle_id||null, completedServices:services, completionNote:a.completion_note||"", completionMileage:a.completion_mileage==null?"":a.completion_mileage,completionParts:a.completion_parts||"",actualDurationMin:a.actual_duration_min==null?"":a.actual_duration_min,nextServiceDate:a.next_service_date||"",nextServiceKm:a.next_service_km==null?"":a.next_service_km,completedAt:a.completed_at||"", completedBy:a.completed_by||"", vin: a.vin, msg: a.msg, kind: a.kind || "appointment", status: a.status, created: a.created_at, events: byId[a.id] || [] }; }), nextCursor: as.length===limit?as[as.length-1].id:null });
       }
 
       /* ---- Clientedatebank (additiv; Originalufroe bleiwen onverännert) ---- */
@@ -956,6 +1001,7 @@ export default {
         const ex=await env.DB.prepare("SELECT id FROM customers WHERE id=?1 AND COALESCE(archived,0)=0").bind(id).first(); if(!ex)return json(env,{error:"not_found"},404);
         if(email){const duplicate=await env.DB.prepare("SELECT id FROM customers WHERE COALESCE(archived,0)=0 AND lower(trim(email))=?1 AND id<>?2").bind(email,id).first();if(duplicate)return json(env,{error:"exists"},409);}
         await env.DB.prepare("UPDATE customers SET name=?1,email=?2,phone=?3,notes=?4,updated_at=CURRENT_TIMESTAMP WHERE id=?5").bind(name,email||null,phone||null,clip(bodyData.notes,2000),id).run();
+        await auditEvent(env,"customer",id,"updated",me.username,"");
         return json(env,{ok:true});
       }
       if (m && method === "DELETE") {
@@ -963,6 +1009,24 @@ export default {
         const id=parseInt(m[1],10), ex=await env.DB.prepare("SELECT id FROM customers WHERE id=?1 AND COALESCE(archived,0)=0").bind(id).first();
         if(!ex)return json(env,{error:"not_found"},404);
         await env.DB.prepare("UPDATE customers SET archived=1,updated_at=CURRENT_TIMESTAMP WHERE id=?1").bind(id).run();
+        await auditEvent(env,"customer",id,"archived",me.username,"");
+        return json(env,{ok:true});
+      }
+      m = path.match(/^\/customers\/(\d+)\/erase$/);
+      if (m && method === "POST") {
+        if (me.role !== "admin") return json(env,{error:"forbidden"},403);
+        const id=parseInt(m[1],10), reason=clip(bodyData.reason,500).trim();
+        if(!reason)return json(env,{error:"erase_reason_required"},400);
+        const customer=await env.DB.prepare("SELECT * FROM customers WHERE id=?1").bind(id).first();
+        if(!customer)return json(env,{error:"not_found"},404);
+        const vehicles=(await env.DB.prepare("SELECT id FROM customer_vehicles WHERE customer_id=?1").bind(id).all()).results||[];
+        await env.DB.batch([
+          env.DB.prepare("UPDATE appointments SET name='Geläschte Client',email=?3,phone=NULL,vin=NULL,msg=NULL,customer_id=NULL,vehicle_id=NULL WHERE customer_id=?1 OR (trim(COALESCE(?2,''))<>'' AND lower(trim(email))=lower(trim(?2)))").bind(id,customer.email||"","deleted+"+id+"@invalid.local"),
+          env.DB.prepare("UPDATE bookings SET cust_name='Geläschte Client',cust_email=?2,cust_phone=NULL,msg=NULL WHERE trim(COALESCE(?1,''))<>'' AND lower(trim(cust_email))=lower(trim(?1))").bind(customer.email||"","deleted+"+id+"@invalid.local"),
+          env.DB.prepare("DELETE FROM customer_vehicles WHERE customer_id=?1").bind(id),
+          env.DB.prepare("UPDATE customers SET name='Geläschte Client',email=NULL,phone=NULL,notes=NULL,archived=1,updated_at=CURRENT_TIMESTAMP WHERE id=?1").bind(id)
+        ]);
+        await auditEvent(env,"customer",id,"gdpr_erased",me.username,reason+" · "+vehicles.length+" Gefier(er) anonymiséiert");
         return json(env,{ok:true});
       }
       m = path.match(/^\/customers\/(\d+)\/vehicles$/);
@@ -976,6 +1040,7 @@ export default {
         const dupe=await env.DB.prepare("SELECT id FROM customer_vehicles WHERE customer_id=?1 AND lower(trim(make_model))=lower(trim(?2)) AND lower(trim(COALESCE(vin,'')))=lower(trim(COALESCE(?3,'')))").bind(customerId,makeModel,vin||"").first();
         if(dupe)return json(env,{error:"exists",id:dupe.id},409);
         const r=await env.DB.prepare("INSERT INTO customer_vehicles (customer_id,make_model,plate,vin,year,mileage,notes) VALUES (?1,?2,?3,?4,?5,?6,?7)").bind(customerId,makeModel,clip(bodyData.plate,30),vin,clip(bodyData.year,20),mileage,clip(bodyData.notes,1000)).run();
+        await auditEvent(env,"customer_vehicle",r.meta.last_row_id,"created",me.username,"Client "+customerId);
         return json(env,{ok:true,id:r.meta.last_row_id});
       }
       /* ---- Gefier läschen (admin): Opträg entkoppelen ---- */
@@ -985,49 +1050,9 @@ export default {
         const customerId=parseInt(m[1],10), vehicleId=parseInt(m[2],10);
         const ex=await env.DB.prepare("SELECT id FROM customer_vehicles WHERE id=?1 AND customer_id=?2").bind(vehicleId,customerId).first();
         if(!ex)return json(env,{error:"not_found"},404);
-        await env.DB.batch([
-          env.DB.prepare("UPDATE work_orders SET vehicle_id=NULL WHERE vehicle_id=?1").bind(vehicleId),
-          env.DB.prepare("DELETE FROM customer_vehicles WHERE id=?1").bind(vehicleId),
-        ]);
-        return json(env,{ok:true});
-      }
-
-      /* ---- Aarbechtsopträg: Werkstatt-Workflow ouni Rendez-vous ze veränneren ---- */
-      if (path === "/work-orders" && method === "GET") {
-        if (!hasPerm(me.role,"bookings.view")) return json(env,{error:"forbidden"},403);
-        const rows=(await env.DB.prepare("SELECT w.*,c.name customer_name,c.email customer_email,c.phone customer_phone,v.make_model vehicle_name,v.plate vehicle_plate,u.name staff_name FROM work_orders w LEFT JOIN customers c ON c.id=w.customer_id LEFT JOIN customer_vehicles v ON v.id=w.vehicle_id LEFT JOIN users u ON u.username=w.assigned_to ORDER BY w.updated_at DESC,w.id DESC").all()).results||[];
-        const evs=(await env.DB.prepare("SELECT * FROM work_order_events ORDER BY id ASC").all()).results||[], by={}; evs.forEach(e=>{(by[e.work_order_id]||=[]).push({action:e.action,by:e.by_user||"",note:e.note||"",at:e.at});});
-        return json(env,{orders:rows.map(w=>({id:w.id,appointmentId:w.appointment_id||null,customerId:w.customer_id||null,vehicleId:w.vehicle_id||null,reference:w.reference||("AB-A-"+new Date().getFullYear()+"-"+String(w.id).padStart(4,"0")),title:w.title,status:w.status,assignedTo:w.assigned_to||"",assignedName:w.staff_name||w.assigned_to||"",plannedMinutes:w.planned_minutes==null?"":w.planned_minutes,description:w.description||"",diagnosis:w.diagnosis||"",internalNote:w.internal_note||"",customerName:w.customer_name||"",customerEmail:w.customer_email||"",customerPhone:w.customer_phone||"",vehicleName:w.vehicle_name||"",vehiclePlate:w.vehicle_plate||"",createdAt:w.created_at,updatedAt:w.updated_at,events:by[w.id]||[]}))});
-      }
-      if (path === "/work-orders" && method === "POST") {
-        if (!hasPerm(me.role,"bookings.validate")) return json(env,{error:"forbidden"},403);
-        const title=clip(bodyData.title,180).trim(); if(!title)return json(env,{error:"missing_fields"},400);
-        const allowed=["planned","arrived","diagnosis","approval","working","ready","collected"], status=allowed.includes(bodyData.status)?bodyData.status:"planned";
-        const customerId=Number(bodyData.customerId)||null, vehicleId=Number(bodyData.vehicleId)||null, appointmentId=Number(bodyData.appointmentId)||null, planned=bodyData.plannedMinutes===""||bodyData.plannedMinutes==null?null:parseInt(bodyData.plannedMinutes,10);
-        if(planned!==null&&(!Number.isInteger(planned)||planned<0||planned>10080))return json(env,{error:"invalid_fields"},400);
-        try { const r=await env.DB.prepare("INSERT INTO work_orders (appointment_id,customer_id,vehicle_id,title,status,assigned_to,planned_minutes,description,diagnosis,internal_note) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)").bind(appointmentId,customerId,vehicleId,title,status,clip(bodyData.assignedTo,60)||null,planned,clip(bodyData.description,3000),clip(bodyData.diagnosis,3000),clip(bodyData.internalNote,3000)).run(); const id=r.meta.last_row_id, ref="AB-A-"+new Date().getFullYear()+"-"+String(id).padStart(4,"0"); await env.DB.batch([env.DB.prepare("UPDATE work_orders SET reference=?1 WHERE id=?2").bind(ref,id),env.DB.prepare("INSERT INTO work_order_events (work_order_id,action,by_user,note) VALUES (?1,'Ugeluecht',?2,?3)").bind(id,me.username,status)]); return json(env,{ok:true,id,reference:ref}); } catch(e) { return json(env,{error:String(e).includes("UNIQUE")?"exists":"server_error"},409); }
-      }
-      m = path.match(/^\/work-orders\/(\d+)$/);
-      if (m && method === "POST") {
-        if (!hasPerm(me.role,"bookings.validate")) return json(env,{error:"forbidden"},403);
-        const id=parseInt(m[1],10), ex=await env.DB.prepare("SELECT * FROM work_orders WHERE id=?1").bind(id).first(); if(!ex)return json(env,{error:"not_found"},404);
-        const allowed=["planned","arrived","diagnosis","approval","working","ready","collected"], status=allowed.includes(bodyData.status)?bodyData.status:ex.status, title=clip(bodyData.title||ex.title,180).trim();
-        const planned=bodyData.plannedMinutes===""||bodyData.plannedMinutes==null?null:parseInt(bodyData.plannedMinutes,10); if(planned!==null&&(!Number.isInteger(planned)||planned<0||planned>10080))return json(env,{error:"invalid_fields"},400);
-        const action=status!==ex.status?"Status: "+status:"Geännert";
-        await env.DB.batch([env.DB.prepare("UPDATE work_orders SET customer_id=?1,vehicle_id=?2,title=?3,status=?4,assigned_to=?5,planned_minutes=?6,description=?7,diagnosis=?8,internal_note=?9,updated_at=CURRENT_TIMESTAMP WHERE id=?10").bind(Number(bodyData.customerId)||null,Number(bodyData.vehicleId)||null,title,status,clip(bodyData.assignedTo,60)||null,planned,clip(bodyData.description,3000),clip(bodyData.diagnosis,3000),clip(bodyData.internalNote,3000),id),env.DB.prepare("INSERT INTO work_order_events (work_order_id,action,by_user,note) VALUES (?1,?2,?3,?4)").bind(id,action,me.username,clip(bodyData.eventNote,500))]);
-        return json(env,{ok:true});
-      }
-      /* ---- Aarbechtsoptrag läschen (admin) ---- */
-      m = path.match(/^\/work-orders\/(\d+)$/);
-      if (m && method === "DELETE") {
-        if (me.role !== "admin") return json(env,{error:"forbidden"},403);
-        const id=parseInt(m[1],10);
-        const ex=await env.DB.prepare("SELECT id FROM work_orders WHERE id=?1").bind(id).first();
-        if(!ex)return json(env,{error:"not_found"},404);
-        await env.DB.batch([
-          env.DB.prepare("DELETE FROM work_order_events WHERE work_order_id=?1").bind(id),
-          env.DB.prepare("DELETE FROM work_orders WHERE id=?1").bind(id),
-        ]);
+        await env.DB.prepare("UPDATE appointments SET vehicle_id=NULL WHERE vehicle_id=?1").bind(vehicleId).run();
+        await env.DB.prepare("DELETE FROM customer_vehicles WHERE id=?1").bind(vehicleId).run();
+        await auditEvent(env,"customer_vehicle",vehicleId,"deleted",me.username,"Client "+customerId);
         return json(env,{ok:true});
       }
 
@@ -1038,7 +1063,7 @@ export default {
         return json(env, { staff: us.map((u) => ({ username: u.username, name: u.name || u.username, role: u.role })) });
       }
 
-      /* ---- Betribsastellungen: Ëffnungszäiten + Standard-Dauer (viewer liest, admin schreift) ---- */
+      /* ---- Zentral Betribsastellungen: ëffentleche Kalenner + intern Planung ---- */
       if (path === "/settings" && method === "GET") {
         if (!hasPerm(me.role, "bookings.view")) return json(env, { error: "forbidden" }, 403);
         const rows = (await env.DB.prepare("SELECT key, value FROM admin_settings").all()).results || [];
@@ -1052,8 +1077,13 @@ export default {
         if (!timeRe.test(openFrom) || !timeRe.test(openTo)) return json(env, { error: "invalid_time" }, 400);
         if (openFrom >= openTo) return json(env, { error: "invalid_range" }, 400);
         if (!Number.isInteger(dur) || dur < 15 || dur > 600) return json(env, { error: "invalid_duration" }, 400);
-        const entries = [["open_from", openFrom], ["open_to", openTo], ["default_duration", String(dur)]];
+        const workdays = Array.isArray(bodyData.workdays) ? [...new Set(bodyData.workdays.map(Number).filter((d)=>Number.isInteger(d)&&d>=0&&d<=6))].sort() : DEFAULT_WORKDAYS;
+        const closedDates = Array.isArray(bodyData.closedDates) ? [...new Set(bodyData.closedDates.map((d)=>clip(d,10)).filter(validDateOnly))].sort().slice(0,400) : [];
+        const services = Array.isArray(bodyData.services) ? [...new Set(bodyData.services.map((s)=>clip(s,80).trim()).filter(Boolean))].slice(0,40) : DEFAULT_SERVICES;
+        if (!workdays.length || !services.length) return json(env,{error:"invalid_fields"},400);
+        const entries = [["open_from", openFrom], ["open_to", openTo], ["default_duration", String(dur)],["workdays",JSON.stringify(workdays)],["closed_dates",JSON.stringify(closedDates)],["service_catalog",JSON.stringify(services)]];
         await env.DB.batch(entries.map(([k, v]) => env.DB.prepare("INSERT INTO admin_settings (key,value,updated_at,updated_by) VALUES (?1,?2,CURRENT_TIMESTAMP,?3) ON CONFLICT(key) DO UPDATE SET value=?2,updated_at=CURRENT_TIMESTAMP,updated_by=?3").bind(k, v, me.username)));
+        await auditEvent(env,"settings","business","updated",me.username,"Betribszäiten, Aarbechtsdeeg a Servicekatalog");
         return json(env, { ok: true });
       }
 
@@ -1076,6 +1106,13 @@ export default {
           if (duration === 0) duration = null;
         }
         const planNote = clip(bodyData.planNote, 1000);
+        const current = await env.DB.prepare("SELECT confirmed_date,confirmed_time,status FROM appointments WHERE id=?1").bind(id).first();
+        if (current && current.status === "confirmed" && current.confirmed_date && current.confirmed_time) {
+          const conflict = await appointmentConflict(env,current.confirmed_date,current.confirmed_time,duration||60,assigned,id);
+          if (conflict && !bodyData.overrideConflict) return json(env,{error:"appointment_conflict",conflict:{id:conflict.id,name:conflict.name}},409);
+          if (conflict && !clip(bodyData.overrideReason,300).trim()) return json(env,{error:"override_reason_required"},400);
+          if (conflict) await auditEvent(env,"appointment",id,"conflict_override",me.username,bodyData.overrideReason);
+        }
         await env.DB.prepare("UPDATE appointments SET assigned_to=?1, duration_min=?2, plan_note=?3 WHERE id=?4")
           .bind(assigned || null, duration, planNote || null, id).run();
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,'Plang',?2,?3)")
@@ -1114,13 +1151,20 @@ export default {
         const appt = await env.DB.prepare("SELECT * FROM appointments WHERE id = ?1").bind(id).first();
         if (!appt) return json(env, { error: "not_found" }, 404);
         const isAppt = (appt.kind || "appointment") === "appointment";
-        const allowedServices = ["Ueleg- a Filterwiessel","Inspektioun / Entretien","Bremsen","Pneuen / Rieder","Klimaanlag","Diagnos / Feelerliesen","Fuerwierk / Ophängung","Batterie / Elektrik","Auspuff","Motor / Reparatur","Virkontroll fir d'Kontroll technique","Aneres"];
+        const currentSettings = await settingsMap(env), allowedServices = safeJson(currentSettings.service_catalog,DEFAULT_SERVICES);
         let completedServices = [];
         let completionNote = "";
+        let completionMileage=null, actualDuration=null, nextServiceKm=null, nextServiceDate="", completionParts="";
         if (status === "done" && isAppt) {
           completedServices = Array.isArray(bodyData.services) ? [...new Set(bodyData.services.map((x) => clip(x,80).trim()).filter((x) => allowedServices.includes(x)))].slice(0,12) : [];
           completionNote = clip(bodyData.completionNote,2000).trim();
           if (!completedServices.length) return json(env,{error:"missing_completion_service"},400);
+          completionMileage=bodyData.completionMileage===""||bodyData.completionMileage==null?null:parseInt(bodyData.completionMileage,10);
+          actualDuration=bodyData.actualDuration===""||bodyData.actualDuration==null?null:parseInt(bodyData.actualDuration,10);
+          nextServiceKm=bodyData.nextServiceKm===""||bodyData.nextServiceKm==null?null:parseInt(bodyData.nextServiceKm,10);
+          nextServiceDate=clip(bodyData.nextServiceDate,10).trim(); completionParts=clip(bodyData.completionParts,2000).trim();
+          if ((completionMileage!==null&&(!Number.isInteger(completionMileage)||completionMileage<0))||(actualDuration!==null&&(!Number.isInteger(actualDuration)||actualDuration<0||actualDuration>1440))||(nextServiceKm!==null&&(!Number.isInteger(nextServiceKm)||nextServiceKm<0))||(nextServiceDate&&!validDateOnly(nextServiceDate))) return json(env,{error:"invalid_fields"},400);
+          if (completedServices.includes("Aneres") && !completionNote) return json(env,{error:"missing_completion_note"},400);
         }
         let confDate = appt.confirmed_date || appt.pref_date || "";
         let confTime = appt.confirmed_time || "";
@@ -1132,6 +1176,10 @@ export default {
           if (d) confDate = d;
           if (tm) confTime = tm;
           if (!validDateOnly(confDate) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(confTime)) return json(env, { error:"missing_confirmation_time" }, 400);
+          const conflict=await appointmentConflict(env,confDate,confTime,appt.duration_min||parseInt(currentSettings.default_duration||"60",10),appt.assigned_to,id);
+          if(conflict&&!bodyData.overrideConflict)return json(env,{error:"appointment_conflict",conflict:{id:conflict.id,name:conflict.name}},409);
+          if(conflict&&!clip(bodyData.overrideReason,300).trim())return json(env,{error:"override_reason_required"},400);
+          if(conflict)await auditEvent(env,"appointment",id,"conflict_override",me.username,bodyData.overrideReason);
         }
         const changesConfirmation = status === "confirmed" && isAppt;
         const sameState = appt.status === status && (!changesConfirmation || ((appt.confirmed_date || "") === confDate && (appt.confirmed_time || "") === confTime));
@@ -1141,12 +1189,13 @@ export default {
           return json(env, { ok:true, unchanged:!note, confirmedDate:confDate, confirmedTime:confTime, mailQueued:false });
         }
         const changed = status === "done" && isAppt
-          ? await env.DB.prepare("UPDATE appointments SET status=?1,completion_services=?2,completion_note=?3,completed_at=CURRENT_TIMESTAMP,completed_by=?4 WHERE id=?5 AND status=?6").bind(status,JSON.stringify(completedServices),completionNote||null,me.username,id,appt.status).run()
+          ? await env.DB.prepare("UPDATE appointments SET status=?1,completion_services=?2,completion_note=?3,completion_mileage=?4,completion_parts=?5,actual_duration_min=?6,next_service_date=?7,next_service_km=?8,completed_at=CURRENT_TIMESTAMP,completed_by=?9 WHERE id=?10 AND status=?11").bind(status,JSON.stringify(completedServices),completionNote||null,completionMileage,completionParts||null,actualDuration,nextServiceDate||null,nextServiceKm,me.username,id,appt.status).run()
           : changesConfirmation
           ? await env.DB.prepare("UPDATE appointments SET status=?1,confirmed_date=?2,confirmed_time=?3 WHERE id=?4 AND status=?5 AND confirmed_date IS ?6 AND confirmed_time IS ?7").bind(status,confDate,confTime,id,appt.status,appt.confirmed_date ?? null,appt.confirmed_time ?? null).run()
           : await env.DB.prepare("UPDATE appointments SET status=?1 WHERE id=?2 AND status=?3").bind(status,id,appt.status).run();
         if (!changed.meta.changes) return json(env, { error:"stale_status" }, 409);
         await env.DB.prepare("INSERT INTO appointment_events (appointment_id, action, by_user, note) VALUES (?1,?2,?3,?4)").bind(id, labels[status], me.username, clip(bodyData.note, 500)).run();
+        await auditEvent(env,"appointment",id,"status:"+status,me.username,note);
         // Bestätegungsmail un de Client (nëmme fir Rendez-vous mat enger E-Mail).
         const mailQueued = status === "confirmed" && isAppt && !!appt.email;
         if (mailQueued) {

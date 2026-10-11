@@ -23,7 +23,13 @@
   function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function now() { return new Date().toISOString(); }
   var toastT = null;
-  function toast(msg) { var t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); clearTimeout(toastT); toastT = setTimeout(function () { t.remove(); }, 2600); }
+  function toast(msg) { var t = document.createElement("div"); t.className = "toast"; t.setAttribute("role","status");t.setAttribute("aria-live","polite");t.textContent = msg; document.body.appendChild(t); clearTimeout(toastT); toastT = setTimeout(function () { t.remove(); }, 3200); }
+  var dirtyForms=new Set();
+  document.addEventListener("input",function(e){var f=e.target&&e.target.closest&&e.target.closest("form");if(f&&f.id!=="login-form")dirtyForms.add(f);});
+  document.addEventListener("submit",function(e){if(e.target&&e.target.tagName==="FORM")dirtyForms.delete(e.target);},true);
+  window.addEventListener("beforeunload",function(e){if(dirtyForms.size){e.preventDefault();e.returnValue="";}});
+  function updateOnlineState(){var b=$("offline-banner");if(!navigator.onLine){if(!b){b=document.createElement("div");b.id="offline-banner";b.className="offline-banner";b.setAttribute("role","alert");b.textContent="Offline – Donnéeë kënnen net gelueden oder gespäichert ginn.";document.body.prepend(b);}}else if(b)b.remove();document.querySelectorAll('button[type="submit"]').forEach(function(x){if(x.closest('#view-app'))x.disabled=!navigator.onLine;});}
+  window.addEventListener("online",updateOnlineState);window.addEventListener("offline",updateOnlineState);setTimeout(updateOnlineState,0);
 
   function refOf(id) { return "AB-L-" + String(Number(id) || 0).padStart(5, "0"); }
 
@@ -81,13 +87,13 @@
     delBooking: function (id) { return api("/bookings/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     editBooking: function (id, patch) { return api("/bookings/" + id + "/edit", { method: "POST", body: patch }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listAppointments: function () { return api("/appointments").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.appointments; }); },
-    createAppointment: function (p) { return api("/appointments/manual", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true, id: r.body.id, mailQueued: r.body.mailQueued } : { error: r.body.error }; }); },
-    setApptStatus: function (id, status, note, date, time, completion) { return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "", services: completion && completion.services || [], completionNote: completion && completion.note || "" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime, unchanged: r.body.unchanged, mailQueued: r.body.mailQueued } : { error: r.body.error }; }); },
+    createAppointment: function (p) { return api("/appointments/manual", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true, id: r.body.id, mailQueued: r.body.mailQueued } : { error: r.body.error,conflict:r.body.conflict }; }); },
+    setApptStatus: function (id, status, note, date, time, completion) { completion=completion||{}; return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "", services: completion.services || [], completionNote: completion.note || "",completionMileage:completion.mileage||"",completionParts:completion.parts||"",actualDuration:completion.actualDuration||"",nextServiceDate:completion.nextServiceDate||"",nextServiceKm:completion.nextServiceKm||"",overrideConflict:!!completion.overrideConflict,overrideReason:completion.overrideReason||"" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime, unchanged: r.body.unchanged, mailQueued: r.body.mailQueued } : { error: r.body.error, conflict:r.body.conflict }; }); },
     resendApptConfirmation: function (id, date, time) { return api("/appointments/" + id + "/confirmation-email", { method: "POST", body: { date: date, time: time } }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
     listStaff: function () { return api("/staff").then(function (r) { return r.status === 200 ? (r.body.staff || []) : []; }); },
     listSettings: function () { return api("/settings").then(function (r) { return r.status === 200 ? (r.body.settings || {}) : {}; }); },
     saveSettings: function (p) { return api("/settings", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
-    setApptPlan: function (id, p) { return api("/appointments/" + id + "/plan", { method: "POST", body: { assigned: p.assigned || "", duration: p.duration === "" || p.duration == null ? "" : p.duration, planNote: p.planNote || "" } }).then(function (r) { return r.status === 200 ? { ok: true, assignedTo: r.body.assignedTo, assignedName: r.body.assignedName, durationMin: r.body.durationMin, planNote: r.body.planNote } : { error: r.body.error }; }); },
+    setApptPlan: function (id, p) { return api("/appointments/" + id + "/plan", { method: "POST", body: { assigned: p.assigned || "", duration: p.duration === "" || p.duration == null ? "" : p.duration, planNote: p.planNote || "",overrideConflict:!!p.overrideConflict,overrideReason:p.overrideReason||"" } }).then(function (r) { return r.status === 200 ? { ok: true, assignedTo: r.body.assignedTo, assignedName: r.body.assignedName, durationMin: r.body.durationMin, planNote: r.body.planNote } : { error: r.body.error,conflict:r.body.conflict }; }); },
     delAppt: function (id) { return api("/appointments/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listApptBlocks: function () { return api("/appointment-blocks", { method: "GET" }).then(function (r) { return r.status === 200 ? (r.body.blocks || []) : []; }); },
     setApptBlock: function (date, slot, blocked) { return api("/appointment-blocks", { method: "POST", body: { date: date, slot: slot, blocked: !!blocked } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
@@ -107,12 +113,9 @@
     addCustomer: function(p){return api("/customers",{method:"POST",body:p}).then(function(r){return r.status===200?{ok:true,id:r.body.id}:{error:r.body.error};});},
     updateCustomer: function(id,p){return api("/customers/"+id,{method:"POST",body:p}).then(function(r){return r.status===200?{ok:true}:{error:r.body.error};});},
     deleteCustomer: function(id){return api("/customers/"+id,{method:"DELETE"}).then(function(r){return r.status===200?{ok:true}:{error:r.body.error};});},
+    eraseCustomer: function(id,reason){return api("/customers/"+id+"/erase",{method:"POST",body:{reason:reason}}).then(function(r){return r.status===200?{ok:true}:{error:r.body.error};});},
     addCustomerVehicle: function(id,p){return api("/customers/"+id+"/vehicles",{method:"POST",body:p}).then(function(r){return r.status===200?{ok:true,id:r.body.id}:{error:r.body.error};});},
     delCustomerVehicle: function(id,vid){return api("/customers/"+id+"/vehicles/"+vid,{method:"DELETE"}).then(function(r){return r.status===200?{ok:true}:{error:r.body.error};});},
-    listWorkOrders: function(){return api("/work-orders").then(function(r){if(r.status!==200)throw new Error(r.body.error||"server_error");return r.body.orders||[];});},
-    addWorkOrder: function(p){return api("/work-orders",{method:"POST",body:p}).then(function(r){return r.status===200?{ok:true,id:r.body.id,reference:r.body.reference}:{error:r.body.error};});},
-    updateWorkOrder: function(id,p){return api("/work-orders/"+id,{method:"POST",body:p}).then(function(r){return r.status===200?{ok:true}:{error:r.body.error};});},
-    delWorkOrder: function(id){return api("/work-orders/"+id,{method:"DELETE"}).then(function(r){return r.status===200?{ok:true}:{error:r.body.error};});},
     listBackups: function(){return api("/backups").then(function(r){if(r.status!==200)throw new Error(r.body.error||"server_error");return r.body.backups||[];});},
     runBackup: function(){return api("/backup/run",{method:"POST",body:{}}).then(function(r){return r.status===200?{ok:true,key:r.body.key,bytes:r.body.bytes}:{error:r.body.error};});},
   };
@@ -121,7 +124,10 @@
   var staffList = [], staffLoaded = false;
   function ensureStaff() { if (staffLoaded) return Promise.resolve(staffList); return STORE.listStaff().then(function (s) { staffList = s || []; staffLoaded = true; return staffList; }, function () { staffList = []; return staffList; }); }
   function staffName(username) { if (!username) return ""; var hit = staffList.filter(function (u) { return u.username === username; })[0]; return hit ? hit.name : username; }
-  var adminSettings = { open_from: "07:00", open_to: "19:00", default_duration: "60" }, settingsLoaded = false;
+  var DEFAULT_SERVICES=["Ueleg- a Filterwiessel","Inspektioun / Entretien","Bremsen","Pneuen / Rieder","Klimaanlag","Diagnos / Feelerliesen","Fuerwierk / Ophängung","Batterie / Elektrik","Auspuff","Motor / Reparatur","Virkontroll fir d'Kontroll technique","Aneres"];
+  var adminSettings = { open_from: "07:00", open_to: "19:00", default_duration: "60",workdays:"[1,2,3,4,5,6]",closed_dates:"[]",service_catalog:JSON.stringify(DEFAULT_SERVICES) }, settingsLoaded = false;
+  function parsedSetting(key,fallback){try{var v=JSON.parse(adminSettings[key]||"");return v==null?fallback:v;}catch(e){return fallback;}}
+  function serviceCatalog(){var v=parsedSetting("service_catalog",DEFAULT_SERVICES);return Array.isArray(v)&&v.length?v:DEFAULT_SERVICES;}
   function ensureSettings() { if (settingsLoaded) return Promise.resolve(adminSettings); return STORE.listSettings().then(function (s) { Object.keys(s || {}).forEach(function (k) { if (s[k]) adminSettings[k] = s[k]; }); settingsLoaded = true; return adminSettings; }, function () { return adminSettings; }); }
   function defaultDurationMin() { var d = parseInt(adminSettings.default_duration, 10); return (Number.isInteger(d) && d > 0) ? d : 60; }
   var STORE = liveStore;
@@ -134,11 +140,16 @@
   ERR.mail_rate_limited = "Ze vill Mailversich. Waart w.e.g. eng Minutt.";
   ERR.mail_failed = "Mail konnt net geschéckt ginn. Probéiert nach eng Kéier.";
   ERR.missing_completion_service = "Wielt op d'mannst ee gemaachte Service aus.";
+  ERR.missing_completion_note = "Bei ‚Aneres‘ ass eng kuerz Ofschlossnotiz obligatoresch.";
+  ERR.appointment_conflict = "Dës Zäit iwwerschneit sech mat engem anere Rendez-vous. Kontrolléiert de Mécanicien an d'Dauer.";
+  ERR.outside_business_hours = "Dësen Termin läit baussent den agestallte Betribszäiten oder op engem zouenen Dag.";
+  ERR.override_reason_required = "Fir eng Iwwerschneidung ze iwwerhuelen, ass e Grond obligatoresch.";
+  ERR.invalid_customer = "De gewielte Client ass net méi aktiv."; ERR.invalid_vehicle="Dëst Gefier gehéiert net zum gewielte Client."; ERR.erase_reason_required="Gitt e Grond fir d'Dateschutz-Läschung un.";
   function errMsg(e) { return ERR[e] || "Feeler – probéiert nach eng Kéier."; }
 
   /* ---------- Views ---------- */
   var activePage = "bookings", activeFilter = "all", editingMember = null, editingBooking = null, bookingQuery = "", protocolOpen = null, inspections = [];
-  var STATUS = { new: "Nei", confirmed: "Bestätegt", declined: "Ofgeleent", done: "Ofgeschloss" };
+  var STATUS = { new:"Nei",confirmed:"Bestätegt",arrived:"Ukomm",rescheduled:"Ëmgeplangt",cancelled_client:"Client annuléiert",cancelled_garage:"Garage annuléiert",no_show:"Net opgedaucht",declined:"Ofgeleent",done:"Ofgeschloss" };
 
   function showLogin() { bookingListCache = null; requestListCache = null; $("view-app").hidden = true; $("view-login").hidden = false; $("login-err").textContent = ""; $("login-form").reset(); }
   function showApp() {
@@ -163,11 +174,10 @@
     $("page-appointments").hidden = p !== "appointments";
     $("page-inquiries").hidden = p !== "inquiries";
     $("page-customers").hidden = p !== "customers";
-    $("page-workorders").hidden = p !== "workorders";
     $("page-wartung").hidden = p !== "wartung";
     $("page-members").hidden = p !== "members";
     $("page-pw").hidden = p !== "pw";
-    var titles={dashboard:"Dashboard",requests:"Ufroen",planner:"Werkstatt-Planer",customers:"Clienten & Gefierer",workorders:"Aarbechtsopträg",wartung:"Flott",bookings:"Locatiounsdossieren",analyse:"Analyse",system:"Astellungen & System",appointments:"Rendez-vous",inquiries:"Produktufroen",members:"Memberen",pw:"Passwuert änneren"};
+    var titles={dashboard:"Dashboard",requests:"Ufroen",planner:"Werkstatt-Planer",customers:"Clienten & Gefierer",wartung:"Flott",bookings:"Locatiounsdossieren",analyse:"Analyse",system:"Astellungen & System",appointments:"Rendez-vous",inquiries:"Produktufroen",members:"Memberen",pw:"Passwuert änneren"};
     if ($("admin-section-title")) $("admin-section-title").textContent=titles[p]||"Verwaltung";
     var navKey=(p==="inquiries")?"requests":p;
     document.querySelectorAll("#topnav button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-page") === navKey); });
@@ -180,7 +190,6 @@
     else if (p === "appointments") renderAppointments();
     else if (p === "inquiries") renderInquiries();
     else if (p === "customers") renderCustomers();
-    else if (p === "workorders") renderWorkOrders();
     else if (p === "wartung") renderWartung();
     else if (p === "members") renderMembers();
   }
@@ -748,9 +757,9 @@
   function updateReqBadge(kind, all) { var badge = $(REQCFG[kind].badge), n = all.filter(function (a) { return (a.kind || "appointment") === kind && a.status === "new"; }).length; navNewCounts[kind]=n;refreshUnifiedBadge();if(!badge)return;badge.textContent=n;badge.hidden=n===0; }
   function reqMatch(kind, a) { var q = reqState[kind].query; if (!q) return true; q = q.toLowerCase(); return (reqRef(kind, a.id) + " " + (a.service || "") + " " + (a.vehicle || "") + " " + (a.name || "") + " " + (a.email || "") + " " + (a.phone || "")).toLowerCase().indexOf(q) !== -1; }
   function renderReqFilters(kind, items) {
-    var c = { all: items.length, new: 0, confirmed: 0, declined: 0, done: 0 };
+    var c = { all: items.length, new: 0, confirmed: 0, arrived:0,rescheduled:0,cancelled_client:0,cancelled_garage:0,no_show:0,declined: 0, done: 0 };
     items.forEach(function (a) { c[a.status] = (c[a.status] || 0) + 1; });
-    var defs = [["all", "All"], ["new", "Nei"], ["confirmed", "Bestätegt"], ["declined", "Ofgeleent"], ["done", "Ofgeschloss"]], wrap = $(REQCFG[kind].filters);
+    var defs = kind==="appointment"?[["all","All"],["new","Nei"],["confirmed","Bestätegt"],["arrived","Ukomm"],["rescheduled","Ëmgeplangt"],["cancelled_client","Client annuléiert"],["cancelled_garage","Garage annuléiert"],["no_show","Net opgedaucht"],["declined","Ofgeleent"],["done","Ofgeschloss"]]:[["all","All"],["new","Nei"],["confirmed","Bestätegt"],["declined","Ofgeleent"],["done","Ofgeschloss"]], wrap = $(REQCFG[kind].filters);
     wrap.innerHTML = "";
     defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (reqState[kind].filter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { reqState[kind].filter = d[0]; renderReq(kind, true); }); wrap.appendChild(b); });
   }
@@ -794,7 +803,7 @@
       var checked = Array.prototype.slice.call(card.querySelectorAll('[data-completion-service]:checked')).map(function(el){return el.value;});
       var completionEl = $("rcompletion-note-" + id);
       if (!checked.length) { toast("Wielt op d'mannst ee gemaachte Service aus."); var first=card.querySelector('[data-completion-services]'); if(first) first.open=true; return; }
-      completion = {services:checked,note:completionEl?completionEl.value.trim():""};
+      completion = {services:checked,note:completionEl?completionEl.value.trim():"",mileage:$("rcompletion-km-"+id)?$("rcompletion-km-"+id).value:"",parts:$("rcompletion-parts-"+id)?$("rcompletion-parts-"+id).value.trim():"",actualDuration:$("rcompletion-duration-"+id)?$("rcompletion-duration-"+id).value:"",nextServiceDate:$("rnext-date-"+id)?$("rnext-date-"+id).value:"",nextServiceKm:$("rnext-km-"+id)?$("rnext-km-"+id).value:""};
     }
     return runReqAction(kind, id, card, function () { return STORE.setApptStatus(id, status, note, date, time, completion).then(function (r) {
       if (r.error) { toast(errMsg(r.error)); return; }
@@ -807,7 +816,6 @@
   }
   function doDelReq(kind, id) { if (!can("members.manage")) return; if (!confirm(REQCFG[kind].noun + " " + reqRef(kind, id) + " endgülteg läschen?")) return; STORE.delAppt(id).then(function (r) { if (r.error) { toast(errMsg(r.error)); return; } toast(REQCFG[kind].noun + " " + reqRef(kind, id) + " geläscht."); renderReq(kind); }); }
   var DUR_OPTIONS = [30, 45, 60, 90, 120, 150, 180, 240, 300, 360, 480];
-  var COMPLETION_SERVICES = ["Ueleg- a Filterwiessel","Inspektioun / Entretien","Bremsen","Pneuen / Rieder","Klimaanlag","Diagnos / Feelerliesen","Fuerwierk / Ophängung","Batterie / Elektrik","Auspuff","Motor / Reparatur","Virkontroll fir d'Kontroll technique","Aneres"];
   function durLabel(min) { min = Number(min) || 0; if (!min) return ""; if (min < 60) return min + " Min"; var h = Math.floor(min / 60), r = min % 60; return r ? (h + " Std " + r + " Min") : (h + " Std"); }
   function hhmmToMin(s) { var p = String(s || "").split(":"); return (parseInt(p[0], 10) || 0) * 60 + (parseInt(p[1], 10) || 0); }
   function minToHHMM(m) { m = Math.max(0, Math.round(m)); return pad(Math.floor(m / 60)) + ":" + pad(m % 60); }
@@ -841,8 +849,11 @@
     else if (canVal && a.status === "confirmed") {
       var resend = '<button class="btn btn-ok btn-sm" data-ract="confirmed">Späicheren</button>';
       if (kind === "appointment") resend += '<button class="btn btn-outline btn-sm" data-resend-appt="1">Bestätegung nach eng Kéier schécken</button><span style="font-size:.85em">Datum oder Auerzäit geännert: Mail beim Späicheren. Nëmmen Notiz: keng Mail.</span>';
-      var completionBox = kind === "appointment" ? '<section class="completion-box"><strong>Rendez-vous ofschléissen</strong><details data-completion-services><summary>Gemaachte Servicer auswielen</summary><div class="completion-options">'+COMPLETION_SERVICES.map(function(s){return '<label><input type="checkbox" data-completion-service value="'+esc(s)+'"> '+esc(s)+'</label>';}).join('')+'</div></details><textarea class="b-note-input" id="rcompletion-note-'+a.id+'" rows="2" maxlength="2000" placeholder="Ofschlossnotiz: Detailer, Deeler oder wichteg Bemierkungen …"></textarea><button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button></section>' : '<button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button>';
-      actions = apptSched(true) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" />' + resend + completionBox;
+      var completionBox = kind === "appointment" ? '<section class="completion-box"><strong>Rendez-vous ofschléissen</strong><details data-completion-services><summary>Gemaachte Servicer auswielen</summary><div class="completion-options">'+serviceCatalog().map(function(s){return '<label><input type="checkbox" data-completion-service value="'+esc(s)+'"> '+esc(s)+'</label>';}).join('')+'</div></details><textarea class="b-note-input" id="rcompletion-note-'+a.id+'" rows="2" maxlength="2000" placeholder="Ofschlossnotiz: Detailer oder wichteg Bemierkungen …"></textarea><div class="completion-details"><label>Kilometerstand<input class="b-note-input" id="rcompletion-km-'+a.id+'" type="number" min="0"></label><label>Tatsächlech Dauer (Min.)<input class="b-note-input" id="rcompletion-duration-'+a.id+'" type="number" min="0" max="1440"></label><label>Nächste Service (Datum)<input class="b-note-input" id="rnext-date-'+a.id+'" type="date"></label><label>Nächste Service (km)<input class="b-note-input" id="rnext-km-'+a.id+'" type="number" min="0"></label></div><textarea class="b-note-input" id="rcompletion-parts-'+a.id+'" rows="2" maxlength="2000" placeholder="Benotzt Deeler / Artikelnummeren (optional) …"></textarea><button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button></section>' : '<button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button>';
+      actions = apptSched(true) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" />' + resend + '<button class="btn btn-outline btn-sm" data-ract="arrived">Client / Gefier ass ukomm</button><button class="btn btn-outline btn-sm" data-ract="rescheduled">Ëmplangen</button><button class="btn btn-outline btn-sm" data-ract="cancelled_client">Vum Client annuléiert</button><button class="btn btn-outline btn-sm" data-ract="no_show">Net opgedaucht</button>' + completionBox;
+    } else if (canVal && a.status === "arrived") {
+      var arrivedCompletion='<section class="completion-box"><strong>Rendez-vous ofschléissen</strong><details data-completion-services><summary>Gemaachte Servicer auswielen</summary><div class="completion-options">'+serviceCatalog().map(function(s){return '<label><input type="checkbox" data-completion-service value="'+esc(s)+'"> '+esc(s)+'</label>';}).join('')+'</div></details><textarea class="b-note-input" id="rcompletion-note-'+a.id+'" rows="2" maxlength="2000" placeholder="Ofschlossnotiz …"></textarea><div class="completion-details"><label>Kilometerstand<input class="b-note-input" id="rcompletion-km-'+a.id+'" type="number" min="0"></label><label>Tatsächlech Dauer (Min.)<input class="b-note-input" id="rcompletion-duration-'+a.id+'" type="number" min="0" max="1440"></label><label>Nächste Service (Datum)<input class="b-note-input" id="rnext-date-'+a.id+'" type="date"></label><label>Nächste Service (km)<input class="b-note-input" id="rnext-km-'+a.id+'" type="number" min="0"></label></div><textarea class="b-note-input" id="rcompletion-parts-'+a.id+'" rows="2" maxlength="2000" placeholder="Benotzt Deeler / Artikelnummeren …"></textarea><button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button></section>';
+      actions='<input class="b-note-input" id="'+nid+'" type="text" placeholder="Notiz (fräiwëlleg) …">'+arrivedCompletion;
     }
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-delr="1">Läschen</button>';
     var canPlan = canVal && kind === "appointment" && a.status !== "declined";
@@ -928,17 +939,22 @@
     });
   }
   function renderAppointments() { renderReq("appointment"); }
+  var rdvCustomerItems=[];
   function fillRdvSelects(){
     $("rdv-mech").innerHTML='<option value="">— Keen Mécanicien —</option>'+staffList.map(function(u){return '<option value="'+esc(u.username)+'">'+esc(u.name)+'</option>';}).join('');
     $("rdv-dur").innerHTML='<option value="">— Dauer —</option>'+DUR_OPTIONS.map(function(mm){return '<option value="'+mm+'"'+(mm===defaultDurationMin()?' selected':'')+'>'+durLabel(mm)+'</option>';}).join('');
+    $("rdv-service").innerHTML='<option value="">— Service auswielen —</option>'+serviceCatalog().map(function(s){return '<option value="'+esc(s)+'">'+esc(s)+'</option>';}).join('');
+    return loadCustomers(false).then(function(items){rdvCustomerItems=items||[];$("rdv-customer").innerHTML='<option value="">— Neie Client / fräi aginn —</option>'+rdvCustomerItems.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+(c.email?' · '+esc(c.email):'')+'</option>';}).join('');});
   }
   if($("rdv-add-toggle"))$("rdv-add-toggle").addEventListener("click",function(){var f=$("rdv-form");f.hidden=!f.hidden;if(!f.hidden){Promise.all([ensureStaff(),ensureSettings()]).then(fillRdvSelects);$("rdv-name").focus();}});
-  if($("rdv-cancel"))$("rdv-cancel").addEventListener("click",function(){$("rdv-form").hidden=true;$("rdv-form").reset();});
+  if($("rdv-cancel"))$("rdv-cancel").addEventListener("click",function(){$("rdv-form").hidden=true;$("rdv-form").reset();$("rdv-vehicle-select-wrap").hidden=true;});
+  if($("rdv-customer"))$("rdv-customer").addEventListener("change",function(){var c=rdvCustomerItems.filter(function(x){return String(x.id)===$("rdv-customer").value;})[0],wrap=$("rdv-vehicle-select-wrap");if(!c){wrap.hidden=true;return;}$("rdv-name").value=c.name||"";$("rdv-phone").value=c.phone||"";$("rdv-email").value=c.email||"";var vehicles=c.vehicles||[];$("rdv-vehicle-select").innerHTML='<option value="">— Gefier auswielen —</option>'+vehicles.map(function(v){return '<option value="'+v.id+'">'+esc(v.makeModel)+(v.plate?' · '+esc(v.plate):'')+'</option>';}).join('');wrap.hidden=!vehicles.length;});
+  if($("rdv-vehicle-select"))$("rdv-vehicle-select").addEventListener("change",function(){var c=rdvCustomerItems.filter(function(x){return String(x.id)===$("rdv-customer").value;})[0],v=c&&(c.vehicles||[]).filter(function(x){return String(x.id)===$("rdv-vehicle-select").value;})[0];if(v)$("rdv-vehicle").value=v.makeModel||"";});
   if($("rdv-form"))$("rdv-form").addEventListener("submit",function(e){e.preventDefault();if(!can("bookings.validate"))return;
-    var p={name:$("rdv-name").value,phone:$("rdv-phone").value,email:$("rdv-email").value,vehicle:$("rdv-vehicle").value,service:$("rdv-service").value,date:$("rdv-date").value,time:$("rdv-time").value,assigned:$("rdv-mech").value,duration:$("rdv-dur").value,msg:$("rdv-note").value,lang:"lb"};
+    var p={customerId:$("rdv-customer").value,vehicleId:$("rdv-vehicle-select").value,name:$("rdv-name").value,phone:$("rdv-phone").value,email:$("rdv-email").value,vehicle:$("rdv-vehicle").value,service:$("rdv-service").value,date:$("rdv-date").value,time:$("rdv-time").value,assigned:$("rdv-mech").value,duration:$("rdv-dur").value,msg:$("rdv-note").value,lang:"lb"};
     if(!p.name.trim()||!p.date||!p.time||!p.service.trim()){toast("Numm, Service, Datum an Auerzäit sinn obligatoresch.");return;}
     var btn=$("rdv-form").querySelector('button[type="submit"]');btn.disabled=true;
-    STORE.createAppointment(p).then(function(r){btn.disabled=false;if(r.error){toast(errMsg(r.error));return;}toast("Rendez-vous ugeluecht"+(r.mailQueued?" · Bestätegungsmail geschéckt.":"."));requestListCache=null;$("rdv-form").reset();$("rdv-form").hidden=true;renderAppointments();});
+    function submit(payload){STORE.createAppointment(payload).then(function(r){if(r.error==="appointment_conflict"&&r.conflict){var reason=window.prompt("Et gëtt eng Iwwerschneidung mat "+(r.conflict.name||"engem anere Rendez-vous")+". Fir trotzdem ze späicheren, gitt e kuerze Grond an:","");if(reason){payload.overrideConflict=true;payload.overrideReason=reason;submit(payload);return;}}btn.disabled=false;if(r.error){toast(errMsg(r.error));return;}toast("Rendez-vous ugeluecht"+(r.mailQueued?" · Bestätegungsmail geschéckt.":"."));requestListCache=null;$("rdv-form").reset();$("rdv-vehicle-select-wrap").hidden=true;$("rdv-form").hidden=true;renderAppointments();});}submit(p);
   });
   function renderInquiries() { renderReq("inquiry"); }
   function renderBookings(useCache) {
@@ -1053,14 +1069,14 @@
     $("system-members").hidden=!can("members.manage");$("backup-run").hidden=!can("members.manage");
     if(!can("members.manage")){ $("settings-panel").hidden=true; $("backup-list").innerHTML='<p class="muted" style="font-size:.82rem">Nëmmen Admins gesinn d’Backuplëscht.</p>';return; }
     $("settings-panel").hidden=false;
-    ensureSettings().then(function(s){$("set-open-from").value=s.open_from||"07:00";$("set-open-to").value=s.open_to||"19:00";$("set-default-duration").value=s.default_duration||"60";});
+    ensureSettings().then(function(s){$("set-open-from").value=s.open_from||"07:00";$("set-open-to").value=s.open_to||"19:00";$("set-default-duration").value=s.default_duration||"60";var days=parsedSetting("workdays",[1,2,3,4,5,6]);document.querySelectorAll('.settings-days input').forEach(function(cb){cb.checked=days.indexOf(Number(cb.value))!==-1;});$("set-closed-dates").value=parsedSetting("closed_dates",[]).join("\n");$("set-services").value=serviceCatalog().join("\n");});
     $("backup-list").innerHTML='<p class="muted">Luet …</p>';
     STORE.listBackups().then(function(items){$("backup-list").innerHTML=items.length?items.slice(0,5).map(function(b){return '<div class="health-row"><span>'+esc(String(b.key).split("/").pop())+'</span><span class="muted">'+Math.round((b.size||0)/1024)+' KB</span></div>';}).join(""):'<p class="muted" style="font-size:.82rem">Nach kee Backup fonnt.</p>';}).catch(function(){$("backup-list").innerHTML='<p class="muted" style="font-size:.82rem">Backuplëscht momentan net verfügbar.</p>';});
   }
   $("backup-run").addEventListener("click",function(){var b=$("backup-run");b.disabled=true;b.textContent="Backup leeft …";STORE.runBackup().then(function(r){b.disabled=false;b.textContent="Backup elo";if(r.error){toast(errMsg(r.error));return;}toast("Backup erfollegräich ugeluecht.");renderSystem();});});
   $("system-pw").addEventListener("click",function(){openPw(false);});
   $("system-members").addEventListener("click",function(){gotoPage("members");});
-  $("settings-form").addEventListener("submit",function(e){e.preventDefault();if(!can("members.manage"))return;var from=$("set-open-from").value,to=$("set-open-to").value,dur=$("set-default-duration").value;STORE.saveSettings({openFrom:from,openTo:to,defaultDuration:dur}).then(function(r){if(r.error){toast(errMsg(r.error));return;}adminSettings.open_from=from;adminSettings.open_to=to;adminSettings.default_duration=dur;settingsLoaded=true;toast("Betribsastellunge gespäichert.");});});
+  $("settings-form").addEventListener("submit",function(e){e.preventDefault();if(!can("members.manage"))return;var from=$("set-open-from").value,to=$("set-open-to").value,dur=$("set-default-duration").value,days=Array.prototype.slice.call(document.querySelectorAll('.settings-days input:checked')).map(function(x){return Number(x.value);}),closed=$("set-closed-dates").value.split(/\s+/).map(function(x){return x.trim();}).filter(Boolean),services=$("set-services").value.split("\n").map(function(x){return x.trim();}).filter(Boolean);STORE.saveSettings({openFrom:from,openTo:to,defaultDuration:dur,workdays:days,closedDates:closed,services:services}).then(function(r){if(r.error){toast(errMsg(r.error));return;}adminSettings.open_from=from;adminSettings.open_to=to;adminSettings.default_duration=dur;adminSettings.workdays=JSON.stringify(days);adminSettings.closed_dates=JSON.stringify(closed);adminSettings.service_catalog=JSON.stringify(services);settingsLoaded=true;toast("Betribsastellunge gespäichert an de Clientskalenner aktualiséiert.");});});
   $("system-install").addEventListener("click",function(){if($("btn-install"))$("btn-install").click();});
 
   function renderDashboard() {
@@ -1842,7 +1858,7 @@
   /* ---------- Members ---------- */
   function afterSelfRename() { toast("Däi Benotzernumm gouf geännert – logg dech w.e.g. nei an."); setToken(null); setTimeout(function () { session = null; showLogin(); }, 1400); }
   /* ---------- Clienten & Aarbechtsopträg ---------- */
-  var customerCache=null, workOrderCache=null, activeCustomer=null, activeWorkOrder=null;
+  var customerCache=null, activeCustomer=null;
   function loadCustomers(force){if(customerCache&&!force)return Promise.resolve(customerCache);return STORE.listCustomers().then(function(x){customerCache=x;return x;});}
   function customerText(c){return [c.name,c.email,c.phone].concat((c.vehicles||[]).map(function(v){return [v.makeModel,v.plate,v.vin].join(" ");})).join(" ").toLowerCase();}
   function renderCustomers(){
@@ -1861,33 +1877,15 @@
     $("customer-detail-body").innerHTML='<section class="detail-section"><h3>Iwwersiicht</h3><div class="crm-stats"><span>'+activeCustomer.appointments+' Rendez-vous</span><span>'+activeCustomer.rentals+' Locatioun(en)</span><span>'+vs.length+' Gefier(er)</span></div>'+(activeCustomer.notes?'<p>'+esc(activeCustomer.notes)+'</p>':'')+'</section><section class="detail-section"><h3>Gefierer &amp; Historik</h3>'+(vs.length?'<div class="vehicle-selector">'+vs.map(function(v,i){return '<button type="button" data-vehicle-select="'+i+'" class="'+(i===0?'active':'')+'"><b>'+esc(v.makeModel)+'</b><br><small>'+esc(v.plate||'Keng Nummerplaque')+(v.year?' · '+esc(v.year):'')+'</small></button>';}).join('')+'</div>'+vs.map(vehicleFile).join(''):'<p class="muted">Nach kee Gefier erfaasst.</p>')+'</section>';
     $("customer-detail-body").querySelectorAll('[data-vehicle-select]').forEach(function(btn){btn.addEventListener('click',function(){var i=btn.dataset.vehicleSelect;$("customer-detail-body").querySelectorAll('[data-vehicle-select]').forEach(function(b){b.classList.toggle('active',b===btn);});$("customer-detail-body").querySelectorAll('[data-vehicle-file]').forEach(function(f){f.hidden=f.dataset.vehicleFile!==i;});});});
     $("ce-name").value=activeCustomer.name||"";$("ce-email").value=activeCustomer.email||"";$("ce-phone").value=activeCustomer.phone||"";$("ce-notes").value=activeCustomer.notes||"";$("customer-edit-section").hidden=true;
-    $("customer-danger").hidden=!can("bookings.validate");$("customer-detail").hidden=false;});}
+    $("customer-danger").hidden=!can("bookings.validate");$("customer-erase").hidden=!can("members.manage");$("customer-detail").hidden=false;});}
   function closeCustomer(){$("customer-detail").hidden=true;activeCustomer=null;$("vehicle-form").reset();}
   $("customer-detail-close").addEventListener("click",closeCustomer);$("customer-detail").addEventListener("click",function(e){if(e.target===$("customer-detail"))closeCustomer();});
   $("vehicle-form").addEventListener("submit",function(e){e.preventDefault();if(!activeCustomer)return;STORE.addCustomerVehicle(activeCustomer.id,{makeModel:$("cv-model").value,plate:$("cv-plate").value,year:$("cv-year").value,vin:$("cv-vin").value,mileage:$("cv-mileage").value,notes:$("cv-notes").value}).then(function(r){if(r.error){toast(errMsg(r.error));return;}var id=activeCustomer.id;toast("Gefier bäigesat.");customerCache=null;$("vehicle-form").reset();renderCustomers();loadCustomers(true).then(function(){openCustomer(id);});});});
-  $("customer-delete").addEventListener("click",function(){if(!activeCustomer||!can("bookings.validate"))return;if(!confirm("Dëse Client aus der aktiver Lëscht läschen? D'Aarbechtshistorik bleift aus Sécherheetsgrënn erhalen."))return;var id=activeCustomer.id;STORE.deleteCustomer(id).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Client gouf aus der aktiver Lëscht geläscht.");customerCache=null;closeCustomer();renderCustomers();});});
+  $("customer-delete").addEventListener("click",function(){if(!activeCustomer||!can("bookings.validate"))return;if(!confirm("Dëse Client archivéieren? D'Servicehistorik bleift erhalen."))return;var id=activeCustomer.id;STORE.deleteCustomer(id).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Client archivéiert. Réckgängeg maachen ass iwwer d'Administratioun méiglech.");customerCache=null;closeCustomer();renderCustomers();});});
+  $("customer-erase").addEventListener("click",function(){if(!activeCustomer||!can("members.manage"))return;var reason=window.prompt("Nëmme bei enger berechtegter Dateschutzufro benotzen. Gitt de Grond oder d'Referenz vun der Ufro un:","");if(!reason)return;if(!confirm("Perséinlech Donnéeë vun dësem Client irreversibel anonymiséieren?"))return;var id=activeCustomer.id;STORE.eraseCustomer(id,reason).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Perséinlech Donnéeë goufen anonymiséiert.");customerCache=null;closeCustomer();renderCustomers();});});
   $("customer-edit-toggle").addEventListener("click",function(){var s=$("customer-edit-section");s.hidden=!s.hidden;if(!s.hidden)$("ce-name").focus();});
   $("customer-edit-form").addEventListener("submit",function(e){e.preventDefault();if(!activeCustomer||!can("bookings.validate"))return;var id=activeCustomer.id;STORE.updateCustomer(id,{name:$("ce-name").value,email:$("ce-email").value,phone:$("ce-phone").value,notes:$("ce-notes").value}).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Client geännert.");customerCache=null;loadCustomers(true).then(function(){openCustomer(id);renderCustomers();});});});
   $("customer-detail-body").addEventListener("click",function(e){var t=e.target.closest("[data-del-vehicle]");if(!t||!activeCustomer||!can("members.manage"))return;if(!confirm("Dëst Gefier läschen?"))return;var cid=activeCustomer.id;STORE.delCustomerVehicle(cid,Number(t.getAttribute("data-del-vehicle"))).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Gefier geläscht.");customerCache=null;loadCustomers(true).then(function(){openCustomer(cid);renderCustomers();});});});
-  var WO_STATUS={planned:"Geplangt",arrived:"Ukënnt",diagnosis:"Diagnos",approval:"Accord waarden",working:"An Aarbecht",ready:"Fäerdeg",collected:"Ofgeholl"};
-  function fillCustomerSelect(items){$("wo-customer").innerHTML='<option value="">— kee Client —</option>'+items.map(function(c){return '<option value="'+c.id+'">'+esc(c.name)+(c.email?' · '+esc(c.email):'')+'</option>';}).join('');}
-  function renderWorkOrders(){
-    $("workorder-board").innerHTML='<p class="empty">Aarbechtsopträg gi gelueden …</p>';
-    Promise.all([loadCustomers(false),STORE.listWorkOrders()]).then(function(all){var customers=all[0],items=all[1];workOrderCache=items;fillCustomerSelect(customers);var q=$("workorder-search").value.trim().toLowerCase();items=items.filter(function(o){return !q||[o.reference,o.title,o.customerName,o.vehicleName,o.vehiclePlate].join(" ").toLowerCase().indexOf(q)!==-1;});$("workorder-count").textContent=items.length+" Opträg";var groups=[["planned","Geplangt"],["arrived","Ukënnt"],["diagnosis","Diagnos"],["approval","Accord waarden"],["working","An Aarbecht"],["ready","Fäerdeg"],["collected","Ofgeholl"]];$("workorder-board").innerHTML=groups.map(function(g){var cards=items.filter(function(o){return o.status===g[0];}).map(function(o){return '<article class="wo-card"><strong>'+esc(o.title)+'</strong><small>'+esc(o.reference)+(o.customerName?' · '+esc(o.customerName):'')+'</small><small>'+(o.vehicleName?esc(o.vehicleName)+(o.vehiclePlate?' · '+esc(o.vehiclePlate):''):'Kee Gefier zougewisen')+'</small>'+(o.description?'<small>'+esc(o.description)+'</small>':'')+(can("bookings.validate")?'<select data-wo-status="'+o.id+'">'+Object.keys(WO_STATUS).map(function(s){return '<option value="'+s+'"'+(o.status===s?' selected':'')+'>'+WO_STATUS[s]+'</option>';}).join('')+'</select>':'')+'</article>';}).join('');return '<section class="wo-col"><h3>'+g[1]+' · '+items.filter(function(o){return o.status===g[0];}).length+'</h3>'+cards+'</section>';}).join('');
-      document.querySelectorAll('.wo-card').forEach(function(card){card.dataset.woId=(card.querySelector('[data-wo-status]')||{}).dataset?card.querySelector('[data-wo-status]').dataset.woStatus:"";card.addEventListener('click',function(e){if(e.target.matches('select'))return;openWorkOrder(Number(card.dataset.woId));});});
-      document.querySelectorAll('[data-wo-status]').forEach(function(el){el.addEventListener('change',function(){var id=Number(el.dataset.woStatus),o=workOrderCache.filter(function(x){return x.id===id;})[0];if(!o)return;STORE.updateWorkOrder(id,{customerId:o.customerId,vehicleId:o.vehicleId,title:o.title,status:el.value,assignedTo:o.assignedTo,plannedMinutes:o.plannedMinutes,description:o.description,diagnosis:o.diagnosis,internalNote:o.internalNote}).then(function(r){if(r.error){toast(errMsg(r.error));renderWorkOrders();return;}toast("Status aktualiséiert.");renderWorkOrders();});});});
-    }).catch(function(){$("workorder-board").innerHTML='<p class="empty">Aarbechtsopträg konnten net geluede ginn.</p>';});
-  }
-  $("workorder-search").addEventListener("input",renderWorkOrders);
-  $("workorder-add-toggle").addEventListener("click",function(){$("workorder-form").hidden=!$("workorder-form").hidden;loadCustomers(false).then(fillCustomerSelect);if(!$("workorder-form").hidden)$("wo-title").focus();});
-  $("workorder-cancel").addEventListener("click",function(){$("workorder-form").hidden=true;$("workorder-form").reset();});
-  $("workorder-form").addEventListener("submit",function(e){e.preventDefault();STORE.addWorkOrder({title:$("wo-title").value,customerId:$("wo-customer").value,status:$("wo-status").value,plannedMinutes:$("wo-duration").value,description:$("wo-description").value}).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Aarbechtsoptrag "+r.reference+" ugeluecht.");$("workorder-form").reset();$("workorder-form").hidden=true;renderWorkOrders();});});
-  function openWorkOrder(id){activeWorkOrder=(workOrderCache||[]).filter(function(o){return o.id===id;})[0];if(!activeWorkOrder)return;$("workorder-detail-title").textContent=activeWorkOrder.title;$("workorder-detail-ref").textContent=activeWorkOrder.reference+(activeWorkOrder.customerName?" · "+activeWorkOrder.customerName:"")+(activeWorkOrder.vehicleName?" · "+activeWorkOrder.vehicleName:"");$("wod-title").value=activeWorkOrder.title;$("wod-status").innerHTML=Object.keys(WO_STATUS).map(function(s){return '<option value="'+s+'"'+(s===activeWorkOrder.status?' selected':'')+'>'+WO_STATUS[s]+'</option>';}).join('');$("wod-duration").value=activeWorkOrder.plannedMinutes;$("wod-description").value=activeWorkOrder.description;$("wod-diagnosis").value=activeWorkOrder.diagnosis;$("wod-note").value=activeWorkOrder.internalNote;$("workorder-events").innerHTML=(activeWorkOrder.events||[]).length?(activeWorkOrder.events||[]).map(function(ev){return '<div class="health-row"><span><b>'+esc(ev.action)+'</b><br><small class="muted">'+esc(ev.by||"")+'</small></span><small class="muted">'+fmt(ev.at)+'</small></div>';}).join(''):'<p class="muted">Nach kee Verlaf.</p>';$("workorder-danger").hidden=!can("members.manage");$("workorder-detail").hidden=false;}
-  function closeWorkOrder(){$("workorder-detail").hidden=true;activeWorkOrder=null;}
-  $("workorder-detail-close").addEventListener("click",closeWorkOrder);$("workorder-detail").addEventListener("click",function(e){if(e.target===$("workorder-detail"))closeWorkOrder();});
-  $("workorder-detail-form").addEventListener("submit",function(e){e.preventDefault();if(!activeWorkOrder)return;STORE.updateWorkOrder(activeWorkOrder.id,{customerId:activeWorkOrder.customerId,vehicleId:activeWorkOrder.vehicleId,title:$("wod-title").value,status:$("wod-status").value,assignedTo:activeWorkOrder.assignedTo,plannedMinutes:$("wod-duration").value,description:$("wod-description").value,diagnosis:$("wod-diagnosis").value,internalNote:$("wod-note").value}).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Aarbechtsoptrag aktualiséiert.");closeWorkOrder();renderWorkOrders();});});
-  $("workorder-delete").addEventListener("click",function(){if(!activeWorkOrder||!can("members.manage"))return;if(!confirm("Aarbechtsoptrag "+activeWorkOrder.reference+" endgülteg läschen?"))return;STORE.delWorkOrder(activeWorkOrder.id).then(function(r){if(r.error){toast(errMsg(r.error));return;}toast("Aarbechtsoptrag geläscht.");closeWorkOrder();renderWorkOrders();});});
-
   function renderMembers() {
     if (!can("members.manage")) return;
     STORE.listMembers().then(function (users) {

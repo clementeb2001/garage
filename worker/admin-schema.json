@@ -68,6 +68,26 @@
       {
         "table": "appointments",
         "definition": "completed_by TEXT"
+      },
+      {
+        "table": "appointments",
+        "definition": "completion_mileage INTEGER"
+      },
+      {
+        "table": "appointments",
+        "definition": "completion_parts TEXT"
+      },
+      {
+        "table": "appointments",
+        "definition": "actual_duration_min INTEGER"
+      },
+      {
+        "table": "appointments",
+        "definition": "next_service_date TEXT"
+      },
+      {
+        "table": "appointments",
+        "definition": "next_service_km INTEGER"
       }
     ]
   },
@@ -272,25 +292,22 @@
     ]
   },
   {
-    "name": "ensureWorkOrders",
-    "create": [
-      "CREATE TABLE IF NOT EXISTS work_orders (id INTEGER PRIMARY KEY AUTOINCREMENT, appointment_id INTEGER, customer_id INTEGER, vehicle_id INTEGER, reference TEXT, title TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'planned', assigned_to TEXT, planned_minutes INTEGER, description TEXT, diagnosis TEXT, internal_note TEXT, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
-      "CREATE TABLE IF NOT EXISTS work_order_events (id INTEGER PRIMARY KEY AUTOINCREMENT, work_order_id INTEGER NOT NULL, action TEXT NOT NULL, by_user TEXT, note TEXT, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
-    ],
-    "indexes": [
-      "CREATE UNIQUE INDEX IF NOT EXISTS idx_work_orders_appointment ON work_orders(appointment_id)",
-      "CREATE INDEX IF NOT EXISTS idx_work_orders_status ON work_orders(status)",
-      "CREATE INDEX IF NOT EXISTS idx_work_orders_customer ON work_orders(customer_id)",
-      "CREATE INDEX IF NOT EXISTS idx_work_order_events_order ON work_order_events(work_order_id)"
-    ],
-    "columns": []
-  },
-  {
     "name": "ensureAdminSettings",
     "create": [
       "CREATE TABLE IF NOT EXISTS admin_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_by TEXT)"
     ],
     "indexes": [],
+    "columns": []
+  },
+  {
+    "name": "ensureAdminAudit",
+    "create": [
+      "CREATE TABLE IF NOT EXISTS admin_audit_events (id INTEGER PRIMARY KEY AUTOINCREMENT, entity_type TEXT NOT NULL, entity_id TEXT, action TEXT NOT NULL, by_user TEXT, note TEXT, at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
+    ],
+    "indexes": [
+      "CREATE INDEX IF NOT EXISTS idx_admin_audit_entity ON admin_audit_events(entity_type,entity_id)",
+      "CREATE INDEX IF NOT EXISTS idx_admin_audit_at ON admin_audit_events(at)"
+    ],
     "columns": []
   }
 ]

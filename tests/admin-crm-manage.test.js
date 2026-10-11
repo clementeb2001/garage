@@ -45,26 +45,13 @@ test("adding a duplicate vehicle is rejected", async () => {
   assert.ok(!ran.some(s => /INSERT INTO customer_vehicles/.test(s)), "no duplicate inserted");
 });
 
-test("admin can delete a vehicle; linked work orders are unlinked", async () => {
+test("admin can delete a vehicle; linked appointments are unlinked", async () => {
   const { default: worker } = await workerModule;
   const { DB, ran } = mkDB();
   const res = await worker.fetch(req("/customers/1/vehicles/5", "DELETE"), { DB }, ctx());
   assert.equal(res.status, 200);
-  assert.ok(ran.some(s => /UPDATE work_orders SET vehicle_id=NULL/.test(s)));
+  assert.ok(ran.some(s => /UPDATE appointments SET vehicle_id=NULL/.test(s)));
   assert.ok(ran.some(s => /DELETE FROM customer_vehicles WHERE id/.test(s)));
-});
-
-test("admin can delete a work order with its events; non-admin cannot", async () => {
-  const { default: worker } = await workerModule;
-  const ok = mkDB();
-  const resOk = await worker.fetch(req("/work-orders/9", "DELETE"), { DB: ok.DB }, ctx());
-  assert.equal(resOk.status, 200);
-  assert.ok(ok.ran.some(s => /DELETE FROM work_order_events/.test(s)));
-  assert.ok(ok.ran.some(s => /DELETE FROM work_orders WHERE id/.test(s)));
-  const no = mkDB({}, "validator");
-  const resNo = await worker.fetch(req("/work-orders/9", "DELETE"), { DB: no.DB }, ctx());
-  assert.equal(resNo.status, 403);
-  assert.ok(!no.ran.some(s => /^DELETE/.test(s)));
 });
 
 test("deleting a customer archives rather than hard-deletes", async () => {

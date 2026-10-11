@@ -13,7 +13,7 @@ const workflow = fs.readFileSync(path.join(root, ".github/workflows/deploy-worke
 test("CRM migration is additive and repeat-safe", () => {
   assert.doesNotMatch(migration, /\b(?:DELETE|DROP|TRUNCATE)\b/i);
   assert.match(migration, /NOT EXISTS[\s\S]*customers/i);
-  assert.match(migration, /NOT EXISTS[\s\S]*work_orders/i);
+  assert.doesNotMatch(migration, /INSERT INTO work_orders/i);
 });
 
 test("production database is exported before schema migration", () => {
@@ -23,9 +23,11 @@ test("production database is exported before schema migration", () => {
   assert.match(workflow, /retention-days: 14/);
 });
 
-test("customer and work-order modules are wired end to end", () => {
-  for (const route of ["/customers", "/work-orders"]) assert.match(api, new RegExp(route.replace("/", "\\/")));
-  for (const page of ["page-customers", "page-workorders"]) assert.match(html, new RegExp(`id="${page}"`));
+test("customer module is wired and retired work orders cannot return", () => {
+  assert.match(api, /\/customers/);
+  assert.doesNotMatch(api, /path === "\/work-orders"/);
+  assert.match(html, /id="page-customers"/);
+  assert.doesNotMatch(html, /id="page-workorders"/);
   assert.match(ui, /function renderCustomers\(/);
-  assert.match(ui, /function renderWorkOrders\(/);
+  assert.doesNotMatch(ui, /function renderWorkOrders\(/);
 });

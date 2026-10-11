@@ -17,7 +17,7 @@
   function isoDay(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
   function fmt(iso) { if (!iso) return ""; var p = iso.split("-"); return p[2] + "." + p[1] + "." + p[0]; }
 
-  var blocks = {}, month = (function () { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
+  var blocks = {}, workdays=[1,2,3,4,5,6], closedDates=[], month = (function () { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
   var availability = "loading", pendingFetch = null;
   var STATUS = {lb:{loading:"Verfügbarkeet gëtt gelueden…",error:"Verfügbarkeet net disponibel. Probéiert nach eng Kéier.",retry:"Nach eng Kéier",changed:"Déi gewielten Datumer sinn net méi fräi. Wielt nei."},de:{loading:"Verfügbarkeit wird geladen…",error:"Verfügbarkeit nicht erreichbar. Bitte erneut versuchen.",retry:"Erneut versuchen",changed:"Die gewählten Termine sind nicht mehr frei. Bitte neu wählen."},fr:{loading:"Chargement des disponibilités…",error:"Disponibilités indisponibles. Veuillez réessayer.",retry:"Réessayer",changed:"Les dates choisies ne sont plus libres. Choisissez à nouveau."},en:{loading:"Loading availability…",error:"Availability could not be loaded. Please retry.",retry:"Retry",changed:"The selected dates are no longer available. Please choose again."}};
   var prefIso = "", altIso = "", active = "pref";
@@ -27,7 +27,7 @@
   function dayInfo(date) {
     var today = new Date(); today.setHours(0, 0, 0, 0);
     var iso = isoDay(date);
-    var past = date < today, sunday = date.getDay() === 0, closed = isB(iso, "closed");
+    var past = date < today, sunday = workdays.indexOf(date.getDay()) === -1, closed = isB(iso, "closed") || closedDates.indexOf(iso)!==-1;
     var am = isB(iso, "am"), pm = isB(iso, "pm");
     var grey = availability !== "ready" || past || sunday || closed;
     var busy = !grey && am && pm;
@@ -193,6 +193,8 @@
           if (!/^\d{4}-\d{2}-\d{2}$/.test(b.date) || ["am", "pm", "closed"].indexOf(b.slot) < 0) throw new Error("availability");
           next[b.date + "|" + b.slot] = true;
         });
+        if(Array.isArray(d.workdays)&&d.workdays.length)workdays=d.workdays.map(Number).filter(function(x){return x>=0&&x<=6;});
+        closedDates=Array.isArray(d.closedDates)?d.closedDates.filter(function(x){return /^\d{4}-\d{2}-\d{2}$/.test(x);}):[];
         blocks = next; availability = "ready"; revalidate();
       })
       .catch(function () { availability = "error"; revalidate(); })
@@ -230,4 +232,3 @@
   if (document.readyState !== "loading") init();
   else document.addEventListener("DOMContentLoaded", init);
 })();
-
