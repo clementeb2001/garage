@@ -1194,10 +1194,16 @@ export default {
         let completionNote = "";
         let completionMileage=null, actualDuration=null, nextServiceKm=null, nextServiceDate="", completionParts="";
         if (status === "done" && isAppt) {
-          // Ofschléissen ass einfach: just eng fräiwëlleg Notiz. D'Servicer kommen aus der Ufro selwer.
           completedServices = Array.isArray(bodyData.services) ? [...new Set(bodyData.services.map((x) => clip(x,80).trim()).filter((x) => allowedServices.includes(x)))].slice(0,12) : [];
           if (!completedServices.length && appt.service) completedServices = [clip(appt.service,80).trim()];
           completionNote = clip(bodyData.completionNote,2000).trim();
+          if (!completedServices.length) return json(env,{error:"missing_completion_service"},400);
+          completionMileage=bodyData.completionMileage===""||bodyData.completionMileage==null?null:parseInt(bodyData.completionMileage,10);
+          actualDuration=bodyData.actualDuration===""||bodyData.actualDuration==null?null:parseInt(bodyData.actualDuration,10);
+          nextServiceKm=bodyData.nextServiceKm===""||bodyData.nextServiceKm==null?null:parseInt(bodyData.nextServiceKm,10);
+          nextServiceDate=clip(bodyData.nextServiceDate,10).trim(); completionParts=clip(bodyData.completionParts,2000).trim();
+          if ((completionMileage!==null&&(!Number.isInteger(completionMileage)||completionMileage<0))||(actualDuration!==null&&(!Number.isInteger(actualDuration)||actualDuration<0||actualDuration>1440))||(nextServiceKm!==null&&(!Number.isInteger(nextServiceKm)||nextServiceKm<0))||(nextServiceDate&&!validDateOnly(nextServiceDate))) return json(env,{error:"invalid_fields"},400);
+          if (completedServices.includes("Aneres") && !completionNote) return json(env,{error:"missing_completion_note"},400);
         }
         let confDate = appt.confirmed_date || appt.pref_date || "";
         let confTime = appt.confirmed_time || "";

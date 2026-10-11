@@ -87,14 +87,14 @@
     delBooking: function (id) { return api("/bookings/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     editBooking: function (id, patch) { return api("/bookings/" + id + "/edit", { method: "POST", body: patch }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     listAppointments: function () {
-      var acc = [];
+      var acc = [], max = 20000;
       function page(before) {
-        return api("/appointments" + (before ? "?before=" + before : "")).then(function (r) {
+        var qs = "?limit=250" + (before ? "&before=" + before : "");
+        return api("/appointments" + qs).then(function (r) {
           if (r.status !== 200) throw new Error(r.body.error || "server_error");
           acc = acc.concat(r.body.appointments || []);
-          // Follow the server cursor so keng al Rendez-vousen verstoppt bleiwen
-          // (bounded, soudass eng grouss Datebank ni e Runaway-Loop ausléist).
-          return (r.body.nextCursor && acc.length < 5000) ? page(r.body.nextCursor) : acc;
+          if (r.body.nextCursor && acc.length >= max) throw new Error("appointment_history_limit");
+          return r.body.nextCursor ? page(r.body.nextCursor) : acc;
         });
       }
       return page(0);
@@ -771,10 +771,15 @@
   function reqMatch(kind, a) { var q = reqState[kind].query; if (!q) return true; q = q.toLowerCase(); return (reqRef(kind, a.id) + " " + (a.service || "") + " " + (a.vehicle || "") + " " + (a.name || "") + " " + (a.email || "") + " " + (a.phone || "")).toLowerCase().indexOf(q) !== -1; }
   function renderReqFilters(kind, items) {
     var c = { all: items.length, new: 0, confirmed: 0, declined: 0, done: 0 };
-    items.forEach(function (a) { var s = (a.status === "arrived" || a.status === "rescheduled") ? "confirmed" : a.status; c[s] = (c[s] || 0) + 1; });
+    items.forEach(function (a) { var s = normalizedReqStatus(a.status); c[s] = (c[s] || 0) + 1; });
     var defs = [["all","All"],["new","Nei"],["confirmed","Bestätegt"],["declined","Ofgeleent"],["done","Ofgeschloss"]], wrap = $(REQCFG[kind].filters);
     wrap.innerHTML = "";
     defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (reqState[kind].filter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { reqState[kind].filter = d[0]; renderReq(kind, true); }); wrap.appendChild(b); });
+  }
+  function normalizedReqStatus(status) {
+    if (status === "arrived" || status === "rescheduled") return "confirmed";
+    if (status === "cancelled_client" || status === "cancelled_garage" || status === "no_show") return "declined";
+    return status;
   }
   var pendingReqActions = new Map();
   function runReqAction(kind, id, card, task) {
@@ -813,8 +818,10 @@
       if (!time) { toast("Gitt w.e.g. eng Auerzäit un ier Dir de Rendez-vous bestätegt."); if (tEl) tEl.focus(); return; }
     }
     if (kind === "appointment" && status === "done") {
+      var checked = Array.prototype.slice.call(card.querySelectorAll('[data-completion-service]:checked')).map(function(el){return el.value;});
       var completionEl = $("rcompletion-note-" + id);
-      completion = { note: completionEl ? completionEl.value.trim() : "" };
+      if (!checked.length) { toast("Wielt op d'mannst ee gemaachte Service aus."); var first=card.querySelector('[data-completion-services]'); if(first) first.open=true; return; }
+      completion = {services:checked,note:completionEl?completionEl.value.trim():"",mileage:$("rcompletion-km-"+id)?$("rcompletion-km-"+id).value:"",parts:$("rcompletion-parts-"+id)?$("rcompletion-parts-"+id).value.trim():"",actualDuration:$("rcompletion-duration-"+id)?$("rcompletion-duration-"+id).value:"",nextServiceDate:$("rnext-date-"+id)?$("rnext-date-"+id).value:"",nextServiceKm:$("rnext-km-"+id)?$("rnext-km-"+id).value:""};
     }
     return runReqAction(kind, id, card, function () { return STORE.setApptStatus(id, status, note, date, time, completion).then(function (r) {
       if (r.error) { toast(errMsg(r.error)); return; }
@@ -859,16 +866,19 @@
     if (canVal && a.status === "new") {
       actions = apptSched(false) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-ract="confirmed">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-ract="declined">✕ Ofleenen</button>';
     }
-    else if (canVal && (a.status === "confirmed" || a.status === "arrived")) {
+    else if (canVal && (a.status === "confirmed" || a.status === "arrived" || a.status === "rescheduled")) {
       var resend = '<button class="btn btn-ok btn-sm" data-ract="confirmed">Späicheren</button>';
-      if (kind === "appointment") resend += '<button class="btn btn-outline btn-sm" data-resend-appt="1">Bestätegung nach eng Kéier schécken</button><span style="font-size:.85em">Datum oder Auerzäit geännert: Mail beim Späicheren. Nëmmen Notiz: keng Mail.</span>';
+      if (kind === "appointment" && a.status === "confirmed") resend += '<button class="btn btn-outline btn-sm" data-resend-appt="1">Bestätegung nach eng Kéier schécken</button><span style="font-size:.85em">Datum oder Auerzäit geännert: Mail beim Späicheren. Nëmmen Notiz: keng Mail.</span>';
+      if (a.status !== "confirmed") resend = '';
+      var completionServices = serviceCatalog().slice();
+      if (a.service && completionServices.indexOf(a.service) === -1) completionServices.unshift(a.service);
       var completionBox = kind === "appointment"
-        ? '<section class="completion-box"><strong>Rendez-vous ofschléissen</strong><textarea class="b-note-input" id="rcompletion-note-'+a.id+'" rows="2" maxlength="2000" placeholder="Wat gouf gemaach? (fräiwëlleg, kënnt an de Servicehistorik) …"></textarea><button class="btn btn-ok btn-sm" data-ract="done">✓ Als ofgeschloss markéieren</button></section>'
+        ? '<section class="completion-box"><strong>Rendez-vous ofschléissen</strong><details data-completion-services open><summary>Gemaachte Servicer</summary><div class="completion-options">'+completionServices.map(function(s){return '<label><input type="checkbox" data-completion-service value="'+esc(s)+'"'+(s===a.service?' checked':'')+'> '+esc(s)+'</label>';}).join('')+'</div></details><textarea class="b-note-input" id="rcompletion-note-'+a.id+'" rows="2" maxlength="2000" placeholder="Kuerz Ofschlossnotiz (optional) …"></textarea><details class="completion-optional"><summary>Optional Detailer</summary><div class="completion-details"><label>Kilometerstand<input class="b-note-input" id="rcompletion-km-'+a.id+'" type="number" min="0"></label><label>Tatsächlech Dauer (Min.)<input class="b-note-input" id="rcompletion-duration-'+a.id+'" type="number" min="0" max="1440"></label><label>Nächste Service (Datum)<input class="b-note-input" id="rnext-date-'+a.id+'" type="date"></label><label>Nächste Service (km)<input class="b-note-input" id="rnext-km-'+a.id+'" type="number" min="0"></label></div><textarea class="b-note-input" id="rcompletion-parts-'+a.id+'" rows="2" maxlength="2000" placeholder="Benotzt Deeler / Artikelnummeren (optional) …"></textarea></details><button class="btn btn-ok btn-sm" data-ract="done">✓ Als ofgeschloss markéieren</button></section>'
         : '<button class="btn btn-ok btn-sm" data-ract="done">✓ Als ofgeschloss markéieren</button>';
-      actions = apptSched(true) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" />' + resend + completionBox;
+      actions = (a.status === "confirmed" ? apptSched(true) : '') + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" />' + resend + completionBox;
     }
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-delr="1">Läschen</button>';
-    var canPlan = canVal && kind === "appointment" && a.status !== "declined";
+    var canPlan = canVal && kind === "appointment" && ["new","confirmed","arrived","rescheduled"].indexOf(a.status) !== -1;
     var planBlock = "";
     if (canPlan) {
       var mechOpts = '<option value="">— Keen Mécanicien —</option>' + staffList.map(function (u) { return '<option value="' + esc(u.username) + '"' + (u.username === a.assignedTo ? " selected" : "") + ">" + esc(u.name) + "</option>"; }).join("");
@@ -933,7 +943,7 @@
       var items = all.filter(function (a) { return (a.kind || "appointment") === kind; });
       renderReqFilters(kind, items);
       var list = $(c.list); list.innerHTML = "";
-      var shown = items.filter(function (a) { var s = (a.status === "arrived" || a.status === "rescheduled") ? "confirmed" : a.status; return (reqState[kind].filter === "all" || s === reqState[kind].filter) && reqMatch(kind, a); });
+      var shown = items.filter(function (a) { var s = normalizedReqStatus(a.status); return (reqState[kind].filter === "all" || s === reqState[kind].filter) && reqMatch(kind, a); });
       if (kind === "appointment") {
         // Agenda: kommend Rendez-vousen (haut un) opsteigend, dann vergaangen ofsteigend.
         var t0 = new Date(); t0.setHours(0, 0, 0, 0); var tMs = t0.getTime();

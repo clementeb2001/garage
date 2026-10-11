@@ -116,6 +116,7 @@
       .b-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
       .completion-box{flex:1 0 100%;display:grid;gap:9px;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
       .completion-box details{border:1px solid var(--line);border-radius:9px;background:var(--surface);overflow:hidden}.completion-box summary{cursor:pointer;padding:10px 12px;font-weight:700}.completion-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:2px 12px 12px}.completion-options label{display:flex;gap:7px;align-items:flex-start;font-size:.84rem}.completion-options input{margin-top:2px}
+      .completion-optional[open] summary{border-bottom:1px solid var(--line)}.completion-optional .completion-details{padding:10px 12px 6px}.completion-optional>textarea{margin:0 12px 12px;width:calc(100% - 24px)}
       .b-note-input { flex: 1; min-width: 160px; font: inherit; font-size: 0.85rem; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; }
       .b-edit { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 4px; }
       .b-edit label { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; font-weight: 600; color: var(--mut); }
@@ -1144,6 +1145,6 @@
     </section>
 
     <section id="protocol-print-root" aria-hidden="true"></section>
-    <script src="intern.js?v=92"></script>
+    <script src="intern.js?v=93"></script>
   </body>
 </html>

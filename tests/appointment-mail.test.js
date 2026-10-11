@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const source=fs.readFileSync('worker/admin-api.js','utf8');
 const workerModule=import('data:text/javascript;base64,'+Buffer.from(source+'\nexport function setTestMailer(fn) { sendEmail = fn; }\n').toString('base64'));
-const confirmed={id:1,kind:'appointment',status:'confirmed',email:'test@example.com',pref_date:'2030-01-07',confirmed_date:'2030-01-07',confirmed_time:'10:00',lang:'de'};
+const confirmed={id:1,kind:'appointment',status:'confirmed',email:'test@example.com',pref_date:'2030-01-07',confirmed_date:'2030-01-07',confirmed_time:'10:00',lang:'de',service:'Service'};
 async function invoke(body,{appointment=confirmed,path='/appointments/1/status',role='validator',loggedIn=true,limited=false,mailOK=true,changes=1}={}){
  const {default:worker,setTestMailer}=await workerModule,calls=[],mails=[],jobs=[];
  setTestMailer(async(...args)=>{mails.push(args);return mailOK?{ok:true,id:'mock-mail'}:{ok:false,error:'mock-failure'};});
@@ -37,6 +37,13 @@ test('notes and unchanged saves send no mail; finishing an appointment sends no 
 test('lost concurrent schedule update cannot send mail',async()=>{
  const r=await invoke({status:'confirmed',date:'2030-01-09',time:'11:00'},{changes:0});
  assert.equal(r.response.status,409);assert.equal(r.mails.length,0);assert(!r.calls.some(c=>c.sql.startsWith('INSERT')));
+});
+test('professional completion keeps services and optional workshop details',async()=>{
+ const r=await invoke({status:'done',services:['Service'],completionNote:'Filter an Ueleg gemaach',completionMileage:'42000',completionParts:'OF-42',actualDuration:'75',nextServiceDate:'2031-01-07',nextServiceKm:'57000'});
+ assert.equal(r.response.status,200);
+ const update=r.calls.find(c=>c.sql.startsWith('UPDATE appointments SET status'));
+ assert.ok(update);assert.equal(update.args[1],'["Service"]');assert.equal(update.args[2],'Filter an Ueleg gemaach');
+ assert.equal(update.args[3],42000);assert.equal(update.args[4],'OF-42');assert.equal(update.args[5],75);assert.equal(update.args[6],'2031-01-07');assert.equal(update.args[7],57000);
 });
 test('declining an appointment sends one clear decline mail in the client language',async()=>{
  const appointment={...confirmed,status:'new',lang:'de',vehicle:'VW Golf',service:'Inspektion'};
@@ -80,6 +87,12 @@ test('resend button appears only after confirmation; saved changes are described
  assert.equal(html.includes('data-resend-appt'),status==='confirmed');
  if(status==='confirmed'){assert(html.includes('Späicheren'));assert(!html.includes('Zäit setzen &amp; Mail'));}
  }assert(!ctx.reqCard('inquiry',{id:1,status:'confirmed',events:[]}).innerHTML.includes('data-resend-appt'));
+});
+test('legacy appointment states remain actionable without offering an invalid resend',()=>{
+ const ctx=ui();
+ for(const status of ['arrived','rescheduled']){const html=ctx.reqCard('appointment',{id:2,status,service:'Service',events:[]}).innerHTML;assert(html.includes('data-ract="done"'));assert(!html.includes('data-resend-appt'));}
+ const done=ctx.reqCard('appointment',{id:3,status:'done',service:'Service',events:[]}).innerHTML;
+ assert(!done.includes('data-save-plan'));
 });
 test('resend does not discard unsaved changes and double clicks share one operation',async()=>{
  const ctx=ui(),a={id:1,status:'confirmed',confirmedDate:resendBody.date,confirmedTime:resendBody.time};

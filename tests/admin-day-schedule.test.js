@@ -51,6 +51,12 @@ test("PWA cache and page reference the same current admin script", () => {
   const pageVersion = html.match(/intern\.js\?v=(\d+)/)[1];
   const cachedVersion = sw.match(/intern\.js\?v=(\d+)/)[1];
   assert.equal(cachedVersion, pageVersion);
-  assert.equal(pageVersion, "92");
-  assert.match(sw, /ab-intern-v92/);
+  assert.equal(pageVersion, "93");
+  assert.match(sw, /ab-intern-v93/);
+});
+
+test("appointment history pagination never truncates silently", () => {
+  assert.match(script, /max = 20000/);
+  assert.match(script, /appointment_history_limit/);
+  assert.doesNotMatch(script, /acc\.length < 5000/);
 });
