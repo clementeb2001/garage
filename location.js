@@ -108,7 +108,7 @@
       cat_all: "Alles", cat_trailer: "Unhänger", cat_vehicle: "Gefierer",
       cat_trailer_lbl: "Unhänger", cat_vehicle_lbl: "Gefier",
       price: "Präis op Ufro",
-      perDay: "Dag", payOnReturn: "Bezuelung beim Retour · vollgetankt zréckbréngen", payOnReturnTrailer:"Bezuelung beim Retour · propper zréckbréngen",
+      perDay: "Dag", payNote: "Bezuelung beim Ofhuelen · vollgetankt zréckbréngen", payNoteTrailer:"Bezuelung beim Ofhuelen · propper zréckbréngen",
       select: "Auswielen", selected: "Ausgewielt", remove: "Ewechhuelen",
       sel_h: "Är Auswiel", empty: "Nach näischt ausgewielt. Wielt uewen dat gewënschte Material aus.",
       form_h: "Reservéieren",
@@ -139,7 +139,7 @@
       cat_all: "Alles", cat_trailer: "Anhänger", cat_vehicle: "Fahrzeuge",
       cat_trailer_lbl: "Anhänger", cat_vehicle_lbl: "Fahrzeug",
       price: "Preis auf Anfrage",
-      perDay: "Tag", payOnReturn: "Zahlung bei Rückgabe · vollgetankt zurückbringen", payOnReturnTrailer:"Zahlung bei Rückgabe · sauber zurückbringen",
+      perDay: "Tag", payNote: "Zahlung bei Abholung · vollgetankt zurückbringen", payNoteTrailer:"Zahlung bei Abholung · sauber zurückbringen",
       select: "Auswählen", selected: "Ausgewählt", remove: "Entfernen",
       sel_h: "Ihre Auswahl", empty: "Noch nichts ausgewählt. Wählen Sie oben Ihr Material.",
       form_h: "Reservieren",
@@ -170,7 +170,7 @@
       cat_all: "Tout", cat_trailer: "Remorques", cat_vehicle: "Véhicules",
       cat_trailer_lbl: "Remorque", cat_vehicle_lbl: "Véhicule",
       price: "Prix sur demande",
-      perDay: "jour", payOnReturn: "Paiement au retour · à rendre le plein fait", payOnReturnTrailer:"Paiement au retour · à rendre propre",
+      perDay: "jour", payNote: "Paiement à l'enlèvement · à rendre le plein fait", payNoteTrailer:"Paiement à l'enlèvement · à rendre propre",
       select: "Choisir", selected: "Sélectionné", remove: "Retirer",
       sel_h: "Votre sélection", empty: "Rien de sélectionné. Choisissez votre matériel ci-dessus.",
       form_h: "Réserver",
@@ -201,7 +201,7 @@
       cat_all: "All", cat_trailer: "Trailers", cat_vehicle: "Vehicles",
       cat_trailer_lbl: "Trailer", cat_vehicle_lbl: "Vehicle",
       price: "Price on request",
-      perDay: "day", payOnReturn: "Pay on return · bring it back with a full tank", payOnReturnTrailer:"Pay on return · return it clean",
+      perDay: "day", payNote: "Pay at pickup · bring it back with a full tank", payNoteTrailer:"Pay at pickup · return it clean",
       select: "Select", selected: "Selected", remove: "Remove",
       sel_h: "Your selection", empty: "Nothing selected yet. Pick your equipment above.",
       form_h: "Reserve",
@@ -465,7 +465,7 @@
         "<h3>" + esc(it.name[L] || it.name.lb) + "</h3>" +
         '<ul class="rental-specs rental-specs-key">' + specs + "</ul>" +
         '<button type="button" class="rental-more" data-detail="' + esc(it.id) + '">' + esc((DETAIL_L[L] || DETAIL_L.lb).more) + " ›</button>" +
-        (it.priceDay ? '<p class="rental-paynote">' + esc(it.cat==="trailer"?m.payOnReturnTrailer:m.payOnReturn) + "</p>" : "") +
+        (it.priceDay ? '<p class="rental-paynote">' + esc(it.cat==="trailer"?m.payNoteTrailer:m.payNote) + "</p>" : "") +
         '<div class="rental-cardfoot">' +
         priceHtml +
         '<button type="button" class="btn rental-select" data-id="' + esc(it.id) + '">' +
