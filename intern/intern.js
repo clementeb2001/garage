@@ -874,15 +874,16 @@
       var mechOpts = '<option value="">— Keen Mécanicien —</option>' + staffList.map(function (u) { return '<option value="' + esc(u.username) + '"' + (u.username === a.assignedTo ? " selected" : "") + ">" + esc(u.name) + "</option>"; }).join("");
       var selDur = (a.durationMin !== "" && a.durationMin != null) ? String(a.durationMin) : String(defaultDurationMin());
       var durOpts = '<option value="">— Dauer —</option>' + DUR_OPTIONS.map(function (mm) { return '<option value="' + mm + '"' + (String(mm) === selDur ? " selected" : "") + ">" + durLabel(mm) + "</option>"; }).join("");
-      planBlock = '<div class="appt-plan">'
-        + '<div class="appt-plan-h">🔧 Planung</div>'
+      var planHint = a.assignedTo ? (esc(a.assignedName || staffName(a.assignedTo)) + (a.durationMin ? " · " + esc(durLabel(a.durationMin)) : "")) : (a.planNote ? "Notiz" : "fräiwëlleg");
+      planBlock = '<details class="appt-plan">'
+        + '<summary class="appt-plan-h">🔧 Planung <span class="plan-hint">· ' + planHint + '</span></summary>'
         + '<div class="appt-plan-row">'
         + '<label>Mécanicien<select class="b-note-input" id="rmech-' + a.id + '">' + mechOpts + "</select></label>"
         + '<label>Dauer<select class="b-note-input" id="rdur-' + a.id + '">' + durOpts + "</select></label>"
         + "</div>"
         + '<input class="b-note-input appt-plan-note" id="rplan-' + a.id + '" type="text" placeholder="Planungsnotiz (intern, net op der Mail) …" value="' + esc(a.planNote || "") + '" />'
         + '<button class="btn btn-outline btn-sm" data-save-plan="1">Plang späicheren</button>'
-        + "</div>";
+        + "</details>";
     }
     var audit = (a.events || []).map(function (ev) { return '<div class="ev">• ' + esc(ev.action) + ' vum <b>' + esc(ev.by) + "</b>, " + fmt(ev.at) + (ev.note ? ' – „' + esc(ev.note) + "“" : "") + "</div>"; }).join("");
     var meta = [];
