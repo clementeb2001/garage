@@ -86,7 +86,19 @@
     setActive: function (u, active) { return api("/members/" + u, { method: "POST", body: { active: !!active } }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     delBooking: function (id) { return api("/bookings/" + id, { method: "DELETE" }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
     editBooking: function (id, patch) { return api("/bookings/" + id + "/edit", { method: "POST", body: patch }).then(function (r) { return r.status === 200 ? { ok: true } : { error: r.body.error }; }); },
-    listAppointments: function () { return api("/appointments").then(function (r) { if (r.status !== 200) throw new Error(r.body.error || "server_error"); return r.body.appointments; }); },
+    listAppointments: function () {
+      var acc = [];
+      function page(before) {
+        return api("/appointments" + (before ? "?before=" + before : "")).then(function (r) {
+          if (r.status !== 200) throw new Error(r.body.error || "server_error");
+          acc = acc.concat(r.body.appointments || []);
+          // Follow the server cursor so keng al Rendez-vousen verstoppt bleiwen
+          // (bounded, soudass eng grouss Datebank ni e Runaway-Loop ausléist).
+          return (r.body.nextCursor && acc.length < 5000) ? page(r.body.nextCursor) : acc;
+        });
+      }
+      return page(0);
+    },
     createAppointment: function (p) { return api("/appointments/manual", { method: "POST", body: p }).then(function (r) { return r.status === 200 ? { ok: true, id: r.body.id, mailQueued: r.body.mailQueued } : { error: r.body.error,conflict:r.body.conflict }; }); },
     setApptStatus: function (id, status, note, date, time, completion) { completion=completion||{}; return api("/appointments/" + id + "/status", { method: "POST", body: { status: status, note: note || "", date: date || "", time: time || "", services: completion.services || [], completionNote: completion.note || "",completionMileage:completion.mileage||"",completionParts:completion.parts||"",actualDuration:completion.actualDuration||"",nextServiceDate:completion.nextServiceDate||"",nextServiceKm:completion.nextServiceKm||"",overrideConflict:!!completion.overrideConflict,overrideReason:completion.overrideReason||"" } }).then(function (r) { return r.status === 200 ? { ok: true, confirmedDate: r.body.confirmedDate, confirmedTime: r.body.confirmedTime, unchanged: r.body.unchanged, mailQueued: r.body.mailQueued } : { error: r.body.error, conflict:r.body.conflict }; }); },
     resendApptConfirmation: function (id, date, time) { return api("/appointments/" + id + "/confirmation-email", { method: "POST", body: { date: date, time: time } }).then(function (r) { return r.status === 200 ? { ok:true } : { error:r.body.error }; }); },
@@ -911,9 +923,11 @@
     el.querySelectorAll("[data-delr]").forEach(function (btn) { btn.addEventListener("click", function () { doDelReq(kind, a.id); }); });
     return el;
   }
+  function skeletonHTML(n) { var s = ""; for (var i = 0; i < (n || 4); i++) s += '<div class="skeleton" style="margin-bottom:10px"></div>'; return s; }
   function renderReq(kind, useCache) {
     var c = REQCFG[kind];
     $(c.sub).textContent = can("bookings.validate") ? c.subAct : "Dir hutt Liesrechter (Kucker).";
+    if (!(useCache === true && requestListCache)) $(c.list).innerHTML = skeletonHTML();
     Promise.all([ensureStaff(), (useCache === true && requestListCache ? Promise.resolve(requestListCache) : STORE.listAppointments())]).then(function (res) {
       var all = res[1];
       requestListCache = all;
@@ -962,6 +976,7 @@
   function renderInquiries() { renderReq("inquiry"); }
   function renderBookings(useCache) {
     $("bookings-sub").textContent = can("bookings.validate") ? "Ufroe bestätegen oder ofleenen. All Aktioun gëtt mam Benotzernumm festgehalen." : "Dir hutt Liesrechter (Kucker).";
+    if (!(useCache === true && bookingListCache)) $("booking-list").innerHTML = skeletonHTML();
     (useCache === true && bookingListCache ? Promise.resolve(bookingListCache) : Promise.all([STORE.listBookings(), STORE.listInspections(), STORE.listMaintenance()])).then(function (allData) {
       bookingListCache = allData;
       var bk=allData[0]; inspections=allData[1]||[]; fleetCache=allData[2]||[];
@@ -1865,7 +1880,7 @@
   function loadCustomers(force){if(customerCache&&!force)return Promise.resolve(customerCache);return STORE.listCustomers().then(function(x){customerCache=x;return x;});}
   function customerText(c){return [c.name,c.email,c.phone].concat((c.vehicles||[]).map(function(v){return [v.makeModel,v.plate,v.vin].join(" ");})).join(" ").toLowerCase();}
   function renderCustomers(){
-    $("customer-list").innerHTML='<p class="empty">Clientë gi gelueden …</p>';
+    $("customer-list").innerHTML=skeletonHTML();
     loadCustomers(false).then(function(items){var q=$("customer-search").value.trim().toLowerCase(),shown=items.filter(function(c){return !q||customerText(c).indexOf(q)!==-1;});$("customer-count").textContent=shown.length+" / "+items.length;
       $("customer-list").innerHTML=shown.length?shown.map(function(c){var vehicles=(c.vehicles||[]).map(function(v){return '<div>🚗 <strong>'+esc(v.makeModel)+'</strong>'+(v.plate?' · '+esc(v.plate):'')+(v.vin?' · VIN '+esc(v.vin):'')+'</div>';}).join('');return '<article class="card crm-card" data-customer-id="'+c.id+'" tabindex="0"><h3>'+esc(c.name)+'</h3><div class="crm-meta">'+(c.email?'✉️ '+esc(c.email):'Keng E-Mail')+(c.phone?' · ☎ '+esc(c.phone):'')+'</div><div class="crm-stats"><span>'+c.appointments+' Rendez-vous</span><span>'+c.rentals+' Locatioun(en)</span></div>'+(vehicles?'<div class="crm-vehicles">'+vehicles+'</div>':'')+(c.notes?'<p class="crm-meta">📝 '+esc(c.notes)+'</p>':'')+'</article>';}).join(''):'<p class="empty">Kee passende Client fonnt.</p>';
       $("customer-list").querySelectorAll("[data-customer-id]").forEach(function(card){function open(){openCustomer(Number(card.dataset.customerId));}card.addEventListener("click",open);card.addEventListener("keydown",function(e){if(e.key==="Enter"){open();}});});

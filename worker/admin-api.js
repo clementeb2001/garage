@@ -359,7 +359,7 @@ async function freezeBookingSnapshot(env, id, force) {
 /* ---------- Deeglecht Backup vun der D1-Datebank op R2 ---------- */
 async function runBackup(env) {
   if (!env.MEDIA) return { ok: false, error: "no_media" };
-  const tables = ["bookings", "booking_events", "appointments", "appointment_events", "maintenance", "rental_inspections", "request_consents", "member_events", "customers", "customer_vehicles", "work_orders", "work_order_events", "admin_settings"];
+  const tables = ["bookings", "booking_events", "appointments", "appointment_events", "maintenance", "rental_inspections", "request_consents", "member_events", "customers", "customer_vehicles", "work_orders", "work_order_events", "admin_settings", "admin_audit_events"];
   const dump = { formatVersion: 2, exportedAt: new Date().toISOString(), db: "garage-admin", tables: {}, mediaInventory: { fleet: 0, protocol: 0 } };
   for (const tbl of tables) {
     try { dump.tables[tbl] = (await env.DB.prepare("SELECT * FROM " + tbl).all()).results || []; }
