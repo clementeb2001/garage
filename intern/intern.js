@@ -770,9 +770,9 @@
   function updateReqBadge(kind, all) { var badge = $(REQCFG[kind].badge), n = all.filter(function (a) { return (a.kind || "appointment") === kind && a.status === "new"; }).length; navNewCounts[kind]=n;refreshUnifiedBadge();if(!badge)return;badge.textContent=n;badge.hidden=n===0; }
   function reqMatch(kind, a) { var q = reqState[kind].query; if (!q) return true; q = q.toLowerCase(); return (reqRef(kind, a.id) + " " + (a.service || "") + " " + (a.vehicle || "") + " " + (a.name || "") + " " + (a.email || "") + " " + (a.phone || "")).toLowerCase().indexOf(q) !== -1; }
   function renderReqFilters(kind, items) {
-    var c = { all: items.length, new: 0, confirmed: 0, arrived:0,rescheduled:0,cancelled_client:0,cancelled_garage:0,no_show:0,declined: 0, done: 0 };
-    items.forEach(function (a) { c[a.status] = (c[a.status] || 0) + 1; });
-    var defs = kind==="appointment"?[["all","All"],["new","Nei"],["confirmed","Bestätegt"],["arrived","Ukomm"],["rescheduled","Ëmgeplangt"],["cancelled_client","Client annuléiert"],["cancelled_garage","Garage annuléiert"],["no_show","Net opgedaucht"],["declined","Ofgeleent"],["done","Ofgeschloss"]]:[["all","All"],["new","Nei"],["confirmed","Bestätegt"],["declined","Ofgeleent"],["done","Ofgeschloss"]], wrap = $(REQCFG[kind].filters);
+    var c = { all: items.length, new: 0, confirmed: 0, declined: 0, done: 0 };
+    items.forEach(function (a) { var s = (a.status === "arrived" || a.status === "rescheduled") ? "confirmed" : a.status; c[s] = (c[s] || 0) + 1; });
+    var defs = [["all","All"],["new","Nei"],["confirmed","Bestätegt"],["declined","Ofgeleent"],["done","Ofgeschloss"]], wrap = $(REQCFG[kind].filters);
     wrap.innerHTML = "";
     defs.forEach(function (d) { var b = document.createElement("button"); b.type = "button"; b.className = "chip" + (reqState[kind].filter === d[0] ? " active" : ""); b.innerHTML = esc(d[1]) + ' <span class="count">(' + (c[d[0]] || 0) + ")</span>"; b.addEventListener("click", function () { reqState[kind].filter = d[0]; renderReq(kind, true); }); wrap.appendChild(b); });
   }
@@ -813,10 +813,8 @@
       if (!time) { toast("Gitt w.e.g. eng Auerzäit un ier Dir de Rendez-vous bestätegt."); if (tEl) tEl.focus(); return; }
     }
     if (kind === "appointment" && status === "done") {
-      var checked = Array.prototype.slice.call(card.querySelectorAll('[data-completion-service]:checked')).map(function(el){return el.value;});
       var completionEl = $("rcompletion-note-" + id);
-      if (!checked.length) { toast("Wielt op d'mannst ee gemaachte Service aus."); var first=card.querySelector('[data-completion-services]'); if(first) first.open=true; return; }
-      completion = {services:checked,note:completionEl?completionEl.value.trim():"",mileage:$("rcompletion-km-"+id)?$("rcompletion-km-"+id).value:"",parts:$("rcompletion-parts-"+id)?$("rcompletion-parts-"+id).value.trim():"",actualDuration:$("rcompletion-duration-"+id)?$("rcompletion-duration-"+id).value:"",nextServiceDate:$("rnext-date-"+id)?$("rnext-date-"+id).value:"",nextServiceKm:$("rnext-km-"+id)?$("rnext-km-"+id).value:""};
+      completion = { note: completionEl ? completionEl.value.trim() : "" };
     }
     return runReqAction(kind, id, card, function () { return STORE.setApptStatus(id, status, note, date, time, completion).then(function (r) {
       if (r.error) { toast(errMsg(r.error)); return; }
@@ -861,14 +859,13 @@
     if (canVal && a.status === "new") {
       actions = apptSched(false) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" /><button class="btn btn-ok btn-sm" data-ract="confirmed">✓ Bestätegen</button><button class="btn btn-outline btn-sm" data-ract="declined">✕ Ofleenen</button>';
     }
-    else if (canVal && a.status === "confirmed") {
+    else if (canVal && (a.status === "confirmed" || a.status === "arrived")) {
       var resend = '<button class="btn btn-ok btn-sm" data-ract="confirmed">Späicheren</button>';
       if (kind === "appointment") resend += '<button class="btn btn-outline btn-sm" data-resend-appt="1">Bestätegung nach eng Kéier schécken</button><span style="font-size:.85em">Datum oder Auerzäit geännert: Mail beim Späicheren. Nëmmen Notiz: keng Mail.</span>';
-      var completionBox = kind === "appointment" ? '<section class="completion-box"><strong>Rendez-vous ofschléissen</strong><details data-completion-services><summary>Gemaachte Servicer auswielen</summary><div class="completion-options">'+serviceCatalog().map(function(s){return '<label><input type="checkbox" data-completion-service value="'+esc(s)+'"> '+esc(s)+'</label>';}).join('')+'</div></details><textarea class="b-note-input" id="rcompletion-note-'+a.id+'" rows="2" maxlength="2000" placeholder="Ofschlossnotiz: Detailer oder wichteg Bemierkungen …"></textarea><div class="completion-details"><label>Kilometerstand<input class="b-note-input" id="rcompletion-km-'+a.id+'" type="number" min="0"></label><label>Tatsächlech Dauer (Min.)<input class="b-note-input" id="rcompletion-duration-'+a.id+'" type="number" min="0" max="1440"></label><label>Nächste Service (Datum)<input class="b-note-input" id="rnext-date-'+a.id+'" type="date"></label><label>Nächste Service (km)<input class="b-note-input" id="rnext-km-'+a.id+'" type="number" min="0"></label></div><textarea class="b-note-input" id="rcompletion-parts-'+a.id+'" rows="2" maxlength="2000" placeholder="Benotzt Deeler / Artikelnummeren (optional) …"></textarea><button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button></section>' : '<button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button>';
-      actions = apptSched(true) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" />' + resend + '<button class="btn btn-outline btn-sm" data-ract="arrived">Client / Gefier ass ukomm</button><button class="btn btn-outline btn-sm" data-ract="rescheduled">Ëmplangen</button><button class="btn btn-outline btn-sm" data-ract="cancelled_client">Vum Client annuléiert</button><button class="btn btn-outline btn-sm" data-ract="no_show">Net opgedaucht</button>' + completionBox;
-    } else if (canVal && a.status === "arrived") {
-      var arrivedCompletion='<section class="completion-box"><strong>Rendez-vous ofschléissen</strong><details data-completion-services><summary>Gemaachte Servicer auswielen</summary><div class="completion-options">'+serviceCatalog().map(function(s){return '<label><input type="checkbox" data-completion-service value="'+esc(s)+'"> '+esc(s)+'</label>';}).join('')+'</div></details><textarea class="b-note-input" id="rcompletion-note-'+a.id+'" rows="2" maxlength="2000" placeholder="Ofschlossnotiz …"></textarea><div class="completion-details"><label>Kilometerstand<input class="b-note-input" id="rcompletion-km-'+a.id+'" type="number" min="0"></label><label>Tatsächlech Dauer (Min.)<input class="b-note-input" id="rcompletion-duration-'+a.id+'" type="number" min="0" max="1440"></label><label>Nächste Service (Datum)<input class="b-note-input" id="rnext-date-'+a.id+'" type="date"></label><label>Nächste Service (km)<input class="b-note-input" id="rnext-km-'+a.id+'" type="number" min="0"></label></div><textarea class="b-note-input" id="rcompletion-parts-'+a.id+'" rows="2" maxlength="2000" placeholder="Benotzt Deeler / Artikelnummeren …"></textarea><button class="btn btn-outline btn-sm" data-ract="done">Als ofgeschloss markéieren</button></section>';
-      actions='<input class="b-note-input" id="'+nid+'" type="text" placeholder="Notiz (fräiwëlleg) …">'+arrivedCompletion;
+      var completionBox = kind === "appointment"
+        ? '<section class="completion-box"><strong>Rendez-vous ofschléissen</strong><textarea class="b-note-input" id="rcompletion-note-'+a.id+'" rows="2" maxlength="2000" placeholder="Wat gouf gemaach? (fräiwëlleg, kënnt an de Servicehistorik) …"></textarea><button class="btn btn-ok btn-sm" data-ract="done">✓ Als ofgeschloss markéieren</button></section>'
+        : '<button class="btn btn-ok btn-sm" data-ract="done">✓ Als ofgeschloss markéieren</button>';
+      actions = apptSched(true) + '<input class="b-note-input" id="' + nid + '" type="text" placeholder="Notiz (fräiwëlleg) …" />' + resend + completionBox;
     }
     if (isAdmin) actions += '<button class="btn btn-danger btn-sm" data-delr="1">Läschen</button>';
     var canPlan = canVal && kind === "appointment" && a.status !== "declined";
@@ -935,7 +932,7 @@
       var items = all.filter(function (a) { return (a.kind || "appointment") === kind; });
       renderReqFilters(kind, items);
       var list = $(c.list); list.innerHTML = "";
-      var shown = items.filter(function (a) { return (reqState[kind].filter === "all" || a.status === reqState[kind].filter) && reqMatch(kind, a); });
+      var shown = items.filter(function (a) { var s = (a.status === "arrived" || a.status === "rescheduled") ? "confirmed" : a.status; return (reqState[kind].filter === "all" || s === reqState[kind].filter) && reqMatch(kind, a); });
       if (kind === "appointment") {
         // Agenda: kommend Rendez-vousen (haut un) opsteigend, dann vergaangen ofsteigend.
         var t0 = new Date(); t0.setHours(0, 0, 0, 0); var tMs = t0.getTime();
