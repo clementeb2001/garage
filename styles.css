@@ -1964,9 +1964,6 @@ a.ci-value:hover {
     max-width: 100%;
     overflow-wrap: anywhere;
   }
-  body {
-    padding-bottom: 84px;
-  }
   .mobile-contact {
     position: fixed;
     z-index: 120;
@@ -1978,6 +1975,13 @@ a.ci-value:hover {
     background: #fff;
     border-top: 1px solid var(--line);
     box-shadow: 0 -8px 24px rgba(13, 27, 42, 0.12);
+    /* Standard verstoppt — gëtt nëmme beim No-uewe-Scrollen agefuer (siehe script.js) */
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: transform;
+  }
+  .mobile-contact.show {
+    transform: translateY(0);
   }
   .mobile-contact a {
     display: flex;
@@ -1994,9 +1998,13 @@ a.ci-value:hover {
     color: #fff;
   }
   .back-to-top {
-    bottom: 76px;
+    bottom: 20px;
   }
-  /* Op Handy ass d'Sticky-Bar (Termin/Uruffen) ëmmer sichtbar — de schwebenden
+  /* Wann d'Kontaktbar grad agefuer ass, de Feil dréizéi iwwer d'Bar */
+  body:has(.mobile-contact.show) .back-to-top {
+    bottom: 92px;
+  }
+  /* Op Handy iwwerhëlt d'Kontaktbar (Termin/Uruffen) d'Roll — de schwebenden
      Termin-Knäpp wier redondant a géif souwisou hannert der Bar leien */
   .fab-termin {
     display: none !important;
@@ -5422,6 +5430,7 @@ html.shop-dev .shop-add:hover {
   .hero h1,
   .hero .lead,
   .hero-actions { animation: none; }
+  .mobile-contact { transition: none; }
 }
 
 /* === Shop-Produktkaarten mat richtege REMUS-Biller (Bundles-Katalog) === */

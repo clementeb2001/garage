@@ -947,6 +947,36 @@
     });
   }
 
+  /* Mobile-Kontaktbar: nëmme beim No-uewe-Scrollen afueren (net ëmmer fix) */
+  var mBar = document.querySelector(".mobile-contact");
+  if (mBar) {
+    var mLastY = window.pageYOffset || 0;
+    var mTick = false;
+    window.addEventListener(
+      "scroll",
+      function () {
+        if (mTick) return;
+        mTick = true;
+        window.requestAnimationFrame(function () {
+          var y = window.pageYOffset || 0;
+          if (y <= 240) {
+            // Uewen (Hero-Beräich): Bar verstoppen — do sinn d'CTAs souwisou do.
+            mBar.classList.remove("show");
+          } else if (y < mLastY - 5) {
+            // No uewen scrollen: Bar weisen.
+            mBar.classList.add("show");
+          } else if (y > mLastY + 5) {
+            // No ënnen scrollen: Bar verstoppen.
+            mBar.classList.remove("show");
+          }
+          mLastY = y;
+          mTick = false;
+        });
+      },
+      { passive: true },
+    );
+  }
+
   /* Reveal beim Scrollen */
   var revealTargets = document.querySelectorAll(
     ".card, .feature, .about-content, .about-media, .section-head, .hours-content, .hours-table, .contact-info, .contact-form",
