@@ -758,3 +758,30 @@
     if (opt) { opt.selected = true; sel.dispatchEvent(new Event("change", { bubbles: true })); }
   });
 })();
+
+/* Schwebender Termin-Button (nëmmen op der Startsäit mat Buchungssektioun) */
+(function () {
+  function ready(fn) { if (document.readyState !== "loading") fn(); else document.addEventListener("DOMContentLoaded", fn); }
+  ready(function () {
+    var target = document.getElementById("kontakt");
+    if (!target || document.querySelector(".fab-termin")) return;
+    var LABELS = { lb: "Rendez-vous", de: "Termin", fr: "Rendez-vous", en: "Appointment" };
+    var l; try { l = localStorage.getItem("gk_lang"); } catch (e) {}
+    if (!LABELS[l]) l = (document.documentElement.lang || "").slice(0, 2);
+    if (!LABELS[l]) l = "lb";
+    var fab = document.createElement("a");
+    fab.href = "#kontakt";
+    fab.className = "fab-termin";
+    fab.setAttribute("aria-label", LABELS[l]);
+    fab.innerHTML = '<span class="fab-ico" aria-hidden="true">📅</span><span class="fab-txt"></span>';
+    fab.querySelector(".fab-txt").textContent = LABELS[l];
+    document.body.appendChild(fab);
+    var nearForm = false;
+    function update() { fab.classList.toggle("show", (window.pageYOffset || 0) > 520 && !nearForm); }
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) { nearForm = entries[0].isIntersecting; update(); }, { rootMargin: "0px 0px -40% 0px" }).observe(target);
+    }
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+  });
+})();

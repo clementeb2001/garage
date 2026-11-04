@@ -2059,7 +2059,7 @@ body {
       rgba(7, 13, 21, 0.48) 100%
     ),
     linear-gradient(0deg, rgba(230, 57, 70, 0.13), rgba(230, 57, 70, 0.13)),
-    url("assets/services/wartung.jpg");
+    url("assets/services/wartung.webp");
   background-size: cover;
   background-position: center 48%;
   transform: scale(1.01);
@@ -2164,7 +2164,7 @@ body {
       rgba(8, 15, 24, 0.88) 58%,
       rgba(8, 15, 24, 0.62)
     ),
-    url("assets/services/diagnose.jpg");
+    url("assets/services/diagnose.webp");
   background-size: cover;
   background-position: center;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -2244,7 +2244,7 @@ body {
     background-image:
       linear-gradient(90deg, rgba(7, 13, 21, 0.94), rgba(7, 13, 21, 0.68)),
       linear-gradient(0deg, rgba(230, 57, 70, 0.12), rgba(230, 57, 70, 0.12)),
-      url("assets/services/wartung.jpg");
+      url("assets/services/wartung.webp");
     background-position: 62% center;
   }
 }
@@ -2708,7 +2708,7 @@ body {
       rgba(7, 13, 21, 0.72) 100%
     ),
     linear-gradient(0deg, rgba(255, 138, 61, 0.1), rgba(255, 138, 61, 0.1)),
-    url("assets/services/bremsen.jpg");
+    url("assets/services/bremsen.webp");
   background-size: cover;
   background-position: center 42%;
 }
@@ -3586,7 +3586,7 @@ html.shop-dev .shop-dev-badge a {
       rgba(7, 13, 21, 0.64) 74%,
       rgba(7, 13, 21, 0.74) 100%
     ),
-    url("assets/services/reifen.jpg");
+    url("assets/services/reifen.webp");
   background-size: cover;
   background-position: center 45%;
 }
@@ -6461,7 +6461,7 @@ html.shop-dev .shop-hero-bg {
   background-image:
     linear-gradient(90deg, rgba(5,8,12,.99) 0%, rgba(5,8,12,.94) 48%, rgba(8,12,18,.64) 76%, rgba(22,0,3,.72) 100%),
     radial-gradient(circle at 87% 13%, rgba(225,16,35,.48), transparent 33%),
-    url("assets/services/bremsen.jpg");
+    url("assets/services/bremsen.webp");
   background-position: center 52%;
   filter: saturate(.9) contrast(1.08);
 }
@@ -6637,7 +6637,7 @@ html.shop-dev .shop-hero-bg {
   background-image:
     linear-gradient(90deg, rgba(6,12,19,.99) 0%, rgba(8,16,25,.95) 47%, rgba(13,27,42,.7) 76%, rgba(104,48,12,.64) 100%),
     radial-gradient(circle at 87% 13%, rgba(255,138,61,.5), transparent 35%),
-    url("assets/services/bremsen.jpg");
+    url("assets/services/bremsen.webp");
 }
 html.shop-dev .shop-hero .eyebrow.light,
 .shop-proof-kicker,
@@ -6817,3 +6817,33 @@ html.shop-dev .combo-opt.active { background: var(--shop-copper); }
 }
 /* Service-Karten déi e Flyer opmaachen (Button amplaz Link) */
 .cards .card button.card-cover{background:none;border:none;padding:0;width:100%;height:100%;cursor:pointer;}
+
+/* Schwebender Termin-Button (Startseite) — schneller Weg zur Buchung */
+.fab-termin {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: var(--accent, #e63946);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  line-height: 1;
+  text-decoration: none;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.15s ease;
+}
+.fab-termin.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.fab-termin:hover { background: var(--accent-dark, #c92c39); }
+.fab-termin:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.fab-termin .fab-ico { font-size: 1.05em; }
+@media (prefers-reduced-motion: reduce) { .fab-termin { transition: opacity 0.2s ease; transform: none; } }
+@media print { .fab-termin { display: none; } }
