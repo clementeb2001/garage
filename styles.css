@@ -344,6 +344,27 @@ h4 {
   border-color: #fff;
   background: rgba(255, 255, 255, 0.06);
 }
+/* Hero-CTAs: op Desktop onverännert (Wrapper verschwënnt via display:contents) */
+.hero-actions-sub { display: contents; }
+@media (max-width: 560px) {
+  /* Mobil: Primär-CTA (Rendez-vous) voll breet, Locatioun + Shop an enger 2er-Zeil dorënner */
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions > .btn-primary { width: 100%; }
+  .hero-actions-sub {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .hero-actions-sub .btn {
+    width: 100%;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 0.9rem;
+    line-height: 1.15;
+    white-space: normal;
+    text-align: center;
+  }
+}
 
 .hero-badges {
   list-style: none;
