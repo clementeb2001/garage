@@ -17,7 +17,7 @@
         time_any: "Egal",
         time_am: "Moies",
         time_pm: "Nomëttes",
-        vin: "Chassisnummer (VIN)",
+        vin: "Chassisnummer (VIN) – fräiwëlleg",
         vin_ph: "z. B. WVWZZZ…",
         privacy: "Ech hunn d'Dateschutzerklärung zur Kenntnis geholl.",
         rate: "Ze vill Ufroen a kuerzer Zäit. Probéiert et w.e.g. méi spéit nach eng Kéier.",
@@ -109,7 +109,7 @@
         time_any: "Egal",
         time_am: "Vormittag",
         time_pm: "Nachmittag",
-        vin: "Fahrgestellnummer (VIN)",
+        vin: "Fahrgestellnummer (VIN) – optional",
         vin_ph: "z. B. WVWZZZ…",
         privacy: "Ich habe die Datenschutzerklärung zur Kenntnis genommen.",
         rate: "Zu viele Anfragen in kurzer Zeit. Bitte versuchen Sie es später erneut.",
@@ -200,7 +200,7 @@
         time_any: "Peu importe",
         time_am: "Matin",
         time_pm: "Après-midi",
-        vin: "Numéro de châssis (VIN)",
+        vin: "Numéro de châssis (VIN) – optionnel",
         vin_ph: "p. ex. VF1…",
         privacy: "J'ai pris connaissance de la politique de confidentialité.",
         rate: "Trop de demandes en peu de temps. Veuillez réessayer plus tard.",
@@ -292,7 +292,7 @@
         time_any: "Any",
         time_am: "Morning",
         time_pm: "Afternoon",
-        vin: "Chassis number (VIN)",
+        vin: "Chassis number (VIN) – optional",
         vin_ph: "e.g. WVWZZZ…",
         privacy: "I have read and acknowledged the privacy policy.",
         rate: "Too many requests in a short time. Please try again later.",
@@ -520,11 +520,10 @@
     if (!vehicle) missing.push(nm.vehicle);
     mark("preferred-date", !preferredDate);
     if (!preferredDate) missing.push(nm.preferred_date);
-    if (vinUnknown) {
+    if (vinUnknown || !vin) {
+      // VIN ass fräiwëlleg: eidelt Feld ass ok. Nëmmen wann eppes aginn ass,
+      // muss et eng gülteg 17-Zeechen-VIN sinn.
       mark("vin", false);
-    } else if (!vin) {
-      mark("vin", true);
-      missing.push(nm.vin);
     } else if (!vinOk) {
       mark("vin", true);
       missing.push(nm.vin_bad);
