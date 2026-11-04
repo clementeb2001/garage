@@ -19,7 +19,7 @@
 
   var blocks = {}, workdays=[1,2,3,4,5,6], closedDates=[], month = (function () { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
   var availability = "loading", pendingFetch = null;
-  var STATUS = {lb:{loading:"Verfügbarkeet gëtt gelueden…",error:"Verfügbarkeet net disponibel. Probéiert nach eng Kéier.",retry:"Nach eng Kéier",changed:"Déi gewielten Datumer sinn net méi fräi. Wielt nei."},de:{loading:"Verfügbarkeit wird geladen…",error:"Verfügbarkeit nicht erreichbar. Bitte erneut versuchen.",retry:"Erneut versuchen",changed:"Die gewählten Termine sind nicht mehr frei. Bitte neu wählen."},fr:{loading:"Chargement des disponibilités…",error:"Disponibilités indisponibles. Veuillez réessayer.",retry:"Réessayer",changed:"Les dates choisies ne sont plus libres. Choisissez à nouveau."},en:{loading:"Loading availability…",error:"Availability could not be loaded. Please retry.",retry:"Retry",changed:"The selected dates are no longer available. Please choose again."}};
+  var STATUS = {lb:{loading:"Verfügbarkeet gëtt gelueden…",error:"Live-Verfügbarkeet net erreechbar — wielt e Wonschdatum, mir bestätegen e per Mail.",retry:"Nach eng Kéier",changed:"Déi gewielten Datumer sinn net méi fräi. Wielt nei."},de:{loading:"Verfügbarkeit wird geladen…",error:"Live-Verfügbarkeit nicht erreichbar — wählen Sie ein Wunschdatum, wir bestätigen es per E-Mail.",retry:"Erneut versuchen",changed:"Die gewählten Termine sind nicht mehr frei. Bitte neu wählen."},fr:{loading:"Chargement des disponibilités…",error:"Disponibilités en direct indisponibles — choisissez une date, nous confirmons par e-mail.",retry:"Réessayer",changed:"Les dates choisies ne sont plus libres. Choisissez à nouveau."},en:{loading:"Loading availability…",error:"Live availability unavailable — pick a date, we'll confirm by email.",retry:"Retry",changed:"The selected dates are no longer available. Please choose again."}};
   var prefIso = "", altIso = "", active = "pref";
   var root, dateInput, altInput, wtime, amOpt, pmOpt, gridEl, monthEl, wkEl, titleEl, helpEl, legEl, hintEl, targetsEl;
 
@@ -29,7 +29,7 @@
     var iso = isoDay(date);
     var past = date < today, sunday = workdays.indexOf(date.getDay()) === -1, closed = isB(iso, "closed") || closedDates.indexOf(iso)!==-1;
     var am = isB(iso, "am"), pm = isB(iso, "pm");
-    var grey = availability !== "ready" || past || sunday || closed;
+    var grey = availability === "loading" || past || sunday || closed;
     var busy = !grey && am && pm;
     return { iso: iso, past: past, sunday: sunday, closed: closed, am: am, pm: pm, grey: grey, busy: busy, selectable: !grey && !busy };
   }
@@ -154,7 +154,7 @@
     if (altInput) altInput.value = altIso;
   }
   function updateSlots() {
-    var am = availability !== "ready" || (prefIso ? isB(prefIso, "am") : false), pm = availability !== "ready" || (prefIso ? isB(prefIso, "pm") : false);
+    var am = availability === "loading" || (prefIso ? isB(prefIso, "am") : false), pm = availability === "loading" || (prefIso ? isB(prefIso, "pm") : false);
     if (amOpt) amOpt.disabled = am; if (pmOpt) pmOpt.disabled = pm;
     if (wtime) {
       var sel = wtime.options[wtime.selectedIndex];
@@ -207,7 +207,10 @@
       var slot = wtime && wtime.options[wtime.selectedIndex];
       var part = slot && slot.getAttribute("data-slot");
       var blocked = [prefIso, altIso].filter(Boolean).some(function (iso) { return part && isB(iso, part); });
-      return availability === "ready" && selectable(prefIso) && !blocked;
+      // "loading" blockéiert (nach op Donnéeën waarden); "ready" an "error"
+      // erlaben d'Ofschécken — am Feeler-Fall mécht de Server déi final
+      // Verfügbarkeets-Kontroll (Fallback, soudass en Ausfall net alles späert).
+      return availability !== "loading" && selectable(prefIso) && !blocked;
     },
     message: function () { var t = STATUS[lng()] || STATUS.lb; return availability === "ready" ? t.changed : t[availability]; },
     refresh: fetchBlocks

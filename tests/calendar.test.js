@@ -31,10 +31,18 @@ function calendar(fetch){
   if (document.readyState !== "loading") init();`);
  const ctx={document:{readyState:'loading',addEventListener(){}},window:{},Date,Event,AbortController,setTimeout,clearTimeout,fetch};vm.createContext(ctx);vm.runInContext(s,ctx);ctx.probe.setup();return ctx;
 }
-test('loading, HTTP failure and malformed availability never show free days',async()=>{
+test('loading shows no free days; after an availability failure it falls back to selectable weekdays',async()=>{
  for(const result of [{ok:false},{ok:true,json:async()=>({})}]){
- const ctx=calendar(async()=>result);assert.equal(ctx.probe.dayInfo(new Date(2030,0,7)).selectable,false);
- await ctx.probe.fetchBlocks();assert.equal(ctx.probe.dayInfo(new Date(2030,0,7)).selectable,false);ctx.probe.selectDay('2030-01-07');assert.equal(ctx.probe.input(),'');}
+ const ctx=calendar(async()=>result);
+ // Während des Ladens: keine Tage wählbar (auf Daten warten).
+ assert.equal(ctx.probe.dayInfo(new Date(2030,0,7)).selectable,false);
+ await ctx.probe.fetchBlocks();
+ // Fallback nach HTTP-Fehler/kaputter Antwort: Werktag wählbar, Auswahl landet im
+ // Datumsfeld; die finale Verfügbarkeitsprüfung macht der Server (2030-01-07 = Montag).
+ assert.equal(ctx.probe.dayInfo(new Date(2030,0,7)).selectable,true);
+ ctx.probe.selectDay('2030-01-07');assert.equal(ctx.probe.input(),'2030-01-07');
+ // Sonntag bleibt auch im Fallback gesperrt (2030-01-06 = Sonntag).
+ assert.equal(ctx.probe.dayInfo(new Date(2030,0,6)).selectable,false);}
 });
 test('refresh clears a selected date that has become closed, and permits recovery after an error',async()=>{
  let result={ok:true,json:async()=>({blocks:[]})};const ctx=calendar(async()=>result);
