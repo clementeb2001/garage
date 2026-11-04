@@ -160,6 +160,7 @@
       f_ok: "Merci, {name}! Är Rendez-vous-Ufro ass ukomm.",
       mobile_call: "Uruffen",
       mobile_email: "E-Mail",
+      mobile_appt: "Termin",
       footer_tagline:
         "Är modern Autosgarage fir Entretien, Reparatur a Service – éierlech an zouverlässeg.",
       footer_partner: "Partner vu 1·2·3 AutoService",
@@ -324,6 +325,7 @@
       f_ok: "Danke, {name}! Ihre Terminanfrage ist angekommen.",
       mobile_call: "Anrufen",
       mobile_email: "E-Mail",
+      mobile_appt: "Termin",
       footer_tagline:
         "Ihre moderne Autowerkstatt für Wartung, Reparatur und Service – ehrlich und zuverlässig.",
       footer_partner: "Partner von 1·2·3 AutoService",
@@ -486,6 +488,7 @@
       f_ok: "Merci, {name} ! Votre demande de rendez-vous a bien été envoyée.",
       mobile_call: "Appeler",
       mobile_email: "E-mail",
+      mobile_appt: "Rendez-vous",
       footer_tagline:
         "Votre garage automobile moderne pour l’entretien, la réparation et le service – honnête et fiable.",
       footer_partner: "Partenaire 1·2·3 AutoService",
@@ -646,6 +649,7 @@
       f_ok: "Thank you, {name}! Your appointment request has been sent.",
       mobile_call: "Call",
       mobile_email: "Email",
+      mobile_appt: "Appointment",
       footer_tagline:
         "Your modern car garage for maintenance, repair and service – honest and reliable.",
       footer_partner: "Partner of 1·2·3 AutoService",
