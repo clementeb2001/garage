@@ -840,8 +840,12 @@
       cta.className = "nav-cta-mini";
       cta.href = "index.html#kontakt";
       var ico = document.createElement("span");
+      ico.className = "mk-cal";
       ico.setAttribute("aria-hidden", "true");
-      ico.textContent = "📅";
+      var calDay = document.createElement("span");
+      calDay.className = "mk-cal-day";
+      calDay.textContent = String(new Date().getDate());
+      ico.appendChild(calDay);
       var label = document.createElement("span");
       label.setAttribute("data-i18n", "mobile_appt");
       label.textContent = "Termin";

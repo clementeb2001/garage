@@ -6881,3 +6881,37 @@ html.shop-dev .combo-opt.active { background: var(--shop-copper); }
 @media (max-width: 360px) {
   .nav-cta-mini { padding: 9px 12px; font-size: 0.86rem; }
 }
+
+/* Mini-Kalenner-Icon mat dynamescher Dagzuel (Header-Termin-Knäpp + Desktop-Fab) */
+.mk-cal {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+.mk-cal::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--accent-dark, #c92c39);
+}
+.mk-cal-day {
+  position: relative;
+  margin-top: 4px;
+  font-family: var(--font-head, system-ui, sans-serif);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.3px;
+  color: #16202b;
+}

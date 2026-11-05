@@ -773,7 +773,8 @@
     fab.href = "#kontakt";
     fab.className = "fab-termin";
     fab.setAttribute("aria-label", LABELS[l]);
-    fab.innerHTML = '<span class="fab-ico" aria-hidden="true">📅</span><span class="fab-txt"></span>';
+    fab.innerHTML = '<span class="mk-cal" aria-hidden="true"><span class="mk-cal-day"></span></span><span class="fab-txt"></span>';
+    fab.querySelector(".mk-cal-day").textContent = String(new Date().getDate());
     fab.querySelector(".fab-txt").textContent = LABELS[l];
     document.body.appendChild(fab);
     var nearForm = false;
