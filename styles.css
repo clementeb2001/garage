@@ -1964,48 +1964,12 @@ a.ci-value:hover {
     max-width: 100%;
     overflow-wrap: anywhere;
   }
-  .mobile-contact {
-    position: fixed;
-    z-index: 120;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #fff;
-    border-top: 1px solid var(--line);
-    box-shadow: 0 -8px 24px rgba(13, 27, 42, 0.12);
-    /* Standard verstoppt — gëtt nëmme beim No-uewe-Scrollen agefuer (siehe script.js) */
-    transform: translateY(100%);
-    transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
-    will-change: transform;
-  }
-  .mobile-contact.show {
-    transform: translateY(0);
-  }
-  .mobile-contact a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 58px;
-    font-family: var(--font-head);
-    font-weight: 700;
-    color: var(--navy-900);
-  }
-  .mobile-contact a:first-child {
-    background: var(--accent);
-    color: #fff;
-  }
+  /* Ënnescht Bar ewech — Termin sëtzt elo uewen am Header (.nav-cta-mini) */
   .back-to-top {
     bottom: 20px;
   }
-  /* Wann d'Kontaktbar grad agefuer ass, de Feil dréizéi iwwer d'Bar */
-  body:has(.mobile-contact.show) .back-to-top {
-    bottom: 92px;
-  }
-  /* Op Handy iwwerhëlt d'Kontaktbar (Termin/Uruffen) d'Roll — de schwebenden
-     Termin-Knäpp wier redondant a géif souwisou hannert der Bar leien */
+  /* Op Handy iwwerhëlt den Termin-Knäpp uewen am Header d'Roll;
+     de schwebenden Desktop-Fab wier redondant */
   .fab-termin {
     display: none !important;
   }
@@ -5430,7 +5394,6 @@ html.shop-dev .shop-add:hover {
   .hero h1,
   .hero .lead,
   .hero-actions { animation: none; }
-  .mobile-contact { transition: none; }
 }
 
 /* === Shop-Produktkaarten mat richtege REMUS-Biller (Bundles-Katalog) === */
@@ -6886,3 +6849,35 @@ html.shop-dev .combo-opt.active { background: var(--shop-copper); }
 .fab-termin .fab-ico { font-size: 1.05em; }
 @media (prefers-reduced-motion: reduce) { .fab-termin { transition: opacity 0.2s ease; transform: none; } }
 @media print { .fab-termin { display: none; } }
+
+/* ============================================================
+   Kompakte "Termin"-Knäpp uewen am Header — nëmme Mobil/Tablet
+   (wann den Hamburger do ass a .header-actions verstoppt ass).
+   Gëtt vu script.js agesat; ersetzt déi fréier ënnescht Bar.
+   ============================================================ */
+.nav-cta-mini { display: none; }
+@media (max-width: 980px) {
+  .nav-cta-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    padding: 9px 15px;
+    min-height: 40px;
+    border-radius: 999px;
+    background: var(--accent, #e63946);
+    color: #fff;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 0.92rem;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(230, 57, 70, 0.32);
+  }
+  .nav-cta-mini:hover { background: var(--accent-dark, #c92c39); }
+  .nav-cta-mini:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+}
+@media (max-width: 360px) {
+  .nav-cta-mini { padding: 9px 12px; font-size: 0.86rem; }
+}
