@@ -413,10 +413,10 @@
       .mobile-nav-toggle { display:none; }
 
       @media (max-width:900px) {
-        .admin-mainbar { margin-left:0; min-height:58px; padding:8px 12px; top:0; }
+        .admin-mainbar { margin-left:0; min-height:58px; padding:calc(8px + env(safe-area-inset-top)) 12px 8px; top:0; }
         .admin-search { min-width:0; width:44px; overflow:hidden; white-space:nowrap; color:transparent; padding:9px 11px; }
         .admin-search kbd { display:none; }
-        .mobile-nav-toggle { display:inline-flex; }
+        .mobile-nav-toggle { display:inline-flex; align-items:center; justify-content:center; min-width:44px; min-height:44px; padding:0; font-size:1.25rem; line-height:1; }
         .topbar { transform:translateX(-105%); transition:transform .2s ease; width:min(286px,86vw); padding-top:calc(18px + env(safe-area-inset-top)); box-shadow:18px 0 45px rgba(0,0,0,.35); }
         body.nav-open .topbar { transform:translateX(0); }
         body.nav-open::after { content:""; position:fixed; z-index:30; inset:0; background:rgba(3,12,22,.55); }
