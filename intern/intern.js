@@ -221,6 +221,9 @@
   document.querySelectorAll("#topnav button").forEach(function (b) { b.addEventListener("click", function () { gotoPage(b.getAttribute("data-page")); }); });
   document.querySelectorAll("[data-goto]").forEach(function (b) { b.addEventListener("click", function () { gotoPage(b.getAttribute("data-goto")); }); });
   if ($("mobile-nav-toggle")) $("mobile-nav-toggle").addEventListener("click",function(){document.body.classList.toggle("nav-open");});
+  // Menü-Drawer zoumaachen: Tipp op den donkelen Hannergrond (nieft dem Menü) oder Escape.
+  document.addEventListener("click",function(e){ if(!document.body.classList.contains("nav-open"))return; if(e.target.closest(".topbar")||e.target.closest("#mobile-nav-toggle"))return; document.body.classList.remove("nav-open"); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&document.body.classList.contains("nav-open"))document.body.classList.remove("nav-open"); });
   if ($("admin-search")) $("admin-search").addEventListener("click",function(){if ($("btn-search")) $("btn-search").click();});
   if ($("admin-theme")) $("admin-theme").addEventListener("click",function(){if ($("btn-theme")) $("btn-theme").click();});
   var searchEl = $("booking-search"); if (searchEl) searchEl.addEventListener("input", function () { bookingQuery = searchEl.value.trim(); renderBookings(true); });
